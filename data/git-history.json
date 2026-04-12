@@ -1,5 +1,171 @@
 [
   {
+    "hash": "5797ec0ec92b663664fdda7f304e33baeca75205",
+    "date": "2026-04-12T13:19:00+07:00",
+    "message": "feat(ProxyDB): add method to find MySQL schema file for improved database setup",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "ac34d1c482c6e083dc271d81b2c7b7ab4a4d33a4",
+    "date": "2026-04-12T13:17:13+07:00",
+    "message": "feat(blacklist,crontab): add blacklist remover and Python blacklist helpers\n\n- Add `artisan/blacklist_remover.py` to remove blacklisted proxies from the DB.\n- Add `src/blacklist/blacklist.py` with `get_blacklist()` and `is_blacklist()` helpers (CIDR expansion, IPv4/IPv6 parsing).\n- Update `.crontab.sh` to use `$PYTHON_BIN` and schedule blacklist cleanup (24h job).\n- Add IDE run configuration `.idea/runConfigurations/Blacklist_remover.xml`.\n\nNotes: improves blacklist management and automates periodic cleanup.",
+    "files": [
+      ".crontab.sh",
+      ".idea/runConfigurations/Blacklist_remover.xml",
+      "artisan/blacklist_remover.py",
+      "src/blacklist/blacklist.py"
+    ]
+  },
+  {
+    "hash": "1ca1ae3e0d921e76cd8a37e3ce83558b9a4911f6",
+    "date": "2026-04-10T16:50:45+07:00",
+    "message": "feat: replace Jetpack Compose with WebView and ProgressBar in MainActivity\n\n* Remove Jetpack Compose dependencies and UI code\n* Implement a `LinearLayout` container with a `WebView` and `ProgressBar`\n* Configure `WebView` with JavaScript and DOM storage enabled\n* Add connectivity status UI using standard Android Views\n* Handle window insets for edge-to-edge display using `ViewCompat`",
+    "files": [
+      "android_app/connectivitytest/src/main/java/com/dimaslanjaka/connectivitytest/MainActivity.kt"
+    ]
+  },
+  {
+    "hash": "8b57c46a0e27ee2b085fabee2fc0492706e58ce6",
+    "date": "2026-04-10T16:45:06+07:00",
+    "message": "feat: add MySQL backend support with automatic fallback to SQLite\n\n- Implement asynchronous backend initialization with MySQL reachability check\n- Add logic to switch between SQLite and MySQL based on connectivity\n- Ensure local SQLite is always used for proxy results history\n- Update `ProxyManager` to handle initialization states and background execution\n- Refactor database access to use internal `_localDb` reference safely",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyManager.kt"
+    ]
+  },
+  {
+    "hash": "c84a304def8cefd408105dfc71fa81eb0ea76447",
+    "date": "2026-04-10T16:05:05+07:00",
+    "message": "feat: improve proxy type filtering and database logging\n\n* Replace dynamic proxy type fetching with a static predefined list of options (HTTP, SOCKS4, SOCKS5, SOCKS4A, SOCKS5H, SSL).\n* Improve proxy type filtering logic for both SQLite and MySQL to handle delimited strings and avoid partial matches (e.g., distinguishing SOCKS4 from SOCKS4A).\n* Refactor database query and update methods to include operation names for better logging and debugging.\n* Update SSL filtering to use case-insensitive COALESCE for better reliability.",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/WorkingProxyListActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyDB.kt"
+    ]
+  },
+  {
+    "hash": "aa467f56d0320fbb6a4c5c52d61a51f2290a2261",
+    "date": "2026-04-10T15:45:53+07:00",
+    "message": "feat: implement automated connectivity testing for VPN\n\n* Add `connectivitytest` module to perform HTTP probes after VPN connection\n* Integrate connectivity test triggering in `WorkingProxyListActivity`\n* Implement notification results for VPN connectivity status\n* Add callback support to `Tun2SocksVpnStarter` for post-start actions",
+    "files": [
+      "android_app/.run/WorkingProxyListActivity.run.xml",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/WorkingProxyListActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/Tun2SocksVpnStarter.kt",
+      "android_app/connectivitytest/.gitignore",
+      "android_app/connectivitytest/build.gradle.kts",
+      "android_app/connectivitytest/proguard-rules.pro",
+      "android_app/connectivitytest/src/androidTest/java/com/dimaslanjaka/connectivitytest/ExampleInstrumentedTest.kt",
+      "android_app/connectivitytest/src/main/AndroidManifest.xml",
+      "android_app/connectivitytest/src/main/java/com/dimaslanjaka/connectivitytest/MainActivity.kt",
+      "android_app/connectivitytest/src/main/java/com/dimaslanjaka/connectivitytest/ui/theme/Color.kt",
+      "android_app/connectivitytest/src/main/java/com/dimaslanjaka/connectivitytest/ui/theme/Theme.kt",
+      "android_app/connectivitytest/src/main/java/com/dimaslanjaka/connectivitytest/ui/theme/Type.kt",
+      "android_app/connectivitytest/src/main/res/drawable/ic_launcher_background.xml",
+      "android_app/connectivitytest/src/main/res/drawable/ic_launcher_foreground.xml",
+      "android_app/connectivitytest/src/main/res/mipmap-anydpi-v26/ic_launcher.xml",
+      "android_app/connectivitytest/src/main/res/mipmap-anydpi-v26/ic_launcher_round.xml",
+      "android_app/connectivitytest/src/main/res/mipmap-hdpi/ic_launcher.webp",
+      "android_app/connectivitytest/src/main/res/mipmap-hdpi/ic_launcher_round.webp",
+      "android_app/connectivitytest/src/main/res/mipmap-mdpi/ic_launcher.webp",
+      "android_app/connectivitytest/src/main/res/mipmap-mdpi/ic_launcher_round.webp",
+      "android_app/connectivitytest/src/main/res/mipmap-xhdpi/ic_launcher.webp",
+      "android_app/connectivitytest/src/main/res/mipmap-xhdpi/ic_launcher_round.webp",
+      "android_app/connectivitytest/src/main/res/mipmap-xxhdpi/ic_launcher.webp",
+      "android_app/connectivitytest/src/main/res/mipmap-xxhdpi/ic_launcher_round.webp",
+      "android_app/connectivitytest/src/main/res/mipmap-xxxhdpi/ic_launcher.webp",
+      "android_app/connectivitytest/src/main/res/mipmap-xxxhdpi/ic_launcher_round.webp",
+      "android_app/connectivitytest/src/main/res/values/colors.xml",
+      "android_app/connectivitytest/src/main/res/values/strings.xml",
+      "android_app/connectivitytest/src/main/res/values/themes.xml",
+      "android_app/connectivitytest/src/test/java/com/dimaslanjaka/connectivitytest/ExampleUnitTest.kt",
+      "android_app/settings.gradle.kts"
+    ]
+  },
+  {
+    "hash": "dcbafa833f8cb825fade01a046fb3517fdff918e",
+    "date": "2026-04-10T15:26:25+07:00",
+    "message": "refactor: consolidate service management and enhance proxy checker UI\n\n- Introduce `AutoCheckStarter` to centralize background service initialization logic across `BootReceiver`, `MainActivity`, and `ProxyHunterApp`.\n- Create `ProxyCheckerServiceStarter` and `ProxyCheckerServiceOptions` to manage multiple proxy checking services (`ProxyCheckService`, `Tun2socksCompatibilityTestService`, `CheckerHttpService`).\n- Refactor `ProxyCheckerActivity` with a more robust UI:\n    - Added collapsible sections for \"Proxy Input\" and \"Checker Options\".\n    - Introduced new configuration toggles for UDP/DNS requirements and strict checking.\n    - Improved real-time sync with `ProxyManager` to track which specific service is checking a proxy.\n    - Enhanced result list with service-specific progress indicators.\n- Remove redundant `ProxyManager.initialize` calls from various activities and services, relying on the central initialization in `ProxyHunterApp`.",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/AutoCheckStarter.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/MainActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/ProxyCheckerActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/ProxyHunterApp.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/WorkingProxyListActivity.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/receiver/BootReceiver.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/CheckerHttpService.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/ProxyCheckService.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/ProxyCheckerServiceStarter.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/Tun2socksCompatibilityTestService.kt"
+    ]
+  },
+  {
+    "hash": "e61a089f4caa0049d7c394389cce60928f89f2e0",
+    "date": "2026-04-10T15:25:13+07:00",
+    "message": "feat: exclude Night Crows Global from VPN tunnel",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/Tun2SocksVpnService.kt"
+    ]
+  },
+  {
+    "hash": "9b73ae061d1addf9f1bae5ff6aa06f919fbbd0f3",
+    "date": "2026-04-10T14:58:16+07:00",
+    "message": "fix: update `ProxyCheckService` to comply with Android 12+ foreground requirements\n\n- Add `FOREGROUND_SERVICE_TYPE_SPECIAL_USE` for Android Q+ in `startForeground`.\n- Update `ProxyManager` calls to include `SERVICE_NAME` for tracking running status and checking state.\n- Rename `ProxyChecker.CheckResult` to `ProxyChecker.Result`.\n- Refactor proxy state management using `setCheckingProxy` and `clearCheckingProxy`.",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/ProxyCheckService.kt"
+    ]
+  },
+  {
+    "hash": "c03d32e06b5ee383dc786f36cacbd4db3207d7b6",
+    "date": "2026-04-10T14:56:19+07:00",
+    "message": "refactor: initialize ProxyManager in CheckerHttpService onCreate",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/CheckerHttpService.kt"
+    ]
+  },
+  {
+    "hash": "65849b6231f33a92a8f39261b8b992bc0802982d",
+    "date": "2026-04-10T14:43:09+07:00",
+    "message": "refactor: rename CheckResult to Result in ProxyChecker",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/checker/ProxyChecker.kt"
+    ]
+  },
+  {
+    "hash": "d5dac95903501539635f215b4098eb4d1ea9f2c1",
+    "date": "2026-04-10T14:42:02+07:00",
+    "message": "feat: enhance ProxyManager to track multiple running services and their active proxies\n\n* Replace single `currentProxyFlow` with `checkingProxiesFlow` map to track multiple concurrent checks\n* Introduce `runningServices` set to manage the state of multiple background services\n* Add `setRunning`, `stopAllServices`, `setCheckingProxy`, and `clearCheckingProxy` to handle multi-service lifecycle and proxy status updates",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyManager.kt"
+    ]
+  },
+  {
+    "hash": "a28113e8f132b97c46c5f26a66ce380fbdd44c5d",
+    "date": "2026-04-10T14:41:27+07:00",
+    "message": "feat: add HTTP proxy checker and testing services\n\n* Implement `CheckerHttp` for TCP, HTTP, and HTTPS proxy validation with concurrency support\n* Add `CheckerHttpService` as a foreground service for real-time proxy scanning\n* Register `CheckerHttpService` and `Tun2socksCompatibilityTestService` in the manifest with `specialUse` foreground service types",
+    "files": [
+      "android_app/app/src/main/AndroidManifest.xml",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/checker/CheckerHttp.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/CheckerHttpService.kt"
+    ]
+  },
+  {
+    "hash": "883478f606d0c426c1bfa1a361913c0b46c04c2a",
+    "date": "2026-04-10T14:40:09+07:00",
+    "message": "feat: add Tun2socksCompatibilityTestService for proxy compatibility testing",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/service/Tun2socksCompatibilityTestService.kt"
+    ]
+  },
+  {
+    "hash": "cc7335a9bb9d55e9449b6519cc739c92eb3667f8",
+    "date": "2026-04-10T07:56:44+07:00",
+    "message": "feat: add SQLite support and database migration to ProxyDB and ProxyManager\n\n- Update `ProxyDB` to support both MySQL and SQLite backends with specialized query handling for each.\n- Implement database schema initialization and migrations in `ProxyManager` for `proxies` and `proxy_results` tables.\n- Refactor `ProxyDB` to use a thread pool executor for asynchronous database operations.\n- Add helper methods for common SQL operations (RAND, NOW, INSERT IGNORE) that adapt based on the active database type.\n- Enhance result logging to include detailed connectivity metrics (HTTP, TCP, SSL, latency).\n- Update `ProxyManager` to handle proxy status updates and results using both `ProxyChecker.Result` and `CheckerHttp.Result`.",
+    "files": [
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyDB.kt",
+      "android_app/app/src/main/java/com/dimaslanjaka/proxyhunter/data/ProxyManager.kt"
+    ]
+  },
+  {
     "hash": "deac5db660e5a58d7c420cb52b36ec27add4331c",
     "date": "2026-03-24T06:56:41+07:00",
     "message": "fix(mysql): auto-reconnect and retry queries on idle disconnects\n\nAdd resilient MySQL execution handling to recover from server-side inactivity timeouts\n(e.g. error 4031) and other common disconnect scenarios.\n\n- add `DISCONNECT_ERRNOS` for known connection-loss codes\n- add `_is_disconnect_error`, `_reconnect`, `_reset_cursor`, and `_execute_with_retry`\n- route CRUD and utility query paths through retry wrapper\n- update `execute_query_fetch` to safely handle optional cursor cleanup\n- harden `close()` to ignore cleanup exceptions\n\nThis prevents long-running jobs from failing when the MySQL server drops idle clients.",
@@ -8660,117 +8826,6 @@
     "message": "fix: replace 'py' with explicit path to Python executable in installation commands",
     "files": [
       "bin/python-minimal.cmd"
-    ]
-  },
-  {
-    "hash": "b9b4c00b41ece4c8b893dc965b38782df3c0ba35",
-    "date": "2025-10-28T11:49:10+07:00",
-    "message": "fix: ensure pip upgrade command does not fail the script",
-    "files": [
-      "bin/python-minimal"
-    ]
-  },
-  {
-    "hash": "0a8626f324627f0297eff94e2e3de3012ca7bf0a",
-    "date": "2025-10-28T09:36:37+07:00",
-    "message": "fix: update database type selection for GitHub CI environments",
-    "files": [
-      "php_backend/shared.php"
-    ]
-  },
-  {
-    "hash": "ca2bd61dc7f93e739b61e9e4d58901b002e8de93",
-    "date": "2025-10-28T09:34:05+07:00",
-    "message": "refactor: extract GitHub environment detection into dedicated functions\n\n- Add is_github_codespaces() and is_github_ci() functions with PHPDoc\n- Refactor is_debug() to use the new functions instead of inline checks\n- Improve code reusability and maintainability",
-    "files": [
-      "src/database/env.php"
-    ]
-  },
-  {
-    "hash": "30e0f6cef6ea6e6a87f776e1cfc8754ccfb30757",
-    "date": "2025-10-28T07:49:25+07:00",
-    "message": "feat: enable dynamic database type selection for CI environments\n\n- Add $dbType variable to conditionally use 'sqlite' in debug mode (including GitHub CI) or 'mysql' otherwise\n- Update CoreDB constructor to use the dynamic $dbType instead of hardcoded 'mysql'",
-    "files": [
-      "php_backend/shared.php"
-    ]
-  },
-  {
-    "hash": "3c794620711a9f6cff2e5eb508ffdfffbefb6b16",
-    "date": "2025-10-24T15:25:31+07:00",
-    "message": "feat(dependencies): add sharp package version 0.32",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "cc6a9e92a0395fd3e9611d34f09583a2b2c8027b",
-    "date": "2025-10-24T15:24:03+07:00",
-    "message": "fix(dependencies): update i18next to 25.6.0 and react-i18next to 16.1.6",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "32d08bda2fe6b5b8246c4afed198f03e49a1a37e",
-    "date": "2025-10-24T15:00:13+07:00",
-    "message": "feat(scripts): add remote file size check and conditional Composer download\n\n- Introduced `getRemoteFileSize()` to retrieve remote Composer file size via HTTP HEAD request.\n- Updated installer logic to compare local and remote file sizes before downloading.\n- Skips Composer download if the local file matches the remote size.\n- Refactored main installation flow with `downloadAndInstall()` and `createShortcut()` helpers.",
-    "files": [
-      "scripts/composer-installer.js"
-    ]
-  },
-  {
-    "hash": "962f2a5e0eea6270167a12e8002f846047e17f26",
-    "date": "2025-10-24T13:01:26+07:00",
-    "message": "Merge pull request #61 from dimaslanjaka/dependabot/npm_and_yarn/react-i18next-16.0.0\n\nbuild(deps): bump react-i18next from 15.7.4 to 16.0.0",
-    "files": []
-  },
-  {
-    "hash": "d3c17665beb0bb8162d56b91347660d43844b799",
-    "date": "2025-10-24T13:00:20+07:00",
-    "message": "Merge pull request #63 from dimaslanjaka/dependabot/composer/squizlabs/php_codesniffer-tw-3.0or-tw-4.0\n\nbuild(deps-dev): update squizlabs/php_codesniffer requirement from ^3.0 to ^3.0 || ^4.0",
-    "files": []
-  },
-  {
-    "hash": "8ac137efa4e2ba49d08c4056d6d2ed3001833af7",
-    "date": "2025-10-24T12:58:26+07:00",
-    "message": "Merge pull request #62 from dimaslanjaka/dependabot/npm_and_yarn/vite-7.1.7\n\nbuild(deps-dev): bump vite from 7.1.4 to 7.1.7",
-    "files": []
-  },
-  {
-    "hash": "cec7f747218426385c32d4c4b9722a48cd07c8f7",
-    "date": "2025-10-24T12:56:47+07:00",
-    "message": "Merge pull request #59 from dimaslanjaka/dependabot/github_actions/actions/setup-python-6\n\nbuild(deps): bump actions/setup-python from 5 to 6",
-    "files": []
-  },
-  {
-    "hash": "4bf0c56d4ae8cfdf676391aaa5fc0fc8dda4961c",
-    "date": "2025-10-24T12:56:36+07:00",
-    "message": "Merge pull request #58 from dimaslanjaka/dependabot/github_actions/actions/setup-node-5\n\nbuild(deps): bump actions/setup-node from 4 to 5",
-    "files": []
-  },
-  {
-    "hash": "6844fc9ecfea846ce54df683a6704350d282f5d3",
-    "date": "2025-10-24T12:40:30+07:00",
-    "message": "refactor(php_backend/proxy-checker.php): use $proxy_db directly instead of $db alias\n\n- Remove redundant assignment `$db = $proxy_db`.\n- Use global `$proxy_db` in the shutdown handler and `proxyChecker()` instead of `$db`.\n- Replace `$db->updateData(...)` with `$proxy_db->updateData(...)`.\n- Keeps behavior identical while removing an unnecessary variable and clarifying the source of the database object.",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "fc54daf50d6bc8704c3efcf0eb8510e1bef75bb3",
-    "date": "2025-10-24T12:37:29+07:00",
-    "message": "fix(php_backend): standardize and relocate proxy-checker lock file path\n\n- Updated `proxy-checker.php` to use a consistent lock file path under `tmp/locks/user-<id>/php_backend/`.\n- Modified `processes.php` to delete the specific proxy-checker lock file instead of clearing multiple tmp directories.",
-    "files": [
-      "php_backend/processes.php",
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "de8b1c9ce4135f20fda13edff789ebf45cc7da4e",
-    "date": "2025-10-24T12:34:38+07:00",
-    "message": "feat(proxy-list): add fetch processes on mount",
-    "files": [
-      "src/react/pages/ProxyList.tsx"
     ]
   }
 ]
