@@ -67,6 +67,16 @@ try {
   if (isset($request['type'])) {
     $typeFilter = trim((string)$request['type']);
   }
+  // Optional country filter
+  $countryFilter = '';
+  if (isset($request['country'])) {
+    $countryFilter = trim((string)$request['country']);
+  }
+  // Optional city filter
+  $cityFilter = '';
+  if (isset($request['city'])) {
+    $cityFilter = trim((string)$request['city']);
+  }
 
   // Special action: return distinct statuses when requested
   if (isset($request['get_statuses']) && $request['get_statuses']) {
@@ -128,6 +138,16 @@ try {
       $countParams[':type'] = '%' . $typeFilter . '%';
     }
   }
+  if ($countryFilter !== '') {
+    $whereParts[]            = 'country LIKE :country';
+    $escCountry              = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $countryFilter);
+    $countParams[':country'] = '%' . $escCountry . '%';
+  }
+  if ($cityFilter !== '') {
+    $whereParts[]         = 'city LIKE :city';
+    $escCity              = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $cityFilter);
+    $countParams[':city'] = '%' . $escCity . '%';
+  }
   if (!empty($whereParts)) {
     $countSql = 'SELECT COUNT(*) as cnt FROM proxies WHERE ' . implode(' AND ', $whereParts);
     $stmt     = $pdo->prepare($countSql);
@@ -137,8 +157,9 @@ try {
 
   // Fetch rows with pagination and ordering
   // Build SQL query
-  $where  = '';
-  $params = [];
+  $whereParts = [];
+  $where      = '';
+  $params     = [];
   if ($search !== '') {
     $whereParts[] = 'proxy LIKE :search';
     // Escape SQL LIKE wildcard characters to perform literal substring search
@@ -160,6 +181,16 @@ try {
       $whereParts[]    = 'type LIKE :type';
       $params[':type'] = '%' . $typeFilter . '%';
     }
+  }
+  if ($countryFilter !== '') {
+    $whereParts[]       = 'country LIKE :country';
+    $escCountry         = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $countryFilter);
+    $params[':country'] = '%' . $escCountry . '%';
+  }
+  if ($cityFilter !== '') {
+    $whereParts[]    = 'city LIKE :city';
+    $escCity         = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $cityFilter);
+    $params[':city'] = '%' . $escCity . '%';
   }
   if (!empty($whereParts)) {
     $where = 'WHERE ' . implode(' AND ', $whereParts);

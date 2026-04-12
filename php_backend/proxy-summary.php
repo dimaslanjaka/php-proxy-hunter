@@ -12,9 +12,7 @@ Server::allowCors(true);
 
 // Only allow if captcha passed
 if (empty($_SESSION['captcha'])) {
-  http_response_code(403);
-  echo json_encode(['error' => true, 'message' => 'Captcha not verified']);
-  exit;
+  respond_json(['error' => true, 'message' => 'Captcha not verified'], 403);
 }
 
 $refresh = refreshDbConnections();
@@ -24,8 +22,30 @@ $proxy_db = $refresh['proxy_db'];
 header('Content-Type: application/json; charset=utf-8');
 
 try {
+  $pdo = $proxy_db->db->pdo;
+
+  $stmtCountries = $pdo->query("SELECT DISTINCT country FROM proxies
+            WHERE country IS NOT NULL
+              AND TRIM(country) <> ''
+              AND TRIM(country) <> '-'
+              AND UPPER(TRIM(country)) <> 'N/A'
+            ORDER BY country");
+  $countries = $stmtCountries->fetchAll(PDO::FETCH_COLUMN);
+
+  $citiesSql = "SELECT DISTINCT city FROM proxies
+            WHERE city IS NOT NULL
+              AND TRIM(city) <> ''
+              AND TRIM(city) <> '-'
+              AND UPPER(TRIM(city)) <> 'N/A'";
+  $citiesSql .= ' ORDER BY city';
+  $stmtCities = $pdo->prepare($citiesSql);
+  $stmtCities->execute();
+  $cities = $stmtCities->fetchAll(PDO::FETCH_COLUMN);
+
   $response = [
     'error'           => false,
+    'countries'       => $countries,
+    'cities'          => $cities,
     'counter_proxies' => [
       'total_proxies'    => $proxy_db->countAllProxies(),
       'working_proxies'  => $proxy_db->countWorkingProxies(),
@@ -36,8 +56,7 @@ try {
     ],
   ];
 
-  echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+  respond_json($response);
 } catch (Throwable $e) {
-  http_response_code(500);
-  echo json_encode(['error' => $e->getMessage()]);
+  respond_json(['error' => $e->getMessage()], 500);
 }

@@ -35,9 +35,9 @@ export default function UniqueIpList() {
   const [search, setSearch] = React.useState('');
   const [debouncedSearch, setDebouncedSearch] = React.useState('');
   const [countryFilter, setCountryFilter] = React.useState('');
-  const [debouncedCountryFilter, setDebouncedCountryFilter] = React.useState('');
+  const [countries, setCountries] = React.useState<string[]>([]);
   const [cityFilter, setCityFilter] = React.useState('');
-  const [debouncedCityFilter, setDebouncedCityFilter] = React.useState('');
+  const [cities, setCities] = React.useState<string[]>([]);
   const [statusFilter, setStatusFilter] = React.useState('active');
   const [statuses, setStatuses] = React.useState<string[]>(['active']);
   const [typeFilter, setTypeFilter] = React.useState('');
@@ -57,20 +57,6 @@ export default function UniqueIpList() {
     }, 400);
     return () => clearTimeout(timer);
   }, [search]);
-
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedCountryFilter(countryFilter);
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [countryFilter]);
-
-  React.useEffect(() => {
-    const timer = setTimeout(() => {
-      setDebouncedCityFilter(cityFilter);
-    }, 400);
-    return () => clearTimeout(timer);
-  }, [cityFilter]);
 
   const togglePorts = (idx: number) =>
     setExpandedPorts((prev) => {
@@ -101,11 +87,11 @@ export default function UniqueIpList() {
       if (typeFilter) {
         body.append('type', typeFilter);
       }
-      if (debouncedCountryFilter) {
-        body.append('country', debouncedCountryFilter);
+      if (countryFilter) {
+        body.append('country', countryFilter);
       }
-      if (debouncedCityFilter) {
-        body.append('city', debouncedCityFilter);
+      if (cityFilter) {
+        body.append('city', cityFilter);
       }
 
       const res = await fetch(createUrl('/php_backend/proxy-list-unique-ip.php'), {
@@ -143,7 +129,7 @@ export default function UniqueIpList() {
     } finally {
       setLoading(false);
     }
-  }, [page, perPage, debouncedSearch, debouncedCountryFilter, debouncedCityFilter, statusFilter, typeFilter]);
+  }, [page, perPage, debouncedSearch, countryFilter, cityFilter, statusFilter, typeFilter]);
 
   React.useEffect(() => {
     fetchData().catch(noop);
@@ -175,6 +161,36 @@ export default function UniqueIpList() {
       mounted = false;
     };
   }, []);
+
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch(createUrl('/php_backend/proxy-summary.php'), { method: 'POST' });
+        if (!res.ok) {
+          return;
+        }
+        const data = await res.json();
+        if (!mounted) {
+          return;
+        }
+        if (Array.isArray(data.countries)) {
+          setCountries(data.countries.filter(Boolean));
+        }
+        if (Array.isArray(data.cities)) {
+          const nextCities = data.cities.filter(Boolean);
+          setCities(nextCities);
+          setCityFilter((prev) => (prev && !nextCities.includes(prev) ? '' : prev));
+        }
+      } catch (_err) {
+        // ignore
+      }
+    })();
+
+    return () => {
+      mounted = false;
+    };
+  }, [countryFilter]);
 
   // Fetch user info to get UID for background geoIP scheduling
   React.useEffect(() => {
@@ -377,27 +393,36 @@ export default function UniqueIpList() {
               className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
             />
 
-            <input
-              type="search"
+            <select
               value={countryFilter}
               onChange={(e) => {
                 setCountryFilter(e.target.value);
+                setCityFilter('');
                 setPage(1);
               }}
-              placeholder="Country"
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
-            />
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-sm text-slate-900 dark:text-slate-100 [&>option]:bg-white [&>option]:dark:bg-slate-900">
+              <option value="">All countries</option>
+              {countries.map((country) => (
+                <option key={country} value={country}>
+                  {country}
+                </option>
+              ))}
+            </select>
 
-            <input
-              type="search"
+            <select
               value={cityFilter}
               onChange={(e) => {
                 setCityFilter(e.target.value);
                 setPage(1);
               }}
-              placeholder="City"
-              className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-sm text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
-            />
+              className="w-full px-3 py-2 rounded-lg border border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-sm text-slate-900 dark:text-slate-100 [&>option]:bg-white [&>option]:dark:bg-slate-900">
+              <option value="">All cities</option>
+              {cities.map((city) => (
+                <option key={city} value={city}>
+                  {city}
+                </option>
+              ))}
+            </select>
 
             <select
               value={statusFilter}

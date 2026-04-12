@@ -42,6 +42,10 @@ export default function ServerSide() {
   const [statuses, setStatuses] = React.useState<string[]>(['active']);
   const [statusFilter, setStatusFilter] = React.useState('active');
   const [typeFilter, setTypeFilter] = React.useState('');
+  const [countryFilter, setCountryFilter] = React.useState('');
+  const [cityFilter, setCityFilter] = React.useState('');
+  const [countries, setCountries] = React.useState<string[]>([]);
+  const [cities, setCities] = React.useState<string[]>([]);
   const [draw, setDraw] = React.useState(0);
   const [recordsTotal, setRecordsTotal] = React.useState(0);
   const [recordsFiltered, setRecordsFiltered] = React.useState(0);
@@ -96,6 +100,12 @@ export default function ServerSide() {
       if (typeFilter && typeFilter.length > 0) {
         body.append('type', typeFilter);
       }
+      if (countryFilter) {
+        body.append('country', countryFilter);
+      }
+      if (cityFilter) {
+        body.append('city', cityFilter);
+      }
 
       const url = createUrl('/php_backend/proxy-list.php');
       const res = await fetch(url, { method: 'POST', body, cache: 'no-store' });
@@ -138,7 +148,7 @@ export default function ServerSide() {
     } finally {
       setLoading(false);
     }
-  }, [page, perPage, debouncedSearch, statusFilter, typeFilter]);
+  }, [page, perPage, debouncedSearch, statusFilter, typeFilter, countryFilter, cityFilter]);
 
   React.useEffect(() => {
     fetchData().catch(noop);
@@ -202,6 +212,34 @@ export default function ServerSide() {
         // ignore
       }
     })();
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  // Fetch countries and cities options for filter dropdowns
+  React.useEffect(() => {
+    let mounted = true;
+    (async () => {
+      try {
+        const res = await fetch(createUrl('/php_backend/proxy-summary.php'), { method: 'POST' });
+        if (!res.ok) return;
+        const data = await res.json();
+        if (!mounted) return;
+
+        if (Array.isArray(data.countries)) {
+          setCountries(data.countries.filter(Boolean));
+        }
+        if (Array.isArray(data.cities)) {
+          const nextCities = data.cities.filter(Boolean);
+          setCities(nextCities);
+          setCityFilter((prev) => (prev && !nextCities.includes(prev) ? '' : prev));
+        }
+      } catch (_e) {
+        // ignore
+      }
+    })();
+
     return () => {
       mounted = false;
     };
@@ -308,6 +346,34 @@ export default function ServerSide() {
                 <option value="socks5">SOCKS5</option>
                 <option value="socks5h">SOCKS5H</option>
                 <option value="ssl">SSL</option>
+              </select>
+              <select
+                value={countryFilter}
+                onChange={(e) => {
+                  setCountryFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto min-w-[130px]">
+                <option value="">All countries</option>
+                {countries.map((country) => (
+                  <option key={country} value={country}>
+                    {country}
+                  </option>
+                ))}
+              </select>
+              <select
+                value={cityFilter}
+                onChange={(e) => {
+                  setCityFilter(e.target.value);
+                  setPage(1);
+                }}
+                className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto min-w-[130px]">
+                <option value="">All cities</option>
+                {cities.map((city) => (
+                  <option key={city} value={city}>
+                    {city}
+                  </option>
+                ))}
               </select>
               <select
                 value={perPage}
