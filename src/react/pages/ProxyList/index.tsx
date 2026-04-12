@@ -8,6 +8,7 @@ import LogViewer from './LogViewer';
 import AdSense from '../../components/AdSense';
 import ProxyExtractor from './ProxyExtractor';
 import UniqueIpList from './UniqueIpList';
+import Summary from './Summary';
 
 export default function ProxyList() {
   const { t } = useTranslation();
@@ -96,6 +97,11 @@ export default function ProxyList() {
       </div>
 
       {listTab === 'server' ? <ServerSide /> : <UniqueIpList />}
+
+      {/* Proxy counters summary */}
+      <div className="my-4">
+        <Summary />
+      </div>
 
       <div className="my-4">
         <div className="border-b border-gray-200 dark:border-gray-700">

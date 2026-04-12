@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import ProxyData from '../../../proxy/ProxyData.js';
 import copyToClipboard from '../../../utils/data/copyToClipboard.js';
 import { timeAgo } from '../../../utils/date/timeAgo.js';
-import { formatNumberWithThousandSeparators } from '../../../utils/number';
 import { noop } from '../../../utils/other';
 import { useSnackbar } from '../../components/Snackbar';
 import { checkProxyHttps } from '../../utils/proxy';
@@ -30,15 +29,6 @@ const getClassificationBadgeClass = (c?: string) => {
   }
 };
 
-type CounterProxies = {
-  total_proxies?: number;
-  working_proxies?: number;
-  private_proxies?: number;
-  https_proxies?: number;
-  untested_proxies?: number;
-  dead_proxies?: number;
-};
-
 export default function ServerSide() {
   const { t } = useTranslation();
   const { showSnackbar } = useSnackbar();
@@ -55,7 +45,6 @@ export default function ServerSide() {
   const [draw, setDraw] = React.useState(0);
   const [recordsTotal, setRecordsTotal] = React.useState(0);
   const [recordsFiltered, setRecordsFiltered] = React.useState(0);
-  const [counters, setCounters] = React.useState<CounterProxies>({});
   const [loading, setLoading] = React.useState(false);
   const [copiedIndex, setCopiedIndex] = React.useState<number | null>(null);
   const [serverDriver, setServerDriver] = React.useState<string>('');
@@ -141,18 +130,6 @@ export default function ServerSide() {
         // (avoids stale state when calling setPage() then fetchData()).
         if (srvPage !== null && srvPage !== page) {
           setPage(srvPage);
-        }
-        if (data.counter_proxies && typeof data.counter_proxies === 'object') {
-          setCounters({
-            total_proxies: Number(data.counter_proxies.total_proxies) || 0,
-            working_proxies: Number(data.counter_proxies.working_proxies) || 0,
-            private_proxies: Number(data.counter_proxies.private_proxies) || 0,
-            https_proxies: Number(data.counter_proxies.https_proxies) || 0,
-            untested_proxies: Number(data.counter_proxies.untested_proxies) || 0,
-            dead_proxies: Number(data.counter_proxies.dead_proxies) || 0
-          });
-        } else {
-          setCounters({});
         }
       }
     } catch (err) {
@@ -282,51 +259,6 @@ export default function ServerSide() {
     run_ajax_schedule();
   }, [userId, candidatesGeoIp]);
 
-  // Counter items configuration for rendering the summary grid
-  const counterList = [
-    {
-      key: 'total_proxies',
-      label: 'Total',
-      icon: 'fa-duotone fa-list',
-      bg: 'bg-gray-50 dark:bg-gray-800',
-      text: 'text-gray-800 dark:text-gray-200'
-    },
-    {
-      key: 'working_proxies',
-      label: 'Alive',
-      icon: 'fa-duotone fa-heart-pulse',
-      bg: 'bg-green-50 dark:bg-green-900',
-      text: 'text-green-700 dark:text-green-300'
-    },
-    {
-      key: 'https_proxies',
-      label: 'HTTPS',
-      icon: 'fa-duotone fa-lock',
-      bg: 'bg-blue-50 dark:bg-blue-900',
-      text: 'text-blue-700 dark:text-blue-300'
-    },
-    {
-      key: 'private_proxies',
-      label: 'Private',
-      icon: 'fa-duotone fa-user-secret',
-      bg: 'bg-purple-50 dark:bg-purple-900',
-      text: 'text-purple-700 dark:text-purple-300'
-    },
-    {
-      key: 'untested_proxies',
-      label: 'Untested',
-      icon: 'fa-duotone fa-eye-slash',
-      bg: 'bg-yellow-50 dark:bg-yellow-900',
-      text: 'text-yellow-700 dark:text-yellow-300'
-    },
-    {
-      key: 'dead_proxies',
-      label: 'Dead',
-      icon: 'fa-duotone fa-skull',
-      bg: 'bg-red-50 dark:bg-red-900',
-      text: 'text-red-700 dark:text-red-300'
-    }
-  ];
   return (
     <>
       <section className="my-6">
@@ -638,27 +570,6 @@ export default function ServerSide() {
                 <i className="fa-duotone fa-angle-double-right" aria-hidden="true" />
                 <span className="sr-only">Last</span>
               </button>
-            </div>
-          </div>
-
-          {/* Proxy counters summary */}
-          <div className="mb-3">
-            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-2">
-              {counterList.map((item) => (
-                <div
-                  key={item.key}
-                  className={`flex items-center gap-3 px-3 py-2 rounded-lg border ${item.bg} ${item.text} shadow-sm`}>
-                  <div className="w-8 h-8 flex items-center justify-center rounded-full bg-white/60 dark:bg-black/40 border border-gray-200 dark:border-gray-700 text-sm">
-                    <i className={`${item.icon} text-lg`} aria-hidden="true" />
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-xs text-gray-600 dark:text-gray-400">{item.label}</span>
-                    <span className="text-sm font-semibold">
-                      {formatNumberWithThousandSeparators((counters as any)[item.key]) ?? '-'}
-                    </span>
-                  </div>
-                </div>
-              ))}
             </div>
           </div>
         </div>

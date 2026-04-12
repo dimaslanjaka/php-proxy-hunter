@@ -3,8 +3,6 @@
 // Server-side proxy list for DataTables
 // Uses existing $proxy_db directly — does NOT instantiate or validate it.
 
-declare(strict_types=1);
-
 require_once __DIR__ . '/shared.php';
 
 use PhpProxyHunter\Server;
@@ -202,14 +200,6 @@ try {
     'driver'          => $driver,
     'page'            => $page,
     'perPage'         => $perPage,
-    'counter_proxies' => [
-      'total_proxies'    => $proxy_db->countAllProxies(),
-      'working_proxies'  => $proxy_db->countWorkingProxies(),
-      'private_proxies'  => $proxy_db->countPrivateProxies(),
-      'https_proxies'    => $proxy_db->countHttpsProxies(true),
-      'untested_proxies' => $proxy_db->countUntestedProxies(),
-      'dead_proxies'     => $proxy_db->countDeadProxies(),
-    ],
   ];
 
   echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);

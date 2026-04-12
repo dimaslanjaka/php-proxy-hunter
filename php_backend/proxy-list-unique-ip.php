@@ -2,8 +2,6 @@
 
 // Server-side proxy list grouped by unique IP for DataTables-style pagination.
 
-declare(strict_types=1);
-
 require_once __DIR__ . '/shared.php';
 
 use PhpProxyHunter\Server;
