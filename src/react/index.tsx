@@ -4,6 +4,7 @@ import './i18n'; // Ensure i18n is initialized before rendering components
 import React from 'react';
 import ReactDOM from 'react-dom/client';
 import { BrowserRouter, Route, Routes, useLocation } from 'react-router-dom';
+import axios from 'axios';
 
 // Import fonts
 import './fonts.scss';
@@ -31,6 +32,9 @@ import { checkRecaptchaSessionExpired, verifyRecaptcha } from './utils/recaptcha
 import AdSense from './components/AdSense';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
+
+// Ensure browser cookies (PHP session) are sent for cross-origin API calls.
+axios.defaults.withCredentials = true;
 
 // Add Backspace navigation handler
 window.addEventListener('keydown', function (e) {
