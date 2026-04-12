@@ -1,5 +1,18 @@
 [
   {
+    "hash": "4ac15e045e703314b64bd42ec5a5ddbc6ed4f19c",
+    "date": "2026-04-12T15:08:50+07:00",
+    "message": "feat(proxy-list): add country/city filters for server-side proxy tables\n\n- add country and city filter handling in php_backend/proxy-list.php for count and data queries\n- expose distinct countries and cities in php_backend/proxy-summary.php response\n- switch proxy-summary.php responses to respond_json() with proper error status codes\n- add country/city dropdown filters in ServerSide.tsx and include them in fetch params\n- refactor UniqueIpList.tsx city/country filters from debounced text inputs to dropdowns\n- load shared countries/cities options from proxy-summary.php in React pages",
+    "files": [
+      "android_app/cmd-here.bat",
+      "docs/command-requirements.md",
+      "php_backend/proxy-list.php",
+      "php_backend/proxy-summary.php",
+      "src/react/pages/ProxyList/ServerSide.tsx",
+      "src/react/pages/ProxyList/UniqueIpList.tsx"
+    ]
+  },
+  {
     "hash": "7556c9f4362f5cc22546ee3d7fb24af97873f6f0",
     "date": "2026-04-12T14:55:02+07:00",
     "message": "fix(rollup): improve error logging for dynamic config loading failures",
@@ -8825,14 +8838,6 @@
     "message": "test(PhpProxyHunter/ActivityLogTest): ensure MySQL test DB is created before connecting\n\nChange the MySQL test setup to use a dedicated database name `activity_log_test_db`.\nConnect to the MySQL server without a database to create the test database if missing,\nthen reconnect to the newly created database. This prevents \"Unknown database\" errors\nwhen running MySQL-backed tests.",
     "files": [
       "tests/PhpProxyHunter/ActivityLogTest.php"
-    ]
-  },
-  {
-    "hash": "f21b11e9d1cde9d892b4fd392577686b09d3b857",
-    "date": "2025-10-29T10:54:40+07:00",
-    "message": "fix(py): remove redundant message for existing virtual environment",
-    "files": [
-      "bin/py"
     ]
   }
 ]
