@@ -1,5 +1,64 @@
 [
   {
+    "hash": "669a7db3c050a14e46b19206f2a3ce9946773d64",
+    "date": "2026-04-12T13:53:19+07:00",
+    "message": "refactor(proguard): comment out unused dontwarn directives for clarity",
+    "files": [
+      "android_app/app/proguard-rules.pro"
+    ]
+  },
+  {
+    "hash": "0ab3c6fdf6132fc02f493ddfb9001cf3baa49498",
+    "date": "2026-04-12T13:52:52+07:00",
+    "message": "feat(android): add network security configuration and update manifest",
+    "files": [
+      "android_app/connectivitytest/src/main/AndroidManifest.xml",
+      "android_app/connectivitytest/src/main/res/xml/network_security_config.xml"
+    ]
+  },
+  {
+    "hash": "aad6446d77e6ccb6c4c0197577f56f5a853bc7c4",
+    "date": "2026-04-12T13:52:33+07:00",
+    "message": "fix(requirements): specify urllib3 version range for compatibility",
+    "files": [
+      "requirements-base.txt"
+    ]
+  },
+  {
+    "hash": "68d2de572899af53b1061518fa06e3ce9ae39a0d",
+    "date": "2026-04-12T13:52:07+07:00",
+    "message": "feat(requirements): update minimal dependencies and add development tools",
+    "files": [
+      "requirements-minimal.txt"
+    ]
+  },
+  {
+    "hash": "cdd3d4848ecec951d912396eeac3bdb0e401d697",
+    "date": "2026-04-12T13:49:52+07:00",
+    "message": "feat(dashboard): add crontab logs viewer and backend support\n\n- extend php_backend/logs.php with an admin-only cron logs branch\n- return a list of files from tmp/logs/crontab and allow reading an individual log file\n- add a new Crontab Logs dashboard tab for admins\n- create a React panel that loads the log list, fetches file contents, and shows loading/error states\n- send authenticated requests with credentials so the PHP session is available to the backend",
+    "files": [
+      "php_backend/logs.php",
+      "src/react/pages/Dashboard.tsx",
+      "src/react/pages/dashboard/CrontabLogs.tsx"
+    ]
+  },
+  {
+    "hash": "7ec4aacabd4c585c01bcae4085340aea5c7febb7",
+    "date": "2026-04-12T13:28:48+07:00",
+    "message": "refactor(php_backend): use respond_json helper in logs endpoint\n\nReplace manual JSON response handling in logs.php with respond_json() calls.\nThis removes duplicated header/json_encode/exit blocks in auth, me, and admin\nbranches while preserving existing response payloads.",
+    "files": [
+      "php_backend/logs.php"
+    ]
+  },
+  {
+    "hash": "8827af5063f8513b1c2d88908455184da564c08b",
+    "date": "2026-04-12T13:20:19+07:00",
+    "message": "feat: add migration state configuration for Ask2Agent",
+    "files": [
+      ".idea/copilot.data.migration.ask2agent.xml"
+    ]
+  },
+  {
     "hash": "5797ec0ec92b663664fdda7f304e33baeca75205",
     "date": "2026-04-12T13:19:00+07:00",
     "message": "feat(ProxyDB): add method to find MySQL schema file for improved database setup",
@@ -8769,63 +8828,6 @@
     "message": "refactor(dashboard): show only user points and user information\n\n- replace local `saldo` state with typed `user: SingleUserInfo | null`\n- import and use `getUserInfo` to fetch full user info\n- add mounted guard to avoid state updates on unmounted component\n- compute `displayName` from first/last name with username/email fallback\n- simplify UI to two cards: Points and User Information\n- remove transaction history placeholder and recharge button\n- add `React.FC` typing and restore full-width container layout",
     "files": [
       "src/react/pages/dashboard/DashboardContent.tsx"
-    ]
-  },
-  {
-    "hash": "9796294f46e5d446859f4d858e4347526204f76e",
-    "date": "2025-10-28T12:47:11+07:00",
-    "message": "fix: ensure python-minimal dependencies are installed on remote server during deployment",
-    "files": [
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "a4bd3e9c957356c51c22b12e5372a330491d8fd0",
-    "date": "2025-10-28T12:46:35+07:00",
-    "message": "chore(python-minimal): fix venv creation logic and add pycryptodome to dependencies",
-    "files": [
-      "bin/python-minimal"
-    ]
-  },
-  {
-    "hash": "639b685ee200d5c42533a798aebcafd8e00bd2af",
-    "date": "2025-10-28T12:44:21+07:00",
-    "message": "chore(prettier): add prettier-plugin-sh to configuration and dependencies",
-    "files": [
-      ".prettierrc.json",
-      "package.json"
-    ]
-  },
-  {
-    "hash": "47b8ff04ea309ceb34c5ab079282043a58875130",
-    "date": "2025-10-28T12:40:51+07:00",
-    "message": "fix: update shellscript settings in VSCode configuration",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "a498e35a6895ed1d66ba9ab56fb79245c7f5b8b9",
-    "date": "2025-10-28T12:01:37+07:00",
-    "message": "fix: ensure Windows CMD files use CRLF line endings in .editorconfig",
-    "files": [
-      ".editorconfig"
-    ]
-  },
-  {
-    "hash": "24cfad05daf2f0e88e746609a14dc8657246fc90",
-    "date": "2025-10-28T11:52:24+07:00",
-    "message": "fix: ensure pip commands are called correctly in the installation script",
-    "files": [
-      "bin/python-minimal.cmd"
-    ]
-  },
-  {
-    "hash": "94f925fe2d5ffdc95dff85492e6a09a29b0e3aa2",
-    "date": "2025-10-28T11:50:31+07:00",
-    "message": "fix: replace 'py' with explicit path to Python executable in installation commands",
-    "files": [
-      "bin/python-minimal.cmd"
     ]
   }
 ]
