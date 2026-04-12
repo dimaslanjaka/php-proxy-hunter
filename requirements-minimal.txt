@@ -1,5 +1,7 @@
 # Minimal external dependencies required to run backups/backup-proxies.py and its imports
-# One package per line, deduplicated and alphabetically sorted.
+-e packages/proxy-checker-python
+-e packages/proxy-hunter-python
+-e packages/rsa-utility
 beautifulsoup4==4.14.3
 brotli==1.2.0
 certifi==2026.1.4
@@ -28,3 +30,10 @@ urllib3==2.6.2
 urlextract
 psutil
 pycountry
+selenium<4.41.0
+
+# development dependencies
+pytest
+pytest-cov
+isort
+black
