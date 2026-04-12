@@ -60,7 +60,8 @@ async function configResolver() {
         }
       }
     } catch (err) {
-      console.error(`[FAIL] Failed to load ${dynamicConfig}: ${err.message}`);
+      const errorMessage = err instanceof Error ? err.message : String(err);
+      console.error(`[FAIL] Failed to load ${dynamicConfig}: ${errorMessage}`);
       throw err;
     }
   }
