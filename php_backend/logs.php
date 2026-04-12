@@ -54,21 +54,16 @@ if (!empty($hash)) {
 
 // Handle unauthenticated access to own logs
 if (empty($_SESSION['authenticated_email'])) {
-  header('Content-Type: application/json; charset=utf-8');
-  echo json_encode(['authenticated' => false, 'error' => true, 'message' => 'Not authenticated'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-  exit;
+  respond_json(['authenticated' => false, 'error' => true, 'message' => 'Not authenticated']);
 }
 
 if (isset($request['me'])) {
-  header('Content-Type: application/json; charset=utf-8');
   if (empty($_SESSION['authenticated_email'])) {
-    echo json_encode(['authenticated' => false, 'error' => true, 'message' => 'Not authenticated'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-    exit;
+    respond_json(['authenticated' => false, 'error' => true, 'message' => 'Not authenticated']);
   }
   $user = $user_db->select($_SESSION['authenticated_email']);
   if (empty($user)) {
-    echo json_encode(['authenticated' => false, 'error' => true, 'message' => 'User not found'], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-    exit;
+    respond_json(['authenticated' => false, 'error' => true, 'message' => 'User not found']);
   }
 
   // Respect pagination for 'me' requests
@@ -78,7 +73,7 @@ if (isset($request['me'])) {
   // Adjust the limit here if you expect more than 1000 entries per user
   $allLogs  = $log_db->recent(1000);
   $userLogs = array_values(array_filter($allLogs, function ($log) use ($user) {
-    $isLogActionByUser = isset($log['user_id']) && $log['user_id'] == $user['id'];
+    $isLogActionByUser  = isset($log['user_id'])        && $log['user_id']        == $user['id'];
     $isLogActionByAdmin = isset($log['target_user_id']) && $log['target_user_id'] == $user['id'];
     return $isLogActionByUser || $isLogActionByAdmin;
   }));
@@ -98,7 +93,7 @@ if (isset($request['me'])) {
     return $log;
   }, $pageLogs);
 
-  echo json_encode([
+  respond_json([
     'authenticated' => true,
     'error'         => false,
     'logs'          => $pageLogs,
@@ -107,13 +102,11 @@ if (isset($request['me'])) {
     'offset'        => $offset,
     'count'         => count($pageLogs),
     'total'         => $total,
-  ], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-  exit;
+  ]);
 }
 
 
 if ($isAdmin) {
-  header('Content-Type: application/json; charset=utf-8');
   // Allow optional GET overrides for admin pagination
   if (isset($_GET['page'])) {
     $page = max(1, intval($_GET['page']));
@@ -133,6 +126,5 @@ if ($isAdmin) {
     'count'    => count($logs),
   ];
 
-  echo json_encode($response, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
-  exit;
+  respond_json($response);
 }
