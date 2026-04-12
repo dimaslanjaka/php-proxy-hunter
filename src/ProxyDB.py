@@ -33,6 +33,34 @@ class ProxyDB:
 
     db: Optional[Union[SQLiteHelper, MySQLHelper]] = None
 
+    # noinspection PyMethodMayBeStatic
+    def _find_mysql_schema_file(self) -> Optional[str]:
+        """Return the first existing mysql schema path, or None when missing."""
+        candidates = [
+            get_relative_path("src/PhpProxyHunter/assets/mysql-schema.sql"),
+            os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "PhpProxyHunter",
+                "assets",
+                "mysql-schema.sql",
+            ),
+            os.path.join(
+                os.path.dirname(os.path.abspath(__file__)),
+                "assets",
+                "mysql-schema.sql",
+            ),
+        ]
+
+        for path in candidates:
+            if os.path.exists(path):
+                return path
+
+        current_dir = os.path.dirname(os.path.abspath(__file__))
+        for root, _dirs, files in os.walk(current_dir):
+            if "mysql-schema.sql" in files:
+                return os.path.join(root, "mysql-schema.sql")
+        return None
+
     def __init__(
         self,
         db_location: Optional[Union[str, SQLiteHelper, MySQLHelper]] = None,
@@ -98,16 +126,15 @@ class ProxyDB:
                 )
                 # load mysql schema if available
                 try:
-                    sql_file = get_relative_path(
-                        "src/PhpProxyHunter/assets/mysql-schema.sql"
-                    )
-                    contents = str(read_file(sql_file))
-                    if contents:
-                        # MySQLHelper exposes execute_query but uses %s params; execute as raw
-                        for stmt in contents.split(";"):
-                            stmt = stmt.strip()
-                            if stmt:
-                                self.db.execute_query(stmt)
+                    sql_file = self._find_mysql_schema_file()
+                    if sql_file and os.path.exists(sql_file):
+                        contents = str(read_file(sql_file))
+                        if contents:
+                            # MySQLHelper exposes execute_query but uses %s params; execute as raw
+                            for stmt in contents.split(";"):
+                                stmt = stmt.strip()
+                                if stmt:
+                                    self.db.execute_query(stmt)
                 except Exception:
                     # ignore missing schema file
                     pass
