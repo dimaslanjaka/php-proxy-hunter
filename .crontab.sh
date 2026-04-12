@@ -139,6 +139,7 @@ log_command() {
 # run every 5 minutes
 if should_run_job "tmp/crontab/5-m" 0.0833; then
   echo "Running 5 minutes job."
+  log_command "tmp/logs/crontab/cleanup-blacklist.log" "$PYTHON_BIN" "$CWD/artisan/blacklist_remover.py"
 else
   echo "Skipping 5 minutes job."
 fi
@@ -231,8 +232,6 @@ if should_run_job "tmp/crontab/24-h" 24; then
   # Remove old log files older than 30 days
   log_command "tmp/logs/crontab/cleanup-logs.log" find "$CWD/tmp/logs" -type f -name "*.log" -mtime +30 -exec rm -f {} \;
   echo "Old log files removed, keeping only the last 30 days."
-  # Remove blacklist entries
-  log_command "tmp/logs/crontab/cleanup-blacklist.log" "$PYTHON_BIN" "$CWD/artisan/blacklist_remover.py"
 else
   echo "Skipping 24 hours job."
 fi
