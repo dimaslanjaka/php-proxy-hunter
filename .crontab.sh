@@ -187,7 +187,7 @@ fi
 if should_run_job "tmp/crontab/4-h" 4; then
   echo "Running 4 hours job."
   # run proxy fetcher in background
-  python "$CWD/proxyFetcher.py" > "tmp/logs/crontab/proxy-fetcher.log" 2>&1 &
+  "$PYTHON_BIN" "$CWD/proxyFetcher.py" > "tmp/logs/crontab/proxy-fetcher.log" 2>&1 &
 else
   echo "Skipping 4 hours job."
 fi
@@ -231,6 +231,8 @@ if should_run_job "tmp/crontab/24-h" 24; then
   # Remove old log files older than 30 days
   log_command "tmp/logs/crontab/cleanup-logs.log" find "$CWD/tmp/logs" -type f -name "*.log" -mtime +30 -exec rm -f {} \;
   echo "Old log files removed, keeping only the last 30 days."
+  # Remove blacklist entries
+  log_command "tmp/logs/crontab/cleanup-blacklist.log" "$PYTHON_BIN" "$CWD/artisan/blacklist_remover.py"
 else
   echo "Skipping 24 hours job."
 fi
