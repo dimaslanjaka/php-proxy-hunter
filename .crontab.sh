@@ -152,7 +152,7 @@ if should_run_job "tmp/crontab/30-m" 0.5; then
   # log_command "tmp/logs/crontab/proxy-collector2.log" php artisan/proxyCollector2.php || true
   # log_command "tmp/logs/crontab/check-old-proxy.log" php php_backend/check-old-proxy.php
   # Run geoIp script to resolve missing geo information for proxies
-  # log_command "tmp/logs/crontab/geoip.log" php geoIp.php
+  log_command "tmp/logs/crontab/geoip.log" php artisan/geoIp.php
   log_command "tmp/logs/crontab/proxyCollector2.log" "$PYTHON_BIN" artisan/proxyCollector2.py --batch-size=500 --shuffle
   log_command "tmp/logs/crontab/proxyCollector.log" "$PYTHON_BIN" artisan/proxyCollector.py --batch-size=500 --shuffle
 else

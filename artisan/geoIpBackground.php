@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/func-proxy.php';
+require_once __DIR__ . '/../func-proxy.php';
 
 use PhpProxyHunter\Server;
 
@@ -18,9 +18,9 @@ if (!is_cli()) {
 
 // Run a long-running process in the background
 $lock_files   = [];
-$file         = __DIR__ . '/geoIp.php';
-$output_file  = __DIR__ . '/proxyChecker.txt';
-$pid_file     = __DIR__ . '/geoIpBackround.pid';
+$file         = PHP_PROXY_HUNTER_PROJECT_ROOT . '/artisan/geoIp.php';
+$output_file  = PHP_PROXY_HUNTER_PROJECT_ROOT . '/proxyChecker.txt';
+$pid_file     = PHP_PROXY_HUNTER_PROJECT_ROOT . '/geoIpBackground.pid';
 $lock_files[] = $pid_file;
 setMultiPermissions([$file, $output_file, $pid_file]);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';

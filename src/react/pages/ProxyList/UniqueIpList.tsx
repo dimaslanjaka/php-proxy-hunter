@@ -225,7 +225,7 @@ export default function UniqueIpList() {
 
     if (proxyData.length === 0) return;
 
-    add_ajax_schedule(createUrl('/geoIpBackground.php'), {
+    add_ajax_schedule(createUrl('/artisan/geoIpBackground.php'), {
       method: 'POST_JSON',
       data: { uid: userId, proxy: JSON.stringify(proxyData) }
     });
