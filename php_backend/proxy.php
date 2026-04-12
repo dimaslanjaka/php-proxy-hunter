@@ -2,15 +2,30 @@
 
 require_once __DIR__ . '/shared.php';
 
-// Simple image proxy with 1-day cache
+// General-purpose proxy with CORS bypass for assets (JS, CSS, TXT, JSON, etc.)
+// 1-day cache
 
 $CACHE_DIR = __DIR__ . '/../tmp/asset-cache';
 $CACHE_TTL = 86400;
 // 24h
-$MAX_BYTES     = 5 * 1024 * 1024;
+$MAX_BYTES = 10 * 1024 * 1024;
+// 10MB limit
 $ALLOWED_HOSTS = [];
-// restrict here if needed
+// restrict here if needed (leave empty for all)
 $DEFAULT_TIMEOUT = 10;
+
+// Allowed MIME types for this proxy
+$ALLOWED_TYPES = [
+  'application/javascript',
+  'text/javascript',
+  'text/css',
+  'text/plain',
+  'application/json',
+  'image/svg+xml',
+  'text/html',
+  'application/xml',
+  'text/xml',
+];
 
 PhpProxyHunter\Server::allowCors();
 
@@ -25,15 +40,15 @@ if (isValidBase64($url)) {
 
 $isValidUrl = filter_var($url, FILTER_VALIDATE_URL) && preg_match('/^https?:\/\//i', $url);
 if (empty($url)) {
-  send_error(400, 'Missing url');
+  send_error(400, 'Missing url parameter');
 } elseif (!$isValidUrl) {
-  send_error(400, 'Invalid url');
+  send_error(400, 'Invalid url format');
 }
 
 // Validate URL
 $parts = parse_url($url);
 if (!$parts || !in_array($parts['scheme'], ['http', 'https'])) {
-  send_error(400, 'Invalid URL');
+  send_error(400, 'Invalid URL scheme (must be http or https)');
 }
 if ($ALLOWED_HOSTS && !in_array(strtolower($parts['host']), array_map('strtolower', $ALLOWED_HOSTS))) {
   send_error(403, 'Host not allowed');
@@ -54,7 +69,7 @@ $forceRefresh = isset($_GET['refresh']) && $_GET['refresh'] == '1';
 if (!$forceRefresh && file_exists($cacheFile) && (time() - filemtime($cacheFile) < $CACHE_TTL)) {
   $meta = @json_decode(@file_get_contents($metaFile), true);
   if ($meta && isset($meta['content_type'])) {
-    header("Content-Type: {$meta['content_type']}");
+    header("Content-Type: {$meta['content_type']}; charset=utf-8");
     header('Content-Length: ' . filesize($cacheFile));
     header("Cache-Control: public, max-age={$CACHE_TTL}");
     readfile($cacheFile);
@@ -71,11 +86,10 @@ if (!$fp) {
 $headers       = [];
 $bytesReceived = 0;
 
-// Build the base cURL handle using shared helper, then attach streaming callbacks
-// buildCurl sets reasonable defaults (timeouts, headers, followlocation, etc.).
+// Build the base cURL handle using shared helper
 $ch = buildCurl(null, 'http', $url, [], null, null, 'GET', null, 0);
-// forward user-agent?
-curl_setopt($ch, CURLOPT_USERAGENT, isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Mozilla/5.0 (Windows NT 6.1; WOW64; Trident/7.0; rv:11.0) like Gecko');
+// forward user-agent
+curl_setopt($ch, CURLOPT_USERAGENT, isset($_SERVER['HTTP_USER_AGENT']) ? $_SERVER['HTTP_USER_AGENT'] : 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
 // override to stream output and capture headers incrementally
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, false);
 curl_setopt($ch, CURLOPT_BUFFERSIZE, 8192);
@@ -111,15 +125,18 @@ if (!$ok || $http >= 400) {
   ob_end_clean();
   fclose($fp);
   @unlink($cacheFile . '.tmp');
-  send_error(502, "Fetch failed (HTTP $http, curl $err, received $bytesReceived bytes, url: $url)");
+  send_error(502, "Fetch failed (HTTP $http, curl $err, received $bytesReceived bytes)");
 }
 
-$contentType = isset($headers['content-type']) ? $headers['content-type'] : 'application/octet-stream';
-if (stripos($contentType, 'image/') !== 0) {
+$contentType = isset($headers['content-type']) ? explode(';', $headers['content-type'])[0] : 'application/octet-stream';
+$contentType = trim($contentType);
+
+// Validate content type
+if (!in_array($contentType, $ALLOWED_TYPES)) {
   ob_end_clean();
   fclose($fp);
   @unlink($cacheFile . '.tmp');
-  send_error(415, 'Not an image');
+  send_error(415, "Content-Type '$contentType' not allowed. Allowed: " . implode(', ', $ALLOWED_TYPES));
 }
 
 // success: commit cache
@@ -127,22 +144,25 @@ fclose($fp);
 rename($cacheFile . '.tmp', $cacheFile);
 file_put_contents($metaFile, json_encode(['content_type' => $contentType, 'time' => time()]));
 
-// Send headers now
+// Send headers now (without Content-Length for now to allow streaming)
 header_remove();
-header("Content-Type: $contentType");
+header("Content-Type: $contentType; charset=utf-8");
 header("Cache-Control: public, max-age=$CACHE_TTL");
+header('Access-Control-Allow-Origin: *');
+header('Access-Control-Allow-Methods: GET, HEAD, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
 
 // flush content
 ob_end_flush();
 
-function send_error($code, $msg)
+function send_error(int $code, string $msg): void
 {
   http_response_code($code);
   header('Content-Type: text/plain; charset=utf-8');
   exit($msg);
 }
 
-function isValidBase64($str)
+function isValidBase64(string $str): bool
 {
   $decoded = base64_decode($str, true);
   return ($decoded !== false && base64_encode($decoded) === $str) ? true : false;
