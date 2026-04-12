@@ -1,0 +1,36 @@
+#!/bin/bash
+set -euo pipefail
+
+SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+CWD="$(dirname "$SCRIPT_DIR")"
+
+export PATH="$CWD/bin:$PATH"
+
+PY_CREATOR=""
+for candidate in python3 python; do
+	if command -v "$candidate" >/dev/null 2>&1; then
+		PY_CREATOR="$candidate"
+		break
+	fi
+done
+
+if [ -z "$PY_CREATOR" ]; then
+	echo "Python is not installed or not on PATH."
+	echo "Please install Python 3 and retry."
+	exit 1
+fi
+
+if [ ! -d "$CWD/venv" ]; then
+	"$PY_CREATOR" -m venv "$CWD/venv"
+fi
+
+if [ -x "$CWD/venv/bin/python" ]; then
+	PY="$CWD/venv/bin/python"
+elif [ -x "$CWD/venv/Scripts/python.exe" ]; then
+	PY="$CWD/venv/Scripts/python.exe"
+else
+	echo "Unable to find the virtual environment Python executable."
+	exit 1
+fi
+
+"$PY" "$CWD/artisan/blacklist_remover.py"
