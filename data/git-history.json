@@ -1,5 +1,40 @@
 [
   {
+    "hash": "55a93f51d169b13d62a83a7cdf64e4b19ac85e78",
+    "date": "2026-04-12T14:12:28+07:00",
+    "message": "refactor: extract proxy summary to dedicated component and endpoint\n\n- Remove declare(strict_types=1) from all PHP backend files\n- Create new php_backend/proxy-summary.php endpoint for counter statistics\n- Extract counter_proxies logic from proxy-list.php response\n- Create Summary.tsx component with independent AJAX data fetching\n- Move Summary component from ServerSide to ProxyList index page\n- Remove counter state and rendering logic from ServerSide.tsx\n- Summary component now manages its own counter data lifecycle",
+    "files": [
+      "php_backend/proxy-delete.php",
+      "php_backend/proxy-list-unique-ip.php",
+      "php_backend/proxy-list.php",
+      "php_backend/proxy-summary.php",
+      "src/react/pages/ProxyList/ServerSide.tsx",
+      "src/react/pages/ProxyList/Summary.tsx",
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
+    "hash": "ec74888f02f621e1617014b9d5cdc7ceb509f498",
+    "date": "2026-04-12T14:03:45+07:00",
+    "message": "feat(axios): enable withCredentials for cross-origin API calls",
+    "files": [
+      "src/react/index.tsx"
+    ]
+  },
+  {
+    "hash": "af8f35baca5a43df8fc1ce8b61d3ad314e34ce9b",
+    "date": "2026-04-12T14:02:38+07:00",
+    "message": "refactor: move geoip job scripts into artisan directory\n\n- rename geoIp.php and geoIpBackground.php under artisan/\n- update cron job to call the new geoip entrypoint\n- update proxy list actions to schedule the new background script\n- switch geoip file paths to project-root based references",
+    "files": [
+      ".crontab.sh",
+      "artisan/geoIp.php",
+      "artisan/geoIpBackground.php",
+      "src/react/pages/ProxyList/ServerSide.tsx",
+      "src/react/pages/ProxyList/UniqueIpList.tsx",
+      "src/react/pages/ProxyList/WorkingJson.tsx"
+    ]
+  },
+  {
     "hash": "669a7db3c050a14e46b19206f2a3ce9946773d64",
     "date": "2026-04-12T13:53:19+07:00",
     "message": "refactor(proguard): comment out unused dontwarn directives for clarity",
@@ -8802,32 +8837,6 @@
       ".github/workflows/nuitka-debug.yml.txt",
       ".github/workflows/nuitka.yml.txt",
       "packages/proxies-grabber"
-    ]
-  },
-  {
-    "hash": "ddb1b54dca436daca51fabd48cdaf4908933b93d",
-    "date": "2025-10-28T13:59:30+07:00",
-    "message": "feat(dashboard): add tabbed UI for user information and activity\n\n- Add `activeTab` state to `Dashboard` to control tab switching.\n- Wrap `DashboardContent` and `UserActivityCard` in a React-controlled, accessible tabbed UI.\n- Add active/inactive styling and dark-mode support for tabs.\n- Uses React state for switching (no Flowbite JS dependency).",
-    "files": [
-      "src/react/pages/Dashboard.tsx"
-    ]
-  },
-  {
-    "hash": "6f56194ad4486273fef159d97bf53f459668d696",
-    "date": "2025-10-28T13:52:07+07:00",
-    "message": "feat(dashboard): add top-up button and i18n keys\n\n- add `points`, `dashboard`, `user_information`, `email`, `username`, `phone`, `no_user_found` keys to English and Indonesian locales\n- add `handleTopUp` handler and \"Recharge Points\" button to `DashboardContent.tsx`\n- small UI wiring to show top-up action (placeholder alert)",
-    "files": [
-      "src/react/locales/en.json",
-      "src/react/locales/id.json",
-      "src/react/pages/dashboard/DashboardContent.tsx"
-    ]
-  },
-  {
-    "hash": "a4be0a4ccde8833b655c38c4239d32f5cea65cb8",
-    "date": "2025-10-28T13:49:18+07:00",
-    "message": "refactor(dashboard): show only user points and user information\n\n- replace local `saldo` state with typed `user: SingleUserInfo | null`\n- import and use `getUserInfo` to fetch full user info\n- add mounted guard to avoid state updates on unmounted component\n- compute `displayName` from first/last name with username/email fallback\n- simplify UI to two cards: Points and User Information\n- remove transaction history placeholder and recharge button\n- add `React.FC` typing and restore full-width container layout",
-    "files": [
-      "src/react/pages/dashboard/DashboardContent.tsx"
     ]
   }
 ]
