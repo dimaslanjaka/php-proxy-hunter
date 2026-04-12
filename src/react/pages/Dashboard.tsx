@@ -3,11 +3,13 @@ import { getUserInfo } from '../utils/user';
 import DashboardContent from './dashboard/DashboardContent';
 import UserPaymentLogs from './dashboard/UserPaymentLogs';
 import UserActivityCard from './dashboard/UserActivityCard';
+import CrontabLogs from './dashboard/CrontabLogs';
 
 export default function Dashboard() {
   const [isAuthenticated, setIsAuthenticated] = React.useState<boolean>(false);
   const [isLoading, setIsLoading] = React.useState<boolean>(true);
-  const [activeTab, setActiveTab] = React.useState<'content' | 'activity' | 'payment'>('content');
+  const [isAdmin, setIsAdmin] = React.useState<boolean>(false);
+  const [activeTab, setActiveTab] = React.useState<'content' | 'activity' | 'payment' | 'crontab'>('content');
 
   React.useEffect(() => {
     let mounted = true;
@@ -19,6 +21,7 @@ export default function Dashboard() {
           window.location.href = '/login';
         } else {
           setIsAuthenticated(true);
+          setIsAdmin(Boolean((data as any).admin));
         }
       } catch (_err) {
         window.location.href = '/login';
@@ -96,6 +99,23 @@ export default function Dashboard() {
                   Payment Activity
                 </button>
               </li>
+              {isAdmin ? (
+                <li role="presentation">
+                  <button
+                    type="button"
+                    role="tab"
+                    aria-controls="crontab-logs"
+                    aria-selected={activeTab === 'crontab'}
+                    className={`inline-block p-4 rounded-t-lg border-b-2 flex-shrink-0 ${
+                      activeTab === 'crontab'
+                        ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 bg-gray-100 dark:bg-gray-800'
+                        : 'border-transparent hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300'
+                    }`}
+                    onClick={() => setActiveTab('crontab')}>
+                    Crontab Logs
+                  </button>
+                </li>
+              ) : null}
             </ul>
           </div>
         </div>
@@ -122,6 +142,15 @@ export default function Dashboard() {
             className={`${activeTab === 'payment' ? '' : 'hidden'}`}>
             <UserPaymentLogs className="w-full px-2 sm:px-4 md:px-6 lg:px-8 transition-colors mt-4" />
           </div>
+          {isAdmin ? (
+            <div
+              id="crontab-logs"
+              role="tabpanel"
+              aria-labelledby="crontab-logs"
+              className={`${activeTab === 'crontab' ? '' : 'hidden'}`}>
+              <CrontabLogs />
+            </div>
+          ) : null}
         </div>
       </div>
     </>

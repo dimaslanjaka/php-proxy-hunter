@@ -2,21 +2,18 @@
 
 require_once __DIR__ . '/shared.php';
 
-// use PhpProxyHunter\LogsRepository; (removed)
-
 global $isAdmin;
 
 PhpProxyHunter\Server::allowCors();
-header('Content-Type: text/plain; charset=utf-8');
 
-// $logsRepo instantiation removed
+$isAdmin = is_admin();
 $request = parsePostData(true);
 // Allow GET query parameters to override when POST body doesn't provide them
-$page = isset($request['page']) ? (int)$request['page'] : (isset($_GET['page']) ? (int)$_GET['page'] : 1);
+$page = isset($request['page']) ? (int)$request['page'] : (isset($request['page']) ? (int)$request['page'] : 1);
 if ($page < 1) {
   $page = 1;
 }
-$perPage = isset($request['per_page']) ? (int)$request['per_page'] : (isset($_GET['per_page']) ? (int)$_GET['per_page'] : 50);
+$perPage = isset($request['per_page']) ? (int)$request['per_page'] : (isset($request['per_page']) ? (int)$request['per_page'] : 50);
 if ($perPage < 1 || $perPage > 500) {
   $perPage = 50;
 }
@@ -107,12 +104,44 @@ if (isset($request['me'])) {
 
 
 if ($isAdmin) {
-  // Allow optional GET overrides for admin pagination
-  if (isset($_GET['page'])) {
-    $page = max(1, intval($_GET['page']));
+  // crontab logs
+  if (isset($request['cron'])) {
+    if (isset($request['file'])) {
+      $requestedFile = basename($request['file']);
+      $logPath       = tmp("logs/crontab/{$requestedFile}");
+      if (file_exists($logPath) && is_readable($logPath)) {
+        $logData = read_file($logPath);
+        if ($logData !== false) {
+          respond_text($logData);
+        } else {
+          respond_text("Failed to read log file: {$requestedFile}", 500);
+        }
+      } else {
+        respond_text("Log file not found or not readable: {$requestedFile}", 404);
+      }
+    }
+    $cronDir  = tmp('logs/crontab');
+    $cronLogs = [];
+    if (is_dir($cronDir)) {
+      $files = glob($cronDir . '/*.{txt,log}', GLOB_BRACE);
+      foreach ($files as $file) {
+        $cronLogs[] = [
+          'name'  => basename($file),
+          'path'  => $file,
+          'size'  => human_filesize(filesize($file)),
+          'mtime' => filemtime($file),
+        ];
+      }
+    }
+
+    respond_json(['logs' => $cronLogs]);
   }
-  if (isset($_GET['per_page'])) {
-    $perPage = max(1, min(500, intval($_GET['per_page'])));
+  // Allow optional GET overrides for admin pagination
+  if (isset($request['page'])) {
+    $page = max(1, intval($request['page']));
+  }
+  if (isset($request['per_page'])) {
+    $perPage = max(1, min(500, intval($request['per_page'])));
   }
 
   $offset = ($page - 1) * $perPage;
