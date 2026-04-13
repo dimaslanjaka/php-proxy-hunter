@@ -42,6 +42,7 @@ def build_request(
     cookie_file: Optional[str] = "tmp/cookies/default.txt",
     session: Optional[requests.Session] = None,
     keep_headers: Optional[bool] = None,
+    retry: int = 0,
     **kwargs,
 ) -> requests.Response:
     """
@@ -60,14 +61,18 @@ def build_request(
         cookie_file (Optional[str]): Path to the cookie file. Defaults to 'tmp/cookies/default.txt'.
         session (Optional[requests.Session]): An existing session to reuse. If None, a new session is created.
         keep_headers (Optional[bool]): Flag to determine if default headers should be overridden by provided headers. Defaults to None.
+        retry (int): Number of extra attempts when a request fails with a transport-level requests exception. Defaults to 0.
         **kwargs: Additional keyword arguments to pass to the requests method.
 
     Returns:
         requests.Response: The response object from the HTTP request.
 
     Raises:
-        ValueError: If an invalid proxy type is specified or if an unsupported HTTP method is used.
+        ValueError: If an invalid proxy type is specified, an unsupported HTTP method is used, or retry is invalid.
     """
+    if isinstance(retry, bool) or not isinstance(retry, int) or retry < 0:
+        raise ValueError("retry must be a non-negative integer")
+
     verify_certificate = kwargs.pop("verify", False)
 
     # Create a new session if one is not provided
@@ -208,32 +213,39 @@ def build_request(
     timeout = kwargs.pop("timeout", 10)
 
     method_upper = method.upper()
-    if method_upper in request_methods:
+    if method_upper not in request_methods:
+        raise ValueError(f"Unsupported method: {method}")
+
+    def send_request() -> requests.Response:
         if method_upper in ["POST", "PUT", "PATCH"]:
             # Use json=post_data if Content-Type is application/json and post_data is dict
             content_type = session.headers.get("Content-Type", "")
             if "application/json" in str(content_type) and isinstance(post_data, dict):
-                response: requests.Response = request_methods[method_upper](
+                return request_methods[method_upper](
                     endpoint,
                     json=post_data,
                     timeout=timeout,
                     verify=verify_certificate,
                     **kwargs,
                 )
-            else:
-                response: requests.Response = request_methods[method_upper](
-                    endpoint,
-                    data=post_data,
-                    timeout=timeout,
-                    verify=verify_certificate,
-                    **kwargs,
-                )
-        else:
-            response: requests.Response = request_methods[method_upper](
-                endpoint, timeout=timeout, verify=verify_certificate, **kwargs
+            return request_methods[method_upper](
+                endpoint,
+                data=post_data,
+                timeout=timeout,
+                verify=verify_certificate,
+                **kwargs,
             )
-    else:
-        raise ValueError(f"Unsupported method: {method}")
+        return request_methods[method_upper](
+            endpoint, timeout=timeout, verify=verify_certificate, **kwargs
+        )
+
+    for attempt in range(retry + 1):
+        try:
+            response = send_request()
+            break
+        except requests.RequestException:
+            if attempt >= retry:
+                raise
 
     # Save cookies back to file
     if cookie_jar is not None and cookie_header is not None:
