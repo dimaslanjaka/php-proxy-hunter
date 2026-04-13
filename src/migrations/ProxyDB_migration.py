@@ -21,3 +21,12 @@ def migrate(db: Union[SQLiteHelper, MySQLHelper]):
             db.execute_query(
                 "ALTER TABLE proxies ADD COLUMN classification VARCHAR(255) DEFAULT ''"
             )
+
+    # Add column 'tun2socks' to 'proxies' table when not exists
+    if not db.column_exists("proxies", "tun2socks"):
+        if isinstance(db, SQLiteHelper):
+            db.execute_query("ALTER TABLE proxies ADD COLUMN tun2socks TEXT DEFAULT ''")
+        elif isinstance(db, MySQLHelper):
+            db.execute_query(
+                "ALTER TABLE proxies ADD COLUMN tun2socks VARCHAR(255) DEFAULT ''"
+            )
