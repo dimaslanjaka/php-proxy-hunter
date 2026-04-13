@@ -7,7 +7,8 @@ import time
 from http import cookiejar as cookiejar
 from http.cookiejar import Cookie, LWPCookieJar, MozillaCookieJar
 from typing import Dict, List, Optional, Union
-
+import secrets
+from string import ascii_letters, digits
 import requests
 import urllib3
 from requests.adapters import HTTPAdapter
@@ -82,7 +83,7 @@ def build_request(
 
     if no_cache:
         # Append a unique query parameter to bypass caches
-        unique_param = f"nocache={int(time.time())}"
+        unique_param = f"nocache={''.join(secrets.choice(ascii_letters + digits) for _ in range(5))}"
         if "?" in endpoint:
             endpoint += "&" + unique_param
         else:
