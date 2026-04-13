@@ -515,6 +515,7 @@ class ProxyDB:
         limit: Optional[int] = None,
         randomize: bool = True,
         ssl: Optional[bool] = None,
+        proxy_type: Optional[str] = None,
     ) -> List[Dict[str, Union[str, None]]]:
         """
         Retrieve working (active) proxies with optional limit, ordering and SSL filter.
@@ -534,6 +535,9 @@ class ProxyDB:
                 - `False` => return only non-SSL proxies (NULL, empty string,
                     "false", "0").
                 - `None`  => no https/ssl filtering (default).
+        - proxy_type (Optional[str]): Filter by the `type` column using LIKE.
+            Useful for rows storing combined values like
+            `http-socks4-socks4a-socks5-socks5h`.
 
         Returns
         - List[Dict[str, Union[str, None]]]: List of proxy rows as dictionaries.
@@ -564,7 +568,7 @@ class ProxyDB:
         # SSL filtering: accept several stored representations
         # True -> only https values representing true ("true", "1")
         # False -> non-ssl (NULL, empty string, "false", "0")
-        if ssl is True:
+        if ssl:
             # check lowercase and numeric 1
             where_clause += (
                 f" AND (LOWER(https) = {placeholder} OR https = {placeholder})"
@@ -573,6 +577,10 @@ class ProxyDB:
         elif ssl is False:
             where_clause += f" AND (https IS NULL OR https = {placeholder} OR LOWER(https) = {placeholder} OR https = {placeholder})"
             params.extend(["", "false", "0"])
+
+        if proxy_type and proxy_type.strip():
+            where_clause += f" AND LOWER(type) LIKE {placeholder}"
+            params.append(f"%{proxy_type.strip().lower()}%")
 
         # For SQLiteHelper we can pass rand and limit separately to avoid
         # embedding LIMIT into the where string. For MySQL keep previous behavior.
