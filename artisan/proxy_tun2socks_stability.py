@@ -304,6 +304,7 @@ async def worker(
     found_event,
     result_holder,
     tested_set,
+    on_score: Callable[[tuple[str, int], int], Any] | None = None,
     on_success: Callable[[tuple[str, int], int], Any] | None = None,
     on_failure: Callable[[tuple[str, int], int], Any] | None = None,
 ):
@@ -322,6 +323,9 @@ async def worker(
             log_test(proxy_tuple, "WORKER", "picked from queue")
             score = await score_proxy(proxy_tuple)
             log_test(proxy_tuple, "WORKER", f"score result ({score})")
+
+            if score > 0:
+                await _invoke_worker_callback(on_score, proxy_tuple, score)
 
             if score >= TARGET_SCORE:
                 await _invoke_worker_callback(on_success, proxy_tuple, score)
@@ -361,6 +365,7 @@ async def run(proxies, concurrency=200):
 async def run_until_found(
     proxies,
     concurrency=200,
+    on_score: Callable[[tuple[str, int], int], Any] | None = None,
     on_success: Callable[[tuple[str, int], int], Any] | None = None,
     on_failure: Callable[[tuple[str, int], int], Any] | None = None,
 ):
@@ -379,6 +384,7 @@ async def run_until_found(
                 found_event,
                 result_holder,
                 tested_set,
+                on_score=on_score,
                 on_success=on_success,
                 on_failure=on_failure,
             )
@@ -473,6 +479,14 @@ if __name__ == "__main__":
         db = init_db("mysql")
         db_write_lock = asyncio.Lock()
 
+        async def on_score(proxy_tuple: tuple[str, int], score: int):
+            proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
+            async with db_write_lock:
+                db.update_data(
+                    proxy,
+                    {"tun2socks": score, "type": "socks5", "status": "active"},
+                )
+
         async def on_success(proxy_tuple: tuple[str, int], score: int):
             proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
             async with db_write_lock:
@@ -491,6 +505,7 @@ if __name__ == "__main__":
                 run_until_found(
                     proxies,
                     args.concurrency,
+                    on_score=on_score,
                     on_success=on_success,
                     on_failure=on_failure,
                 )
