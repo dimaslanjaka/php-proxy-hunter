@@ -1,5 +1,31 @@
 [
   {
+    "hash": "075b0062685ef8ebc499ce06eb6c2bdebe5c141e",
+    "date": "2026-04-14T12:01:03+07:00",
+    "message": "feat(cron): add hourly proxy stability and socks5 checks",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "947373fa5973b53d07a6c33879b10028b07e262b",
+    "date": "2026-04-14T11:58:14+07:00",
+    "message": "feat(artisan): implement process locking for proxy checking scripts\n\nAdd FileLockHelper-based process locking to proxy_socks5_checker.py and\nproxy_tun2socks_stability.py to prevent concurrent execution of multiple\ninstances.\n\n- Import FileLockHelper from src.utils.file\n- Initialize module-level lock variables (current_filename, locker)\n- Wrap main execution block with try-finally for proper lock acquisition\n  and release\n- Exit early if another instance is already running\n\nLock files are stored in tmp/locks/{script_name}.lock",
+    "files": [
+      "artisan/proxy_socks5_checker.py",
+      "artisan/proxy_tun2socks_stability.py"
+    ]
+  },
+  {
+    "hash": "baab3a63ab3252a335c8a3c5af36f43a06bdcdb5",
+    "date": "2026-04-14T11:57:31+07:00",
+    "message": "feat(ProxyDB): add status and last_checked filtering to getAllProxies\n\nAdd status and last_checked parameters to both PHP getAllProxies() and Python\nget_all_proxies() methods to support filtering proxies by status and check date.\n\n- Add status parameter to filter by status column (\"dead\", \"active\", \"untested\",\n  \"port-closed\", \"port-open\")\n- Add last_checked parameter to filter by RFC3339 date (last_check <= date)\n- Update both implementations to build WHERE clauses dynamically for filtering\n- Improve docstrings with parameter documentation\n- Fix Python pagination ordering to use final_limit before randomize check",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/ProxyDB.py"
+    ]
+  },
+  {
     "hash": "4dd16eedbb46e75bdbf0010e91785263fc822f56",
     "date": "2026-04-14T10:29:19+07:00",
     "message": "feat(proxy-db): align PHP and Python get working proxies with filtering and pagination\n\n- add ssl, tun2socks, proxyType filter parameters to PHP getWorkingProxies()\n- implement tri-state filtering for ssl and tun2socks (true/false/null)\n- add proxy type LIKE filtering to match both implementations\n- add page and per_page pagination parameters to Python get_working_proxies()\n- implement pagination logic where page/per_page overrides legacy limit\n- update docstrings in both to document new parameters and pagination precedence\n- ensure backend-agnostic SQL placeholders (MySQL %s, SQLite ?)",
@@ -8821,33 +8847,6 @@
     "message": "fix: import build_request in func_proxy_test for cookie handling",
     "files": [
       "tests/func_proxy_test.py"
-    ]
-  },
-  {
-    "hash": "06f6e65f21284e108cf1a483ceecfeed9454c399",
-    "date": "2025-10-31T13:12:00+07:00",
-    "message": "feat(mysql): add MySQLHelper class with CRUD utilities and integration tests\n\nAdd `src/MySQLHelper.py` implementing a MySQLConnection subclass and a\nMySQLHelper wrapper with typed CRUD methods (create_table, insert,\nselect, count, update, delete), utility methods (execute_query,\ntruncate_table, dump_database), context-manager support and proper\nclose handling. Includes a small example usage in the module docstring.\n\nAdd `tests/test_mysql_helper.py` — a pytest integration-style test that\nloads connection settings from the environment (supports .env), performs\nCRUD operations against a `testdb` database, and cleans up after itself.\nTest is skipped when MySQL credentials are not provided.\n\nNotes:\n- Requires `mysql-connector-python` (or compatible connector) and `mysqldump`\n  available on PATH for the dump functionality.\n- Non-breaking change; adds new functionality and tests.",
-    "files": [
-      "src/MySQLHelper.py",
-      "tests/test_mysql_helper.py"
-    ]
-  },
-  {
-    "hash": "42a67e1b11572d59a57c5ed9fd6422f6fa086e93",
-    "date": "2025-10-31T12:23:03+07:00",
-    "message": "fix: remove pymysql from installation in python-minimal scripts",
-    "files": [
-      "bin/python-minimal",
-      "bin/python-minimal.cmd"
-    ]
-  },
-  {
-    "hash": "102b86ddb4303edafc49c03e98f349d9bebd205b",
-    "date": "2025-10-31T11:59:52+07:00",
-    "message": "fix: add pymysql and python-dotenv to installation in python-minimal scripts",
-    "files": [
-      "bin/python-minimal",
-      "bin/python-minimal.cmd"
     ]
   }
 ]
