@@ -52,12 +52,13 @@ class MainActivity : ComponentActivity() {
     }
 
     // Create and configure ProgressBar
-    progressBar = ProgressBar(this, null, android.R.attr.progressBarStyle).apply {
+    progressBar = ProgressBar(this, null, android.R.attr.progressBarStyleHorizontal).apply {
       layoutParams = LinearLayout.LayoutParams(
         LinearLayout.LayoutParams.MATCH_PARENT,
         LinearLayout.LayoutParams.WRAP_CONTENT
       )
-      isIndeterminate = true
+      max = 100
+      progress = 0
       visibility = android.view.View.VISIBLE
     }
 
@@ -76,14 +77,23 @@ class MainActivity : ComponentActivity() {
       webViewClient = object : WebViewClient() {
         override fun onPageStarted(view: WebView?, url: String?, favicon: android.graphics.Bitmap?) {
           super.onPageStarted(view, url, favicon)
+          progressBar.progress = 0
           progressBar.visibility = android.view.View.VISIBLE
         }
 
         override fun onPageFinished(view: WebView?, url: String?) {
           super.onPageFinished(view, url)
+          progressBar.progress = 100
           progressBar.visibility = android.view.View.GONE
         }
       }
+
+      setWebChromeClient(object : android.webkit.WebChromeClient() {
+        override fun onProgressChanged(view: WebView?, newProgress: Int) {
+          super.onProgressChanged(view, newProgress)
+          progressBar.progress = newProgress
+        }
+      })
     }
 
     // Add views to layout
@@ -101,6 +111,15 @@ class MainActivity : ComponentActivity() {
 
     // Load the WebView
     webView.loadUrl("http://sh.webmanajemen.com")
+  }
+
+  override fun onResume() {
+    super.onResume()
+
+    // Auto-refresh WebView when returning to this activity
+    if (::webView.isInitialized && intent?.action != Contract.ACTION_RUN_CONNECTIVITY_TEST) {
+      webView.reload()
+    }
   }
 
   private fun runConnectivityTestAndFinish() {
