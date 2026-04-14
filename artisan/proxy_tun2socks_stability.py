@@ -6,7 +6,7 @@ import socks
 import os
 import sys
 import re
-from typing import Any, Awaitable, Callable
+from typing import Any, Awaitable, Callable, Optional
 from colorama import Fore, Style, just_fix_windows_console
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -14,6 +14,7 @@ sys.path.append(PROJECT_ROOT)
 
 from src.shared import init_db
 from src.func import get_relative_path
+from src.utils.file.FileLockHelper import FileLockHelper
 from artisan.proxy_getter import (
     load_proxies_from_cli,
     load_proxies_from_file,
@@ -27,6 +28,9 @@ HTTP_TEST = "http://httpbin.org/ip"
 
 TIMEOUT = 5
 TARGET_SCORE = 70
+
+current_filename = os.path.basename(__file__)
+locker: Optional[FileLockHelper] = None
 
 just_fix_windows_console()
 COLOR_ENABLED = True
@@ -421,99 +425,110 @@ async def run_until_found(
 
 if __name__ == "__main__":
     args = parse_args()
-    proxy_file = get_relative_path("proxies.txt")
 
-    proxies = []
-    source_label = "DB"
+    # Create and acquire file lock
+    locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
+    if not locker.lock():
+        print("Another instance is running. Exiting.")
+        sys.exit(0)
 
-    cli_proxies = load_proxies_from_cli()
-    if len(cli_proxies) != 0:
-        proxies = cli_proxies
-        source_label = "CLI input"
-        print(f"{source_label} {len(proxies)} proxies loaded")
+    try:
+        proxy_file = get_relative_path("proxies.txt")
 
-    if len(proxies) == 0:
-        proxies = load_proxies_from_file(proxy_file)
-        if proxies:
-            source_label = f"file input ({proxy_file})"
-            print(f"{source_label} {len(proxies)} proxies loaded")
-
-    if len(proxies) == 0:
+        proxies = []
         source_label = "DB"
-        db = init_db("mysql")
-        try:
-            proxies = db.get_working_proxies(
-                auto_fix=False,
-                randomize=True,
-                limit=args.limit,
-                proxy_type="socks5",
-                ssl=None,
-                tun2socks=False,
-            )
+
+        cli_proxies = load_proxies_from_cli()
+        if len(cli_proxies) != 0:
+            proxies = cli_proxies
+            source_label = "CLI input"
             print(f"{source_label} {len(proxies)} proxies loaded")
+
+        if len(proxies) == 0:
+            proxies = load_proxies_from_file(proxy_file)
+            if proxies:
+                source_label = f"file input ({proxy_file})"
+                print(f"{source_label} {len(proxies)} proxies loaded")
+
+        if len(proxies) == 0:
+            source_label = "DB"
+            db = init_db("mysql")
+            try:
+                proxies = db.get_working_proxies(
+                    auto_fix=False,
+                    randomize=True,
+                    limit=args.limit,
+                    proxy_type="socks5",
+                    ssl=None,
+                    tun2socks=False,
+                )
+                print(f"{source_label} {len(proxies)} proxies loaded")
+            finally:
+                db.close()
+
+        if not proxies:
+            print(f"No working SOCKS5 proxies found from {source_label}")
+            sys.exit(0)
+
+        db = init_db("mysql")
+        db_write_lock = asyncio.Lock()
+
+        async def on_success(proxy_tuple: tuple[str, int], score: int):
+            proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
+            async with db_write_lock:
+                db.update_data(
+                    proxy,
+                    {"tun2socks": score, "type": "socks5", "status": "active"},
+                )
+
+        async def on_failure(proxy_tuple: tuple[str, int], score: int):
+            proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
+            async with db_write_lock:
+                db.update_data(proxy, {"tun2socks": 0})
+
+        try:
+            result, tested_set = asyncio.run(
+                run_until_found(
+                    proxies,
+                    args.concurrency,
+                    on_success=on_success,
+                    on_failure=on_failure,
+                )
+            )
         finally:
             db.close()
 
-    if not proxies:
-        print(f"No working SOCKS5 proxies found from {source_label}")
-        sys.exit(0)
+        if "file" in source_label and tested_set and os.path.isfile(proxy_file):
+            with open(proxy_file, "r", encoding="utf-8") as f:
+                file_lines = f.readlines()
 
-    db = init_db("mysql")
-    db_write_lock = asyncio.Lock()
+            kept_lines = []
+            removed_count = 0
+            for line in file_lines:
+                normalized = normalize_proxy_line_for_match(line)
+                if normalized in tested_set:
+                    removed_count += 1
+                    continue
+                kept_lines.append(line)
 
-    async def on_success(proxy_tuple: tuple[str, int], score: int):
-        proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
-        async with db_write_lock:
-            db.update_data(
-                proxy,
-                {"tun2socks": score, "type": "socks5", "status": "active"},
-            )
+            trimmed_trailing_empty = 0
+            while kept_lines and not kept_lines[-1].strip():
+                kept_lines.pop()
+                trimmed_trailing_empty += 1
 
-    async def on_failure(proxy_tuple: tuple[str, int], score: int):
-        proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
-        async with db_write_lock:
-            db.update_data(proxy, {"tun2socks": 0})
+            if removed_count or trimmed_trailing_empty:
+                with open(proxy_file, "w", encoding="utf-8") as f:
+                    f.writelines(kept_lines)
+                print(
+                    f"[INFO] Removed {removed_count} tested proxies from {proxy_file}; "
+                    f"trimmed {trimmed_trailing_empty} trailing empty lines"
+                )
 
-    try:
-        result, tested_set = asyncio.run(
-            run_until_found(
-                proxies,
-                args.concurrency,
-                on_success=on_success,
-                on_failure=on_failure,
-            )
-        )
+        if result:
+            proxy_tuple, score = result
+            print(f"FOUND: {proxy_tuple} => {score}")
+        else:
+            print("No compatible tun2socks proxy found")
     finally:
-        db.close()
-
-    if "file" in source_label and tested_set and os.path.isfile(proxy_file):
-        with open(proxy_file, "r", encoding="utf-8") as f:
-            file_lines = f.readlines()
-
-        kept_lines = []
-        removed_count = 0
-        for line in file_lines:
-            normalized = normalize_proxy_line_for_match(line)
-            if normalized in tested_set:
-                removed_count += 1
-                continue
-            kept_lines.append(line)
-
-        trimmed_trailing_empty = 0
-        while kept_lines and not kept_lines[-1].strip():
-            kept_lines.pop()
-            trimmed_trailing_empty += 1
-
-        if removed_count or trimmed_trailing_empty:
-            with open(proxy_file, "w", encoding="utf-8") as f:
-                f.writelines(kept_lines)
-            print(
-                f"[INFO] Removed {removed_count} tested proxies from {proxy_file}; "
-                f"trimmed {trimmed_trailing_empty} trailing empty lines"
-            )
-
-    if result:
-        proxy_tuple, score = result
-        print(f"FOUND: {proxy_tuple} => {score}")
-    else:
-        print("No compatible tun2socks proxy found")
+        if locker:
+            locker.unlock()

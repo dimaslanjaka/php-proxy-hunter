@@ -18,6 +18,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
 from src.func import get_relative_path
+from src.utils.file.FileLockHelper import FileLockHelper
 from artisan.proxy_getter import (
     parse_args,
     load_proxies_from_file,
@@ -27,6 +28,9 @@ from src.shared import init_db
 
 just_fix_windows_console()
 COLOR_ENABLED = True
+
+current_filename = os.path.basename(__file__)
+locker: Optional[FileLockHelper] = None
 
 
 def color_proxy_text(value: str) -> str:
@@ -331,105 +335,127 @@ def filter_test_socks5_proxies_parallel(
 
 if __name__ == "__main__":
     args = parse_args()
-    proxy_file = get_relative_path("proxies.txt")
-    db = init_db("mysql")
 
-    proxies: List[dict[str, Any]] = []
-    source_label = "db"
+    # Create and acquire file lock
+    locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
+    if not locker.lock():
+        print("Another instance is running. Exiting.")
+        sys.exit(0)
 
-    cli_rows = to_proxy_rows(load_proxies_from_cli())
-    if len(cli_rows) != 0:
-        proxies = cli_rows
-        source_label = "cli"
+    try:
+        proxy_file = get_relative_path("proxies.txt")
+        db = init_db("mysql")
 
-    if not proxies:
-        file_rows = to_proxy_rows(load_proxies_from_file(proxy_file))
-        if file_rows:
-            proxies = file_rows
-            source_label = "file"
-
-    if not proxies:
-        proxies = to_proxy_rows(
-            db.get_working_proxies(
-                limit=args.limit,
-                randomize=True,
-                proxy_type="socks5",
-            )
-        )
+        proxies: List[dict[str, Any]] = []
         source_label = "db"
 
-    proxies = [
-        proxy
-        for proxy in proxies
-        if isinstance(proxy, dict)
-        and is_last_check_before_today(proxy.get("last_check"))
-    ]
-    random.shuffle(proxies)
-    print(f"[INFO] Proxy source: {source_label} ({len(proxies)} candidates)")
+        cli_rows = to_proxy_rows(load_proxies_from_cli())
+        if len(cli_rows) != 0:
+            proxies = cli_rows
+            source_label = "cli"
 
-    def on_success(proxy, _):
-        db.update_data(proxy, {"type": "socks5", "status": "active", "https": "true"})
+        if not proxies:
+            file_rows = to_proxy_rows(load_proxies_from_file(proxy_file))
+            if file_rows:
+                proxies = file_rows
+                source_label = "file"
 
-    def on_failed(proxy, _):
-        rows = db.select(proxy)
-        if not rows:
-            return
+        if not proxies:
+            proxies = to_proxy_rows(
+                db.get_all_proxies(
+                    limit=args.limit,
+                    randomize=True
+                )
+            )
+            source_label = "db"
 
-        row = rows[0] if isinstance(rows, list) else rows
-        if not isinstance(row, dict):
-            return
-
-        current_type = row.get("type")
-        if current_type is None:
-            return
-
-        type_parts = [
-            part for part in str(current_type).split("-") if part and part != "socks5"
+        proxies = [
+            proxy
+            for proxy in proxies
+            if isinstance(proxy, dict)
+            and is_last_check_before_today(proxy.get("last_check"))
         ]
-        db.update_data(proxy, {"type": "-".join(type_parts)})
+        random.shuffle(proxies)
+        print(f"[INFO] Proxy source: {source_label} ({len(proxies)} candidates)")
 
-    proxy_candidates = to_socks5_list(proxies[: args.limit])
-    proxy_working = filter_test_socks5_proxies_parallel(
-        proxy_candidates,
-        timeout=60,
-        on_success=on_success,
-        on_failed=on_failed,
-        return_early_first_working=False,
-        concurrency=3,
-    )
-    print(f"[INFO] Tested {len(proxy_candidates)} proxies, passed {len(proxy_working)}")
-
-    tested_set = {
-        proxy.replace("socks5://", "", 1) if proxy.startswith("socks5://") else proxy
-        for proxy in proxy_candidates
-    }
-    if source_label == "file" and tested_set and os.path.isfile(proxy_file):
-        with open(proxy_file, "r", encoding="utf-8") as f:
-            file_lines = f.readlines()
-
-        kept_lines: List[str] = []
-        removed_count = 0
-        for line in file_lines:
-            raw = line.strip()
-            normalized = (
-                raw.replace("socks5://", "", 1) if raw.startswith("socks5://") else raw
-            )
-            if normalized in tested_set:
-                removed_count += 1
-                continue
-            kept_lines.append(line)
-
-        trimmed_trailing_empty = 0
-        while kept_lines and not kept_lines[-1].strip():
-            kept_lines.pop()
-            trimmed_trailing_empty += 1
-
-        if removed_count or trimmed_trailing_empty:
-            with open(proxy_file, "w", encoding="utf-8") as f:
-                f.writelines(kept_lines)
-            print(
-                f"[INFO] Removed {removed_count} tested proxies from {proxy_file}; "
-                f"trimmed {trimmed_trailing_empty} trailing empty lines"
+        def on_success(proxy, _):
+            db.update_data(
+                proxy, {"type": "socks5", "status": "active", "https": "true"}
             )
 
-    db.close()
+        def on_failed(proxy, _):
+            rows = db.select(proxy)
+            if not rows:
+                return
+
+            row = rows[0] if isinstance(rows, list) else rows
+            if not isinstance(row, dict):
+                return
+
+            current_type = row.get("type")
+            if current_type is None:
+                return
+
+            type_parts = [
+                part
+                for part in str(current_type).split("-")
+                if part and part != "socks5"
+            ]
+            db.update_data(proxy, {"type": "-".join(type_parts)})
+
+        proxy_candidates = to_socks5_list(proxies[: args.limit])
+        proxy_working = filter_test_socks5_proxies_parallel(
+            proxy_candidates,
+            timeout=60,
+            on_success=on_success,
+            on_failed=on_failed,
+            return_early_first_working=False,
+            concurrency=3,
+        )
+        print(
+            f"[INFO] Tested {len(proxy_candidates)} proxies, passed {len(proxy_working)}"
+        )
+
+        tested_set = {
+            (
+                proxy.replace("socks5://", "", 1)
+                if proxy.startswith("socks5://")
+                else proxy
+            )
+            for proxy in proxy_candidates
+        }
+        if source_label == "file" and tested_set and os.path.isfile(proxy_file):
+            with open(proxy_file, "r", encoding="utf-8") as f:
+                file_lines = f.readlines()
+
+            kept_lines: List[str] = []
+            removed_count = 0
+            for line in file_lines:
+                raw = line.strip()
+                normalized = (
+                    raw.replace("socks5://", "", 1)
+                    if raw.startswith("socks5://")
+                    else raw
+                )
+                if normalized in tested_set:
+                    removed_count += 1
+                    continue
+                kept_lines.append(line)
+
+            trimmed_trailing_empty = 0
+            while kept_lines and not kept_lines[-1].strip():
+                kept_lines.pop()
+                trimmed_trailing_empty += 1
+
+            if removed_count or trimmed_trailing_empty:
+                with open(proxy_file, "w", encoding="utf-8") as f:
+                    f.writelines(kept_lines)
+                print(
+                    f"[INFO] Removed {removed_count} tested proxies from {proxy_file}; "
+                    f"trimmed {trimmed_trailing_empty} trailing empty lines"
+                )
+
+        db.close()
+    finally:
+        if locker:
+            locker.unlock()
