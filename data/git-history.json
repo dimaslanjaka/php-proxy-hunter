@@ -1,5 +1,23 @@
 [
   {
+    "hash": "4dd16eedbb46e75bdbf0010e91785263fc822f56",
+    "date": "2026-04-14T10:29:19+07:00",
+    "message": "feat(proxy-db): align PHP and Python get working proxies with filtering and pagination\n\n- add ssl, tun2socks, proxyType filter parameters to PHP getWorkingProxies()\n- implement tri-state filtering for ssl and tun2socks (true/false/null)\n- add proxy type LIKE filtering to match both implementations\n- add page and per_page pagination parameters to Python get_working_proxies()\n- implement pagination logic where page/per_page overrides legacy limit\n- update docstrings in both to document new parameters and pagination precedence\n- ensure backend-agnostic SQL placeholders (MySQL %s, SQLite ?)",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "2e40be7f0d62c8cc8cb489709c32ce6091a3999e",
+    "date": "2026-04-14T10:24:30+07:00",
+    "message": "feat(proxy-db): add tun2socks filter parameter to get_working_proxies\n\n- add tun2socks: Optional[bool] parameter supporting tri-state filtering\n  - True: return only proxies where tun2socks > 0\n  - False: return only proxies where tun2socks is NULL/empty or <= 0\n  - None: no tun2socks filtering (default)\n- update docstring to document new parameter and generalize filter notes\n- implement SQL where-clause logic with backend-agnostic placeholders\n- update artisan/proxy_tun2socks_stability.py to explicitly use tun2socks=False",
+    "files": [
+      "artisan/proxy_tun2socks_stability.py",
+      "src/ProxyDB.py"
+    ]
+  },
+  {
     "hash": "d48b628d7bf5dfc7afae298f0a4f52ed10c3fb86",
     "date": "2026-04-14T10:19:53+07:00",
     "message": "feat(proxy-list): add tun2socks filter and badges across backend and UI\n\n- support `type=tun2socks` filtering in `php_backend/proxy-list.php` and `php_backend/proxy-list-unique-ip.php` using `tun2socks > 0`\n- include `tun2socks` in unique-IP SQL selection and group it into `type_map` for badge rendering\n- extend `ProxyData` with `tun2socks` field and serialization\n- add `TUN2SOCKS` option to type filters in `ServerSide.tsx` and `UniqueIpList.tsx`\n- render `TUN2SOCKS` badges in server-side list and unique-IP list\n- add dedicated `tun2socks` color mapping in `proxyColors.ts`\n- remove redundant `ProxyRow` alias in `ServerSide.tsx` and use `ProxyData` directly",
@@ -8830,23 +8848,6 @@
     "files": [
       "bin/python-minimal",
       "bin/python-minimal.cmd"
-    ]
-  },
-  {
-    "hash": "921293b95dc85066a0b0c83991b91d680746d001",
-    "date": "2025-10-30T17:43:54+07:00",
-    "message": "refactor(proxydb): centralize database access with get_db helper method\n\n- Added `get_db()` method to handle database initialization and retrieval\n- Replaced repetitive connection checks with unified `get_db()` usage\n- Simplified database operation methods for better readability and maintainability\n- Ensured consistent and safe database access across all ProxyDB methods",
-    "files": [
-      "src/ProxyDB.py"
-    ]
-  },
-  {
-    "hash": "466b4939d53d2430f27d910623ec1904c8e181af",
-    "date": "2025-10-30T17:39:44+07:00",
-    "message": "fix: ensure cursor is closed before closing the database connection",
-    "files": [
-      "src/ProxyDB.py",
-      "src/SQLiteHelper.py"
     ]
   }
 ]
