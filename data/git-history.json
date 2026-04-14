@@ -1,5 +1,72 @@
 [
   {
+    "hash": "5b77b4ce9a4497df264bea7d0b843879830ac3eb",
+    "date": "2026-04-14T09:59:57+07:00",
+    "message": "feat(proxy): add proxy getter, SOCKS5 checker, tun2socks checker, and stability tester\n\n- introduce proxy_getter for loading and normalizing proxies from CLI, file, and DB\n- add SOCKS5 proxy checker with sync, async, and parallel execution support\n- implement tun2socks checker with multi-engine support (badvpn, sing-box, xray)\n- add tun2socks stability tester with scoring system (TCP, TLS, latency, stability)\n- support early-return on first working proxy and concurrency control\n- integrate DB update hooks for success/failure handling\n- add file cleanup for tested proxies\n- improve proxy normalization and flexible input handling across modules",
+    "files": [
+      "artisan/proxy_getter.py",
+      "artisan/proxy_socks5_checker.py",
+      "artisan/proxy_tun2socks_checker.py",
+      "artisan/proxy_tun2socks_stability.py"
+    ]
+  },
+  {
+    "hash": "e631631b9f045fb577c956b9159a7d4332ac8dd5",
+    "date": "2026-04-14T09:58:54+07:00",
+    "message": "feat(config): update Python SDK settings and add new run configurations",
+    "files": [
+      ".idea/htdocs.iml",
+      ".idea/misc.xml",
+      ".idea/php.xml",
+      ".idea/runConfigurations/Blacklist_remover.xml",
+      ".idea/runConfigurations/proxyCheckerReal.xml",
+      ".idea/runConfigurations/proxy_socks5_checker.xml",
+      ".idea/runConfigurations/proxy_tun2socks_stability.xml",
+      ".idea/runConfigurations/test_selenium_scroll.xml",
+      "android_app/.run/WorkingProxyListActivity.run.xml"
+    ]
+  },
+  {
+    "hash": "1996eee6403603a30f563273873f514c9543fe6c",
+    "date": "2026-04-14T09:57:57+07:00",
+    "message": "fix(settings): update Python settings and enable environment management",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "8c36565d2d20b7cf835b3df966d82ab761d00e0a",
+    "date": "2026-04-13T14:13:35+07:00",
+    "message": "feat(proxy): add optional proxy_type filter for retrieving proxies",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "e561d001ee115ad87fb15b22b3f327e65cb0c62f",
+    "date": "2026-04-13T13:20:05+07:00",
+    "message": "feat(migration): add 'tun2socks' column to 'proxies' table if not exists",
+    "files": [
+      "src/migrations/ProxyDB_migration.py"
+    ]
+  },
+  {
+    "hash": "08263a4ee2946958248c64a013e3e64c286b9ed8",
+    "date": "2026-04-13T13:17:43+07:00",
+    "message": "fix(request): use random string for cache-busting query parameter",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/request_helper.py"
+    ]
+  },
+  {
+    "hash": "777db5121f40006105751e43f701c805ef0a0261",
+    "date": "2026-04-13T13:13:20+07:00",
+    "message": "feat(request): add retry mechanism for request failures",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/request_helper.py"
+    ]
+  },
+  {
     "hash": "8e2301634cba5cbe1c15a045a5e8f3a1b02f44d8",
     "date": "2026-04-12T15:46:41+07:00",
     "message": "fix(cron): run blacklist cleanup every 5 minutes instead of daily",
@@ -8775,69 +8842,6 @@
     "message": "fix: add check for db existence in test_vacuum function",
     "files": [
       "tests/ProxyDB_Test.py"
-    ]
-  },
-  {
-    "hash": "c7c8e3822708de26780065e098729d7db862de37",
-    "date": "2025-10-30T17:34:08+07:00",
-    "message": "fix: improve teardown logic for ProxyDB connection in tests",
-    "files": [
-      "tests/ProxyDB_Test.py"
-    ]
-  },
-  {
-    "hash": "d343f2e3cb812c354c94966371eb16a6def1056b",
-    "date": "2025-10-30T17:05:39+07:00",
-    "message": "fix: update author name to L3n4r0x in About and Contact pages",
-    "files": [
-      "src/react/pages/About.tsx",
-      "src/react/pages/Contact.tsx"
-    ]
-  },
-  {
-    "hash": "7cc87c8456883566906429f27bf4d05b4216f761",
-    "date": "2025-10-30T17:03:39+07:00",
-    "message": "fix: remove GitHub link from maintenance page and comment out social menu link in Navbar",
-    "files": [
-      "index.maintenance.html",
-      "src/react/components/Navbar.tsx"
-    ]
-  },
-  {
-    "hash": "cec020306b4864eceacb83ad4107c965048b970d",
-    "date": "2025-10-30T16:59:41+07:00",
-    "message": "fix: update contact email to superuser@webmanajemen.com in multiple files",
-    "files": [
-      "django_backend/apps/core/templates/base_generic.html",
-      "index.maintenance.html",
-      "readme.md",
-      "src/react/pages/About.tsx",
-      "src/react/pages/Contact.tsx"
-    ]
-  },
-  {
-    "hash": "1ffd262bd3c591cb728d6e7ce24a43b0f12fcbb9",
-    "date": "2025-10-30T16:55:30+07:00",
-    "message": "chore(vite): include timestamp and PID in lock file contents\n\n- Updated dev and build lock files to record start time and process ID\n- Improved traceability of Vite processes for debugging and monitoring",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "8e4b787c5f6b70c56285254ffbc57d73ce4eaadd",
-    "date": "2025-10-30T16:54:03+07:00",
-    "message": "chore(deploy): simplify maintenance step in VPS deployment script\n\n- Removed upload of `index.maintenance.html` during deployment\n- Updated comment to clarify maintenance handled via build lock file creation",
-    "files": [
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "c07a4129cddb06b84a2e9ece0f6dfe377a3cf499",
-    "date": "2025-10-30T15:31:55+07:00",
-    "message": "fix(activity-log,migration): robust update params + ensure PAYMENT/REFUND enum\n\nReplace manual bindValue usage in ActivityLog::update with an associative\n$execParams passed to PDOStatement::execute(), JSON-encode the `details`\nfield, and log statement errorInfo when an UPDATE fails to make DB errors\nvisible and avoid silent failures.\n\nAlso update ActivityLogMigration to inspect the current MySQL `action_type`\ncolumn and ALTER the ENUM to include 'PAYMENT' and 'REFUND' only when\nmissing (no-op for SQLite). Mark the migration meta key after successful\nmigration.",
-    "files": [
-      "src/PhpProxyHunter/ActivityLog.php",
-      "src/PhpProxyHunter/ActivityLogMigration.php"
     ]
   }
 ]
