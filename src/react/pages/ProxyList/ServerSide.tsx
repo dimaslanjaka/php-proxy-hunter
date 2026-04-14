@@ -427,13 +427,14 @@ export default function ServerSide() {
                   <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Country</th>
                   <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">City</th>
                   <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Latency</th>
+                  <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Tun2Socks</th>
                   <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Last Check</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.length === 0 ? (
                   <tr>
-                    <td colSpan={7} className="px-2 py-4 text-center text-gray-500 dark:text-gray-400">
+                    <td colSpan={8} className="px-2 py-4 text-center text-gray-500 dark:text-gray-400">
                       {loading ? (
                         <span className="text-gray-700 dark:text-gray-200">Loading...</span>
                       ) : errorMsg ? (
@@ -532,6 +533,28 @@ export default function ServerSide() {
                         <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">{r.city}</td>
                         <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
                           {formatLatency(r.latency)}
+                        </td>
+                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100">
+                          {r.tun2socks ? (
+                            <div className="flex items-center">
+                              <div className="relative w-20 h-5 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden border border-gray-400 dark:border-gray-600">
+                                <div
+                                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 transition-all duration-300"
+                                  style={{
+                                    width: `${Math.max(0, Math.min(Number(r.tun2socks), 100))}%`
+                                  }}
+                                />
+                                <div
+                                  className={`absolute inset-0 flex items-center justify-center text-[11px] font-bold ${
+                                    Number(r.tun2socks) >= 45 ? 'text-white' : 'text-slate-700 dark:text-slate-100'
+                                  }`}>
+                                  {`${Math.round(Number(r.tun2socks))}%`}
+                                </div>
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-gray-400 dark:text-gray-500">-</span>
+                          )}
                         </td>
                         <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
                           {r.last_check ? timeAgo(r.last_check) : '-'}

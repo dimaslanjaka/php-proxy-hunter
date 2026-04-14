@@ -20,6 +20,7 @@ type UniqueIpRow = {
   city: string;
   last_check: string;
   proxy_list: string[];
+  tun2socks?: number | string | null;
 };
 
 export default function UniqueIpList() {
@@ -487,6 +488,7 @@ export default function UniqueIpList() {
                   <th className="px-3 py-2 whitespace-nowrap">Ports</th>
                   <th className="px-3 py-2 whitespace-nowrap">Types</th>
                   <th className="px-3 py-2 whitespace-nowrap">Location</th>
+                  <th className="px-3 py-2 whitespace-nowrap">Tun2Socks</th>
                   <th className="px-3 py-2 whitespace-nowrap">Last Check</th>
                   <th className="px-3 py-2 whitespace-nowrap">Actions</th>
                 </tr>
@@ -494,7 +496,7 @@ export default function UniqueIpList() {
               <tbody>
                 {rows.length === 0 ? (
                   <tr>
-                    <td colSpan={6} className="px-3 py-8 text-center text-slate-500 dark:text-slate-400">
+                    <td colSpan={7} className="px-3 py-8 text-center text-slate-500 dark:text-slate-400">
                       {loading ? 'Loading...' : 'No unique IP proxies found'}
                     </td>
                   </tr>
@@ -585,6 +587,28 @@ export default function UniqueIpList() {
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap text-slate-700 dark:text-slate-300">
                         {row.last_check && row.last_check !== '-' ? timeAgo(row.last_check) : '-'}
+                      </td>
+                      <td className="px-3 py-2">
+                        {row.tun2socks ? (
+                          <div className="flex items-center">
+                            <div className="relative w-20 h-5 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden border border-gray-400 dark:border-gray-600">
+                              <div
+                                className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 transition-all duration-300"
+                                style={{
+                                  width: `${Math.max(0, Math.min(Number(row.tun2socks), 100))}%`
+                                }}
+                              />
+                              <div
+                                className={`absolute inset-0 flex items-center justify-center text-[11px] font-bold ${
+                                  Number(row.tun2socks) >= 45 ? 'text-white' : 'text-slate-700 dark:text-slate-100'
+                                }`}>
+                                {`${Math.round(Number(row.tun2socks))}%`}
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-gray-400 dark:text-gray-500">-</span>
+                        )}
                       </td>
                       <td className="px-3 py-2 whitespace-nowrap">
                         <div className="flex items-center gap-1 flex-wrap">

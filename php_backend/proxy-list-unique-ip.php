@@ -18,8 +18,7 @@ use PhpProxyHunter\Server;
  * @param string $proxyRaw
  * @return array{ip:string,port:string}|null
  */
-function extractIpPort($proxyRaw)
-{
+function extractIpPort($proxyRaw) {
   $proxy = trim((string)$proxyRaw);
   if ($proxy === '') {
     return null;
@@ -79,8 +78,7 @@ function extractIpPort($proxyRaw)
  * @param array<int,array<string,mixed>> $rows
  * @return array<int,array<string,mixed>>
  */
-function buildUniqueIpRows($rows)
-{
+function buildUniqueIpRows($rows) {
   $grouped = [];
 
   foreach ($rows as $row) {
@@ -94,14 +92,15 @@ function buildUniqueIpRows($rows)
 
     if (!isset($grouped[$ip])) {
       $grouped[$ip] = [
-        'ip'          => $ip,
-        'ports_map'   => [],
-        'status_map'  => [],
-        'type_map'    => [],
-        'proxy_count' => 0,
-        'country'     => '-',
-        'city'        => '-',
-        'last_check'  => '-',
+        'ip'               => $ip,
+        'ports_map'        => [],
+        'status_map'       => [],
+        'type_map'         => [],
+        'proxy_count'      => 0,
+        'country'          => '-',
+        'city'             => '-',
+        'last_check'       => '-',
+        'tun2socks_scores' => [],
       ];
     }
 
@@ -124,8 +123,10 @@ function buildUniqueIpRows($rows)
       }
     }
 
-    if ((float)($row['tun2socks'] ?? 0) > 0) {
+    $tun2socksScore = (float)($row['tun2socks'] ?? 0);
+    if ($tun2socksScore > 0) {
       $grouped[$ip]['type_map']['tun2socks'] = true;
+      $grouped[$ip]['tun2socks_scores'][]    = $tun2socksScore;
     }
 
     $country = trim((string)($row['country'] ?? ''));
@@ -159,6 +160,10 @@ function buildUniqueIpRows($rows)
     $types = array_keys($item['type_map']);
     sort($types, SORT_NATURAL | SORT_FLAG_CASE);
 
+    $avgTun2socks = !empty($item['tun2socks_scores'])
+      ? array_sum($item['tun2socks_scores']) / count($item['tun2socks_scores'])
+      : null;
+
     $result[] = [
       'ip'          => $item['ip'],
       'ports'       => $ports,
@@ -171,6 +176,7 @@ function buildUniqueIpRows($rows)
       'proxy_list'  => array_map(function ($p) use ($item) {
         return $item['ip'] . ':' . $p;
       }, $ports),
+      'tun2socks' => $avgTun2socks !== null ? round($avgTun2socks, 2) : null,
     ];
   }
 
@@ -203,8 +209,7 @@ function buildUniqueIpRows($rows)
  * @param PDOStatement $stmt Already-executed statement
  * @return int
  */
-function countUniqueIpsStreamed(PDOStatement $stmt): int
-{
+function countUniqueIpsStreamed(PDOStatement $stmt): int {
   $seen = [];
   while (($row = $stmt->fetch(PDO::FETCH_ASSOC)) !== false) {
     $parsed = extractIpPort((string)($row['proxy'] ?? ''));
@@ -223,8 +228,7 @@ function countUniqueIpsStreamed(PDOStatement $stmt): int
  * @param PDOStatement $stmt Already-executed statement
  * @return array<int,array<string,mixed>>
  */
-function buildUniqueIpRowsStreamed(PDOStatement $stmt): array
-{
+function buildUniqueIpRowsStreamed(PDOStatement $stmt): array {
   $grouped = [];
 
   while (($row = $stmt->fetch(PDO::FETCH_ASSOC)) !== false) {
@@ -238,14 +242,15 @@ function buildUniqueIpRowsStreamed(PDOStatement $stmt): array
 
     if (!isset($grouped[$ip])) {
       $grouped[$ip] = [
-        'ip'          => $ip,
-        'ports_map'   => [],
-        'status_map'  => [],
-        'type_map'    => [],
-        'proxy_count' => 0,
-        'country'     => '-',
-        'city'        => '-',
-        'last_check'  => '-',
+        'ip'               => $ip,
+        'ports_map'        => [],
+        'status_map'       => [],
+        'type_map'         => [],
+        'proxy_count'      => 0,
+        'country'          => '-',
+        'city'             => '-',
+        'last_check'       => '-',
+        'tun2socks_scores' => [],
       ];
     }
 
@@ -267,8 +272,10 @@ function buildUniqueIpRowsStreamed(PDOStatement $stmt): array
       }
     }
 
-    if ((float)($row['tun2socks'] ?? 0) > 0) {
+    $tun2socksScore = (float)($row['tun2socks'] ?? 0);
+    if ($tun2socksScore > 0) {
       $grouped[$ip]['type_map']['tun2socks'] = true;
+      $grouped[$ip]['tun2socks_scores'][]    = $tun2socksScore;
     }
 
     $country = trim((string)($row['country'] ?? ''));
@@ -305,6 +312,10 @@ function buildUniqueIpRowsStreamed(PDOStatement $stmt): array
     $types = array_keys($item['type_map']);
     sort($types, SORT_NATURAL | SORT_FLAG_CASE);
 
+    $avgTun2socks = !empty($item['tun2socks_scores'])
+      ? array_sum($item['tun2socks_scores']) / count($item['tun2socks_scores'])
+      : null;
+
     $result[] = [
       'ip'          => $item['ip'],
       'ports'       => $ports,
@@ -317,6 +328,7 @@ function buildUniqueIpRowsStreamed(PDOStatement $stmt): array
       'proxy_list'  => array_map(function ($p) use ($item) {
         return $item['ip'] . ':' . $p;
       }, $ports),
+      'tun2socks' => $avgTun2socks !== null ? round($avgTun2socks, 2) : null,
     ];
   }
 
