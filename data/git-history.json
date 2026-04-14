@@ -1,5 +1,46 @@
 [
   {
+    "hash": "3f44bd12ab9b6163862946289eaf6b16ac4d3a40",
+    "date": "2026-04-14T13:19:59+07:00",
+    "message": "feat(server): add CLI argument parsing to request body helper",
+    "files": [
+      "src/utils/server/postdata.php"
+    ]
+  },
+  {
+    "hash": "d5c230d2117443494abe74ca13d8df68f5e27b88",
+    "date": "2026-04-14T13:17:54+07:00",
+    "message": "style(php-cs-fixer): update brace formatting to v3.95+ rules\n\n- Replace deprecated `braces` rule with `braces_position`\n- Align configuration with PHP-CS-Fixer v3.95+ requirements\n- Enforce same-line opening braces for functions and control structures\n\nstyle(respond): apply inline function brace formatting\n\n- Convert function declarations to same-line opening brace style\n- Improve consistency with updated code style rules",
+    "files": [
+      ".php-cs-fixer.dist.php",
+      "src/utils/server/respond.php"
+    ]
+  },
+  {
+    "hash": "d764e70c41da9b40ff726f97a9438147abaccb9c",
+    "date": "2026-04-14T13:05:48+07:00",
+    "message": "fix(server): prevent header handling in CLI for JSON responses\n\n- skip http headers and status code handling in respond_json when running in CLI\n- ensure headers are only sent in non-CLI environments\n- keep fallback http_response_code behavior when headers already sent\n- apply consistent function formatting for respond_text and respond_html",
+    "files": [
+      "src/utils/server/respond.php"
+    ]
+  },
+  {
+    "hash": "6641c6fc75222cea9a13f36b0325af99f6ff3f3c",
+    "date": "2026-04-14T12:52:17+07:00",
+    "message": "feat(MainActivity): enhance ProgressBar functionality and auto-refresh WebView",
+    "files": [
+      "android_app/connectivitytest/src/main/java/com/dimaslanjaka/connectivitytest/MainActivity.kt"
+    ]
+  },
+  {
+    "hash": "3adc6e352209292f7c0e72d8544a7ba684f227e8",
+    "date": "2026-04-14T12:51:56+07:00",
+    "message": "fix(build.gradle.kts): update path for external dependencies to be relative",
+    "files": [
+      "android_app/app/build.gradle.kts"
+    ]
+  },
+  {
     "hash": "075b0062685ef8ebc499ce06eb6c2bdebe5c141e",
     "date": "2026-04-14T12:01:03+07:00",
     "message": "feat(cron): add hourly proxy stability and socks5 checks",
@@ -8803,50 +8844,6 @@
     "message": "feat: add method to retrieve oldest tested proxies",
     "files": [
       "src/PhpProxyHunter/ProxyDB.php"
-    ]
-  },
-  {
-    "hash": "0ea67cedd4ec4667694645a5077455aeb4e93756",
-    "date": "2025-10-31T17:11:24+07:00",
-    "message": "feat(artisan): add CLI proxyChecker to test HTTP/SOCKS proxies and update DB\n\nAdd new CLI script `artisan/proxyChecker.php` that accepts `--proxy \"IP:PORT\"` or\n`\"IP:PORT@user:pass\"` and performs protocol checks for `http`, `socks4`,\n`socks5`, `socks4a`, and `socks5h`. For each protocol the checker tries an HTTPS\nendpoint first and falls back to an HTTP endpoint. Results for all tested\nprotocols are aggregated and persisted to the project `ProxyDB`:\n\n- Adds `artisan/proxyChecker.php`.\n- CLI-only; exits if not run from CLI.\n- Parses optional proxy credentials in `IP:PORT@user:pass` form.\n- Tests protocols: `http`, `socks4`, `socks5`, `socks4a`, `socks5h`.\n- Tries endpoints per protocol: HTTPS first (https://www.example.com), then\n  HTTP fallback (http://httpforever.com/).\n- Aggregates working protocols into `type` (e.g. `socks4-socks5`), sets\n  `status = active`, stores best `latency` (min), `private` flag, and `https`\n  support. Records `anonymity` (when available) and invokes geoip lookup\n  best-effort.\n- Marks proxy as `port-closed` when port is unreachable or `dead` otherwise.\n- Reuses existing helpers from `php_backend/shared.php` and `func-proxy.php`\n  (`checkProxy`, `get_anonymity`, `GeoIpHelper`, `ProxyDB`).\n- Non-breaking addition; improves proxy validation coverage for multiple\n  proxy types and both SSL/non-SSL endpoints.\n\nNo breaking changes; purely additive CLI tooling.",
-    "files": [
-      "artisan/proxyChecker.php"
-    ]
-  },
-  {
-    "hash": "d0587c92d575e6121656aa81c78e8817f0d5d0da",
-    "date": "2025-10-31T17:10:53+07:00",
-    "message": "feat: add mysql-connector-python to requirements",
-    "files": [
-      "requirements-base.txt"
-    ]
-  },
-  {
-    "hash": "6689db85e8440894b78e889348e1de284fc43408",
-    "date": "2025-10-31T17:07:41+07:00",
-    "message": "chore: update Yarn version to 4.10.3 in .yarnrc.yml and package.json",
-    "files": [
-      ".yarn/releases/yarn-4.10.3.cjs",
-      ".yarnrc.yml",
-      "package.json"
-    ]
-  },
-  {
-    "hash": "d442d2629083894aa73f1f605796c8c7097f7059",
-    "date": "2025-10-31T16:56:14+07:00",
-    "message": "fix(artisan): correct CLI access checks and headers for proxy scripts\n\n- Removed redundant `$isCli` conditional blocks in `filterPorts.php` and `proxyCollector.php`\n- Added missing CLI access check and header handling in `proxyCollector2.php`\n- Ensures consistent behavior and proper web access restriction across artisan scripts",
-    "files": [
-      "artisan/filterPorts.php",
-      "artisan/proxyCollector.php",
-      "artisan/proxyCollector2.php"
-    ]
-  },
-  {
-    "hash": "899ab04581dbd64843f2380282a2d0d8d4a4630c",
-    "date": "2025-10-31T16:38:29+07:00",
-    "message": "fix: import build_request in func_proxy_test for cookie handling",
-    "files": [
-      "tests/func_proxy_test.py"
     ]
   }
 ]
