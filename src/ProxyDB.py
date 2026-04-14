@@ -515,10 +515,11 @@ class ProxyDB:
         limit: Optional[int] = None,
         randomize: bool = True,
         ssl: Optional[bool] = None,
+        tun2socks: Optional[bool] = None,
         proxy_type: Optional[str] = None,
     ) -> List[Dict[str, Union[str, None]]]:
         """
-        Retrieve working (active) proxies with optional limit, ordering and SSL filter.
+        Retrieve working (active) proxies with optional limit, ordering and filters.
 
         Parameters
         - auto_fix (bool): If True, run `fix_empty_data()` on the results before
@@ -535,6 +536,11 @@ class ProxyDB:
                 - `False` => return only non-SSL proxies (NULL, empty string,
                     "false", "0").
                 - `None`  => no https/ssl filtering (default).
+        - tun2socks (Optional[bool]): Filter by the `tun2socks` column:
+                - `True`  => return only proxies where `tun2socks` is numeric > 0.
+                - `False` => return only proxies where `tun2socks` is NULL/empty
+                    or numeric <= 0.
+                - `None`  => no tun2socks filtering (default).
         - proxy_type (Optional[str]): Filter by the `type` column using LIKE.
             Useful for rows storing combined values like
             `http-socks4-socks4a-socks5-socks5h`.
@@ -547,8 +553,8 @@ class ProxyDB:
             string representations; the method compares lowercase text and
             common numeric values to be robust.
         - MySQL and SQLite use different placeholder styles; callers should
-            not need to format SQL themselves — use this method's `ssl`
-            argument instead of manual WHERE building.
+            not need to format SQL themselves — use this method's filter
+            arguments instead of manual WHERE building.
         """
         if limit is None:
             limit = sys.maxsize
@@ -577,6 +583,13 @@ class ProxyDB:
         elif ssl is False:
             where_clause += f" AND (https IS NULL OR https = {placeholder} OR LOWER(https) = {placeholder} OR https = {placeholder})"
             params.extend(["", "false", "0"])
+
+        if tun2socks:
+            where_clause += " AND (tun2socks + 0) > 0"
+        elif tun2socks is False:
+            where_clause += (
+                " AND (tun2socks IS NULL OR tun2socks = '' OR (tun2socks + 0) <= 0)"
+            )
 
         if proxy_type and proxy_type.strip():
             where_clause += f" AND LOWER(type) LIKE {placeholder}"

@@ -443,7 +443,12 @@ if __name__ == "__main__":
         db = init_db("mysql")
         try:
             proxies = db.get_working_proxies(
-                auto_fix=False, randomize=True, limit=args.limit, proxy_type="socks5"
+                auto_fix=False,
+                randomize=True,
+                limit=args.limit,
+                proxy_type="socks5",
+                ssl=None,
+                tun2socks=False,
             )
             print(f"{source_label} {len(proxies)} proxies loaded")
         finally:
