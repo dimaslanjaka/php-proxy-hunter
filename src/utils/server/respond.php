@@ -19,13 +19,16 @@
  *
  * @return void
  */
-function respond_json(array $data, int $status = 200) {
-  if (headers_sent() === false) {
-    http_response_code($status);
-    header('Content-Type: application/json; charset=utf-8');
-  } else {
-    // If headers already sent, attempt to set response code anyway.
-    http_response_code($status);
+function respond_json(array $data, int $status = 200)
+{
+  if (!is_cli()) {
+    if (headers_sent() === false) {
+      http_response_code($status);
+      header('Content-Type: application/json; charset=utf-8');
+    } else {
+      // If headers already sent, attempt to set response code anyway.
+      http_response_code($status);
+    }
   }
 
   echo json_encode($data, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES);
@@ -43,7 +46,8 @@ function respond_json(array $data, int $status = 200) {
  *
  * @return void
  */
-function respond_text(string $text, int $status = 200) {
+function respond_text(string $text, int $status = 200)
+{
   if (headers_sent() === false) {
     http_response_code($status);
     header('Content-Type: text/plain; charset=utf-8');
@@ -66,7 +70,8 @@ function respond_text(string $text, int $status = 200) {
  *
  * @return void
  */
-function respond_html(string $html, int $status = 200) {
+function respond_html(string $html, int $status = 200)
+{
   if (headers_sent() === false) {
     http_response_code($status);
     header('Content-Type: text/html; charset=utf-8');
