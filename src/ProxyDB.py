@@ -517,6 +517,8 @@ class ProxyDB:
         ssl: Optional[bool] = None,
         tun2socks: Optional[bool] = None,
         proxy_type: Optional[str] = None,
+        page: Optional[int] = None,
+        per_page: Optional[int] = None,
     ) -> List[Dict[str, Union[str, None]]]:
         """
         Retrieve working (active) proxies with optional limit, ordering and filters.
@@ -524,8 +526,7 @@ class ProxyDB:
         Parameters
         - auto_fix (bool): If True, run `fix_empty_data()` on the results before
             returning to populate missing geo/webgl/useragent data.
-        - limit (Optional[int]): Maximum number of rows to return. `None` means
-            no explicit limit (internally uses a large integer).
+        - limit (Optional[int]): Legacy single-argument limit (kept for compatibility).
         - randomize (bool): When True results are ordered randomly. When False
             results prefer most-recent rows (`ORDER BY rowid DESC` for SQLite,
             `ORDER BY id DESC` for MySQL) so recently added/updated proxies
@@ -544,6 +545,9 @@ class ProxyDB:
         - proxy_type (Optional[str]): Filter by the `type` column using LIKE.
             Useful for rows storing combined values like
             `http-socks4-socks4a-socks5-socks5h`.
+        - page (Optional[int]): 1-based page number for pagination. If provided
+            together with `per_page`, it overrides legacy `limit`.
+        - per_page (Optional[int]): Number of items per page for pagination.
 
         Returns
         - List[Dict[str, Union[str, None]]]: List of proxy rows as dictionaries.
@@ -555,6 +559,7 @@ class ProxyDB:
         - MySQL and SQLite use different placeholder styles; callers should
             not need to format SQL themselves — use this method's filter
             arguments instead of manual WHERE building.
+        - Pagination (page/per_page) takes precedence over legacy `limit`.
         """
         if limit is None:
             limit = sys.maxsize
@@ -597,18 +602,34 @@ class ProxyDB:
 
         # For SQLiteHelper we can pass rand and limit separately to avoid
         # embedding LIMIT into the where string. For MySQL keep previous behavior.
+        # Pagination (page/per_page) takes precedence over legacy limit
+        offset = None
+        final_limit = limit
+        if page is not None and per_page is not None:
+            page = max(1, int(page))
+            per_page = max(0, int(per_page))
+            offset = (page - 1) * per_page
+            final_limit = per_page
+
         try:
             if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
-                sql_where = f"{where_clause}{order_clause} LIMIT {int(limit)}"
+                sql_where = f"{where_clause}{order_clause} LIMIT {int(final_limit)}"
+                if offset is not None:
+                    sql_where += f" OFFSET {int(offset)}"
                 result = self.get_db().select("proxies", "*", sql_where, params)
             else:
                 # sqlite: when not randomizing, prefer most-recent rows so newly
                 # added/updated proxies appear in the limited result set.
                 if not randomize:
                     where_clause = f"{where_clause} ORDER BY rowid DESC"
-                result = self.get_db().select(
-                    "proxies", "*", where_clause, params, randomize, int(limit)
-                )
+                # Build SQL with LIMIT/OFFSET for SQLite
+                limit_offset_sql = f"LIMIT {int(final_limit)}"
+                if offset is not None:
+                    limit_offset_sql += f" OFFSET {int(offset)}"
+                if randomize:
+                    limit_offset_sql = f"ORDER BY RANDOM() {limit_offset_sql}"
+                full_where = f"{where_clause} {limit_offset_sql}"
+                result = self.get_db().select("proxies", "*", full_where, params)
         except Exception:
             result = []
 

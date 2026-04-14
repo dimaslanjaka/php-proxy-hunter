@@ -442,21 +442,53 @@ class ProxyDB
   }
 
   /**
-   * Get working proxies with optional randomization and pagination.
-   *
-   * Backwards-compatible: when only $limit is provided it behaves like before
-   * (providing a positive limit implies randomization unless $randomize is set).
+   * Get working proxies with optional randomization, pagination, and filtering.
    *
    * @param int|null $limit Legacy single-argument limit (kept for compatibility).
    * @param bool|null $randomize When true, return results in random order. When false, sort by last_check DESC. If null (default), preserve previous behaviour where providing a positive $limit implied randomization.
    * @param int|null $page 1-based page number for pagination. If provided together with $perPage, it overrides legacy $limit.
    * @param int|null $perPage Number of items per page for pagination.
+   * @param bool|null $ssl Filter by the `https` column:
+   *        - true  => return only proxies where https represents SSL ("true", "1").
+   *        - false => return only non-SSL proxies (NULL, empty, "false", "0").
+   *        - null  => no https/ssl filtering (default).
+   * @param bool|null $tun2socks Filter by the `tun2socks` column:
+   *        - true  => return only proxies where tun2socks > 0.
+   *        - false => return only proxies where tun2socks is NULL/empty or <= 0.
+   *        - null  => no tun2socks filtering (default).
+   * @param string|null $proxyType Filter by the `type` column using LIKE.
    * @return array
    */
-  public function getWorkingProxies($limit = null, $randomize = null, $page = null, $perPage = null)
+  public function getWorkingProxies($limit = null, $randomize = null, $page = null, $perPage = null, $ssl = null, $tun2socks = null, $proxyType = null)
   {
     $whereClause = 'status = ?';
     $params      = ['active'];
+
+    // SSL filtering: accept several stored representations
+    // True -> only https values representing true ("true", "1")
+    // False -> non-ssl (NULL, empty string, "false", "0")
+    if ($ssl === true) {
+      $whereClause .= ' AND (LOWER(https) = ? OR https = ?)';
+      $params[] = 'true';
+      $params[] = '1';
+    } elseif ($ssl === false) {
+      $whereClause .= ' AND (https IS NULL OR https = "" OR LOWER(https) = ? OR https = ?)';
+      $params[] = 'false';
+      $params[] = '0';
+    }
+
+    // TUN2SOCKS filtering: check numeric value > 0
+    if ($tun2socks === true) {
+      $whereClause .= ' AND (tun2socks + 0) > 0';
+    } elseif ($tun2socks === false) {
+      $whereClause .= ' AND (tun2socks IS NULL OR tun2socks = "" OR (tun2socks + 0) <= 0)';
+    }
+
+    // Proxy type filtering using LIKE
+    if ($proxyType !== null && trim($proxyType) !== '') {
+      $whereClause .= ' AND LOWER(type) LIKE ?';
+      $params[] = '%' . strtolower(trim($proxyType)) . '%';
+    }
 
     // Determine ordering (random or last_check DESC)
     if ($randomize === null) {
