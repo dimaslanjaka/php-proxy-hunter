@@ -491,10 +491,11 @@ if __name__ == "__main__":
         async def on_success(proxy_tuple: tuple[str, int], score: int):
             proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
             async with db_write_lock:
-                db.update_data(
-                    proxy,
-                    {"tun2socks": score, "type": "socks5", "status": "active"},
-                )
+                if score > 0:
+                    db.update_data(
+                        proxy,
+                        {"tun2socks": score, "type": "socks5", "status": "active"},
+                    )
 
         async def on_failure(proxy_tuple: tuple[str, int], score: int):
             proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
