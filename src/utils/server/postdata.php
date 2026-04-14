@@ -38,7 +38,53 @@ function parsePostData(bool $detect_get = false): ?array {
 }
 
 /**
- * Get the request parameters either from POST data, GET parameters, or a combination.
+ * Parse CLI args into key/value pairs.
+ *
+ * Supported forms:
+ * - --key=value
+ * - key=value
+ * - --flag (stored as true)
+ *
+ * @param array<int, string> $args CLI arguments (usually $argv).
+ *
+ * @return array Parsed CLI arguments.
+ */
+function parseCliArgs(array $args): array {
+  $result = [];
+
+  foreach ($args as $index => $arg) {
+    // Skip script name in argv[0].
+    if ($index === 0) {
+      continue;
+    }
+
+    if (!is_string($arg) || trim($arg) === '') {
+      continue;
+    }
+
+    $normalized = ltrim($arg, '-');
+
+    if (strpos($normalized, '=') !== false) {
+      [$key, $value] = explode('=', $normalized, 2);
+      $key           = trim($key);
+
+      if ($key !== '') {
+        $result[$key] = $value;
+      }
+
+      continue;
+    }
+
+    if (strpos($arg, '--') === 0 && $normalized !== '') {
+      $result[$normalized] = true;
+    }
+  }
+
+  return $result;
+}
+
+/**
+ * Get request parameters from HTTP request data or CLI arguments.
  *
  * @return array The request parameters array.
  */
@@ -47,5 +93,10 @@ function parseQueryOrPostBody(): array {
   if (!$isCli) {
     return array_merge(parsePostData(true), $_REQUEST, $_GET, $_POST);
   }
-  return [];
+
+  $argv = isset($GLOBALS['argv']) && is_array($GLOBALS['argv'])
+    ? $GLOBALS['argv']
+    : (is_array($_SERVER['argv'] ?? null) ? $_SERVER['argv'] : []);
+
+  return parseCliArgs($argv);
 }
