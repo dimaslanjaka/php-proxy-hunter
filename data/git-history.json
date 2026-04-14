@@ -1,5 +1,89 @@
 [
   {
+    "hash": "cc7f70b3cab74c301532b70c6cf8da2d9ba4acd0",
+    "date": "2026-04-14T14:13:10+07:00",
+    "message": "refactor(artisan): pass structured score results to callbacks\n\nIntroduce a typed score result payload to expose per-test outcomes\n(including TLS) throughout worker callbacks and DB updates.\n\n- add ProxyScoreResult TypedDict for score and test flags\n- update score_proxy to return structured result instead of raw int\n- pass score_result through worker callback pipeline\n- update callback type signatures to use ProxyScoreResult\n- persist TLS outcome as https true/false in success and failure handlers",
+    "files": [
+      "artisan/proxy_tun2socks_stability.py"
+    ]
+  },
+  {
+    "hash": "bfff48c95b01bee63c34d683e3b921cf8377ad63",
+    "date": "2026-04-14T14:06:22+07:00",
+    "message": "feat(proxy-list): add averaged tun2socks scoring with progress bar UI\n\nCompute and expose average tun2socks scores per unique IP in the backend,\nthen display tun2socks as a centered percentage progress bar in both\nServerSide and UniqueIp list tables.\n\n- aggregate tun2socks scores and return rounded average per unique IP\n- include tun2socks field in unique IP row model\n- add Tun2Socks columns and update empty-state colSpan values\n- render tun2socks as a bounded 0-100% progress bar with centered label",
+    "files": [
+      "php_backend/proxy-list-unique-ip.php",
+      "src/react/pages/ProxyList/ServerSide.tsx",
+      "src/react/pages/ProxyList/UniqueIpList.tsx"
+    ]
+  },
+  {
+    "hash": "072c78c79a2f9aaf2e02ee61975eb2a99e230a84",
+    "date": "2026-04-14T14:04:38+07:00",
+    "message": "fix(proxydb): preserve explicit last_check and add update_time control\n\n- prevent automatic last_check overwrite when last_check is already provided in:\n  - PHP ProxyDB::updateData\n  - Python ProxyDB.update_data\n- add update_time parameter to Python ProxyDB.update_data (default: true)\n- update restore-proxies flow to call update_data(..., False) when restoring records\n- apply PHP one-line brace formatting cleanup across ProxyDB methods",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/ProxyDB.py",
+      "src/dev/restore-proxies.py"
+    ]
+  },
+  {
+    "hash": "fbfa997afe28f92c7f7c6480033679960b2c572b",
+    "date": "2026-04-14T13:46:08+07:00",
+    "message": "refactor(artisan): remove unused on_score callback\n\non_failure now handles all proxy score updates, making on_score redundant.\nRemove callback parameter, its invocation, callback definition, and all\nrelated parameter threading from worker and run_until_found functions.",
+    "files": [
+      "artisan/proxy_tun2socks_stability.py"
+    ]
+  },
+  {
+    "hash": "58ab5336792247bff00279ecde429b19a9ee64b4",
+    "date": "2026-04-14T13:44:45+07:00",
+    "message": "fix(artisan): preserve tun2socks score in on_failure callback\n\nUpdate on_failure to retain calculated scores instead of blindly resetting\nto 0. Now only resets to 0 when score is 0 (hard fail), preserving partial\nsuccess scores. Fixes UI showing 0 instead of actual tun2socks scores.",
+    "files": [
+      "artisan/proxy_tun2socks_stability.py"
+    ]
+  },
+  {
+    "hash": "4d210ff1b8fde82cb98264503e90130c45c76314",
+    "date": "2026-04-14T13:42:25+07:00",
+    "message": "fix(cron): adjust tun2socks stability check logging to run every 30 minutes",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "7bbd54bdb872dff66fc7593932dab8ade61087f1",
+    "date": "2026-04-14T13:39:46+07:00",
+    "message": "fix(worker): update score handling to log only positive scores",
+    "files": [
+      "artisan/proxy_tun2socks_stability.py"
+    ]
+  },
+  {
+    "hash": "a185e8aff851afdef6bcc6fac9fdc69922259070",
+    "date": "2026-04-14T13:35:17+07:00",
+    "message": "fix(worker): update score handling to only log positive scores",
+    "files": [
+      "artisan/proxy_tun2socks_stability.py"
+    ]
+  },
+  {
+    "hash": "c551d96fb07059d09c342d30702ea29cd45f6e3c",
+    "date": "2026-04-14T13:28:19+07:00",
+    "message": "feat(artisan): add on_score callback to tun2socks worker\n\nAdd on_score callback parameter to worker and run_until_found functions\nto enable real-time tun2socks score tracking. The callback executes for\nevery positive score and updates the database with the score result.\n\n- Add on_score parameter to worker async function signature\n- Invoke on_score callback when score > 0 before success/failure handlers\n- Thread on_score parameter through run_until_found pool initialization\n- Implement on_score callback in main routine for db.update_data\n- Pass on_score to run_until_found invocation alongside existing callbacks",
+    "files": [
+      "artisan/proxy_tun2socks_stability.py"
+    ]
+  },
+  {
+    "hash": "27c0714071cf6b882eed10f2384b75d7402c2693",
+    "date": "2026-04-14T13:24:19+07:00",
+    "message": "chore(cron): run tun2socks stability check every 5 minutes",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
     "hash": "3f44bd12ab9b6163862946289eaf6b16ac4d3a40",
     "date": "2026-04-14T13:19:59+07:00",
     "message": "feat(server): add CLI argument parsing to request body helper",
@@ -8764,86 +8848,6 @@
     "message": "feat(artisan): rate-limit proxyCheckerStarter to once per user per 5 minutes\n\n- store per-user timestamp in session under `lastProxyCheck-{userId}`\n- exit early when a non-CLI request triggers the starter within 5 minutes\n- compute and reuse `$userId` for child `--userId` flag\n- reduces duplicate background job launches and throttles user-triggered runs",
     "files": [
       "artisan/proxyCheckerStarter.php"
-    ]
-  },
-  {
-    "hash": "efc6db08285e078989aa2ecdc84a6773c75e4f09",
-    "date": "2025-10-31T18:35:20+07:00",
-    "message": "feat(react): start background proxy checker from ProxyList every 5 minutes\n\nCall `/artisan/proxyCheckerStarter.php` from `ProxyList.tsx` to kick off background proxy checks.\nRate-limit invocations with `localStorage` (`lastProxyCheckStart`) so the starter is requested at most once every 5 minutes.",
-    "files": [
-      "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "4323183eeb482065321be937574121c97e301f07",
-    "date": "2025-10-31T18:00:50+07:00",
-    "message": "fix(proxyChecker): handle exceptions during anonymity check and improve error reporting",
-    "files": [
-      "artisan/proxyChecker.php"
-    ]
-  },
-  {
-    "hash": "e1996994bee910676388f702f4d952d42723e9b1",
-    "date": "2025-10-31T17:58:46+07:00",
-    "message": "refactor(get_anonymity): enhance documentation for proxy connectivity check",
-    "files": [
-      "func-proxy.php"
-    ]
-  },
-  {
-    "hash": "aef682957a172997975fea935a724dfd41b4498c",
-    "date": "2025-10-31T17:57:23+07:00",
-    "message": "fix(get_anonymity): ensure content is valid before returning in case of curl failure",
-    "files": [
-      "func-proxy.php"
-    ]
-  },
-  {
-    "hash": "9d4357f96d520c437b894f434bb1926f1bd55668",
-    "date": "2025-10-31T17:53:59+07:00",
-    "message": "fix(proxyCheckerStarter): skip empty proxies in the checking process",
-    "files": [
-      "artisan/proxyCheckerStarter.php"
-    ]
-  },
-  {
-    "hash": "e19cd4054e285e5756bfe5bb912f0ec7479c14f9",
-    "date": "2025-10-31T17:52:07+07:00",
-    "message": "refactor(proxyCheckerStarter): replace CORS headers with Server::allowCors method",
-    "files": [
-      "artisan/proxyCheckerStarter.php"
-    ]
-  },
-  {
-    "hash": "3106d7323b45595f11e96e103691b2abf432e4e8",
-    "date": "2025-10-31T17:50:29+07:00",
-    "message": "fix(proxyCheckerStarter): use correct lock file path for validation",
-    "files": [
-      "artisan/proxyCheckerStarter.php"
-    ]
-  },
-  {
-    "hash": "b3f4ab54a8a881615f5d2233c7333009d4267afd",
-    "date": "2025-10-31T17:49:50+07:00",
-    "message": "feat(artisan): add proxyCheckerStarter to spawn background proxy checks\n\n- Add new `artisan/proxyCheckerStarter.php`.\n- Selects untested (or oldest tested) proxies, shuffles and slices the list.\n- Prepares per-proxy runner environment (pid, output, runner, lock file) and ensures directories/permissions.\n- Builds CLI command and launches detached background jobs (Windows `start /B` via popen; Unix `&` via exec).\n- Passes `--lockFile` to child processes to avoid concurrent checks and validates global lock.\n- Non-breaking, adds a helper entrypoint to distribute/dispatch proxyChecker work.",
-    "files": [
-      "artisan/proxyCheckerStarter.php"
-    ]
-  },
-  {
-    "hash": "5d705fff35f05d4454d67e364c4ceca99cf4fc8a",
-    "date": "2025-10-31T17:45:13+07:00",
-    "message": "feat(proxyChecker): add lockfile support to prevent concurrent runs\n\n- Add new CLI option `--lockFile` to `artisan/proxyChecker.php`.\n- If the lock file exists the script exits (code 5) to avoid duplicate runs.\n- Writes the current PID to the provided lock file at start and removes it on exit.\n- Small style/closure formatting cleanup (fn spacing).",
-    "files": [
-      "artisan/proxyChecker.php"
-    ]
-  },
-  {
-    "hash": "a49d53fa9c4bd3777578b8b5e5e07b6e3c75554f",
-    "date": "2025-10-31T17:27:33+07:00",
-    "message": "feat: add method to retrieve oldest tested proxies",
-    "files": [
-      "src/PhpProxyHunter/ProxyDB.php"
     ]
   }
 ]
