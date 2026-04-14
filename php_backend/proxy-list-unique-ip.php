@@ -124,6 +124,10 @@ function buildUniqueIpRows($rows)
       }
     }
 
+    if ((float)($row['tun2socks'] ?? 0) > 0) {
+      $grouped[$ip]['type_map']['tun2socks'] = true;
+    }
+
     $country = trim((string)($row['country'] ?? ''));
     if ($grouped[$ip]['country'] === '-' && $country !== '' && $country !== '-' && $country !== 'N/A') {
       $grouped[$ip]['country'] = $country;
@@ -261,6 +265,10 @@ function buildUniqueIpRowsStreamed(PDOStatement $stmt): array
           $grouped[$ip]['type_map'][$t] = true;
         }
       }
+    }
+
+    if ((float)($row['tun2socks'] ?? 0) > 0) {
+      $grouped[$ip]['type_map']['tun2socks'] = true;
     }
 
     $country = trim((string)($row['country'] ?? ''));
@@ -435,7 +443,9 @@ try {
   }
 
   if ($typeFilter !== '') {
-    if (strtolower($typeFilter) === 'ssl') {
+    if (strtolower($typeFilter) === 'tun2socks') {
+      $whereParts[] = '(tun2socks + 0) > 0';
+    } elseif (strtolower($typeFilter) === 'ssl') {
       $whereParts[]          = '(type LIKE :type OR https = :https_true OR https = :https_one OR https = :https_int)';
       $params[':type']       = '%' . $typeFilter . '%';
       $params[':https_true'] = 'true';
@@ -452,7 +462,7 @@ try {
     $whereSql = ' WHERE ' . implode(' AND ', $whereParts);
   }
 
-  $sql  = 'SELECT proxy, status, type, country, city, last_check FROM proxies' . $whereSql;
+  $sql  = 'SELECT proxy, status, type, country, city, last_check, tun2socks FROM proxies' . $whereSql;
   $stmt = $pdo->prepare($sql);
   $stmt->execute($params);
 

@@ -12,6 +12,7 @@ export const proxyTypeColorClasses: Record<string, string> = {
     'bg-orange-200 text-orange-900 dark:bg-orange-400/20 dark:text-orange-100 border-orange-300 dark:border-orange-500',
   socks5h:
     'bg-amber-200 text-amber-900 dark:bg-amber-400/20 dark:text-amber-100 border-amber-300 dark:border-amber-500',
+  tun2socks: 'bg-teal-200 text-teal-900 dark:bg-teal-400/20 dark:text-teal-100 border-teal-300 dark:border-teal-500',
   ssl: 'bg-green-200 text-green-900 dark:bg-green-400/20 dark:text-green-100 border-green-300 dark:border-green-500',
   default: 'bg-gray-200 text-gray-900 dark:bg-gray-700 dark:text-gray-100 border-gray-300 dark:border-gray-600'
 };

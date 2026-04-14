@@ -6,6 +6,7 @@ import { noop } from '../../../utils/other';
 import { add_ajax_schedule, run_ajax_schedule } from '../../../utils/ajaxScheduler';
 import { useSnackbar } from '../../components/Snackbar';
 import { checkProxyHttps } from '../../utils/proxy';
+import { getProxyTypeColorClass } from '../../utils/proxyColors';
 import { getUserInfo } from '../../utils/user';
 import { createUrl } from '../../utils/url';
 
@@ -454,6 +455,7 @@ export default function UniqueIpList() {
               <option value="socks5">SOCKS5</option>
               <option value="socks5h">SOCKS5H</option>
               <option value="ssl">SSL</option>
+              <option value="tun2socks">TUN2SOCKS</option>
             </select>
 
             <select
@@ -557,7 +559,7 @@ export default function UniqueIpList() {
                           {(Array.isArray(row.types) ? row.types : []).map((tp) => (
                             <span
                               key={`${row.ip}-type-${tp}`}
-                              className="inline-block px-2 py-0.5 text-xs rounded border border-amber-200 bg-amber-50 text-amber-700 dark:border-amber-800 dark:bg-amber-900/40 dark:text-amber-200">
+                              className={`inline-block px-2 py-0.5 text-xs rounded border ${getProxyTypeColorClass(String(tp))}`}>
                               {String(tp).toUpperCase()}
                             </span>
                           ))}

@@ -33,6 +33,7 @@ export default class ProxyData {
    * @param {string|null} [params.password=null]
    * @param {number|null} [params.id=null]
    * @param {string|null} [params.https='false'] - kept as string to mirror original PHP value
+    @param {string|null} [params.tun2socks=null] - numeric string indicating tun2socks availability/count
    * @param {string|null} [params.classification=null] - proxy classification (e.g. 'residential', 'datacenter', 'mobile', etc.)
    */
   constructor({
@@ -58,6 +59,7 @@ export default class ProxyData {
     password = null,
     id = null,
     https = 'false',
+    tun2socks = null,
     classification = null
   } = {}) {
     /** @type {number|null} */
@@ -130,6 +132,9 @@ export default class ProxyData {
     this.https = https;
 
     /** @type {string|null} */
+    this.tun2socks = tun2socks;
+
+    /** @type {string|null} */
     this.classification = classification;
   }
 
@@ -160,7 +165,8 @@ export default class ProxyData {
       browser_vendor: this.browser_vendor,
       username: this.username,
       password: this.password,
-      https: this.https
+      https: this.https,
+      tun2socks: this.tun2socks
     };
   }
 

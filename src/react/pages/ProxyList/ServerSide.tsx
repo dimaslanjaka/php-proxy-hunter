@@ -12,8 +12,6 @@ import { add_ajax_schedule, run_ajax_schedule } from '../../../utils/ajaxSchedul
 import { getUserInfo } from '../../utils/user';
 import { formatLatency } from './utils';
 
-type ProxyRow = ProxyData;
-
 // Return badge classes for known classification values
 const getClassificationBadgeClass = (c?: string) => {
   const v = String(c || '').trim();
@@ -32,7 +30,7 @@ const getClassificationBadgeClass = (c?: string) => {
 export default function ServerSide() {
   const { t } = useTranslation();
   const { showSnackbar } = useSnackbar();
-  const [rows, setRows] = React.useState<ProxyRow[]>([]);
+  const [rows, setRows] = React.useState<ProxyData[]>([]);
   const [errorMsg, setErrorMsg] = React.useState<string>('');
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(10);
@@ -56,7 +54,7 @@ export default function ServerSide() {
   const [serverPerPage, setServerPerPage] = React.useState<number | null>(null);
   const [userId, setUserId] = React.useState<string | null>(null);
 
-  const formatProxyWithOptionalAuth = React.useCallback((row: ProxyRow) => {
+  const formatProxyWithOptionalAuth = React.useCallback((row: ProxyData) => {
     const proxy = String(row.proxy || '').trim();
     if (!proxy) return '';
 
@@ -154,7 +152,7 @@ export default function ServerSide() {
     fetchData().catch(noop);
   }, [fetchData]);
 
-  const handleCopy = async (row: ProxyRow, idx: number) => {
+  const handleCopy = async (row: ProxyData, idx: number) => {
     try {
       const proxyStr = formatProxyWithOptionalAuth(row);
       if (!proxyStr) return;
@@ -346,6 +344,7 @@ export default function ServerSide() {
                 <option value="socks5">SOCKS5</option>
                 <option value="socks5h">SOCKS5H</option>
                 <option value="ssl">SSL</option>
+                <option value="tun2socks">TUN2SOCKS</option>
               </select>
               <select
                 value={countryFilter}
@@ -520,6 +519,12 @@ export default function ServerSide() {
                             <span
                               className={`inline-block rounded px-1 py-0.5 ml-1 text-xs font-semibold align-middle border ${getProxyTypeColorClass('ssl')}`}>
                               SSL
+                            </span>
+                          )}
+                          {Number(String(r.tun2socks ?? '').trim()) > 0 && (
+                            <span
+                              className={`inline-block rounded px-1 py-0.5 ml-1 text-xs font-semibold align-middle border ${getProxyTypeColorClass('tun2socks')}`}>
+                              TUN2SOCKS
                             </span>
                           )}
                         </td>

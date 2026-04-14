@@ -62,7 +62,7 @@ try {
   if (isset($request['status'])) {
     $statusFilter = trim((string)$request['status']);
   }
-  // Optional type filter (http, https, socks4, socks5, ssl)
+  // Optional type filter (http, https, socks4, socks5, ssl, tun2socks)
   $typeFilter = '';
   if (isset($request['type'])) {
     $typeFilter = trim((string)$request['type']);
@@ -126,8 +126,11 @@ try {
     $countParams[':status'] = $statusFilter;
   }
   if ($typeFilter !== '') {
-    // If filtering for SSL, match either the type column or the https flag
-    if (strtolower($typeFilter) === 'ssl') {
+    // If filtering for tun2socks, match proxies with tun2socks numeric value > 0.
+    if (strtolower($typeFilter) === 'tun2socks') {
+      $whereParts[] = '(tun2socks + 0) > 0';
+    } elseif (strtolower($typeFilter) === 'ssl') {
+      // If filtering for SSL, match either the type column or the https flag.
       $whereParts[]               = '(type LIKE :type OR https = :https_true OR https = :https_one OR https = :https_int)';
       $countParams[':type']       = '%' . $typeFilter . '%';
       $countParams[':https_true'] = 'true';
@@ -171,7 +174,9 @@ try {
     $params[':status'] = $statusFilter;
   }
   if ($typeFilter !== '') {
-    if (strtolower($typeFilter) === 'ssl') {
+    if (strtolower($typeFilter) === 'tun2socks') {
+      $whereParts[] = '(tun2socks + 0) > 0';
+    } elseif (strtolower($typeFilter) === 'ssl') {
       $whereParts[]          = '(type LIKE :type OR https = :https_true OR https = :https_one OR https = :https_int)';
       $params[':type']       = '%' . $typeFilter . '%';
       $params[':https_true'] = 'true';
