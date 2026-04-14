@@ -330,23 +330,30 @@ class ProxyDB:
         randomize: Optional[bool] = None,
         page: Optional[int] = None,
         per_page: Optional[int] = None,
+        status: Optional[str] = None,
+        last_checked: Optional[str] = None,
     ) -> List[Dict[str, Union[str, None]]]:
-        """Get all proxies with optional pagination and randomization.
+        """Get all proxies with optional pagination, randomization, and filtering.
+
+        Args:
+            limit (Optional[int]): Maximum number of results (legacy single-argument limit).
+            randomize (Optional[bool]): When True, order results randomly. When False, order
+                by most recent. When None, randomize if limit is provided (backwards-compatible).
+            page (Optional[int]): 1-based page number for pagination. Takes precedence over limit.
+            per_page (Optional[int]): Number of items per page for pagination.
+            status (Optional[str]): Filter by status column. Valid values: "dead", "active",
+                "untested", "port-closed", "port-open". When None, no status filtering.
+            last_checked (Optional[str]): Filter by last_check column (RFC3339 date string).
+                When provided, only returns proxies that were checked on or before this date
+                (i.e., last_check <= last_checked).
+
+        Returns:
+            List[Dict[str, Union[str, None]]]: List of proxy rows as dictionaries.
 
         Backwards-compatible: when only `limit` is provided it behaves like before
         (providing a positive limit implies randomization unless `randomize` is set).
         """
-        # Determine ordering
-        if randomize is None:
-            order_by = (
-                self.get_random_function()
-                if (limit is not None and limit > 0)
-                else None
-            )
-        else:
-            order_by = self.get_random_function() if randomize else None
-
-        # Pagination
+        # Pagination (page/perPage) takes precedence over legacy limit
         offset = None
         final_limit = limit
         if page is not None and per_page is not None:
@@ -355,17 +362,54 @@ class ProxyDB:
             offset = (page - 1) * per_page
             final_limit = per_page
 
+        # Determine ordering (after pagination calculation to use final_limit)
+        if randomize is None:
+            order_by = (
+                self.get_random_function()
+                if (final_limit is not None and final_limit > 0)
+                else None
+            )
+        else:
+            order_by = self.get_random_function() if randomize else None
+
+        # Build backend-specific query and params
+        params: List[Union[str, int]] = []
+        where_clause: Optional[str] = None
+
+        if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
+            placeholder = "%s"
+        else:
+            placeholder = "?"
+
+        # Status filtering
+        if status:
+            where_clause = f"status = {placeholder}"
+            params.append(status)
+
+        # Last checked filtering (last_check <= last_checked)
+        if last_checked:
+            if where_clause:
+                where_clause += f" AND last_check <= {placeholder}"
+            else:
+                where_clause = f"last_check <= {placeholder}"
+            params.append(last_checked)
+
         # MySQLHelper.select signature supports orderBy, limit, offset as extra args maybe
         try:
             # prefer keyword-style where supported
             result = self.get_db().select(
-                "proxies", "*", None, [], order_by, final_limit, offset  # type: ignore[arg-type]
+                "proxies", "*", where_clause, params, order_by, final_limit, offset  # type: ignore[arg-type]
             )
             return cast(List[Dict[str, Union[str, None]]], result)
         except TypeError:
             # fallback to simple select without pagination/order
-            result = self.get_db().select("proxies", "*")
-            return cast(List[Dict[str, Union[str, None]]], result)
+            try:
+                result = self.get_db().select("proxies", "*", where_clause, params)
+                return cast(List[Dict[str, Union[str, None]]], result)
+            except Exception:
+                # final fallback
+                result = self.get_db().select("proxies", "*")
+                return cast(List[Dict[str, Union[str, None]]], result)
 
     def remove(self, proxy, delete_from_added: bool = False):
         proxy = self.normalize_proxy(proxy)

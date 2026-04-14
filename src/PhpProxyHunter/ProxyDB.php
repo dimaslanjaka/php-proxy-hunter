@@ -270,7 +270,7 @@ class ProxyDB
   }
 
   /**
-   * Get all proxies with optional randomization and pagination.
+   * Get all proxies with optional randomization, pagination, and filtering.
    *
    * Backwards-compatible: when only $limit is provided it behaves like before
    * (providing a positive limit implies randomization unless $randomize is set).
@@ -279,15 +279,37 @@ class ProxyDB
    * @param bool|null $randomize When true, return results in random order. When false, return in default order. If null (default), preserve previous behaviour where providing a positive $limit implied randomization.
    * @param int|null $page 1-based page number for pagination. If provided together with $perPage, it overrides legacy $limit.
    * @param int|null $perPage Number of items per page for pagination.
+   * @param string|null $status Filter by status column. Valid values: "dead", "active", "untested", "port-closed", "port-open". When null, no status filtering.
+   * @param string|null $lastChecked Filter by last_check column (RFC3339 date string). When provided, returns only proxies checked on or before this date (last_check <= lastChecked).
    * @return array
    */
-  public function getAllProxies($limit = null, $randomize = null, $page = null, $perPage = null)
+  public function getAllProxies($limit = null, $randomize = null, $page = null, $perPage = null, $status = null, $lastChecked = null)
   {
     // Determine ordering (random or not)
     if ($randomize === null) {
       $orderBy = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
     } else {
       $orderBy = ($randomize === true) ? $this->getRandomFunction() : null;
+    }
+
+    // Build WHERE clause for filtering
+    $whereClause = '';
+    $params      = [];
+
+    // Status filtering
+    if ($status !== null) {
+      $whereClause = 'status = ?';
+      $params[]    = $status;
+    }
+
+    // Last checked filtering (last_check <= lastChecked)
+    if ($lastChecked !== null) {
+      if ($whereClause) {
+        $whereClause .= ' AND last_check <= ?';
+      } else {
+        $whereClause = 'last_check <= ?';
+      }
+      $params[] = $lastChecked;
     }
 
     // Pagination (page/perPage) takes precedence over legacy $limit
@@ -300,7 +322,7 @@ class ProxyDB
       $finalLimit = $perPage;
     }
 
-    return $this->db->select('proxies', '*', null, [], $orderBy, $finalLimit, $offset);
+    return $this->db->select('proxies', '*', $whereClause ?: null, $params, $orderBy, $finalLimit, $offset);
   }
 
   /**
