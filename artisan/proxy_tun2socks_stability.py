@@ -6,7 +6,7 @@ import socks
 import os
 import sys
 import re
-from typing import Any, Awaitable, Callable, Optional
+from typing import Any, Awaitable, Callable, Optional, TypedDict
 from colorama import Fore, Style, just_fix_windows_console
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -34,6 +34,14 @@ locker: Optional[FileLockHelper] = None
 
 just_fix_windows_console()
 COLOR_ENABLED = True
+
+
+class ProxyScoreResult(TypedDict):
+    score: int
+    tcp: bool
+    tls: bool
+    stability: bool
+    latency: float | None
 
 
 def color_value_text(value: int) -> str:
@@ -248,14 +256,20 @@ async def test_latency(proxy):
 # ---------- SCORING ----------
 
 
-async def score_proxy(proxy):
+async def score_proxy(proxy) -> ProxyScoreResult:
     score = 0
     log_test(proxy, "SCORE", "start")
 
     tcp = await test_tcp(proxy)
     if not tcp:
         log_test(proxy, "SCORE", "hard fail (tcp)")
-        return 0  # hard fail
+        return {
+            "score": 0,
+            "tcp": False,
+            "tls": False,
+            "stability": False,
+            "latency": None,
+        }
 
     score += 20
 
@@ -277,22 +291,28 @@ async def score_proxy(proxy):
     # NOTE: remote DNS test skipped (can add via aiohttp + socks5h)
 
     log_test(proxy, "SCORE", f"done ({score})")
-    return score
+    return {
+        "score": score,
+        "tcp": True,
+        "tls": tls,
+        "stability": stability,
+        "latency": latency,
+    }
 
 
 # ---------- WORKER POOL ----------
 
 
 async def _invoke_worker_callback(
-    callback: Callable[[tuple[str, int], int], Any] | None,
+    callback: Callable[[tuple[str, int], ProxyScoreResult], Any] | None,
     proxy_tuple: tuple[str, int],
-    score: int,
+    score_result: ProxyScoreResult,
 ):
     if callback is None:
         return
 
     try:
-        callback_result = callback(proxy_tuple, score)
+        callback_result = callback(proxy_tuple, score_result)
         if asyncio.iscoroutine(callback_result):
             await callback_result
     except Exception as exc:
@@ -304,8 +324,8 @@ async def worker(
     found_event,
     result_holder,
     tested_set,
-    on_success: Callable[[tuple[str, int], int], Any] | None = None,
-    on_failure: Callable[[tuple[str, int], int], Any] | None = None,
+    on_success: Callable[[tuple[str, int], ProxyScoreResult], Any] | None = None,
+    on_failure: Callable[[tuple[str, int], ProxyScoreResult], Any] | None = None,
 ):
     while not found_event.is_set():
         try:
@@ -320,17 +340,18 @@ async def worker(
 
             tested_set.add(f"{proxy_tuple[0]}:{proxy_tuple[1]}")
             log_test(proxy_tuple, "WORKER", "picked from queue")
-            score = await score_proxy(proxy_tuple)
+            score_result = await score_proxy(proxy_tuple)
+            score = score_result["score"]
             log_test(proxy_tuple, "WORKER", f"score result ({score})")
 
             if score >= TARGET_SCORE:
-                await _invoke_worker_callback(on_success, proxy_tuple, score)
+                await _invoke_worker_callback(on_success, proxy_tuple, score_result)
                 result_holder.append((proxy_tuple, score))
                 log_test(proxy_tuple, "WORKER", f"target reached ({TARGET_SCORE})")
                 found_event.set()  # 🚀 STOP EVERYTHING
                 return
 
-            await _invoke_worker_callback(on_failure, proxy_tuple, score)
+            await _invoke_worker_callback(on_failure, proxy_tuple, score_result)
 
         finally:
             queue.task_done()
@@ -361,8 +382,8 @@ async def run(proxies, concurrency=200):
 async def run_until_found(
     proxies,
     concurrency=200,
-    on_success: Callable[[tuple[str, int], int], Any] | None = None,
-    on_failure: Callable[[tuple[str, int], int], Any] | None = None,
+    on_success: Callable[[tuple[str, int], ProxyScoreResult], Any] | None = None,
+    on_failure: Callable[[tuple[str, int], ProxyScoreResult], Any] | None = None,
 ):
     queue = asyncio.Queue()
     found_event = asyncio.Event()
@@ -473,19 +494,28 @@ if __name__ == "__main__":
         db = init_db("mysql")
         db_write_lock = asyncio.Lock()
 
-        async def on_success(proxy_tuple: tuple[str, int], score: int):
+        async def on_success(proxy_tuple: tuple[str, int], score_result: ProxyScoreResult):
+            score = score_result["score"]
+            tls_ok = score_result["tls"]
             proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
             async with db_write_lock:
                 if score > 0:
                     db.update_data(
                         proxy,
-                        {"tun2socks": score, "type": "socks5", "status": "active"},
+                        {
+                            "tun2socks": score,
+                            "type": "socks5",
+                            "status": "active",
+                            "https": "true" if tls_ok else "false",
+                        },
                     )
 
-        async def on_failure(proxy_tuple: tuple[str, int], score: int):
+        async def on_failure(proxy_tuple: tuple[str, int], score_result: ProxyScoreResult):
+            score = score_result["score"]
+            tls_ok = score_result["tls"]
             proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
             async with db_write_lock:
-                db.update_data(proxy, {"tun2socks": score})
+                db.update_data(proxy, {"tun2socks": score, "https": "true" if tls_ok else "false"})
 
         try:
             result, tested_set = asyncio.run(
