@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <module type="WEB_MODULE" version="4">
+  <component name="FacetManager">
+    <facet type="Python" name="Python">
+      <configuration sdkName="Python 3.14 virtualenv at D:\Repositories\php-proxy-hunter\.venv" />
+    </facet>
+  </component>
   <component name="NewModuleRootManager" inherit-compiler-output="true">
     <exclude-output />
     <content url="file://$MODULE_DIR$">
@@ -41,10 +46,22 @@
       <excludeFolder url="file://$MODULE_DIR$/baileys_auth_info_br" />
       <excludeFolder url="file://$MODULE_DIR$/frontend/tmp" />
       <excludeFolder url="file://$MODULE_DIR$/tests/tmp" />
+      <excludeFolder url="file://$MODULE_DIR$/.deploy_git" />
+      <excludeFolder url="file://$MODULE_DIR$/.devcontainer" />
+      <excludeFolder url="file://$MODULE_DIR$/.venv" />
+      <excludeFolder url="file://$MODULE_DIR$/android_app" />
+      <excludeFolder url="file://$MODULE_DIR$/cloud_mysql" />
+      <excludeFolder url="file://$MODULE_DIR$/cloud_sqlite" />
+      <excludeFolder url="file://$MODULE_DIR$/django_backend" />
+      <excludeFolder url="file://$MODULE_DIR$/docs" />
+      <excludeFolder url="file://$MODULE_DIR$/phpliteadmin" />
+      <excludeFolder url="file://$MODULE_DIR$/phpmyadmin" />
+      <excludeFolder url="file://$MODULE_DIR$/tailscale" />
     </content>
     <content url="file://$MODULE_DIR$/assets/proxies" />
     <orderEntry type="jdk" jdkName="Python 3.11 (htdocs)" jdkType="Python SDK" />
     <orderEntry type="sourceFolder" forTests="false" />
+    <orderEntry type="library" name="Python 3.14 virtualenv at D:\Repositories\php-proxy-hunter\.venv interpreter library" level="application" />
   </component>
   <component name="PackageRequirementsSettings">
     <option name="versionSpecifier" value="Don't specify version" />

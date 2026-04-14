@@ -68,7 +68,6 @@
     <option name="SEARCH_ACTIVITY_IN_GLOBAL_SCOPE" value="false" />
     <option name="SKIP_ACTIVITY_VALIDATION" value="false" />
     <method v="2">
-      <option name="Gradle.BeforeRunTask" enabled="true" tasks=":connectivitytest:installDebug" externalProjectPath="$PROJECT_DIR$/connectivitytest" vmOptions="" scriptParameters="" />
       <option name="Android.Gradle.BeforeRunTask" enabled="true" />
     </method>
   </configuration>
