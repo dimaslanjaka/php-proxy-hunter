@@ -507,7 +507,12 @@ class ProxyDB:
         if data:
             self.update_data(proxy, data)
 
-    def update_data(self, proxy: str, data: Optional[Dict[str, Any]] = None):
+    def update_data(
+        self,
+        proxy: str,
+        data: Optional[Dict[str, Any]] = None,
+        update_time: bool = True,
+    ):
         if not proxy.strip() or not self.select(proxy):
             self.add(proxy)
 
@@ -516,7 +521,12 @@ class ProxyDB:
 
         data = {key: value for key, value in data.items()}
 
-        if "status" in data and data.get("status") != "untested":
+        if (
+            "status" in data
+            and data.get("status") != "untested"
+            and "last_check" not in data
+            and update_time
+        ):
             data["last_check"] = get_current_rfc3339_time()
 
         if data:

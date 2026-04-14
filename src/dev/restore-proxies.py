@@ -104,7 +104,7 @@ def restore_from_chunks(
                         action = "skip"
                     else:
                         action = "update"
-                        proxy_db.update_data(proxy, data)
+                        proxy_db.update_data(proxy, data, False)
                         restored += 1
                     print(
                         f"\r{processed+1} [{idx}/{total_files}] {proxy} -> {action}            ",
