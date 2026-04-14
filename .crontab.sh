@@ -140,6 +140,7 @@ log_command() {
 if should_run_job "tmp/crontab/5-m" 0.0833; then
   echo "Running 5 minutes job."
   log_command "tmp/logs/crontab/cleanup-blacklist.log" "$PYTHON_BIN" "$CWD/artisan/blacklist_remover.py"
+  log_command "tmp/logs/crontab/tun2socks-stability-check.log" "$PYTHON_BIN" "$CWD/artisan/proxy_tun2socks_stability.py" --limit=1000
 else
   echo "Skipping 5 minutes job."
 fi
@@ -170,7 +171,6 @@ if should_run_job "tmp/crontab/1-h" 1; then
   # log_command "tmp/logs/crontab/check-https-proxy.log" php php_backend/check-https-proxy.php
   log_command "tmp/logs/crontab/proxy-classifier-lookup.log" "$PYTHON_BIN" "$CWD/artisan/proxy-classifier-lookup.py" --limit=1000
   log_command "tmp/logs/crontab/filter-duplicate-ips.log" "$PYTHON_BIN" "$CWD/artisan/filter_duplicate_ips.py" --limit=1000 --include-untested
-  log_command "tmp/logs/crontab/tun2socks-stability-check.log" "$PYTHON_BIN" "$CWD/artisan/proxy_tun2socks_stability.py" --limit=1000
   log_command "tmp/logs/crontab/proxy-socks5-checker.log" "$PYTHON_BIN" "$CWD/artisan/proxy_socks5_checker.py" --limit=100
   echo "Running 1 hour job."
 else
