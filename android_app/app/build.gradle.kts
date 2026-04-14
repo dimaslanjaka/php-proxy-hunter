@@ -130,7 +130,8 @@ dependencies {
 
   // Register all .jar and .aar files from the specified directory
   // Exclude annotations and gson jars as they are already bundled in powertunnel-release.aar
-  implementation(fileTree("D:\\Repositories\\android-traffic\\releases") {
+  // Path is relative to the app module: ../../../ reaches the common root (Repositories)
+  implementation(fileTree("../../../android-traffic/releases") {
     include("*.jar")
     include("*.aar")
     exclude("gson*.jar")
