@@ -140,7 +140,6 @@ log_command() {
 if should_run_job "tmp/crontab/5-m" 0.0833; then
   echo "Running 5 minutes job."
   log_command "tmp/logs/crontab/cleanup-blacklist.log" "$PYTHON_BIN" "$CWD/artisan/blacklist_remover.py"
-  log_command "tmp/logs/crontab/tun2socks-stability-check.log" "$PYTHON_BIN" "$CWD/artisan/proxy_tun2socks_stability.py" --limit=1000
 else
   echo "Skipping 5 minutes job."
 fi
@@ -157,6 +156,7 @@ if should_run_job "tmp/crontab/30-m" 0.5; then
   log_command "tmp/logs/crontab/geoip.log" php artisan/geoIp.php
   log_command "tmp/logs/crontab/proxyCollector2.log" "$PYTHON_BIN" artisan/proxyCollector2.py --batch-size=500 --shuffle
   log_command "tmp/logs/crontab/proxyCollector.log" "$PYTHON_BIN" artisan/proxyCollector.py --batch-size=500 --shuffle
+  log_command "tmp/logs/crontab/tun2socks-stability-check.log" "$PYTHON_BIN" "$CWD/artisan/proxy_tun2socks_stability.py" --limit=1000
 else
   echo "Skipping 30 minutes job."
 fi
