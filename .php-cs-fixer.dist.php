@@ -70,7 +70,7 @@ if (!$hasPathArg) {
 // ---------------------------------------------
 // Guard to keep compatibility with older PHP-CS-Fixer versions.
 if (
-    class_exists('PhpCsFixer\\Runner\\Parallel\\ParallelConfigFactory') && method_exists($config, 'setParallelConfig')
+  class_exists('PhpCsFixer\\Runner\\Parallel\\ParallelConfigFactory') && method_exists($config, 'setParallelConfig')
 ) {
   try {
     // Automatically detect and apply optimal parallel configuration
@@ -113,11 +113,13 @@ $rules = [
   // Add trailing commas in multiline arrays for cleaner diffs
   'trailing_comma_in_multiline' => ['elements' => ['arrays']],
 
+  // ---------------------------------------------
   // Control brace placement and closure formatting
-  'braces' => [
-    'allow_single_line_closure'                   => true, // Allow one-line anonymous functions
-    'position_after_functions_and_oop_constructs' => 'same', // Keep opening brace on same line
-    'position_after_control_structures'           => 'same', // <-- add this
+  // (UPDATED for PHP-CS-Fixer v3.95+)
+  // ---------------------------------------------
+  'braces_position' => [
+    'functions_opening_brace'          => 'same_line',
+    'control_structures_opening_brace' => 'same_line',
   ],
 
   // Enforce consistent array indentation
