@@ -362,19 +362,9 @@ class ProxyDB:
             offset = (page - 1) * per_page
             final_limit = per_page
 
-        # Determine ordering (after pagination calculation to use final_limit)
-        if randomize is None:
-            order_by = (
-                self.get_random_function()
-                if (final_limit is not None and final_limit > 0)
-                else None
-            )
-        else:
-            order_by = self.get_random_function() if randomize else None
-
         # Build backend-specific query and params
         params: List[Union[str, int]] = []
-        where_clause: Optional[str] = None
+        where_clause: str = "1=1"  # Always start with a true condition
 
         if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
             placeholder = "%s"
@@ -383,33 +373,41 @@ class ProxyDB:
 
         # Status filtering
         if status:
-            where_clause = f"status = {placeholder}"
+            where_clause += f" AND status = {placeholder}"
             params.append(status)
 
         # Last checked filtering (last_check <= last_checked)
         if last_checked:
-            if where_clause:
-                where_clause += f" AND last_check <= {placeholder}"
-            else:
-                where_clause = f"last_check <= {placeholder}"
+            where_clause += f" AND last_check <= {placeholder}"
             params.append(last_checked)
 
-        # MySQLHelper.select signature supports orderBy, limit, offset as extra args maybe
+        # Determine ordering (after building base where_clause, considering final_limit)
+        order_clause = ""
+        if randomize is None:
+            # Backwards-compatible: randomize if limit is provided
+            if final_limit is not None and final_limit > 0:
+                order_clause = f" ORDER BY {self.get_random_function()}"
+        else:
+            if randomize:
+                order_clause = f" ORDER BY {self.get_random_function()}"
+
+        # Build full SQL query with WHERE, ORDER BY, LIMIT, OFFSET
+        sql_where = where_clause + order_clause
+        if final_limit is not None and final_limit > 0:
+            sql_where += f" LIMIT {int(final_limit)}"
+        if offset is not None:
+            sql_where += f" OFFSET {int(offset)}"
+
         try:
-            # prefer keyword-style where supported
-            result = self.get_db().select(
-                "proxies", "*", where_clause, params, order_by, final_limit, offset  # type: ignore[arg-type]
-            )
+            result = self.get_db().select("proxies", "*", sql_where, params)
             return cast(List[Dict[str, Union[str, None]]], result)
-        except TypeError:
-            # fallback to simple select without pagination/order
+        except Exception:
+            # fallback: try without filters
             try:
-                result = self.get_db().select("proxies", "*", where_clause, params)
-                return cast(List[Dict[str, Union[str, None]]], result)
-            except Exception:
-                # final fallback
                 result = self.get_db().select("proxies", "*")
                 return cast(List[Dict[str, Union[str, None]]], result)
+            except Exception:
+                return []
 
     def remove(self, proxy, delete_from_added: bool = False):
         proxy = self.normalize_proxy(proxy)

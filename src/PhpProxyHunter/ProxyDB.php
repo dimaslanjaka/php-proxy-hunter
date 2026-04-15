@@ -275,13 +275,6 @@ class ProxyDB
    * @return array
    */
   public function getAllProxies($limit = null, $randomize = null, $page = null, $perPage = null, $status = null, $lastChecked = null) {
-    // Determine ordering (random or not)
-    if ($randomize === null) {
-      $orderBy = ($limit !== null && $limit > 0) ? $this->getRandomFunction() : null;
-    } else {
-      $orderBy = ($randomize === true) ? $this->getRandomFunction() : null;
-    }
-
     // Build WHERE clause for filtering
     $whereClause = '';
     $params      = [];
@@ -302,6 +295,17 @@ class ProxyDB
       $params[] = $lastChecked;
     }
 
+    // Determine ordering (random or not)
+    if ($randomize === null) {
+      $shouldRandomize = ($limit !== null && $limit > 0);
+    } else {
+      $shouldRandomize = ($randomize === true);
+    }
+
+    if ($shouldRandomize) {
+      $whereClause .= ' ORDER BY ' . $this->getRandomFunction();
+    }
+
     // Pagination (page/perPage) takes precedence over legacy $limit
     $offset     = null;
     $finalLimit = $limit;
@@ -312,7 +316,15 @@ class ProxyDB
       $finalLimit = $perPage;
     }
 
-    return $this->db->select('proxies', '*', $whereClause ?: null, $params, $orderBy, $finalLimit, $offset);
+    // Add LIMIT and OFFSET to WHERE clause if needed
+    if ($finalLimit !== null && $finalLimit > 0) {
+      $whereClause .= ' LIMIT ' . (int)$finalLimit;
+      if ($offset !== null) {
+        $whereClause .= ' OFFSET ' . (int)$offset;
+      }
+    }
+
+    return $this->db->select('proxies', '*', $whereClause ?: null, $params);
   }
 
   /**
