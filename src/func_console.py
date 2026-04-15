@@ -72,6 +72,11 @@ def green(text: str) -> str:
     return f"{Style.BRIGHT}{Fore.GREEN}{text}{Style.RESET_ALL}"
 
 
+def cyan(text: str) -> str:
+    """Return text in bright cyan."""
+    return f"{Style.BRIGHT}{Fore.CYAN}{text}{Style.RESET_ALL}"
+
+
 def orange(text: str) -> str:
     """Return text in bright orange."""
     orange_color = "\033[38;5;208m"
