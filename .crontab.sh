@@ -175,6 +175,7 @@ if should_run_job "$CRONTAB_STATE_DIR/1-h" 1; then
   log_command "$CRONTAB_LOG_DIR/proxy-classifier-lookup.log" "$PYTHON_BIN" "$CWD/artisan/proxy-classifier-lookup.py" --limit=1000
   log_command "$CRONTAB_LOG_DIR/filter-duplicate-ips.log" "$PYTHON_BIN" "$CWD/artisan/filter_duplicate_ips.py" --limit=1000 --include-untested
   log_command "$CRONTAB_LOG_DIR/proxy-socks5-checker.log" "$PYTHON_BIN" "$CWD/artisan/proxy_socks5_checker.py" --limit=100
+  log_command "$CRONTAB_LOG_DIR/filter_open_port.log" "$PYTHON_BIN" "$CWD/artisan/filter_open_port.py" --limit=1000
   echo "Running 1 hour job."
 else
   echo "Skipping 1 hour job."
