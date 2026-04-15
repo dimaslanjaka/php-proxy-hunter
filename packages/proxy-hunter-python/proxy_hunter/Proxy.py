@@ -31,6 +31,7 @@ class Proxy:
         username: Optional[str] = None,
         password: Optional[str] = None,
         https: Optional[str] = None,  # Optional HTTPS protocol
+        tun2socks: Optional[str] = None,
     ) -> None:
         """
         Proxy constructor.
@@ -57,6 +58,7 @@ class Proxy:
         :param username: Username for proxy authentication.
         :param password: Password for proxy authentication.
         :param https: HTTPS protocol support.
+        :param tun2socks: Tun2socks score.
         """
         self.id = id
         self.proxy = proxy
@@ -80,6 +82,7 @@ class Proxy:
         self.username = username
         self.password = password
         self.https = https
+        self.tun2socks = tun2socks
 
     def has_credentials(self) -> bool:
         return (
@@ -173,6 +176,7 @@ def dict_to_proxy_list(dict_list: List[Dict[str, Any]]) -> List[Proxy]:
             browser_vendor=item.get("browser_vendor"),
             username=item.get("username"),
             password=item.get("password"),
+            tun2socks=item.get("tun2socks"),
         )
         proxy_list.append(proxy)
     return proxy_list
