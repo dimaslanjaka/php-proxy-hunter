@@ -95,15 +95,15 @@ TEST_PROXY = "176.126.103.194:44214"
 
 @pytest.fixture(autouse=True)
 def ensure_clean_state(mysql_proxy_db):
-    """Automatically remove the test proxy before/after each test."""
+    """Automatically remove the test proxy from all related tables before/after each test."""
     db = mysql_proxy_db
     try:
-        db.remove(TEST_PROXY)
+        db.remove(TEST_PROXY, delete_from_added=True)
     except Exception:
         pass
     yield
     try:
-        db.remove(TEST_PROXY)
+        db.remove(TEST_PROXY, delete_from_added=True)
     except Exception:
         pass
 
