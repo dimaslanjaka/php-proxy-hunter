@@ -19,17 +19,29 @@ CWD = Path(__file__).resolve().parent
 os.chdir(CWD)
 
 
+def get_venv_name() -> str:
+	if (CWD / ".venv").is_dir():
+		return ".venv"
+	if (CWD / "venv").is_dir():
+		return "venv"
+	# Default to .venv when neither exists yet.
+	return ".venv"
+
+
+VENV_NAME = get_venv_name()
+
+
 def resolve_python_bin() -> str:
 	os_name = platform.system()
 	if os_name == "Windows":
 		candidates = [
-			CWD / "venv/Scripts/python.exe",
-			CWD / ".venv/Scripts/python.exe",
+			CWD / "bin" / "py.cmd",
+			CWD / VENV_NAME / "Scripts" / "python.exe",
 		]
 	else:
 		candidates = [
-			CWD / "venv/bin/python",
-			CWD / ".venv/bin/python",
+			CWD / "bin" / "py",
+			CWD / VENV_NAME / "bin" / "python",
 		]
 	for candidate in candidates:
 		if candidate.exists() and candidate.is_file():
@@ -45,9 +57,9 @@ PYTHON_BIN = resolve_python_bin()
 def build_path() -> str:
 	os_name = platform.system()
 	if os_name in {"Darwin", "Linux"}:
-		venv_bin = CWD / "venv/bin"
+		venv_bin = CWD / VENV_NAME / "bin"
 	else:
-		venv_bin = CWD / "venv/Scripts"
+		venv_bin = CWD / VENV_NAME / "Scripts"
 
 	essential = [
 		"/usr/local/bin",
