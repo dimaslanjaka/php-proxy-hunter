@@ -1,5 +1,139 @@
 [
   {
+    "hash": "c09a9355a4ecb8a9399eb047a3233dae037c99cd",
+    "date": "2026-04-15T21:38:23+07:00",
+    "message": "feat(crontab): add open port filtering job\n\n- add artisan/filter_open_port.py to scan working proxies for open ports\n- update proxy status to port-open or port-closed based on the probe result\n- avoid re-checking proxies already recorded in the SQLite marker\n- log the new hourly job from .crontab.sh",
+    "files": [
+      ".crontab.sh",
+      "artisan/filter_open_port.py"
+    ]
+  },
+  {
+    "hash": "d1a04ac7471d6e6f8d590dd780994d56ccf0eb72",
+    "date": "2026-04-15T21:35:23+07:00",
+    "message": "feat(database): add expiring SQLite markers for duplicate-IP filtering\n\n- extend SQLiteMarker to support expiration via RFC3339 timestamps or day counts\n- use marker-based dedup in filter_duplicate_ips to skip already processed proxies\n- add pytest coverage for marker validity, expiry, refresh, and day-based TTL",
+    "files": [
+      "artisan/filter_duplicate_ips.py",
+      "src/database/SQLiteMarker.py",
+      "tests/database/SQLiteMarker_test.py"
+    ]
+  },
+  {
+    "hash": "b417bdd99371676f125bce9f772924e25c24306a",
+    "date": "2026-04-15T21:26:51+07:00",
+    "message": "test(proxydb): reset added_proxies state in MySQL cleanup fixture\n\nUpdate ProxyDB MySQL tests to fully clean proxy state between test runs.\nThe autouse cleanup fixture now calls remove(..., delete_from_added=True)\nbefore and after each test, ensuring both proxies and added_proxies tables\nare cleared and preventing stale state from affecting assertions.",
+    "files": [
+      "tests/ProxyDB_MySQL_Test.py"
+    ]
+  },
+  {
+    "hash": "4ea195fbe51c8a446badef1ddf7be1bd029d0ff1",
+    "date": "2026-04-15T14:22:52+07:00",
+    "message": "feat(crontab): centralize cron dirs and add weekly schedule slot\n\n- define CRONTAB_STATE_DIR and CRONTAB_LOG_DIR constants\n- replace hardcoded tmp/crontab and tmp/logs/crontab paths across all jobs\n- update commented command examples to use directory variables for easier reuse\n- add a weekly (168h) cron block scaffold with run/skip logging\n- keep existing schedule intervals and job behavior unchanged apart from path refactor",
+    "files": [
+      ".crontab.sh"
+    ]
+  },
+  {
+    "hash": "14603ed46ba774683606c4630a0cffeb3458489c",
+    "date": "2026-04-15T14:13:07+07:00",
+    "message": "feat(proxy): add tun2socks parameter to Proxy class",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/Proxy.py"
+    ]
+  },
+  {
+    "hash": "5d29f7b7687d0734782d13ca8efd599d2dad2a31",
+    "date": "2026-04-15T14:09:41+07:00",
+    "message": "fix(proxy): prevent updating timestamp on fail",
+    "files": [
+      "artisan/proxy_socks5_checker.py"
+    ]
+  },
+  {
+    "hash": "3fdb2c715b7b7da222a4787967578c2c543e4283",
+    "date": "2026-04-15T14:06:57+07:00",
+    "message": "feat(artisan): add SQLite marker-based dedup for SOCKS5 checker flows\n\nIntegrate reusable SQLiteMarker into proxy checker scripts to persist tested proxies\nacross runs and skip already-checked candidates.\n\n- add SQLiteMarker import and initialization in both checker entrypoints\n- filter candidate proxies via marker.filter_unseen(...) before running checks\n- mark tested proxies after execution for cross-run deduplication\n- keep existing DB/file update behavior and wrap marker/db cleanup in finally blocks\n- add marker progress logging (pending/already_checked) for visibility\n- remove unused imports in tun2socks stability checker",
+    "files": [
+      "artisan/proxy_socks5_checker.py",
+      "artisan/proxy_tun2socks_stability.py"
+    ]
+  },
+  {
+    "hash": "85459c82274311b2d4466330e0a3542672fd26f3",
+    "date": "2026-04-15T14:05:57+07:00",
+    "message": "refactor(artisan): align proxy SSL DB initialization with shared init flow\n\n- replace manual argparse-based DB setup and direct ProxyDB construction\n- initialize DB via init_db(\"mysql\") with fallback to init_readonly_db()\n- add explicit initialization failure checks for both DB paths\n- wrap execution in try/finally and always close DB connection\n- keep proxy testing and status update behavior unchanged",
+    "files": [
+      "artisan/proxy_ssl_test.py"
+    ]
+  },
+  {
+    "hash": "c19bb20c1ea941c9e64cf74925d117aae11f866d",
+    "date": "2026-04-15T13:59:29+07:00",
+    "message": "feat(database): add reusable SQLite marker helper",
+    "files": [
+      "src/database/SQLiteMarker.py"
+    ]
+  },
+  {
+    "hash": "adec0a2f5cccccfc24533d0dd16d996e9f0bd0d2",
+    "date": "2026-04-15T13:48:52+07:00",
+    "message": "refactor(artisan): optimize duplicate IP filtering workflow\n\n- extract proxy probing into `_probe_proxy` and run checks concurrently with `ThreadPoolExecutor`\n- batch duplicate deletions via `_delete_proxies` using a single `DELETE ... IN (...)` query\n- refactor script entrypoint into `main()` with explicit exit codes and centralized cleanup\n- simplify imports and remove unused dependencies\n- standardize console output using shared color helpers from `src.func_console`\n- reduce selected columns for duplicate proxy queries and handle empty result sets early\n- preserve previous behavior for status filtering, active proxy updates, and safety keep-one logic",
+    "files": [
+      "artisan/filter_duplicate_ips.py"
+    ]
+  },
+  {
+    "hash": "2d806841223a8199d009a9085ce930e6434f4a7f",
+    "date": "2026-04-15T13:48:07+07:00",
+    "message": "refactor(artisan): streamline SOCKS5 checker logging and proxy normalization\n\n- remove unused imports and direct colorama usage\n- switch log coloring to shared console helpers (cyan/red)\n- simplify status tags from \"SOCKS5 FAIL/OK\" to \"FAIL/OK\"\n- colorize only the \"fail\" token and proxy endpoint display\n- normalize proxy values via a reusable helper\n- ensure logs display proxy as IP:PORT (without socks5://)\n- preserve extra proxy metadata in row mapping (type/status/https/last_check)\n- optimize failed-path DB handling by using in-memory proxy_row_map before fallback select\n- reuse normalize_proxy_value in list/row conversion paths for consistency",
+    "files": [
+      "artisan/proxy_socks5_checker.py"
+    ]
+  },
+  {
+    "hash": "3793826eaa156d7bc635cdbe53a3b094d56e4cf6",
+    "date": "2026-04-15T13:43:27+07:00",
+    "message": "feat(console): add function to return text in bright cyan",
+    "files": [
+      "src/func_console.py"
+    ]
+  },
+  {
+    "hash": "bf90a9c035f2e204b2f5e77fdc447b52304dff38",
+    "date": "2026-04-15T13:15:40+07:00",
+    "message": "fix(ProxyDB): ensure limit parameter works in get_all_proxies and getAllProxies\n\nRefactor get_all_proxies() (Python) and getAllProxies() (PHP) methods to build\ncomplete SQL query strings with ORDER BY, LIMIT, and OFFSET clauses embedded\ndirectly in the WHERE clause, instead of passing them as separate positional\narguments to the select() method.\n\nPreviously, the limit parameter was being ignored and methods would return all\nproxy data regardless of the limit setting. The separate argument approach was\nnot properly applying pagination.\n\nChanges:\n- Build complete query string with WHERE, ORDER BY, LIMIT, and OFFSET\n- Initialize where_clause to \"1=1\" in Python to handle cases with no filters\n- Remove separate orderBy, limit, and offset arguments from select() calls\n- Ensure proper LIMIT handling in both MySQL and SQLite backends",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "ad2d514b5b3180c7d757c85846575e4d884fa64e",
+    "date": "2026-04-15T13:04:34+07:00",
+    "message": "feat(proxy-db): add last_checked filter to getWorkingProxies/get_working_proxies\n\n- add optional lastChecked parameter to PHP ProxyDB::getWorkingProxies()\n- add optional last_checked parameter to Python ProxyDB.get_working_proxies()\n- apply last_check <= input timestamp filtering in both implementations\n- update method documentation for new RFC3339-based filter option",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "5eda710f792b4be5e3ec5bc08bd2e5e25ee7636f",
+    "date": "2026-04-15T13:03:20+07:00",
+    "message": "feat: add function to get yesterday's date in RFC 3339 format",
+    "files": [
+      "src/func_date.py"
+    ]
+  },
+  {
+    "hash": "ab72cfbdf48cbfb1fff7f9437126223a862f8979",
+    "date": "2026-04-15T12:54:42+07:00",
+    "message": "feat: parameterize default values in parse_args for flexibility",
+    "files": [
+      "artisan/proxy_getter.py"
+    ]
+  },
+  {
     "hash": "626a6736f2168907fa06d43e170f6234f48f3339",
     "date": "2026-04-15T12:49:21+07:00",
     "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
@@ -8718,136 +8852,6 @@
     "message": "fix(geoIpBackground): update lock file path to include user ID for better process management",
     "files": [
       "geoIpBackground.php"
-    ]
-  },
-  {
-    "hash": "440045d311c6bb0c2a51ebcc3dc418f4c969e8fb",
-    "date": "2025-11-01T20:16:28+07:00",
-    "message": "fix(geoIp): remove cache control headers to prevent unintended caching",
-    "files": [
-      "geoIp.php"
-    ]
-  },
-  {
-    "hash": "bf1b12f8f989fd7f5ec2a2936808ce742d9601d0",
-    "date": "2025-11-01T20:15:39+07:00",
-    "message": "fix(geoIpBackground): refactor proxy request handling to use parsed request data",
-    "files": [
-      "geoIpBackground.php"
-    ]
-  },
-  {
-    "hash": "176fe0f0cd4a9ae9aa0320d5c16bd605ee09f7b3",
-    "date": "2025-11-01T20:14:46+07:00",
-    "message": "fix(geoIp): update CORS handling and content type for non-CLI context",
-    "files": [
-      "geoIp.php"
-    ]
-  },
-  {
-    "hash": "1778ffed16db22c87c7cff9dda5f0054151a58af",
-    "date": "2025-11-01T20:14:18+07:00",
-    "message": "fix(geoIpBackground): change header check to allow CORS only in non-CLI context",
-    "files": [
-      "geoIpBackground.php"
-    ]
-  },
-  {
-    "hash": "23b21d6d83aa1e520bec3d4b05a8896fa495757f",
-    "date": "2025-11-01T20:12:34+07:00",
-    "message": "feat(utils): add ajax scheduler with POST and credentials support\n\nAdd a new AJAX scheduler utility to queue and run HTTP requests.\n\n- Add `src/utils/ajaxScheduler.js`\n  - Queue accepts legacy string URLs or entry objects ({ url, method, data, includeCredentials }).\n  - Export `run_ajax_schedule(options)` which supports runner-level defaults and per-entry overrides.\n  - Supports methods: GET (default), POST_JSON (application/json), POST_FORM (application/x-www-form-urlencoded).\n  - Maps `includeCredentials` to axios `withCredentials`.\n  - Re-queues entries on network/timeout errors and preserves runner-level options when repeating.\n  - Deduplicates queued entries by a computed key (url|METHOD|JSON(data)|includeCredentials).\n- Add `src/utils/ajaxScheduler_.d.ts`\n  - Declares `AjaxScheduleEntry` and `AjaxScheduleOptions` interfaces and is imported via JSDoc typedefs.\n\nMaintains backward compatibility with string-only scheduled URLs.",
-    "files": [
-      "src/utils/ajaxScheduler.js",
-      "src/utils/ajaxScheduler_.d.ts"
-    ]
-  },
-  {
-    "hash": "4b4fbf16c4ab69ca51f3949717f0bf8df1745253",
-    "date": "2025-11-01T18:27:34+07:00",
-    "message": "fix(ProxySubmission): include credentials in fetch request for HTTPS proxy check",
-    "files": [
-      "src/react/pages/ProxyList/ProxySubmission.tsx"
-    ]
-  },
-  {
-    "hash": "90d36ac7ca8bc28ea8bad5e12f7e6b2a870d382c",
-    "date": "2025-11-01T18:26:35+07:00",
-    "message": "feat(security): enforce GA cookie check and centralize CORS handling via Server::allowCors",
-    "files": [
-      "geoIpBackground.php",
-      "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "1839475aed524e0168dcef5d89da831d6cd8a6d2",
-    "date": "2025-11-01T17:48:27+07:00",
-    "message": "fix(ProxySubmission): comment out unused auto-save and debug code",
-    "files": [
-      "src/react/pages/ProxyList/ProxySubmission.tsx"
-    ]
-  },
-  {
-    "hash": "07210d4dd7fc63af941c77c638267d02f4ab7fff",
-    "date": "2025-11-01T17:44:53+07:00",
-    "message": "feat(processes): enable CORS for non-admin users via Server::allowCors and comment out 429 response",
-    "files": [
-      "php_backend/processes.php"
-    ]
-  },
-  {
-    "hash": "090ab344109473edc490f8803d0ec4840c0982df",
-    "date": "2025-11-01T15:41:34+07:00",
-    "message": "feat(processes): add functionality to write working proxies to files",
-    "files": [
-      "php_backend/processes.php"
-    ]
-  },
-  {
-    "hash": "228f8f89ec27efae2e00cb840476569a2f84d923",
-    "date": "2025-11-01T08:05:22+07:00",
-    "message": "fix(log-viewer): remove HTTPS loading indicator\n\n- remove `httpsLoading` state and related `setHttpsLoading` calls\n- remove \"Fetching https result...\" placeholder from HTTPS panel\n- render HTTPS result only when `httpsLog` is present\n\nNo breaking changes.",
-    "files": [
-      "src/react/pages/ProxyList/LogViewer.tsx"
-    ]
-  },
-  {
-    "hash": "cfd738b57db165646ae1d4468d5608b5edacfbe4",
-    "date": "2025-11-01T07:39:29+07:00",
-    "message": "feat(log-viewer): add HTTPS check tab with auto-polling\n\n- use shared `getUserInfo()` instead of manual `/php_backend/user-info.php` fetch\n- add `fetchHttpsProxyCheckerResult(hash)` helper and auto-polling effect for HTTPS tab\n- add tabs (Checker Log / HTTPS check) and prefill https hash from user UID\n- ensure log and https panels have explicit dark-mode text colors\n\nNo breaking changes.",
-    "files": [
-      "src/react/pages/ProxyList/LogViewer.tsx"
-    ]
-  },
-  {
-    "hash": "bc3e73c9a6db7f769ba991b94aab434a8a6e2fd8",
-    "date": "2025-11-01T06:29:34+07:00",
-    "message": "fix(check-https-proxy): remove GA cookie gate and redundant includes\n\n- Remove `require_once` of `func.php` and `func-proxy.php` in favor of `shared.php`.\n- Remove strict Google Analytics cookie (`_ga`) check that returned \"Access Denied\" for requests without the cookie.\n\nThis allows the `/php_backend/check-https-proxy.php` endpoint to be accessed without relying on the `_ga` cookie (useful for API/client requests).",
-    "files": [
-      "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "e789e0bed1be0e45867e346dc23f60766629d797",
-    "date": "2025-11-01T05:41:14+07:00",
-    "message": "fix(proxySubmission): update fetch URL in _checkProxy2 to use createUrl function",
-    "files": [
-      "src/react/pages/ProxyList/ProxySubmission.tsx"
-    ]
-  },
-  {
-    "hash": "1e0fd038df8caf4bbb396e1ca70cdadb47b682e0",
-    "date": "2025-11-01T05:38:44+07:00",
-    "message": "feat(proxy-submission): add async HTTPS proxy checker and invoke after submission\n\n- Add `_checkProxy2(proxies: string)` to POST JSON to `check-https-proxy.php`, parse JSON/text responses, and log success or errors.\n- Call `_checkProxy2` in a `.finally()` block after the submission promise so the HTTPS check runs non-blocking after submit.\n- Improve error handling and diagnostic logging for proxy checks.",
-    "files": [
-      "src/react/pages/ProxyList/ProxySubmission.tsx"
-    ]
-  },
-  {
-    "hash": "cea7118ee0cafa9727832d8b45134d556ddc4967",
-    "date": "2025-10-31T20:00:04+07:00",
-    "message": "feat(proxy-list): add region filter, show filters always, and add manual refresh\n\n- Add `regionFilter` state and `uniqueRegions` memo; include region filtering in the proxy list.\n- Remove accordion toggle (`filterOpen`) so filter controls are always visible.\n- Add `loadingProxies` and `isMountedRef` to manage fetch lifecycle safely.\n- Introduce `refreshProxies` helper and `handleRefresh` to enable manual refresh via a header button.\n- Prevent overlapping automatic refreshes by gating periodic refresh with `loadingProxies`.",
-    "files": [
-      "src/react/pages/ProxyList.tsx"
     ]
   }
 ]
