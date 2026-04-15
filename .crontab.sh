@@ -112,8 +112,11 @@ should_run_job() {
   fi
 }
 
-mkdir -p tmp/crontab
-mkdir -p tmp/logs/crontab
+CRONTAB_STATE_DIR="tmp/crontab"
+CRONTAB_LOG_DIR="tmp/logs/crontab"
+
+mkdir -p "$CRONTAB_STATE_DIR"
+mkdir -p "$CRONTAB_LOG_DIR"
 
 # Logging function to capture stdout/stderr with timestamp - runs in background
 log_command() {
@@ -137,74 +140,74 @@ log_command() {
 }
 
 # run every 5 minutes
-if should_run_job "tmp/crontab/5-m" 0.0833; then
+if should_run_job "$CRONTAB_STATE_DIR/5-m" 0.0833; then
   echo "Running 5 minutes job."
-  log_command "tmp/logs/crontab/cleanup-blacklist.log" "$PYTHON_BIN" "$CWD/artisan/blacklist_remover.py"
+  log_command "$CRONTAB_LOG_DIR/cleanup-blacklist.log" "$PYTHON_BIN" "$CWD/artisan/blacklist_remover.py"
 else
   echo "Skipping 5 minutes job."
 fi
 
 # run every 30 minutes
-if should_run_job "tmp/crontab/30-m" 0.5; then
+if should_run_job "$CRONTAB_STATE_DIR/30-m" 0.5; then
   echo "Running 30 minutes job."
   # r_cmd "python" "artisan/filterPortsDuplicate.py" "--max=50"
   # r_cmd "python" "proxyCheckerReal.py" "--max=50"
-  # log_command "tmp/logs/crontab/proxy-collector.log" php artisan/proxyCollector.php || true
-  # log_command "tmp/logs/crontab/proxy-collector2.log" php artisan/proxyCollector2.php || true
-  # log_command "tmp/logs/crontab/check-old-proxy.log" php php_backend/check-old-proxy.php
+  # log_command "$CRONTAB_LOG_DIR/proxy-collector.log" php artisan/proxyCollector.php || true
+  # log_command "$CRONTAB_LOG_DIR/proxy-collector2.log" php artisan/proxyCollector2.php || true
+  # log_command "$CRONTAB_LOG_DIR/check-old-proxy.log" php php_backend/check-old-proxy.php
   # Run geoIp script to resolve missing geo information for proxies
-  log_command "tmp/logs/crontab/geoip.log" php artisan/geoIp.php
-  log_command "tmp/logs/crontab/proxyCollector2.log" "$PYTHON_BIN" artisan/proxyCollector2.py --batch-size=500 --shuffle
-  log_command "tmp/logs/crontab/proxyCollector.log" "$PYTHON_BIN" artisan/proxyCollector.py --batch-size=500 --shuffle
-  log_command "tmp/logs/crontab/tun2socks-stability-check.log" "$PYTHON_BIN" "$CWD/artisan/proxy_tun2socks_stability.py" --limit=1000
+  log_command "$CRONTAB_LOG_DIR/geoip.log" php artisan/geoIp.php
+  log_command "$CRONTAB_LOG_DIR/proxyCollector2.log" "$PYTHON_BIN" artisan/proxyCollector2.py --batch-size=500 --shuffle
+  log_command "$CRONTAB_LOG_DIR/proxyCollector.log" "$PYTHON_BIN" artisan/proxyCollector.py --batch-size=500 --shuffle
+  log_command "$CRONTAB_LOG_DIR/tun2socks-stability-check.log" "$PYTHON_BIN" "$CWD/artisan/proxy_tun2socks_stability.py" --limit=1000
 else
   echo "Skipping 30 minutes job."
 fi
 
 # run every hour
-if should_run_job "tmp/crontab/1-h" 1; then
-  # log_command "tmp/logs/crontab/djm_check_proxies.log" djm check_proxies --max=100
-  # log_command "tmp/logs/crontab/djm_filter_dups.log" djm filter_dups --max=100
-  log_command "tmp/logs/crontab/filter-ports.log" php artisan/filterPorts.php
-  log_command "tmp/logs/crontab/filter-ports-background.log" php artisan/filterPortsDuplicate.php --admin=true --max=1000
-  # log_command "tmp/logs/crontab/check-http-proxy.log" php php_backend/check-http-proxy.php
-  # log_command "tmp/logs/crontab/check-https-proxy.log" php php_backend/check-https-proxy.php
-  log_command "tmp/logs/crontab/proxy-classifier-lookup.log" "$PYTHON_BIN" "$CWD/artisan/proxy-classifier-lookup.py" --limit=1000
-  log_command "tmp/logs/crontab/filter-duplicate-ips.log" "$PYTHON_BIN" "$CWD/artisan/filter_duplicate_ips.py" --limit=1000 --include-untested
-  log_command "tmp/logs/crontab/proxy-socks5-checker.log" "$PYTHON_BIN" "$CWD/artisan/proxy_socks5_checker.py" --limit=100
+if should_run_job "$CRONTAB_STATE_DIR/1-h" 1; then
+  # log_command "$CRONTAB_LOG_DIR/djm_check_proxies.log" djm check_proxies --max=100
+  # log_command "$CRONTAB_LOG_DIR/djm_filter_dups.log" djm filter_dups --max=100
+  # log_command "$CRONTAB_LOG_DIR/filter-ports.log" php artisan/filterPorts.php
+  # log_command "$CRONTAB_LOG_DIR/filter-ports-background.log" php artisan/filterPortsDuplicate.php --admin=true --max=1000
+  # log_command "$CRONTAB_LOG_DIR/check-http-proxy.log" php php_backend/check-http-proxy.php
+  # log_command "$CRONTAB_LOG_DIR/check-https-proxy.log" php php_backend/check-https-proxy.php
+  log_command "$CRONTAB_LOG_DIR/proxy-classifier-lookup.log" "$PYTHON_BIN" "$CWD/artisan/proxy-classifier-lookup.py" --limit=1000
+  log_command "$CRONTAB_LOG_DIR/filter-duplicate-ips.log" "$PYTHON_BIN" "$CWD/artisan/filter_duplicate_ips.py" --limit=1000 --include-untested
+  log_command "$CRONTAB_LOG_DIR/proxy-socks5-checker.log" "$PYTHON_BIN" "$CWD/artisan/proxy_socks5_checker.py" --limit=100
   echo "Running 1 hour job."
 else
   echo "Skipping 1 hour job."
 fi
 
 # run every 3 hours
-if should_run_job "tmp/crontab/3-h" 3; then
+if should_run_job "$CRONTAB_STATE_DIR/3-h" 3; then
   echo "Running 3 hours job."
-  # log_command "tmp/logs/crontab/check-proxy-parallel.log" bash "$CWD/bin/check-proxy-parallel"
-  log_command "tmp/logs/crontab/proxy_checker_httpx.log" "$PYTHON_BIN" "$CWD/artisan/proxy_checker_httpx.py"
+  # log_command "$CRONTAB_LOG_DIR/check-proxy-parallel.log" bash "$CWD/bin/check-proxy-parallel"
+  log_command "$CRONTAB_LOG_DIR/proxy_checker_httpx.log" "$PYTHON_BIN" "$CWD/artisan/proxy_checker_httpx.py"
 else
   echo "Skipping 3 hours job."
 fi
 
 # run every 4 hours
-if should_run_job "tmp/crontab/4-h" 4; then
+if should_run_job "$CRONTAB_STATE_DIR/4-h" 4; then
   echo "Running 4 hours job."
   # run proxy fetcher in background
-  "$PYTHON_BIN" "$CWD/proxyFetcher.py" > "tmp/logs/crontab/proxy-fetcher.log" 2>&1 &
+  "$PYTHON_BIN" "$CWD/proxyFetcher.py" > "$CRONTAB_LOG_DIR/proxy-fetcher.log" 2>&1 &
 else
   echo "Skipping 4 hours job."
 fi
 
 # run every 6 hours
-if should_run_job "tmp/crontab/6-h" 6; then
-  # log_command "tmp/logs/crontab/djm_sync_proxies.log" djm sync_proxies
+if should_run_job "$CRONTAB_STATE_DIR/6-h" 6; then
+  # log_command "$CRONTAB_LOG_DIR/djm_sync_proxies.log" djm sync_proxies
   echo "Running 6 hours job."
 else
   echo "Skipping 6 hours job."
 fi
 
 # run every 12 hours
-if should_run_job "tmp/crontab/12-h" 12; then
+if should_run_job "$CRONTAB_STATE_DIR/12-h" 12; then
   echo "Running 12 hours job."
   # Truncate WAL files for SQLite databases
   if [ -f "$CWD/tmp/database.sqlite-wal" ]; then
@@ -222,27 +225,34 @@ else
 fi
 
 # run every 24 hours
-if should_run_job "tmp/crontab/24-h" 24; then
+if should_run_job "$CRONTAB_STATE_DIR/24-h" 24; then
   echo "Running 24 hours job."
   # Backup database
-  log_command "tmp/logs/crontab/backup-db.log" bash -e "$CWD/bin/backup-db"
+  log_command "$CRONTAB_LOG_DIR/backup-db.log" bash -e "$CWD/bin/backup-db"
   # Run php cleanup script
-  log_command "tmp/logs/crontab/php-cleaner.log" php "$CWD/artisan/cleaner.php"
+  log_command "$CRONTAB_LOG_DIR/php-cleaner.log" php "$CWD/artisan/cleaner.php"
   # Remove old backups older than 7 days
-  log_command "tmp/logs/crontab/cleanup-backups.log" find "$CWD/backups" -type f -name "*.sql" -mtime +7 -exec rm -f {} \;
+  log_command "$CRONTAB_LOG_DIR/cleanup-backups.log" find "$CWD/backups" -type f -name "*.sql" -mtime +7 -exec rm -f {} \;
   echo "Old backups removed, keeping only the last 7 days."
   # Remove old log files older than 30 days
-  log_command "tmp/logs/crontab/cleanup-logs.log" find "$CWD/tmp/logs" -type f -name "*.log" -mtime +30 -exec rm -f {} \;
+  log_command "$CRONTAB_LOG_DIR/cleanup-logs.log" find "$CWD/tmp/logs" -type f -name "*.log" -mtime +30 -exec rm -f {} \;
   echo "Old log files removed, keeping only the last 30 days."
 else
   echo "Skipping 24 hours job."
 fi
 
 # run every 3 days
-if should_run_job "tmp/crontab/72-h" 72; then
+if should_run_job "$CRONTAB_STATE_DIR/72-h" 72; then
   echo "Running 72 hours job."
   # Run backups cleanup script every 3 days
-  log_command "tmp/logs/crontab/cleanup-backups-3d.log" "$PYTHON_BIN" "$CWD/src/dev/backup-cleaner.py"
+  log_command "$CRONTAB_LOG_DIR/cleanup-backups-3d.log" "$PYTHON_BIN" "$CWD/src/dev/backup-cleaner.py"
 else
   echo "Skipping 72 hours job."
+fi
+
+# run every week
+if should_run_job "$CRONTAB_STATE_DIR/168-h" 168; then
+  echo "Running 1 week job."
+else
+  echo "Skipping 1 week job."
 fi
