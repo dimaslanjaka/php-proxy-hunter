@@ -1,5 +1,24 @@
 [
   {
+    "hash": "37e4d2f4365dfdf0f7133f21bcbbbf013a039b53",
+    "date": "2026-04-15T22:33:39+07:00",
+    "message": "fix(settings): update Python executor command to use 'py' instead of 'python'",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "c67dac4b4ade83016e0141b18783ee9ebf6de877",
+    "date": "2026-04-15T22:32:41+07:00",
+    "message": "feat(cron): migrate custom scheduler to Python with resource-aware job gating\n\n- add .crontab.py as the new cron runner with per-interval job execution\n- switch cron entry in .crontab.txt from .crontab.sh to .crontab.py\n- load environment variables via python-dotenv\n- add reusable process resource utilities in src/utils/process/resources_usage.py\n- expose get_system_usage and check_system_resources from src/utils/process/__init__.py\n- gate scheduled jobs by CPU/RAM thresholds and print resource usage after each job status\n- keep timestamp state in tmp/crontab and logs in tmp/logs/crontab",
+    "files": [
+      ".crontab.py",
+      ".crontab.txt",
+      "src/utils/process/__init__.py",
+      "src/utils/process/resources_usage.py"
+    ]
+  },
+  {
     "hash": "c09a9355a4ecb8a9399eb047a3233dae037c99cd",
     "date": "2026-04-15T21:38:23+07:00",
     "message": "feat(crontab): add open port filtering job\n\n- add artisan/filter_open_port.py to scan working proxies for open ports\n- update proxy status to port-open or port-closed based on the probe result\n- avoid re-checking proxies already recorded in the SQLite marker\n- log the new hourly job from .crontab.sh",
@@ -8836,22 +8855,6 @@
       "php_backend/processes.php",
       "php_backend/proxy-checker.php",
       "proxyCheckerParallel-func.php"
-    ]
-  },
-  {
-    "hash": "a6fd071b22302eef781c67777fc15d4eba95f74a",
-    "date": "2025-11-01T20:25:59+07:00",
-    "message": "refactor(geoIp): use $proxy_db directly, remove Server/header handling and improve logging\n\n- Remove local $db assignment and replace all usages with $proxy_db.\n- Drop unused PhpProxyHunter\\Server import and CORS/content-type header block.\n- Update Scheduler closure use list to remove $db.\n- Add per-proxy processing logs and explicit skip messages for existing geoip/useragent/WebGL data.",
-    "files": [
-      "geoIp.php"
-    ]
-  },
-  {
-    "hash": "c008e6ea34e264224ee1688534107f276e4342b1",
-    "date": "2025-11-01T20:22:22+07:00",
-    "message": "fix(geoIpBackground): update lock file path to include user ID for better process management",
-    "files": [
-      "geoIpBackground.php"
     ]
   }
 ]
