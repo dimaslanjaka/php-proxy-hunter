@@ -10,7 +10,10 @@ if PROJECT_ROOT not in sys.path:
 from proxy_hunter import extract_proxies
 
 
-def parse_args() -> argparse.Namespace:
+def parse_args(
+    default_limit: int = 100,
+    default_concurrency: int = 4,
+) -> argparse.Namespace:
     parser = argparse.ArgumentParser(
         description="Find a tun2socks-compatible SOCKS5 proxy"
     )
@@ -27,13 +30,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument(
         "--limit",
         type=int,
-        default=100,
+        default=default_limit,
         help="DB proxy load limit when no CLI proxy input is provided",
     )
     parser.add_argument(
         "--concurrency",
         type=int,
-        default=4,
+        default=default_concurrency,
         help="Number of workers to run in parallel",
     )
     return parser.parse_args()
