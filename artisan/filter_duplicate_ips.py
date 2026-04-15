@@ -9,6 +9,7 @@ sys.path.append(PROJECT_ROOT)
 
 from proxy_hunter import check_proxy, is_port_open
 from src.ProxyDB import ProxyDB
+from src.database.SQLiteMarker import SQLiteMarker
 from src.func import get_relative_path
 from src.func_console import green, magenta, red, yellow
 from src.func_date import get_current_rfc3339_time
@@ -95,6 +96,7 @@ def main() -> int:
         return 0
 
     db = None
+    marker = None
     try:
         if args.readonly:
             db = init_readonly_db()
@@ -117,6 +119,13 @@ def main() -> int:
         if not db.db:
             print(red("Database not initialized. Exiting."))
             return 1
+
+        marker = SQLiteMarker(
+            db_filename="filter_duplicate_ips.sqlite",
+            table_name="checked_proxies",
+            key_column="proxy",
+            base_dir="tmp/database",
+        )
 
         is_mysql = db.driver == "mysql"
         substr_function = (
@@ -181,12 +190,34 @@ def main() -> int:
                 print(yellow(f"    No proxies to process for IP {ip}."))
                 continue
 
+            proxy_by_value: Dict[str, Dict[str, Any]] = {}
+            ordered_proxy_values: List[str] = []
+            for proxy_row in proxies_with_ip:
+                proxy_value = str(proxy_row.get("proxy") or "").strip()
+                if not proxy_value or proxy_value in proxy_by_value:
+                    continue
+                proxy_by_value[proxy_value] = proxy_row
+                ordered_proxy_values.append(proxy_value)
+
+            pending_proxy_values, already_checked = marker.filter_unseen(ordered_proxy_values)
+            proxies_to_process = [proxy_by_value[value] for value in pending_proxy_values]
+            if already_checked:
+                print(
+                    yellow(
+                        f"    Skipped {already_checked} already-checked proxies for IP {ip}."
+                    )
+                )
+
+            if not proxies_to_process:
+                print(yellow(f"    No new proxies to process for IP {ip}."))
+                continue
+
             proxies_to_delete: List[str] = []
-            worker_count = min(MAX_CHECK_WORKERS, len(proxies_with_ip))
+            worker_count = min(MAX_CHECK_WORKERS, len(proxies_to_process))
             with ThreadPoolExecutor(max_workers=max(1, worker_count)) as executor:
                 future_map = {
                     executor.submit(_probe_proxy, proxy_entry): proxy_entry
-                    for proxy_entry in proxies_with_ip
+                    for proxy_entry in proxies_to_process
                 }
 
                 for idx, future in enumerate(as_completed(future_map), start=1):
@@ -201,6 +232,7 @@ def main() -> int:
                     except Exception as exc:
                         print(red(f"    Failed to probe proxy {proxy_str}: {exc}"))
                         proxies_to_delete.append(proxy_str)
+                        marker.mark(proxy_str, 30)
                         continue
 
                     if probe["port_open"]:
@@ -234,7 +266,9 @@ def main() -> int:
                             )
                         )
 
-            if len(proxies_to_delete) == count_duplicates and proxies_to_delete:
+                    marker.mark(proxy_str, 30)
+
+            if len(proxies_to_delete) == len(proxies_to_process) and proxies_to_delete:
                 proxies_to_delete.pop()
                 print(yellow("    All proxies had closed ports; kept one to avoid deleting all."))
 
@@ -254,6 +288,8 @@ def main() -> int:
     finally:
         if db:
             db.close()
+        if marker:
+            marker.close()
         locker.unlock()
 
 
