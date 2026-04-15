@@ -1,236 +1,261 @@
 import argparse
 import os
 import sys
-from typing import List, Sequence, Dict, Any
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import Any, Dict, List
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
-from proxy_hunter import extract_proxies, is_port_open, check_proxy
-from src.ASNLookup import ASNLookup
+from proxy_hunter import check_proxy, is_port_open
 from src.ProxyDB import ProxyDB
 from src.func import get_relative_path
+from src.func_console import green, magenta, red, yellow
+from src.func_date import get_current_rfc3339_time
 from src.shared import init_db, init_readonly_db
 from src.utils.file.FileLockHelper import FileLockHelper
-from src.func_platform import is_debug
-from src.func_console import ConsoleColor, red, green, yellow, magenta
-from src.func_date import get_current_rfc3339_time
 
 current_filename = os.path.basename(__file__)
+PROTOCOL_ENDPOINT = "http://httpforever.com/"
+PROTOCOLS = ("http", "socks4", "socks5")
+MAX_CHECK_WORKERS = 8
 
-# CLI args: include --production to use readonly DB, plus other flags
-parser = argparse.ArgumentParser()
-parser.add_argument(
-    "--uid",
-    type=str,
-    help="Override lock filename (unique id)",
-)
-parser.add_argument(
-    "--production",
-    action="store_true",
-    help="Use production database (write-enabled; may perform destructive operations)",
-)
-parser.add_argument(
-    "--readonly",
-    action="store_true",
-    help="Use readonly production database (init_readonly_db)",
-)
-parser.add_argument(
-    "--include-untested",
-    action="store_true",
-    help="Include untested proxies when selecting duplicates",
-)
-parser.add_argument(
-    "--limit",
-    type=int,
-    default=None,
-    help="Limit number of duplicate IPs to fetch (overrides default batch)",
-)
-args = parser.parse_args()
 
-# Apply optional UID override for the lock filename
-current_filename = args.uid if args.uid else os.path.basename(__file__)
+def _probe_proxy(proxy_entry: Dict[str, Any]) -> Dict[str, Any]:
+    proxy_str = proxy_entry["proxy"]
+    result: Dict[str, Any] = {
+        "proxy": proxy_str,
+        "port_open": False,
+        "working_protocols": [],
+    }
 
-# Create and acquire file lock after CLI parsing to allow overrides
-locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
-if not locker.lock():
-    print(red("Another instance is running. Exiting."))
-    sys.exit(0)
+    if not is_port_open(proxy_str):
+        return result
 
-if args.readonly:
-    db = init_readonly_db()
-elif args.production:
-    db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
-    db_host = os.getenv("MYSQL_HOST_PRODUCTION", os.getenv("MYSQL_HOST", "localhost"))
-    db_user = os.getenv("MYSQL_USER_PRODUCTION", os.getenv("MYSQL_USER", "root"))
-    db_pass = os.getenv("MYSQL_PASS_PRODUCTION", os.getenv("MYSQL_PASS", ""))
-    db = ProxyDB(
-        start=True,
-        db_type="mysql",
-        mysql_host=db_host,
-        mysql_dbname=db_name,
-        mysql_user=db_user,
-        mysql_password=db_pass,
+    checks = {
+        proto: check_proxy(proxy=proxy_str, proxy_type=proto, endpoint=PROTOCOL_ENDPOINT)
+        for proto in PROTOCOLS
+    }
+    working_protocols = [
+        getattr(check, "type", proto)
+        for proto, check in checks.items()
+        if check.result
+    ]
+    result["port_open"] = True
+    result["working_protocols"] = working_protocols
+    return result
+
+
+def _delete_proxies(db: ProxyDB, proxies_to_delete: List[str]) -> int:
+    unique_proxies = list(dict.fromkeys(proxies_to_delete))
+    if not unique_proxies:
+        return 0
+
+    placeholders = ", ".join(["%s" if db.driver == "mysql" else "?"] * len(unique_proxies))
+    db.get_db().execute_query(
+        f"DELETE FROM proxies WHERE proxy IN ({placeholders})",
+        unique_proxies,
     )
-else:
-    db = init_db("mysql")
-is_mysql = db.driver == "mysql"
-if not db.db:
-    print(red("Database not initialized. Exiting."))
-    sys.exit(1)
+    return len(unique_proxies)
 
-if is_mysql:
-    substrFunction = "SUBSTRING_INDEX(proxy, ':', 1)"
-    randomFunction = "RAND()"
-else:
-    substrFunction = "SUBSTR(proxy, 1, INSTR(proxy, ':') - 1)"
-    randomFunction = "RANDOM()"
+def main() -> int:
+    parser = argparse.ArgumentParser()
+    parser.add_argument(
+        "--uid",
+        type=str,
+        help="Override lock filename (unique id)",
+    )
+    parser.add_argument(
+        "--production",
+        action="store_true",
+        help="Use production database (write-enabled; may perform destructive operations)",
+    )
+    parser.add_argument(
+        "--readonly",
+        action="store_true",
+        help="Use readonly production database (init_readonly_db)",
+    )
+    parser.add_argument(
+        "--include-untested",
+        action="store_true",
+        help="Include untested proxies when selecting duplicates",
+    )
+    parser.add_argument(
+        "--limit",
+        type=int,
+        default=None,
+        help="Limit number of duplicate IPs to fetch (overrides default batch)",
+    )
+    args = parser.parse_args()
 
-# parameter placeholder depending on driver
-ph = "%s" if is_mysql else "?"
+    lock_name = args.uid if args.uid else os.path.basename(__file__)
+    locker = FileLockHelper(get_relative_path(f"tmp/locks/{lock_name}.lock"))
+    if not locker.lock():
+        print(red("Another instance is running. Exiting."))
+        return 0
 
-# Build status filter depending on CLI flag
-include_untested = args.include_untested
+    db = None
+    try:
+        if args.readonly:
+            db = init_readonly_db()
+        elif args.production:
+            db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
+            db_host = os.getenv("MYSQL_HOST_PRODUCTION", os.getenv("MYSQL_HOST", "localhost"))
+            db_user = os.getenv("MYSQL_USER_PRODUCTION", os.getenv("MYSQL_USER", "root"))
+            db_pass = os.getenv("MYSQL_PASS_PRODUCTION", os.getenv("MYSQL_PASS", ""))
+            db = ProxyDB(
+                start=True,
+                db_type="mysql",
+                mysql_host=db_host,
+                mysql_dbname=db_name,
+                mysql_user=db_user,
+                mysql_password=db_pass,
+            )
+        else:
+            db = init_db("mysql")
 
-status_filter_inner = (
-    "WHERE status != 'active'"
-    if include_untested
-    else "WHERE status != 'active' AND status != 'untested'"
-)
+        if not db.db:
+            print(red("Database not initialized. Exiting."))
+            return 1
 
-status_filter_trailing = (
-    "AND status != 'active'"
-    if include_untested
-    else "AND status != 'active' AND status != 'untested'"
-)
+        is_mysql = db.driver == "mysql"
+        substr_function = (
+            "SUBSTRING_INDEX(proxy, ':', 1)"
+            if is_mysql
+            else "SUBSTR(proxy, 1, INSTR(proxy, ':') - 1)"
+        )
+        random_function = "RAND()" if is_mysql else "RANDOM()"
+        placeholder = "%s" if is_mysql else "?"
 
-sql_duplicate_ips = f"""
-SELECT ip, COUNT(*) AS count_duplicates
-    FROM (
-        SELECT {substrFunction} AS ip
-        FROM proxies
-        {status_filter_inner}
-    ) AS filtered_proxies
-    GROUP BY ip
-    HAVING COUNT(*) > 1
-    ORDER BY {randomFunction}
-    LIMIT {ph} OFFSET {ph}
-"""
+        include_untested = args.include_untested
+        status_filter_inner = (
+            "WHERE status != 'active'"
+            if include_untested
+            else "WHERE status != 'active' AND status != 'untested'"
+        )
+        status_filter_trailing = (
+            "AND status != 'active'"
+            if include_untested
+            else "AND status != 'active' AND status != 'untested'"
+        )
 
-# paging: use --limit if provided, else default batch size
-default_batch = 1000
-batch = args.limit if args.limit is not None else default_batch
-offset = 0
-
-res = db.db.execute_query_fetch(sql_duplicate_ips, (batch, offset))
-if isinstance(res, list):
-    duplicate_ips = res
-    print(green(f"Found {len(duplicate_ips)} duplicate IPs."))
-    for entry in duplicate_ips:
-        ip = entry["ip"]
-        count_duplicates = entry["count_duplicates"]
-        print(magenta(f"IP: {ip}, Duplicates: {count_duplicates}"))
-
-        # Fetch all proxies with this IP that match status filter
-        sql_proxies_with_ip = f"""
-        SELECT id, proxy, status, https
-        FROM proxies
-        WHERE {substrFunction} = {ph}
-        {status_filter_trailing}
-        ORDER BY {randomFunction}
-        LIMIT {ph}
+        sql_duplicate_ips = f"""
+        SELECT ip, COUNT(*) AS count_duplicates
+            FROM (
+                SELECT {substr_function} AS ip
+                FROM proxies
+                {status_filter_inner}
+            ) AS filtered_proxies
+            GROUP BY ip
+            HAVING COUNT(*) > 1
+            ORDER BY {random_function}
+            LIMIT {placeholder} OFFSET {placeholder}
         """
-        proxies_with_ip = db.db.execute_query_fetch(sql_proxies_with_ip, (ip, batch))
-        if isinstance(proxies_with_ip, list):
-            # Keep one random proxy, delete the rest (by proxy string) only if their ports are closed
-            proxies_to_delete = []
-            for idx, proxy_entry in enumerate(proxies_with_ip):
-                proxy_id = proxy_entry["id"]
-                proxy_username = proxy_entry.get("username")
-                proxy_password = proxy_entry.get("password")
-                proxy_str = proxy_entry["proxy"]
-                proxy_status = proxy_entry["status"]
-                print(yellow(f"  [{idx+1}] ID: {proxy_id}, Proxy: {proxy_str}"))
-                if is_port_open(proxy_str):
-                    checks = {
-                        "http": check_proxy(
-                            proxy=proxy_str,
-                            proxy_type="http",
-                            endpoint="http://httpforever.com/",
-                        ),
-                        "socks4": check_proxy(
-                            proxy=proxy_str,
-                            proxy_type="socks4",
-                            endpoint="http://httpforever.com/",
-                        ),
-                        "socks5": check_proxy(
-                            proxy=proxy_str,
-                            proxy_type="socks5",
-                            endpoint="http://httpforever.com/",
-                        ),
-                    }
-                    working_protocols = [
-                        getattr(check, "type", proto)
-                        for proto, check in checks.items()
-                        if check.result
-                    ]
-                    working = len(working_protocols) > 0
-                    if working:
-                        print(
-                            green(
-                                f"    Port is open for proxy {proxy_str}, working protocols: {working_protocols}. Keeping this proxy."
+
+        default_batch = 1000
+        batch = args.limit if args.limit is not None else default_batch
+        offset = 0
+
+        res = db.db.execute_query_fetch(sql_duplicate_ips, (batch, offset))
+        if not isinstance(res, list):
+            return 0
+
+        duplicate_ips = res
+        print(green(f"Found {len(duplicate_ips)} duplicate IPs."))
+
+        for entry in duplicate_ips:
+            ip = entry["ip"]
+            count_duplicates = entry["count_duplicates"]
+            print(magenta(f"IP: {ip}, Duplicates: {count_duplicates}"))
+
+            sql_proxies_with_ip = f"""
+            SELECT id, proxy, status
+            FROM proxies
+            WHERE {substr_function} = {placeholder}
+            {status_filter_trailing}
+            ORDER BY {random_function}
+            LIMIT {placeholder}
+            """
+            proxies_with_ip = db.db.execute_query_fetch(sql_proxies_with_ip, (ip, batch))
+            if not isinstance(proxies_with_ip, list) or not proxies_with_ip:
+                print(yellow(f"    No proxies to process for IP {ip}."))
+                continue
+
+            proxies_to_delete: List[str] = []
+            worker_count = min(MAX_CHECK_WORKERS, len(proxies_with_ip))
+            with ThreadPoolExecutor(max_workers=max(1, worker_count)) as executor:
+                future_map = {
+                    executor.submit(_probe_proxy, proxy_entry): proxy_entry
+                    for proxy_entry in proxies_with_ip
+                }
+
+                for idx, future in enumerate(as_completed(future_map), start=1):
+                    proxy_entry = future_map[future]
+                    proxy_id = proxy_entry["id"]
+                    proxy_str = proxy_entry["proxy"]
+                    proxy_status = proxy_entry["status"]
+                    print(yellow(f"  [{idx}] ID: {proxy_id}, Proxy: {proxy_str}"))
+
+                    try:
+                        probe = future.result()
+                    except Exception as exc:
+                        print(red(f"    Failed to probe proxy {proxy_str}: {exc}"))
+                        proxies_to_delete.append(proxy_str)
+                        continue
+
+                    if probe["port_open"]:
+                        working_protocols = probe["working_protocols"]
+                        if working_protocols:
+                            print(
+                                green(
+                                    f"    Port is open for proxy {proxy_str}, working protocols: {working_protocols}. Keeping this proxy."
+                                )
                             )
-                        )
-                        db.update_data(
-                            proxy=proxy_str,
-                            data={
-                                "status": "active",
-                                "type": "-".join(working_protocols),
-                                "last_check": get_current_rfc3339_time(),
-                            },
-                        )
+                            db.update_data(
+                                proxy=proxy_str,
+                                data={
+                                    "status": "active",
+                                    "type": "-".join(working_protocols),
+                                    "last_check": get_current_rfc3339_time(),
+                                },
+                            )
+                        else:
+                            proxies_to_delete.append(proxy_str)
+                            print(
+                                red(
+                                    f"    Port is open for proxy {proxy_str} but no protocols work, marked for deletion."
+                                )
+                            )
                     else:
                         proxies_to_delete.append(proxy_str)
                         print(
                             red(
-                                f"    Port is open for proxy {proxy_str} but no protocols work, marked for deletion."
+                                f"    Port is closed for proxy {proxy_str}, marked for deletion."
                             )
                         )
-                else:
-                    proxies_to_delete.append(proxy_str)
-                    print(
-                        red(
-                            f"    Port is closed for proxy {proxy_str}, marked for deletion."
-                        )
-                    )
 
-            is_proxies_total_same_as_duplicates = (
-                len(proxies_to_delete) == count_duplicates
-            )
-            if is_proxies_total_same_as_duplicates and len(proxies_to_delete) > 0:
-                # Ensure at least one proxy remains if all are to be deleted
+            if len(proxies_to_delete) == count_duplicates and proxies_to_delete:
                 proxies_to_delete.pop()
-                print(
-                    yellow(
-                        "    All proxies had closed ports; kept one to avoid deleting all."
-                    )
-                )
+                print(yellow("    All proxies had closed ports; kept one to avoid deleting all."))
 
-            if len(proxies_to_delete) > 0:
+            if proxies_to_delete:
                 print(
                     yellow(
                         f"Would delete {len(proxies_to_delete)} duplicate proxies for IP {ip}."
                     )
                 )
                 print(yellow(f"Proxies to delete: {proxies_to_delete}"))
-                # Delete the duplicates using ProxyDB.remove(proxy)
-                deleted_count = 0
-                for proxy_val in proxies_to_delete:
-                    try:
-                        db.remove(proxy_val)
-                        deleted_count += 1
-                    except Exception as e:
-                        print(red(f"    Failed to delete proxy {proxy_val}: {e}"))
+                deleted_count = _delete_proxies(db, proxies_to_delete)
                 print(green(f"    Deleted {deleted_count} proxies for IP {ip}."))
             else:
                 print(yellow(f"    No proxies to delete for IP {ip}."))
+
+        return 0
+    finally:
+        if db:
+            db.close()
+        locker.unlock()
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
