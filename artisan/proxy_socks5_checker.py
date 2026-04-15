@@ -431,7 +431,7 @@ if __name__ == "__main__":
                     for part in str(current_type).split("-")
                     if part and part != "socks5"
                 ]
-                db.update_data(proxy, {"type": "-".join(type_parts)})
+                db.update_data(proxy, {"type": "-".join(type_parts)}, update_time=False)
 
             proxy_candidates = to_socks5_list(proxies[: args.limit])
             proxy_working = filter_test_socks5_proxies_parallel(
