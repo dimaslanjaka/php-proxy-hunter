@@ -190,113 +190,106 @@ def detect_proxy_type(proxy_str: str, timeout=5):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Proxy SSL test tool.")
-    parser.add_argument(
-        "--readonly", action="store_true", help="Use readonly DB connection"
-    )
-    args = parser.parse_args()
+    db = None
+    try:
+        try:
+            db = init_db("mysql")
+            if getattr(db, "db", None) is None:
+                raise RuntimeError("MySQL initialization failed")
+        except Exception as exc:
+            db = init_readonly_db()
+            if getattr(db, "db", None) is None:
+                raise RuntimeError("Readonly database initialization failed") from exc
 
-    if args.readonly:
-        db = init_readonly_db()
-    else:
-        db_host = os.getenv("MYSQL_HOST", "localhost")
-        db_user = os.getenv("MYSQL_USER", "root")
-        db_pass = os.getenv("MYSQL_PASS", "")
-        db = ProxyDB(
-            db_type="mysql",
-            start=True,
-            db_location="tmp/database.sqlite",
-            mysql_dbname="php_proxy_hunter_test",
-            mysql_host=db_host,
-            mysql_user=db_user,
-            mysql_password=db_pass,
-        )
-    proxies = db.get_working_proxies(randomize=True)
+        proxies = db.get_working_proxies(randomize=True)
 
-    for data in proxies:
-        proxy = data["proxy"]
-        if is_date_rfc3339_hour_more_than(data.get("last_check"), 24) is False:
-            print(
-                yellow(f"[SKIP] Proxy checked within last 24 hours, skipping: {proxy}")
-            )
-            continue
-        if not proxy:
-            continue
-
-        ptype = detect_proxy_type(proxy)
-
-        if ptype == "http+ssl":
-            if test_mozilla(proxy, "http"):
-                print(green(f"[OK] HTTP SSL (Mozilla) {proxy}"))
-                db.update_data(
-                    proxy,
-                    {
-                        "https": "true",
-                        "type": "http",
-                        "last_check": get_current_rfc3339_time(),
-                    },
+        for data in proxies:
+            proxy = data["proxy"]
+            if is_date_rfc3339_hour_more_than(data.get("last_check"), 24) is False:
+                print(
+                    yellow(f"[SKIP] Proxy checked within last 24 hours, skipping: {proxy}")
                 )
-            else:
-                print(red(f"[FAIL] Mozilla test failed: {proxy}"))
-        elif ptype == "socks5":
-            if test_mozilla(proxy, "socks5"):
-                print(magenta(f"[OK] SOCKS5 (Mozilla) {proxy}"))
-                db.update_data(
-                    proxy,
-                    {
-                        "https": "true",
-                        "type": "socks5",
-                        "last_check": get_current_rfc3339_time(),
-                    },
-                )
-            else:
-                print(red(f"[FAIL] Mozilla test failed: {proxy}"))
-        elif ptype == "socks4":
-            if test_mozilla(proxy, "socks4"):
-                print(yellow(f"[OK] SOCKS4 (Mozilla) {proxy}"))
-                db.update_data(
-                    proxy,
-                    {
-                        "https": "true",
-                        "type": "socks4",
-                        "last_check": get_current_rfc3339_time(),
-                    },
-                )
-            else:
-                print(red(f"[FAIL] Mozilla test failed: {proxy}"))
-        else:
-            if (
-                not test_mozilla(proxy, "http")
-                and not test_mozilla(proxy, "socks5")
-                and not test_mozilla(proxy, "socks4")
-            ):
-                if (
-                    not test_httpforever(proxy, "http")
-                    and not test_httpforever(proxy, "socks5")
-                    and not test_httpforever(proxy, "socks4")
-                ):
-                    print(red(f"[DEAD] Non-SSL/Dead proxy: {proxy}"))
+                continue
+            if not proxy:
+                continue
+
+            ptype = detect_proxy_type(proxy)
+
+            if ptype == "http+ssl":
+                if test_mozilla(proxy, "http"):
+                    print(green(f"[OK] HTTP SSL (Mozilla) {proxy}"))
                     db.update_data(
                         proxy,
                         {
-                            "https": "false",
+                            "https": "true",
+                            "type": "http",
                             "last_check": get_current_rfc3339_time(),
-                            "status": "dead",
                         },
                     )
                 else:
-                    print(
-                        red(
-                            f"[FAIL] Could not determine type and proxy failed Mozilla test but works on httpforever: {proxy}"
-                        )
-                    )
+                    print(red(f"[FAIL] Mozilla test failed: {proxy}"))
+            elif ptype == "socks5":
+                if test_mozilla(proxy, "socks5"):
+                    print(magenta(f"[OK] SOCKS5 (Mozilla) {proxy}"))
                     db.update_data(
                         proxy,
-                        {"https": "false", "last_check": get_current_rfc3339_time()},
+                        {
+                            "https": "true",
+                            "type": "socks5",
+                            "last_check": get_current_rfc3339_time(),
+                        },
                     )
+                else:
+                    print(red(f"[FAIL] Mozilla test failed: {proxy}"))
+            elif ptype == "socks4":
+                if test_mozilla(proxy, "socks4"):
+                    print(yellow(f"[OK] SOCKS4 (Mozilla) {proxy}"))
+                    db.update_data(
+                        proxy,
+                        {
+                            "https": "true",
+                            "type": "socks4",
+                            "last_check": get_current_rfc3339_time(),
+                        },
+                    )
+                else:
+                    print(red(f"[FAIL] Mozilla test failed: {proxy}"))
             else:
-                print(
-                    yellow(
-                        f"[UNKNOWN] Could not determine type but proxy works: {proxy}"
+                if (
+                    not test_mozilla(proxy, "http")
+                    and not test_mozilla(proxy, "socks5")
+                    and not test_mozilla(proxy, "socks4")
+                ):
+                    if (
+                        not test_httpforever(proxy, "http")
+                        and not test_httpforever(proxy, "socks5")
+                        and not test_httpforever(proxy, "socks4")
+                    ):
+                        print(red(f"[DEAD] Non-SSL/Dead proxy: {proxy}"))
+                        db.update_data(
+                            proxy,
+                            {
+                                "https": "false",
+                                "last_check": get_current_rfc3339_time(),
+                                "status": "dead",
+                            },
+                        )
+                    else:
+                        print(
+                            red(
+                                f"[FAIL] Could not determine type and proxy failed Mozilla test but works on httpforever: {proxy}"
+                            )
+                        )
+                        db.update_data(
+                            proxy,
+                            {"https": "false", "last_check": get_current_rfc3339_time()},
+                        )
+                else:
+                    print(
+                        yellow(
+                            f"[UNKNOWN] Could not determine type but proxy works: {proxy}"
+                        )
                     )
-                )
+    finally:
+        if db:
+            db.close()
