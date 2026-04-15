@@ -1,5 +1,29 @@
 [
   {
+    "hash": "626a6736f2168907fa06d43e170f6234f48f3339",
+    "date": "2026-04-15T12:49:21+07:00",
+    "message": "Merge branch 'master' of https://github.com/dimaslanjaka/php-proxy-hunter",
+    "files": []
+  },
+  {
+    "hash": "ea47e89968c7081efbc2fa14c5fe7710716e9873",
+    "date": "2026-04-15T12:32:05+07:00",
+    "message": "feat: ipdate blacklist.conf with new IP ranges",
+    "files": [
+      "data/blacklist.conf"
+    ]
+  },
+  {
+    "hash": "ae172bcfe53adf75110ad813616cf687afc4aa31",
+    "date": "2026-04-14T16:13:58+07:00",
+    "message": "feat(admin): move crontab logs to admin and harden env loading\n\n- render Crontab Logs in the admin page\n- remove the crontab tab and related admin-only state from the dashboard\n- make dotenv loading quiet and safely default when config parsing returns undefined",
+    "files": [
+      ".env.mjs",
+      "src/react/pages/Admin.tsx",
+      "src/react/pages/Dashboard.tsx"
+    ]
+  },
+  {
     "hash": "cc7f70b3cab74c301532b70c6cf8da2d9ba4acd0",
     "date": "2026-04-14T14:13:10+07:00",
     "message": "refactor(artisan): pass structured score results to callbacks\n\nIntroduce a typed score result payload to expose per-test outcomes\n(including TLS) throughout worker callbacks and DB updates.\n\n- add ProxyScoreResult TypedDict for score and test flags\n- update score_proxy to return structured result instead of raw int\n- pass score_result through worker callback pipeline\n- update callback type signatures to use ProxyScoreResult\n- persist TLS outcome as https true/false in success and failure handlers",
@@ -8824,30 +8848,6 @@
     "message": "feat(proxy-list): add region filter, show filters always, and add manual refresh\n\n- Add `regionFilter` state and `uniqueRegions` memo; include region filtering in the proxy list.\n- Remove accordion toggle (`filterOpen`) so filter controls are always visible.\n- Add `loadingProxies` and `isMountedRef` to manage fetch lifecycle safely.\n- Introduce `refreshProxies` helper and `handleRefresh` to enable manual refresh via a header button.\n- Prevent overlapping automatic refreshes by gating periodic refresh with `loadingProxies`.",
     "files": [
       "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "3f68f778b38da9f155d83dec7b76eca8598c92d5",
-    "date": "2025-10-31T19:07:20+07:00",
-    "message": "fix(logs): read log file directly instead of using logs repository\n\nReplace call to $logsRepo->getLogsByHash($hash) with reading the\ntemporary file at tmp()/logs/<hash>.txt via file_get_contents.\nReturn raw log contents when present; preserve existing fallback\nbehavior when the file is missing or empty.",
-    "files": [
-      "php_backend/logs.php"
-    ]
-  },
-  {
-    "hash": "beb3fd3ac521704929e554e0f7be14e198a163aa",
-    "date": "2025-10-31T19:04:08+07:00",
-    "message": "fix(proxyChecker): ensure proxies are treated as a string before splitting",
-    "files": [
-      "php_backend/index.js"
-    ]
-  },
-  {
-    "hash": "bc00e21a0b7ccd83e27589b2fc927fd86def0e4b",
-    "date": "2025-10-31T18:38:49+07:00",
-    "message": "feat(artisan): rate-limit proxyCheckerStarter to once per user per 5 minutes\n\n- store per-user timestamp in session under `lastProxyCheck-{userId}`\n- exit early when a non-CLI request triggers the starter within 5 minutes\n- compute and reuse `$userId` for child `--userId` flag\n- reduces duplicate background job launches and throttles user-triggered runs",
-    "files": [
-      "artisan/proxyCheckerStarter.php"
     ]
   }
 ]
