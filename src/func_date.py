@@ -82,6 +82,26 @@ def get_current_rfc3339_time(use_utc=False):
     return rfc3339_timestamp
 
 
+def get_yesterday_rfc3339_time(use_utc=False):
+    """
+    Returns yesterday's date and time formatted according to RFC 3339.
+
+    Args:
+    use_utc (bool): If True, the time will be in UTC. If False, the local timezone will be used.
+
+    Returns:
+    str: Yesterday's date and time in RFC 3339 format.
+    """
+    if use_utc:
+        yesterday = datetime.now(timezone.utc) - timedelta(days=1)
+        rfc3339_timestamp = yesterday.strftime("%Y-%m-%dT%H:%M:%SZ")
+    else:
+        yesterday = datetime.now(get_localzone()) - timedelta(days=1)
+        rfc3339_timestamp = yesterday.strftime("%Y-%m-%dT%H:%M:%S%z")
+
+    return rfc3339_timestamp
+
+
 def convert_rfc3339_to_human_readable(rfc3339_date: str):
     """
     Convert DATE_RFC3339 string to human readable format
