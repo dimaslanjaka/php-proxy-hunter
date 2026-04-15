@@ -1,12 +1,11 @@
 import asyncio
 import ssl
 import time
-import socket
 import socks
 import os
 import sys
 import re
-from typing import Any, Awaitable, Callable, Optional, TypedDict
+from typing import Any, Callable, Optional, TypedDict
 from colorama import Fore, Style, just_fix_windows_console
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -14,6 +13,7 @@ sys.path.append(PROJECT_ROOT)
 
 from src.shared import init_db
 from src.func import get_relative_path
+from src.database.SQLiteMarker import SQLiteMarker
 from src.utils.file.FileLockHelper import FileLockHelper
 from artisan.proxy_getter import (
     load_proxies_from_cli,
@@ -148,6 +148,18 @@ def proxy_to_host_port(proxy: Any) -> str | None:
             return normalize_proxy_text(proxy_value)
         if proxy.get("ip") and proxy.get("port"):
             return f"{proxy['ip']}:{proxy['port']}"
+
+    return None
+
+
+def proxy_to_marker_key(proxy: Any) -> str | None:
+    parsed = proxy_to_tuple(proxy)
+    if parsed:
+        return f"{parsed[0]}:{parsed[1]}"
+
+    fallback = proxy_to_host_port(proxy)
+    if fallback:
+        return fallback.strip()
 
     return None
 
@@ -455,111 +467,147 @@ if __name__ == "__main__":
 
     try:
         proxy_file = get_relative_path("proxies.txt")
+        marker = SQLiteMarker(
+            db_filename="proxy_tun2socks_stability.sqlite",
+            table_name="tested_proxies",
+            key_column="proxy",
+            base_dir="tmp/database",
+        )
 
-        proxies = []
-        source_label = "DB"
-
-        cli_proxies = load_proxies_from_cli()
-        if len(cli_proxies) != 0:
-            proxies = cli_proxies
-            source_label = "CLI input"
-            print(f"{source_label} {len(proxies)} proxies loaded")
-
-        if len(proxies) == 0:
-            proxies = load_proxies_from_file(proxy_file)
-            if proxies:
-                source_label = f"file input ({proxy_file})"
-                print(f"{source_label} {len(proxies)} proxies loaded")
-
-        if len(proxies) == 0:
+        try:
+            proxies = []
             source_label = "DB"
-            db = init_db("mysql")
-            try:
-                proxies = db.get_working_proxies(
-                    auto_fix=False,
-                    randomize=True,
-                    limit=args.limit,
-                    proxy_type="socks5",
-                    ssl=None,
-                    tun2socks=False,
-                )
+
+            cli_proxies = load_proxies_from_cli()
+            if len(cli_proxies) != 0:
+                proxies = cli_proxies
+                source_label = "CLI input"
                 print(f"{source_label} {len(proxies)} proxies loaded")
+
+            if len(proxies) == 0:
+                proxies = load_proxies_from_file(proxy_file)
+                if proxies:
+                    source_label = f"file input ({proxy_file})"
+                    print(f"{source_label} {len(proxies)} proxies loaded")
+
+            if len(proxies) == 0:
+                source_label = "DB"
+                db = init_db("mysql")
+                try:
+                    proxies = db.get_working_proxies(
+                        auto_fix=False,
+                        randomize=True,
+                        limit=args.limit,
+                        proxy_type="socks5",
+                        ssl=None,
+                        tun2socks=False,
+                    )
+                    print(f"{source_label} {len(proxies)} proxies loaded")
+                finally:
+                    db.close()
+
+            if not proxies:
+                print(f"No working SOCKS5 proxies found from {source_label}")
+                sys.exit(0)
+
+            proxy_by_key: dict[str, Any] = {}
+            ordered_keys: list[str] = []
+            for proxy in proxies:
+                marker_key = proxy_to_marker_key(proxy)
+                if not marker_key or marker_key in proxy_by_key:
+                    continue
+                proxy_by_key[marker_key] = proxy
+                ordered_keys.append(marker_key)
+
+            pending_keys, already_checked = marker.filter_unseen(ordered_keys)
+            proxies = [proxy_by_key[key] for key in pending_keys]
+            print(
+                f"[MARKER] pending={len(proxies)}, already_checked={already_checked}, "
+                f"total_unique={len(ordered_keys)}"
+            )
+
+            if not proxies:
+                print("No untested proxies left for tun2socks stability check")
+                sys.exit(0)
+
+            db = init_db("mysql")
+            db_write_lock = asyncio.Lock()
+
+            async def on_success(proxy_tuple: tuple[str, int], score_result: ProxyScoreResult):
+                score = score_result["score"]
+                tls_ok = score_result["tls"]
+                proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
+                async with db_write_lock:
+                    if score > 0:
+                        db.update_data(
+                            proxy,
+                            {
+                                "tun2socks": score,
+                                "type": "socks5",
+                                "status": "active",
+                                "https": "true" if tls_ok else "false",
+                            },
+                        )
+
+            async def on_failure(proxy_tuple: tuple[str, int], score_result: ProxyScoreResult):
+                score = score_result["score"]
+                tls_ok = score_result["tls"]
+                proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
+                async with db_write_lock:
+                    db.update_data(
+                        proxy,
+                        {"tun2socks": score, "https": "true" if tls_ok else "false"},
+                    )
+
+            try:
+                result, tested_set = asyncio.run(
+                    run_until_found(
+                        proxies,
+                        args.concurrency,
+                        on_success=on_success,
+                        on_failure=on_failure,
+                    )
+                )
             finally:
                 db.close()
 
-        if not proxies:
-            print(f"No working SOCKS5 proxies found from {source_label}")
-            sys.exit(0)
+            if tested_set:
+                for tested_proxy in tested_set:
+                    marker.mark(tested_proxy)
 
-        db = init_db("mysql")
-        db_write_lock = asyncio.Lock()
+            if "file" in source_label and tested_set and os.path.isfile(proxy_file):
+                with open(proxy_file, "r", encoding="utf-8") as f:
+                    file_lines = f.readlines()
 
-        async def on_success(proxy_tuple: tuple[str, int], score_result: ProxyScoreResult):
-            score = score_result["score"]
-            tls_ok = score_result["tls"]
-            proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
-            async with db_write_lock:
-                if score > 0:
-                    db.update_data(
-                        proxy,
-                        {
-                            "tun2socks": score,
-                            "type": "socks5",
-                            "status": "active",
-                            "https": "true" if tls_ok else "false",
-                        },
+                kept_lines = []
+                removed_count = 0
+                for line in file_lines:
+                    normalized = normalize_proxy_line_for_match(line)
+                    if normalized in tested_set:
+                        removed_count += 1
+                        continue
+                    kept_lines.append(line)
+
+                trimmed_trailing_empty = 0
+                while kept_lines and not kept_lines[-1].strip():
+                    kept_lines.pop()
+                    trimmed_trailing_empty += 1
+
+                if removed_count or trimmed_trailing_empty:
+                    with open(proxy_file, "w", encoding="utf-8") as f:
+                        f.writelines(kept_lines)
+                    print(
+                        f"[INFO] Removed {removed_count} tested proxies from {proxy_file}; "
+                        f"trimmed {trimmed_trailing_empty} trailing empty lines"
                     )
 
-        async def on_failure(proxy_tuple: tuple[str, int], score_result: ProxyScoreResult):
-            score = score_result["score"]
-            tls_ok = score_result["tls"]
-            proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
-            async with db_write_lock:
-                db.update_data(proxy, {"tun2socks": score, "https": "true" if tls_ok else "false"})
-
-        try:
-            result, tested_set = asyncio.run(
-                run_until_found(
-                    proxies,
-                    args.concurrency,
-                    on_success=on_success,
-                    on_failure=on_failure,
-                )
-            )
+            if result:
+                proxy_tuple, score = result
+                print(f"FOUND: {proxy_tuple} => {score}")
+            else:
+                print("No compatible tun2socks proxy found")
         finally:
-            db.close()
-
-        if "file" in source_label and tested_set and os.path.isfile(proxy_file):
-            with open(proxy_file, "r", encoding="utf-8") as f:
-                file_lines = f.readlines()
-
-            kept_lines = []
-            removed_count = 0
-            for line in file_lines:
-                normalized = normalize_proxy_line_for_match(line)
-                if normalized in tested_set:
-                    removed_count += 1
-                    continue
-                kept_lines.append(line)
-
-            trimmed_trailing_empty = 0
-            while kept_lines and not kept_lines[-1].strip():
-                kept_lines.pop()
-                trimmed_trailing_empty += 1
-
-            if removed_count or trimmed_trailing_empty:
-                with open(proxy_file, "w", encoding="utf-8") as f:
-                    f.writelines(kept_lines)
-                print(
-                    f"[INFO] Removed {removed_count} tested proxies from {proxy_file}; "
-                    f"trimmed {trimmed_trailing_empty} trailing empty lines"
-                )
-
-        if result:
-            proxy_tuple, score = result
-            print(f"FOUND: {proxy_tuple} => {score}")
-        else:
-            print("No compatible tun2socks proxy found")
+            marker.close()
     finally:
         if locker:
             locker.unlock()
