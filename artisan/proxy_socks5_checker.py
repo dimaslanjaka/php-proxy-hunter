@@ -1,10 +1,5 @@
 import os
 import asyncio
-import shutil
-import platform
-import subprocess
-import time
-import signal
 import sys
 import random
 import re
@@ -12,12 +7,12 @@ from datetime import datetime, timezone
 from typing import Any, Callable, Iterable, List, Optional
 from urllib.parse import urlsplit
 from proxy_hunter import build_request
-from colorama import Fore, Style, just_fix_windows_console
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
 from src.func import get_relative_path
+from src.func_console import cyan, red
 from src.utils.file.FileLockHelper import FileLockHelper
 from artisan.proxy_getter import (
     parse_args,
@@ -26,41 +21,41 @@ from artisan.proxy_getter import (
 )
 from src.shared import init_db
 
-just_fix_windows_console()
-COLOR_ENABLED = True
-
 current_filename = os.path.basename(__file__)
 locker: Optional[FileLockHelper] = None
 
 
-def color_proxy_text(value: str) -> str:
-    if not COLOR_ENABLED:
-        return value
-    return f"{Fore.CYAN}{value}{Style.RESET_ALL}"
-
-
-def color_status_text(message: str) -> str:
-    if not COLOR_ENABLED:
-        return message
-
-    def replacer(match: re.Match[str]) -> str:
-        word = match.group(0)
-        lowered = word.lower()
-        if lowered.startswith("fail"):
-            return f"{Fore.RED}{word}{Style.RESET_ALL}"
-        return f"{Fore.GREEN}{word}{Style.RESET_ALL}"
-
-    return re.sub(
-        r"\b(pass|passed|success|succeed|succeeded|ok|fail|failed)\b",
-        replacer,
-        message,
-        flags=re.IGNORECASE,
-    )
+def normalize_proxy_value(value: str) -> str:
+    text = value.strip()
+    if text.startswith("socks5://"):
+        return text.replace("socks5://", "", 1)
+    if "://" in text:
+        return text.split("://", 1)[1]
+    return text
 
 
 def print_status(tag: str, message: str, proxy: Optional[str] = None) -> None:
-    proxy_text = f" {color_proxy_text(proxy)}" if proxy else ""
-    print(f"[{tag}]{proxy_text} {color_status_text(message)}".rstrip())
+    display_tag = tag
+    if tag == "SOCKS5 FAIL":
+        display_tag = "FAIL"
+    elif tag == "SOCKS5 OK":
+        display_tag = "OK"
+
+    def colorize_fail_word(text: str) -> str:
+        return re.sub(r"\bfail\b", lambda m: red(m.group(0)), text, flags=re.IGNORECASE)
+
+    def colorize_proxy_endpoint(text: str) -> str:
+        value = text.strip()
+        if not value:
+            return value
+        if "://" in value:
+            _scheme, endpoint = value.split("://", 1)
+            return cyan(endpoint)
+        return cyan(value)
+
+    formatted_message = colorize_fail_word(message)
+    proxy_text = f" {colorize_proxy_endpoint(proxy)}" if proxy else ""
+    print(f"[{display_tag}]{proxy_text} {formatted_message}".rstrip())
 
 
 def test_socks5_proxy(proxy_host, proxy_port, username=None, password=None, timeout=5):
@@ -137,10 +132,7 @@ def to_socks5_list(items: Iterable[Any]) -> List[str]:
             normalized.append(host_port)
             continue
 
-        if "://" in host_port:
-            host_port = host_port.split("://", 1)[1]
-
-        normalized.append(f"socks5://{host_port}")
+        normalized.append(f"socks5://{normalize_proxy_value(host_port)}")
 
     return normalized
 
@@ -151,13 +143,18 @@ def to_proxy_rows(items: Iterable[Any]) -> List[dict[str, Any]]:
 
     for item in items:
         proxy_value: Optional[str] = None
-        last_check: Optional[Any] = None
+        row: dict[str, Any] = {}
 
         if isinstance(item, str):
             proxy_value = item.strip()
         elif isinstance(item, dict):
             proxy_value = str(item.get("proxy") or "").strip()
-            last_check = item.get("last_check")
+            row = {
+                "type": item.get("type"),
+                "status": item.get("status"),
+                "https": item.get("https"),
+                "last_check": item.get("last_check"),
+            }
             if not proxy_value and item.get("ip") and item.get("port"):
                 proxy_value = f"{item['ip']}:{item['port']}"
         elif isinstance(item, (tuple, list)) and len(item) >= 2:
@@ -166,12 +163,8 @@ def to_proxy_rows(items: Iterable[Any]) -> List[dict[str, Any]]:
         if not proxy_value:
             continue
 
-        if proxy_value.startswith("socks5://"):
-            proxy_value = proxy_value.replace("socks5://", "", 1)
-        elif "://" in proxy_value:
-            proxy_value = proxy_value.split("://", 1)[1]
-
-        row = {"proxy": proxy_value, "last_check": last_check}
+        proxy_value = normalize_proxy_value(proxy_value)
+        row["proxy"] = proxy_value
         rows.append(row)
 
     return rows
@@ -378,19 +371,27 @@ if __name__ == "__main__":
         random.shuffle(proxies)
         print(f"[INFO] Proxy source: {source_label} ({len(proxies)} candidates)")
 
+        proxy_row_map = {
+            normalize_proxy_value(str(proxy["proxy"])): proxy
+            for proxy in proxies
+            if isinstance(proxy, dict) and proxy.get("proxy")
+        }
+
         def on_success(proxy, _):
             db.update_data(
                 proxy, {"type": "socks5", "status": "active", "https": "true"}
             )
 
         def on_failed(proxy, _):
-            rows = db.select(proxy)
-            if not rows:
-                return
-
-            row = rows[0] if isinstance(rows, list) else rows
+            row = proxy_row_map.get(normalize_proxy_value(proxy))
             if not isinstance(row, dict):
-                return
+                rows = db.select(proxy)
+                if not rows:
+                    return
+
+                row = rows[0] if isinstance(rows, list) else rows
+                if not isinstance(row, dict):
+                    return
 
             current_type = row.get("type")
             if current_type is None:
