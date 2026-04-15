@@ -1,5 +1,21 @@
 [
   {
+    "hash": "92bbe8090fa3a683b3d710665cba0a9551ed09cc",
+    "date": "2026-04-15T23:11:40+07:00",
+    "message": "fix(crontab): update log path for custom crontab script output",
+    "files": [
+      ".crontab.txt"
+    ]
+  },
+  {
+    "hash": "a15a8ebb069444f8d3dd7ce3a42eb69c37591382",
+    "date": "2026-04-15T22:40:26+07:00",
+    "message": "fix(crontab): unify virtualenv selection and normalize python launcher resolution\n\n- add get_venv_name() to choose a single env directory (.venv preferred, venv fallback)\n- introduce VENV_NAME constant and reuse it across interpreter/path resolution\n- update resolve_python_bin() to use platform-specific launchers:\n  - Windows: bin/py.cmd, then <venv>/Scripts/python.exe\n  - Unix-like: bin/py, then <venv>/bin/python\n- update build_path() to use the selected virtualenv bin/Scripts directory",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
     "hash": "37e4d2f4365dfdf0f7133f21bcbbbf013a039b53",
     "date": "2026-04-15T22:33:39+07:00",
     "message": "fix(settings): update Python executor command to use 'py' instead of 'python'",
@@ -8835,26 +8851,6 @@
     "message": "feat(proxy): add file locking and atomic writes to working proxies writer\n\nEnhanced `writing_working_proxies_file()` to prevent concurrent writes and\nensure data integrity by introducing:\n- lock file mechanism (`tmp/locks/writing-working-proxies.lock`)\n- atomic writes using temporary files and renames\n- graceful handling of write and rename failures\n\nThis improves stability and avoids race conditions when multiple processes\nattempt to write working proxies simultaneously.",
     "files": [
       "func-proxy.php"
-    ]
-  },
-  {
-    "hash": "a49f815d75362a4a1cf241cba0ab0b2e3b09311b",
-    "date": "2025-11-01T20:40:49+07:00",
-    "message": "fix(geoIp): ensure working proxies file is written after processing",
-    "files": [
-      "geoIp.php"
-    ]
-  },
-  {
-    "hash": "e0f9ed8c13fcefeb5a8a7c203f8e612821389c47",
-    "date": "2025-11-01T20:38:00+07:00",
-    "message": "refactor(proxy): centralize working proxies file writing logic\n\nMoved repeated file-writing logic for working proxies into a new helper\nfunction `writing_working_proxies_file()` in `func-proxy.php`.\n\nReplaced multiple inline implementations and deprecated `write_working()` calls\nwith the new unified function across the following files:\n- artisan/filterPortsDuplicate.php\n- php_backend/processes.php\n- php_backend/proxy-checker.php\n- proxyCheckerParallel-func.php\n\nThis improves code reuse and maintainability.",
-    "files": [
-      "artisan/filterPortsDuplicate.php",
-      "func-proxy.php",
-      "php_backend/processes.php",
-      "php_backend/proxy-checker.php",
-      "proxyCheckerParallel-func.php"
     ]
   }
 ]
