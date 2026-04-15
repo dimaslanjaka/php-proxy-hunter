@@ -461,9 +461,10 @@ class ProxyDB
    *        - false => return only proxies where tun2socks is NULL/empty or <= 0.
    *        - null  => no tun2socks filtering (default).
    * @param string|null $proxyType Filter by the `type` column using LIKE.
+  * @param string|null $lastChecked Filter by last_check column (RFC3339 date string). When provided, returns only proxies checked on or before this date (last_check <= lastChecked).
    * @return array
    */
-  public function getWorkingProxies($limit = null, $randomize = null, $page = null, $perPage = null, $ssl = null, $tun2socks = null, $proxyType = null) {
+  public function getWorkingProxies($limit = null, $randomize = null, $page = null, $perPage = null, $ssl = null, $tun2socks = null, $proxyType = null, $lastChecked = null) {
     $whereClause = 'status = ?';
     $params      = ['active'];
 
@@ -491,6 +492,12 @@ class ProxyDB
     if ($proxyType !== null && trim($proxyType) !== '') {
       $whereClause .= ' AND LOWER(type) LIKE ?';
       $params[] = '%' . strtolower(trim($proxyType)) . '%';
+    }
+
+    // Last checked filtering (last_check <= lastChecked)
+    if ($lastChecked !== null) {
+      $whereClause .= ' AND last_check <= ?';
+      $params[] = $lastChecked;
     }
 
     // Determine ordering (random or last_check DESC)

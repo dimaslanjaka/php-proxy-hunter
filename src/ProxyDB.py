@@ -573,6 +573,7 @@ class ProxyDB:
         proxy_type: Optional[str] = None,
         page: Optional[int] = None,
         per_page: Optional[int] = None,
+        last_checked: Optional[str] = None,
     ) -> List[Dict[str, Union[str, None]]]:
         """
         Retrieve working (active) proxies with optional limit, ordering and filters.
@@ -602,6 +603,9 @@ class ProxyDB:
         - page (Optional[int]): 1-based page number for pagination. If provided
             together with `per_page`, it overrides legacy `limit`.
         - per_page (Optional[int]): Number of items per page for pagination.
+        - last_checked (Optional[str]): Filter by `last_check` column (RFC3339
+            date string). When provided, only returns proxies with
+            `last_check <= last_checked`.
 
         Returns
         - List[Dict[str, Union[str, None]]]: List of proxy rows as dictionaries.
@@ -653,6 +657,11 @@ class ProxyDB:
         if proxy_type and proxy_type.strip():
             where_clause += f" AND LOWER(type) LIKE {placeholder}"
             params.append(f"%{proxy_type.strip().lower()}%")
+
+        # Last checked filtering (last_check <= last_checked)
+        if last_checked:
+            where_clause += f" AND last_check <= {placeholder}"
+            params.append(last_checked)
 
         # For SQLiteHelper we can pass rand and limit separately to avoid
         # embedding LIMIT into the where string. For MySQL keep previous behavior.
