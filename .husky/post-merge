@@ -38,11 +38,11 @@ CHANGED_FILES=""
 if [ -n "$PREV_REF" ] && [ -n "$CUR_REF" ]; then
   CHANGED_FILES=$(git -C "$CWD" diff --name-only "$PREV_REF" "$CUR_REF")
 fi
+CHANGED_SUBMODULES=""
 
 # Update only submodules whose gitlink changed
 if [ -f "$CWD/.gitmodules" ]; then
   SUBMODULE_PATHS=$(git -C "$CWD" config --file "$CWD/.gitmodules" --get-regexp '^submodule\..*\.path$' 2>/dev/null | sed 's/^[^ ]* //')
-  CHANGED_SUBMODULES=""
   for submodule_path in $SUBMODULE_PATHS; do
     if echo "$CHANGED_FILES" | grep -Fxq "$submodule_path"; then
       CHANGED_SUBMODULES="$CHANGED_SUBMODULES $submodule_path"
@@ -89,6 +89,9 @@ RUN_YARN=0
 if echo "$CHANGED_FILES" | grep -qE '(^|/)package\.json$'; then
   RUN_YARN=1
 fi
+if [ -n "$CHANGED_SUBMODULES" ]; then
+  RUN_YARN=1
+fi
 
 if [ "$RUN_YARN" -eq 1 ]; then
   if command -v yarn >/dev/null 2>&1; then
@@ -107,7 +110,7 @@ if [ "$RUN_YARN" -eq 1 ]; then
     echo "Error: Yarn is not installed. Skipping yarn operations."
   fi
 else
-  echo "No package.json changes detected; skipping yarn."
+  echo "No package.json or submodule changes detected; skipping yarn."
 fi
 
 if command -v yarn >/dev/null 2>&1; then
