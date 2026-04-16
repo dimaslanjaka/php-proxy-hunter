@@ -31,50 +31,63 @@ if [ "$OS" = "Linux" ] && [ $IS_VPS -eq 1 ]; then
   sudo crontab -u "$USER" "$CWD/.crontab.txt"
 fi
 
-# Update submodules
+# Determine changed files once for post-merge decisions
+PREV_REF=$(git -C "$CWD" rev-parse --verify ORIG_HEAD 2>/dev/null || git -C "$CWD" rev-parse --verify HEAD^ 2>/dev/null || true)
+CUR_REF=$(git -C "$CWD" rev-parse --verify HEAD 2>/dev/null || true)
+CHANGED_FILES=""
+if [ -n "$PREV_REF" ] && [ -n "$CUR_REF" ]; then
+  CHANGED_FILES=$(git -C "$CWD" diff --name-only "$PREV_REF" "$CUR_REF")
+fi
+
+# Update only submodules whose gitlink changed
 if [ -f "$CWD/.gitmodules" ]; then
-  echo "Updating submodules..."
-  # Stash changes in each submodule before updating
-  if [ -f "$CWD/.gitmodules" ]; then
-    git submodule foreach --quiet '
-      if [ -n "$(git status --porcelain)" ]; then
-        echo "Stashing changes in submodule $name..."
-        git stash push -u -m "pre-submodule-update"
-      fi
-    '
-  fi
+  SUBMODULE_PATHS=$(git -C "$CWD" config --file "$CWD/.gitmodules" --get-regexp '^submodule\..*\.path$' 2>/dev/null | sed 's/^[^ ]* //')
+  CHANGED_SUBMODULES=""
+  for submodule_path in $SUBMODULE_PATHS; do
+    if echo "$CHANGED_FILES" | grep -Fxq "$submodule_path"; then
+      CHANGED_SUBMODULES="$CHANGED_SUBMODULES $submodule_path"
+    fi
+  done
 
-  # Update submodules
-  git submodule update --init --recursive || {
-    echo "Failed to update submodules"
-    exit 1
-  }
+  if [ -n "$CHANGED_SUBMODULES" ]; then
+    echo "Updating changed submodules:$CHANGED_SUBMODULES"
 
-  # Pop stashed changes in each submodule after update
-  if [ -f "$CWD/.gitmodules" ]; then
-    git submodule foreach --quiet '
-      if git stash list | grep -q "pre-submodule-update"; then
-        echo "Restoring stashed changes in submodule $name..."
-        git stash pop
+    # Stash local changes only in changed submodules before updating
+    for submodule_path in $CHANGED_SUBMODULES; do
+      if [ -n "$(git -C "$CWD/$submodule_path" status --porcelain 2>/dev/null)" ]; then
+        echo "Stashing changes in submodule $submodule_path..."
+        git -C "$CWD/$submodule_path" stash push -u -m "pre-submodule-update" >/dev/null 2>&1 || true
       fi
-    '
+    done
+
+    # Update only changed submodules
+    for submodule_path in $CHANGED_SUBMODULES; do
+      git -C "$CWD" submodule update --init --recursive -- "$submodule_path" || {
+        echo "Failed to update submodule: $submodule_path"
+        exit 1
+      }
+    done
+
+    # Restore stashed changes in changed submodules
+    for submodule_path in $CHANGED_SUBMODULES; do
+      if git -C "$CWD/$submodule_path" stash list | grep -q "pre-submodule-update"; then
+        echo "Restoring stashed changes in submodule $submodule_path..."
+        git -C "$CWD/$submodule_path" stash pop >/dev/null 2>&1 || true
+      fi
+    done
+  else
+    echo "No submodule pointer changes detected; skipping update."
   fi
 else
   echo "No submodules found, skipping update."
 fi
 
-# Run yarn only when relevant (package.json present or JS/TS files changed)
+# Run yarn only when package.json changed
 ViteLockFile="$CWD/tmp/locks/.dev-server-lock"
 
-# Decide whether to run yarn based on git changes or presence of package.json
-PREV_REF=$(git -C "$CWD" rev-parse --verify ORIG_HEAD 2>/dev/null || git -C "$CWD" rev-parse --verify HEAD^ 2>/dev/null || true)
-CUR_REF=$(git -C "$CWD" rev-parse --verify HEAD 2>/dev/null || true)
 RUN_YARN=0
-if [ -n "$PREV_REF" ] && [ -n "$CUR_REF" ]; then
-  CHANGED_FILES=$(git -C "$CWD" diff --name-only "$PREV_REF" "$CUR_REF")
-  if echo "$CHANGED_FILES" | grep -qE '(^|/)package\.json$|\.ts$|\.tsx$|\.js$|\.mjs$|\.cjs$'; then
-    RUN_YARN=1
-  fi
+if echo "$CHANGED_FILES" | grep -qE '(^|/)package\.json$'; then
+  RUN_YARN=1
 fi
 
 if [ "$RUN_YARN" -eq 1 ]; then
@@ -94,7 +107,7 @@ if [ "$RUN_YARN" -eq 1 ]; then
     echo "Error: Yarn is not installed. Skipping yarn operations."
   fi
 else
-  echo "No package.json or JS/TS changes detected; skipping yarn."
+  echo "No package.json changes detected; skipping yarn."
 fi
 
 if command -v yarn >/dev/null 2>&1; then
@@ -109,7 +122,7 @@ if command -v yarn >/dev/null 2>&1; then
   fi
 fi
 
-# Decide whether to run Composer: only when composer.json or any .php files changed
+# Decide whether to run Composer: only when composer.json changed
 COMPOSER_LOCK="$CWD/composer.lock"
 COMPOSER_PHAR="$CWD/bin/composer.phar"
 COMPOSER_ARGS="--no-interaction --no-audit"
@@ -120,15 +133,9 @@ if [ $IS_VPS -eq 1 ]; then
   COMPOSER_ARGS="--no-dev --no-interaction --no-audit"
 fi
 
-# Determine previous ref to compare changes (prefer ORIG_HEAD, fallback to HEAD^)
-PREV_REF=$(git -C "$CWD" rev-parse --verify ORIG_HEAD 2>/dev/null || git -C "$CWD" rev-parse --verify HEAD^ 2>/dev/null || true)
-CUR_REF=$(git -C "$CWD" rev-parse --verify HEAD 2>/dev/null || true)
 RUN_COMPOSER=0
-if [ -n "$PREV_REF" ] && [ -n "$CUR_REF" ]; then
-  CHANGED_FILES=$(git -C "$CWD" diff --name-only "$PREV_REF" "$CUR_REF")
-  if echo "$CHANGED_FILES" | grep -qE '(^|/)composer\.json$|\.php$'; then
-    RUN_COMPOSER=1
-  fi
+if echo "$CHANGED_FILES" | grep -qE '(^|/)composer\.json$'; then
+  RUN_COMPOSER=1
 fi
 
 if [ "$RUN_COMPOSER" -eq 1 ]; then
@@ -163,7 +170,7 @@ if [ "$RUN_COMPOSER" -eq 1 ]; then
     echo "Error: PHP is not installed. Skipping composer operations."
   fi
 else
-  echo "No composer.json or PHP file changes detected; skipping composer."
+  echo "No composer.json changes detected; skipping composer."
 fi
 
 # run commit history builder on non-VPS environments
