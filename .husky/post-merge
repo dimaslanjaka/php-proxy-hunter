@@ -75,11 +75,6 @@ if [ -n "$PREV_REF" ] && [ -n "$CUR_REF" ]; then
   if echo "$CHANGED_FILES" | grep -qE '(^|/)package\.json$|\.ts$|\.tsx$|\.js$|\.mjs$|\.cjs$'; then
     RUN_YARN=1
   fi
-else
-  # fallback: if we can't get previous ref, run only if package.json exists
-  if [ -f "$CWD/package.json" ]; then
-    RUN_YARN=1
-  fi
 fi
 
 if [ "$RUN_YARN" -eq 1 ]; then
@@ -132,11 +127,6 @@ RUN_COMPOSER=0
 if [ -n "$PREV_REF" ] && [ -n "$CUR_REF" ]; then
   CHANGED_FILES=$(git -C "$CWD" diff --name-only "$PREV_REF" "$CUR_REF")
   if echo "$CHANGED_FILES" | grep -qE '(^|/)composer\.json$|\.php$'; then
-    RUN_COMPOSER=1
-  fi
-else
-  # If we can't determine previous ref, be conservative and run composer if composer.json exists
-  if [ -f "$CWD/composer.json" ]; then
     RUN_COMPOSER=1
   fi
 fi
@@ -208,4 +198,4 @@ elif [ "$OS" = "Linux" ]; then
 fi
 
 # Run database migrations
-"$CWD/bin/py" "src/migrations/migrate.py"
+"$CWD/bin/py" "src/migrations/migrate.py" || true
