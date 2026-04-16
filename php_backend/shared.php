@@ -40,22 +40,26 @@ $dbPass = is_debug_device() ? ($_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS')) : ($
 $dbHost = is_debug_device() ? ($_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST')) : ($_ENV['MYSQL_HOST_PRODUCTION'] ?? getenv('MYSQL_HOST_PRODUCTION'));
 $dbFile = is_debug() ? __DIR__ . '/../tmp/database_test.sqlite' : __DIR__ . '/../src/database.sqlite';
 // Github CI uses SQLite for testing to avoid needing a MySQL service
-$dbType  = is_github_ci() ? 'sqlite' : 'mysql';
-$core_db = new CoreDB(
-  $dbFile,
-  $dbHost,
-  $dbName,
-  $dbUser,
-  $dbPass,
-  false,
-  $dbType
-);
-/** @var \PhpProxyHunter\UserDB $user_db */
-$user_db = $core_db->user_db;
-/** @var \PhpProxyHunter\ProxyDB $proxy_db */
-$proxy_db = $core_db->proxy_db;
-/** @var \PhpProxyHunter\ActivityLog $log_db */
-$log_db = $core_db->log_db;
+$dbType = is_github_ci() ? 'sqlite' : 'mysql';
+try {
+  $core_db = new CoreDB(
+    $dbFile,
+    $dbHost,
+    $dbName,
+    $dbUser,
+    $dbPass,
+    false,
+    $dbType
+  );
+  /** @var \PhpProxyHunter\UserDB $user_db */
+  $user_db = $core_db->user_db;
+  /** @var \PhpProxyHunter\ProxyDB $proxy_db */
+  $proxy_db = $core_db->proxy_db;
+  /** @var \PhpProxyHunter\ActivityLog $log_db */
+  $log_db = $core_db->log_db;
+} catch (\Throwable $th) {
+  //throw $th;
+}
 
 /**
  * Get current authenticated user data from the database.
@@ -69,52 +73,95 @@ function getCurrentUserData() {
   return !empty($user) ? $user : null;
 }
 
- /**
-  * Refresh database connections by re-instantiating CoreDB and its DB wrappers.
-  *
-  * This function performs the following steps:
-  * - Declares the global variables that hold DB configuration and connection objects.
-  * - Unsets existing connection variables ($core_db, $user_db, $proxy_db, $log_db) to
-  *   ensure old connections are released.
-  * - Invokes garbage collection to free resources immediately.
-  * - Creates a new CoreDB instance with the current configuration and re-assigns
-  *   the wrapper properties ($user_db, $proxy_db, $log_db) from the new CoreDB.
-  *
-  * Globals used:
-  * @global string $dbFile Path to SQLite file or ignored for MySQL
-  * @global string $dbHost Database host
-  * @global string $dbName Database name
-  * @global string $dbUser Database username
-  * @global string $dbPass Database password
-  * @global string $dbType Database type identifier ('sqlite' or 'mysql')
-  * @global \PhpProxyHunter\CoreDB $core_db The CoreDB instance to re-create
-  * @global \PhpProxyHunter\UserDB|null $user_db The user DB wrapper (may be uninitialized)
-  * @global \PhpProxyHunter\ProxyDB|null $proxy_db The proxy DB wrapper (may be uninitialized)
-  * @global \PhpProxyHunter\ActivityLog|null $log_db The activity log wrapper (may be uninitialized)
-  *
-  * @return array{
-  *   core_db:\PhpProxyHunter\CoreDB,
-  *   user_db:\PhpProxyHunter\UserDB,
-  *   proxy_db:\PhpProxyHunter\ProxyDB,
-  *   log_db:\PhpProxyHunter\ActivityLog
-  * } Returns the newly created CoreDB instance and its DB wrappers.
-  */
-function refreshDbConnections() {
+/**
+ * Refresh database connections by re-instantiating CoreDB and its DB wrappers.
+ *
+ * This function performs the following steps:
+ * - Declares the global variables that hold DB configuration and connection objects.
+ * - Unsets existing connection variables ($core_db, $user_db, $proxy_db, $log_db) to
+ *   ensure old connections are released.
+ * - Invokes garbage collection to free resources immediately.
+ * - Creates a new CoreDB instance with the current configuration and re-assigns
+ *   the wrapper properties ($user_db, $proxy_db, $log_db) from the new CoreDB.
+ *
+ * Globals used:
+ * @global string $dbFile Path to SQLite file or ignored for MySQL
+ * @global string $dbHost Database host
+ * @global string $dbName Database name
+ * @global string $dbUser Database username
+ * @global string $dbPass Database password
+ * @global string $dbType Database type identifier ('sqlite' or 'mysql')
+ * @global \PhpProxyHunter\CoreDB $core_db The CoreDB instance to re-create
+ * @global \PhpProxyHunter\UserDB|null $user_db The user DB wrapper (may be uninitialized)
+ * @global \PhpProxyHunter\ProxyDB|null $proxy_db The proxy DB wrapper (may be uninitialized)
+ * @global \PhpProxyHunter\ActivityLog|null $log_db The activity log wrapper (may be uninitialized)
+ * @param bool $useFallbackProduction Whether to retry with production DB credentials
+ *   when MySQL returns a connection refused error (SQLSTATE[HY000] [2002]).
+ *
+ * @return array{
+ *   core_db:\PhpProxyHunter\CoreDB,
+ *   user_db:\PhpProxyHunter\UserDB,
+ *   proxy_db:\PhpProxyHunter\ProxyDB,
+ *   log_db:\PhpProxyHunter\ActivityLog
+ * }|null Returns the newly created CoreDB instance and its DB wrappers, or null
+ *   if connection setup fails.
+ */
+function refreshDbConnections(bool $useFallbackProduction = false): ?array {
   global $dbFile, $dbHost, $dbName, $dbUser, $dbPass, $dbType, $core_db, $user_db, $proxy_db, $log_db;
 
   // Clean up existing DB connections to avoid conflicts
   unset($core_db, $user_db, $proxy_db, $log_db);
   gc_collect_cycles();
 
-  $core_db = new CoreDB(
-    $dbFile,
-    $dbHost,
-    $dbName,
-    $dbUser,
-    $dbPass,
-    false,
-    $dbType
-  );
+  try {
+    $core_db = new CoreDB(
+      $dbFile,
+      $dbHost,
+      $dbName,
+      $dbUser,
+      $dbPass,
+      false,
+      $dbType
+    );
+  } catch (\Throwable $th) {
+    $errorMessage        = $th->getMessage();
+    $isConnectionRefused = str_contains($errorMessage, 'SQLSTATE[HY000] [2002]')
+      && str_contains(strtolower($errorMessage), 'actively refused');
+
+    if (!($useFallbackProduction && $isConnectionRefused)) {
+      // Handle connection errors gracefully
+      echo 'Error refreshing DB connections: ' . $errorMessage . PHP_EOL;
+      return null;
+    }
+
+    // Retry with production credentials when explicitly requested.
+    $productionDbName = $_ENV['MYSQL_DBNAME_PRODUCTION'] ?? getenv('MYSQL_DBNAME_PRODUCTION') ?: ($_ENV['MYSQL_DBNAME'] ?? getenv('MYSQL_DBNAME'));
+    $productionDbUser = $_ENV['MYSQL_USER_PRODUCTION']   ?? getenv('MYSQL_USER_PRODUCTION') ?: ($_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER'));
+    $productionDbPass = $_ENV['MYSQL_PASS_PRODUCTION']   ?? getenv('MYSQL_PASS_PRODUCTION') ?: ($_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS'));
+    $productionDbHost = $_ENV['MYSQL_HOST_PRODUCTION']   ?? getenv('MYSQL_HOST_PRODUCTION') ?: ($_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST'));
+
+    try {
+      $core_db = new CoreDB(
+        $dbFile,
+        $productionDbHost,
+        $productionDbName,
+        $productionDbUser,
+        $productionDbPass,
+        false,
+        'mysql'
+      );
+
+      // Persist fallback credentials for subsequent reconnect attempts.
+      $dbHost = $productionDbHost;
+      $dbName = $productionDbName;
+      $dbUser = $productionDbUser;
+      $dbPass = $productionDbPass;
+      $dbType = 'mysql';
+    } catch (\Throwable $fallbackTh) {
+      echo 'Error refreshing DB connections: ' . $fallbackTh->getMessage() . PHP_EOL;
+      return null;
+    }
+  }
   /** @var \PhpProxyHunter\UserDB $user_db */
   $user_db = $core_db->user_db;
   /** @var \PhpProxyHunter\ProxyDB $proxy_db */
