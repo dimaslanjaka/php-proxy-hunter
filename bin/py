@@ -4,7 +4,7 @@ set -euo pipefail
 # --------------------------------------------------
 # Detect OS and normalize platform
 # --------------------------------------------------
-UNAME="$(uname -s)"
+UNAME="$(uname -s 2>/dev/null || echo unknown)"
 
 case "$UNAME" in
   Linux*)   PLATFORM="linux" ;;
@@ -53,6 +53,22 @@ ensure_python3_shim_windows() {
   fi
 }
 
+resolve_python_bin_unix() {
+  if [ -x "$VENV_PATH/bin/python3" ]; then
+    echo "$VENV_PATH/bin/python3"
+  else
+    echo "$VENV_PATH/bin/python"
+  fi
+}
+
+resolve_python_bin_windows() {
+  if [ -x "$VENV_PATH/Scripts/python3.exe" ]; then
+    echo "$VENV_PATH/Scripts/python3.exe"
+  else
+    echo "$VENV_PATH/Scripts/python.exe"
+  fi
+}
+
 # --------------------------------------------------
 # Platform logic
 # --------------------------------------------------
@@ -66,9 +82,7 @@ case "$PLATFORM" in
 
     ensure_python3_shim_unix
 
-    # Activate venv
-    # shellcheck disable=SC1090
-    source "$VENV_PATH/bin/activate"
+    PYTHON_BIN="$(resolve_python_bin_unix)"
 
     # Optional permissions fix (Linux + nginx only)
     if [ "$PLATFORM" = "linux" ] && command -v nginx >/dev/null; then
@@ -78,7 +92,7 @@ case "$PLATFORM" in
       fi
     fi
 
-    python3 "$@"
+    "$PYTHON_BIN" "$@"
     ;;
 
   windows)
@@ -90,11 +104,8 @@ case "$PLATFORM" in
 
     ensure_python3_shim_windows
 
-    # Activate venv
-    # shellcheck disable=SC1090
-    source "$VENV_PATH/Scripts/activate"
-
-    python3 "$@"
+    PYTHON_BIN="$(resolve_python_bin_windows)"
+    "$PYTHON_BIN" "$@"
     ;;
 
 esac
