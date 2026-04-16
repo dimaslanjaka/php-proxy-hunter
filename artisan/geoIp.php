@@ -26,7 +26,7 @@ $lockFilePath = tmp() . "/locks/geoIp-$uid.lock";
 $statusFile   = PHP_PROXY_HUNTER_PROJECT_ROOT . '/status.txt';
 
 /* DB */
-$connections = refreshDbConnections();
+$connections = refreshDbConnections(true);
 $proxy_db    = $connections['proxy_db'];
 
 /* Default */
@@ -96,6 +96,54 @@ if (file_exists($lockFilePath) && !$isAdmin) {
 
 $extract = extractProxies($string_data, $proxy_db);
 shuffle($extract);
+
+$saveGeoForSameIp = static function (string $proxy, array $geoData) use ($proxy_db): int {
+  // Keep only known geo columns and non-empty values.
+  $allowedGeoKeys = ['lang', 'country', 'timezone', 'longitude', 'latitude', 'city', 'region'];
+  $toSave         = [];
+  foreach ($geoData as $key => $value) {
+    if (in_array($key, $allowedGeoKeys, true) && (!empty($value) || $value === 0 || $value === '0')) {
+      $toSave[$key] = $value;
+    }
+  }
+
+  if (empty($toSave)) {
+    return 0;
+  }
+
+  $proxy   = trim($proxy);
+  $updated = 0;
+
+  $proxy_db->updateData($proxy, $toSave);
+  $updated++;
+
+  $ips = extractIPs($proxy);
+  if (empty($ips) || empty($ips[0])) {
+    return $updated;
+  }
+
+  $ip   = $ips[0];
+  $rows = $proxy_db->db->select('proxies', ['proxy'], 'proxy LIKE ?', ['%' . $ip . '%']);
+
+  foreach ($rows as $row) {
+    if (empty($row['proxy'])) {
+      continue;
+    }
+
+    $candidateProxy = trim($row['proxy']);
+    if ($candidateProxy === $proxy) {
+      continue;
+    }
+
+    $candidateIps = extractIPs($candidateProxy);
+    if (!empty($candidateIps) && isset($candidateIps[0]) && $candidateIps[0] === $ip) {
+      $proxy_db->updateData($candidateProxy, $toSave);
+      $updated++;
+    }
+  }
+
+  return $updated;
+};
 
 foreach ($extract as $idx => $item) {
   echo 'Processing ' . ($idx + 1) . '/' . count($extract) . ' ' . $item->proxy . PHP_EOL;
@@ -178,16 +226,6 @@ foreach ($extract as $idx => $item) {
 
           if (!empty($result['country'])) {
             $fetched = true;
-            // Only save fields that are not empty strings;
-            $toSave = [];
-            foreach ($result as $k => $v) {
-              if (!empty($v)) {
-                $toSave[$k] = $v;
-              }
-            }
-            if (!empty($toSave)) {
-              $proxy_db->updateData($item->proxy, $toSave);
-            }
             echo $item->proxy . ' geoip resolved using local mmdb' . PHP_EOL;
           } else {
             echo $item->proxy . ' failed to resolve geoip using local mmdb' . PHP_EOL;
@@ -206,6 +244,10 @@ foreach ($extract as $idx => $item) {
       }
     }
     if ($fetched) {
+      $savedCount = $saveGeoForSameIp($item->proxy, $result);
+      if ($savedCount > 0) {
+        echo $item->proxy . ' geoip propagated to ' . $savedCount . ' row(s) with same IP' . PHP_EOL;
+      }
       foreach ($result as $key => $value) {
         $item->$key = $value;
       }
