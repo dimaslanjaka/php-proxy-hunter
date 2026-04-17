@@ -9,9 +9,9 @@ This module ports the behavior from `src/blacklist/blacklist.php`:
 from __future__ import annotations
 
 from ipaddress import IPv4Address, ip_address, ip_network
+from proxy_hunter import extract_proxies
 from pathlib import Path
 import re
-
 
 MAX_CIDR_EXPANSION = 65536
 _IPV4_IN_TEXT_RE = re.compile(r"(\d{1,3}(?:\.\d{1,3}){3})")
@@ -124,3 +124,15 @@ def is_blacklist(proxy: str, blacklist_conf: str | None = None) -> bool:
         return False
 
     return ip in blacklist
+
+
+if __name__ == "__main__":
+    proxies = "206.123.156.232:8080"
+    ips = extract_proxies(proxies)
+    for data in ips:
+        ip = data.proxy.split(":")[0] if ":" in data.proxy else data.proxy
+        print(f"Checking {ip} against blacklist...")
+        if is_blacklist(ip):
+            print(f"{ip} is blacklisted.")
+        else:
+            print(f"{ip} is not blacklisted.")
