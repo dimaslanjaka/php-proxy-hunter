@@ -3,7 +3,7 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import fs from 'fs-extra';
 import minimist from 'minimist';
-import { getChecksum } from 'sbg-utility/dist/utils/hash';
+import { getChecksum } from 'sbg-utility';
 import * as glob from 'glob';
 
 // Parse CLI args
