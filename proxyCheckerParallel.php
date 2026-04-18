@@ -192,8 +192,10 @@ if ($isCli) {
     }, $db_data);
     $proxies = array_filter($db_data_map, function (Proxy $item) use ($db) {
       if (!isValidProxy($item->proxy)) {
-        if (!empty($item->proxy)) {
+        try {
           $db->remove($item->proxy);
+        } catch (Exception $e) {
+          echo "[CHECKER-PARALLEL] failed to remove invalid proxy: {$item->proxy}\n";
         }
         return false;
       }
