@@ -195,7 +195,7 @@ export function fontsResolverPlugin() {
 }
 
 /**
- * Vite plugin to serve custom static assets from /assets and proxyManager.* files during development.
+ * Vite plugin to serve custom static assets from /assets files during development.
  * @returns {import('vite').Plugin}
  */
 export function customStaticAssetsPlugin() {
@@ -210,7 +210,7 @@ export function customStaticAssetsPlugin() {
       // Skip non-build command
       if (config.command !== 'build') return;
 
-      const filesToCopy = ['proxyManager.html', 'proxyManager.js', 'proxyManager.css'];
+      const filesToCopy = [];
       for (const file of filesToCopy) {
         const srcPath = path.join(__dirname, file);
         const destPaths = [path.join(__dirname, 'public', file), path.join(config.build.outDir, file)];

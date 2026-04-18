@@ -41,7 +41,7 @@ class FaviconMiddleware:
 
 class SitemapMiddleware(MiddlewareMixin):
     ignore_paths = ["/proxy/check", "/proxy/filter", "/sitemap", "/rss", "/atom"]
-    initial_url = ["https://sh.webmanajemen.com/proxyManager.html"]
+    initial_url = []
     lock_file = os.path.join(settings.BASE_DIR, "sitemap.lock")
 
     def process_response(self, request, response):

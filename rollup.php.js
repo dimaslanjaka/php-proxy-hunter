@@ -29,48 +29,6 @@ export const external = Object.keys(pkg.dependencies)
   )
   .filter((pkgName) => ![/*'markdown-it', */ 'p-limit', 'deepmerge-ts'].includes(pkgName));
 
-/**
- * @type {import('rollup').RollupOptions}
- */
-const proxyManager = {
-  input: './proxyManager-src.js',
-  output: {
-    file: './proxyManager.js',
-    format: 'iife'
-  },
-  plugins: [
-    resolve({ preferBuiltins: true }), // Resolve node_modules packages
-    json(), // Support for JSON files
-    commonjs(),
-    {
-      name: 'build-php-env',
-      buildStart: () => {
-        const file = path.join(__dirname, 'public', 'php', 'json', 'env.json');
-        fs.mkdirSync(path.dirname(file), { recursive: true });
-        fs.writeFileSync(file, JSON.stringify({ build: Math.random().toString(36).slice(2) }));
-        console.log('PHP env file created:', file);
-      },
-      closeBundle: () => {
-        // Copy views/assets/json to public/php/json
-        const srcDir = path.join(__dirname, 'views', 'assets', 'json');
-        const destDir = path.join(__dirname, 'public', 'php', 'json');
-        fs.mkdirSync(destDir, { recursive: true });
-        glob.globSync('*.{json,jsonc,txt}', { cwd: srcDir }).forEach((file) => {
-          const srcFile = path.join(srcDir, file);
-          const destFile = path.join(destDir, file);
-          fs.copyFileSync(srcFile, destFile);
-          console.log('Copied', srcFile, 'to', destFile);
-        });
-      }
-    }
-  ]
-};
-if (!isDebug() && Array.isArray(proxyManager.plugins)) {
-  // Minify the output on production
-  proxyManager.plugins.push(terser({ sourceMap: false }));
-}
-export { proxyManager };
-
 const findJs = glob.globSync('views/assets/**/*.js', { cwd: __dirname }).map((f) => {
   return path.toUnix(f);
 });
@@ -99,7 +57,7 @@ const phpJs = findJs.map((input) => {
   return config;
 });
 
-export default [proxyManager, ...phpJs];
+export default phpJs;
 
 /**
  * Sanitizes a string to be a valid JavaScript identifier.

@@ -6,7 +6,7 @@ setTimeout(() => {
     if (port.length > 0) {
       location.href = `http://sh.webmanajemen.com:${port}/proxy`;
     } else {
-      location.href = `https://sh.webmanajemen.com/proxyManager.html`;
+      location.href = `https://sh.webmanajemen.com/proxy-list`;
     }
   }
 
