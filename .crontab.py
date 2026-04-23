@@ -247,15 +247,15 @@ else:
     echo_skip_or_run("30 minutes", False)
 
 
-# run proxy collectors every 30 minutes WITHOUT CPU/RAM resource checks
+# run proxy collectors every 4 hours WITHOUT CPU/RAM resource checks
 # This ensures collectors run on their own schedule regardless of system load.
-run_30m_collectors = should_run_job(
-    "30-m",
-    file_path=CRONTAB_STATE_DIR / "no-resource-check-30-m",
+should_run_proxy_collectors = should_run_job(
+    "4-h",
+    file_path=CRONTAB_STATE_DIR / "proxy-collectors",
     skip_resource_checking=True,
 )
-if run_30m_collectors:
-    echo_skip_or_run("30 minutes", True)
+if should_run_proxy_collectors:
+    echo_skip_or_run("4 hours", True)
     log_command(
         CRONTAB_LOG_DIR / "proxyCollector2.log",
         [PYTHON_BIN, "artisan/proxyCollector2.py", "--batch-size=500", "--shuffle"],
@@ -264,21 +264,27 @@ if run_30m_collectors:
         CRONTAB_LOG_DIR / "proxyCollector.log",
         [PYTHON_BIN, "artisan/proxyCollector.py", "--batch-size=500", "--shuffle"],
     )
+    # `filter_open_port` moved to its own 45-minute schedule (see below)
+else:
+    echo_skip_or_run("4 hours", False)
+
+
+# run `filter_open_port` every 45 minutes (separate schedule)
+run_45m = should_run_job("45-m")
+if run_45m:
+    echo_skip_or_run("45 minutes (filter_open_port)", True)
     log_command(
         CRONTAB_LOG_DIR / "filter_open_port.log",
         [PYTHON_BIN, str(CWD / "artisan/filter_open_port.py"), "--limit=100"],
     )
 else:
-    echo_skip_or_run("30 minutes", False)
+    echo_skip_or_run("45 minutes (filter_open_port)", False)
 
 
 # run every hour
 run_1h = should_run_job("1-h")
 if run_1h:
-    log_command(
-        CRONTAB_LOG_DIR / "proxy-classifier-lookup.log",
-        [PYTHON_BIN, str(CWD / "artisan/proxy-classifier-lookup.py"), "--limit=100"],
-    )
+    # `proxy-classifier-lookup` moved to the daily (24h) schedule
     log_command(
         CRONTAB_LOG_DIR / "filter-duplicate-ips.log",
         [
@@ -313,15 +319,6 @@ else:
 run_4h = should_run_job("4-h")
 if run_4h:
     echo_skip_or_run("4 hours", True)
-    proxy_fetcher_log = CRONTAB_LOG_DIR / "proxy-fetcher.log"
-    with proxy_fetcher_log.open("w", encoding="utf-8") as fh:
-        subprocess.Popen(
-            [PYTHON_BIN, str(CWD / "artisan/proxyFetcher.py")],
-            stdout=fh,
-            stderr=subprocess.STDOUT,
-            cwd=CWD,
-            env=os.environ.copy(),
-        )
 else:
     echo_skip_or_run("4 hours", False)
 
@@ -412,6 +409,16 @@ if run_24h:
         ],
     )
     print("Old log files removed, keeping only the last 30 days.")
+    # Run proxy-classifier-lookup once per day (moved from 1h schedule)
+    log_command(
+        CRONTAB_LOG_DIR / "proxy-classifier-lookup.log",
+        [PYTHON_BIN, str(CWD / "artisan/proxy-classifier-lookup.py"), "--limit=100"],
+    )
+    # Run proxyFetcher once per day (moved from 4h schedule)
+    log_command(
+        CRONTAB_LOG_DIR / "proxy-fetcher.log",
+        [PYTHON_BIN, str(CWD / "artisan/proxyFetcher.py")],
+    )
 else:
     echo_skip_or_run("24 hours", False)
 
