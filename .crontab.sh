@@ -194,7 +194,7 @@ fi
 if should_run_job "$CRONTAB_STATE_DIR/4-h" 4; then
   echo "Running 4 hours job."
   # run proxy fetcher in background
-  "$PYTHON_BIN" "$CWD/proxyFetcher.py" > "$CRONTAB_LOG_DIR/proxy-fetcher.log" 2>&1 &
+  "$PYTHON_BIN" "$CWD/artisan/proxyFetcher.py" > "$CRONTAB_LOG_DIR/proxy-fetcher.log" 2>&1 &
 else
   echo "Skipping 4 hours job."
 fi

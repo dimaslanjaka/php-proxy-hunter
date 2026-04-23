@@ -316,7 +316,7 @@ if run_4h:
     proxy_fetcher_log = CRONTAB_LOG_DIR / "proxy-fetcher.log"
     with proxy_fetcher_log.open("w", encoding="utf-8") as fh:
         subprocess.Popen(
-            [PYTHON_BIN, str(CWD / "proxyFetcher.py")],
+            [PYTHON_BIN, str(CWD / "artisan/proxyFetcher.py")],
             stdout=fh,
             stderr=subprocess.STDOUT,
             cwd=CWD,

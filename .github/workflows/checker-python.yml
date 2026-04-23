@@ -156,7 +156,7 @@ jobs:
         run: python3 cleaner.py
 
       - name: Fetch Proxies
-        run: python3 proxyFetcher.py
+        run: python3 artisan/proxyFetcher.py
 
       - name: Check Proxies
         shell: bash
