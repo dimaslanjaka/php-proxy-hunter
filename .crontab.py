@@ -212,6 +212,39 @@ def echo_skip_or_run(label: str, condition: bool) -> None:
     print(f"Resource usage: CPU={cpu_text}, RAM={ram_text}")
 
 
+def cleanup_old_files(
+    directories: Iterable[Path],
+    days: int = 40,
+    dry_run: bool = False,
+) -> None:
+    """Delete files older than `days` based on last modification time."""
+    now = time.time()
+    cutoff = now - (days * 24 * 60 * 60)
+
+    for directory in directories:
+        if not directory.exists():
+            continue
+
+        for path in directory.rglob("*"):
+            if not path.is_file():
+                continue
+
+            try:
+                mtime = path.stat().st_mtime
+            except OSError:
+                continue
+
+            if mtime < cutoff:
+                if dry_run:
+                    print(f"[DRY RUN] Would delete: {path}")
+                else:
+                    try:
+                        path.unlink()
+                        print(f"Deleted old file: {path}")
+                    except OSError as e:
+                        print(f"Failed to delete {path}: {e}")
+
+
 run_5m_skip_resources = should_run_job(
     "5-m",
     file_path=CRONTAB_STATE_DIR / "no-resource-check-5-m",
@@ -365,6 +398,10 @@ else:
 run_24h = should_run_job("24-h")
 if run_24h:
     echo_skip_or_run("24 hours", True)
+    cleanup_old_files(
+        [CRONTAB_STATE_DIR, CRONTAB_LOG_DIR],
+        days=40,
+    )
     log_command(
         CRONTAB_LOG_DIR / "backup-db.log", ["bash", "-e", str(CWD / "bin/backup-db")]
     )
