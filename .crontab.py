@@ -241,7 +241,7 @@ if run_30m:
     log_command(CRONTAB_LOG_DIR / "geoip.log", ["php", "artisan/geoIp.php"])
     log_command(
         CRONTAB_LOG_DIR / "tun2socks-stability-check.log",
-        [PYTHON_BIN, str(CWD / "artisan/proxy_tun2socks_stability.py"), "---limit=100"],
+        [PYTHON_BIN, str(CWD / "artisan/proxy_tun2socks_stability.py"), "--limit=100"],
     )
 else:
     echo_skip_or_run("30 minutes", False)
@@ -266,7 +266,7 @@ if run_30m_collectors:
     )
     log_command(
         CRONTAB_LOG_DIR / "filter_open_port.log",
-        [PYTHON_BIN, str(CWD / "artisan/filter_open_port.py"), "---limit=100"],
+        [PYTHON_BIN, str(CWD / "artisan/filter_open_port.py"), "--limit=100"],
     )
 else:
     echo_skip_or_run("30 minutes", False)
@@ -277,14 +277,14 @@ run_1h = should_run_job("1-h")
 if run_1h:
     log_command(
         CRONTAB_LOG_DIR / "proxy-classifier-lookup.log",
-        [PYTHON_BIN, str(CWD / "artisan/proxy-classifier-lookup.py"), "---limit=100"],
+        [PYTHON_BIN, str(CWD / "artisan/proxy-classifier-lookup.py"), "--limit=100"],
     )
     log_command(
         CRONTAB_LOG_DIR / "filter-duplicate-ips.log",
         [
             PYTHON_BIN,
             str(CWD / "artisan/filter_duplicate_ips.py"),
-            "---limit=100",
+            "--limit=100",
             "--include-untested",
         ],
     )
