@@ -110,6 +110,7 @@ https://www.proxyscan.io/download?type=https
 https://raw.githubusercontent.com/aslisk/proxyhttps/main/https.txt
 https://raw.githubusercontent.com/zloi-user/hideip.me/main/https.txt
 https://raw.githubusercontent.com/Zaeem20/FREE_PROXIES_LIST/refs/heads/master/https.txt
+https://free-proxy-list.net/en/ssl-proxy.html
 
 SOCKS4 RAW:
 https://raw.githubusercontent.com/TheSpeedX/PROXY-List/master/socks4.txt
