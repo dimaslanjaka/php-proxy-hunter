@@ -1,70 +1,71 @@
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
-# Determine the OS
-OS=$(uname -s)
+# Detect OS
+OS="$(uname -s)"
 
-# Get the directory of the script
-SCRIPT_DIR="$(dirname "$(realpath "$0")")"
+# Resolve script directory safely
+SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
-# Default directory for Linux
-if [ "$OS" == "Linux" ]; then
+# Choose working directory
+if [[ "$OS" == "Linux" ]]; then
   CWD="/var/www/html"
 else
-  # For non-Linux systems, use the script directory's parent
   CWD="$(dirname "$SCRIPT_DIR")"
 fi
 
-# Ensure the directory is valid
-if [ ! -d "$CWD" ]; then
-  echo "Directory $CWD does not exist."
+# Validate directory
+[[ -d "$CWD" ]] || { echo "Directory $CWD does not exist."; exit 1; }
+
+VENV="$CWD/venv"
+UNINSTALL_FILE="$CWD/uninstall.txt"
+
+# Detect python executable
+PYTHON_BIN="$(command -v python3 || command -v python || command -v python.exe)"
+
+if [[ -z "$PYTHON_BIN" ]]; then
+  echo "Python not found."
   exit 1
 fi
 
-USER="www-data"
+echo "Using Python: $PYTHON_BIN"
 
-case "$OS" in
-  Linux | Darwin)
-    # Unix-based systems (Linux, macOS)
-    if [ ! -d "$CWD/venv" ]; then
-      echo "Creating virtual environment..."
-      python3 -m venv "$CWD/venv"
-    else
-      echo "Virtual environment already exists."
-    fi
+# Create venv if missing
+if [[ ! -d "$VENV" ]]; then
+  echo "Creating virtual environment..."
+  "$PYTHON_BIN" -m venv "$VENV"
+else
+  echo "Virtual environment already exists."
+fi
 
-    # Activate the virtual environment
-    source "$CWD/venv/bin/activate"
+# Activate venv (cross-platform)
+if [[ "$OS" =~ ^(CYGWIN|MINGW32|MINGW64) ]]; then
+  source "$VENV/Scripts/activate"
+else
+  source "$VENV/bin/activate"
+fi
 
-    # Purge pip cache
-    echo "Purging pip cache..."
-    pip cache purge
+# Upgrade pip quietly (optional but useful)
+python -m pip install --upgrade pip >/dev/null
 
-    # Deactivate the virtual environment
-    deactivate
-    ;;
+# Purge pip cache
+echo "Purging pip cache..."
+pip cache purge || true
 
-  CYGWIN* | MINGW32* | MINGW64*)
-    # Windows-like environments (Cygwin, MinGW)
-    if [ ! -d "$CWD/venv" ]; then
-      echo "Creating virtual environment..."
-      python.exe -m venv "$CWD/venv"
-    else
-      echo "Virtual environment already exists."
-    fi
+# Freeze installed packages
+echo "Freezing installed packages..."
+python -m pip freeze > "$UNINSTALL_FILE"
 
-    # Activate the virtual environment
-    source "$CWD/venv/Scripts/activate"
+if [[ -s "$UNINSTALL_FILE" ]]; then
+  echo "Uninstalling packages..."
+  python -m pip uninstall -y -r "$UNINSTALL_FILE"
+else
+  echo "No packages to uninstall."
+fi
 
-    # Purge pip cache
-    echo "Purging pip cache..."
-    pip cache purge
+rm -f "$UNINSTALL_FILE"
 
-    # Deactivate the virtual environment
-    deactivate
-    ;;
+# Deactivate venv
+deactivate
 
-  *)
-    echo "Unsupported OS: $OS"
-    exit 1
-    ;;
-esac
+echo "Done."
