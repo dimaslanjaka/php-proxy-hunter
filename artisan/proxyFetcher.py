@@ -5,6 +5,9 @@ import traceback
 from datetime import datetime as dt
 from typing import List
 
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(PROJECT_ROOT)
+
 from proxy_hunter import (
     decompress_requests_response,
     extract_proxies,
@@ -14,6 +17,7 @@ from proxy_hunter import (
 )
 from src.func import get_relative_path
 from src.requests_cache import get_with_proxy
+from src.blacklist.blacklist import is_blacklist
 
 
 def proxyFetcher():
@@ -29,9 +33,11 @@ def proxyFetcher():
         filepath = os.path.join(directory, filename)
         if os.path.isfile(filepath) and filename.startswith(file_prefix):
             class_list = extract_proxies_from_file(filepath)
-            results.extend(
-                list(set(obj.proxy for obj in class_list)) if class_list else []
-            )
+            if class_list:
+                proxies = {
+                    obj.proxy for obj in class_list if not is_blacklist(obj.proxy)
+                }
+                results.extend(list(proxies))
 
     for url in urls:
         try:
@@ -41,7 +47,8 @@ def proxyFetcher():
                 text = decompress_requests_response(response)
                 class_list = extract_proxies(text)
                 proxy_list = list(set(obj.proxy for obj in class_list))
-                results.extend(proxy_list)
+                filtered = [p for p in proxy_list if not is_blacklist(p)]
+                results.extend(filtered)
         except Exception as e:
             print(f"fail fetch proxy from {url}: {e}")
             if "module" in str(e):
