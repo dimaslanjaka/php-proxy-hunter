@@ -36,7 +36,7 @@ for /r "%CWD%" %%i in (__pycache__) do (
 
 :: Clear pip cache
 echo Clearing pip cache...
-python -m pip cache purge
+call python -m pip cache purge
 
 :: Freeze current packages to uninstall.txt
 echo Freezing current packages to uninstall.txt...
