@@ -315,7 +315,7 @@
     "bats"
   ],
   "[php]": {
-    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+    "editor.defaultFormatter": "junstyle.php-cs-fixer"
   },
   // --- PHP CS Fixer (auto-formatting) ---
   "php-cs-fixer.executablePath": "${workspaceFolder}/vendor/bin/php-cs-fixer.phar",
