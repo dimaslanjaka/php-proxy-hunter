@@ -93,6 +93,9 @@ def is_valid_hostname(host: str) -> bool:
     labels = host.split(".")
     if any(len(lbl) == 0 for lbl in labels):
         return False
+    # Require at least one dot for typical external hostnames (avoid CSS-like single-labels)
+    if host != "localhost" and "." not in host:
+        return False
     return all(label_re.match(lbl) for lbl in labels)
 
 

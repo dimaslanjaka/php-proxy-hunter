@@ -25,7 +25,9 @@ def extract_proxies(string: Optional[str]) -> List[Proxy]:
     # Use the regex_match helper (covers user:pass@host:port, host:port@user:pass, host:port)
     regex_match_results = regex_match(string)
     for p in regex_match_results:
-        results.append(p)
+        # Validate matches returned by regex_match to avoid false positives
+        if is_valid_proxy(p.proxy):
+            results.append(p)
 
     # Perform the matching IP PORT (whitespaces) - support bracketed IPv6
     re_whitespace = r"(\[[0-9a-fA-F:]+\]|(?:\d{1,3}(?:\.\d{1,3}){3}))\s+((?!0)\d{2,5})"
@@ -59,10 +61,7 @@ def extract_proxies(string: Optional[str]) -> List[Proxy]:
                 else:
                     results.append(Proxy(proxy))
 
-    # new method regex_match
-    regex_match_results = regex_match(string)
-    for p in regex_match_results:
-        results.append(p)
+    # (regex_match already processed above)
 
     # Unique list of proxy
     # Use a dictionary keyed by proxy+username+password so different credentials

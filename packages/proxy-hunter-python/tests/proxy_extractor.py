@@ -119,5 +119,16 @@ def test_extract_proxies_ipv6_json():
     )
 
 
+def test_should_not_extract_invalid_proxies():
+    input_str = """
+    invalidproxy:1234, user:pass@invalid, [2001:db8::1],
+    ms-text-size-adjust:100
+    -webkit-text-size-adjust:100
+    """
+    result = extract_proxies(input_str)
+    assert isinstance(result, (list, tuple))
+    assert len(result) == 0, f"Expected 0 valid proxies, got {len(result)}"
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__]))
