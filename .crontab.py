@@ -212,6 +212,17 @@ def echo_skip_or_run(label: str, condition: bool) -> None:
     print(f"Resource usage: CPU={cpu_text}, RAM={ram_text}")
 
 
+run_5m_skip_resources = should_run_job(
+    "5-m",
+    file_path=CRONTAB_STATE_DIR / "no-resource-check-5-m",
+    skip_resource_checking=False,
+)
+if run_5m_skip_resources:
+    log_command(
+        CRONTAB_LOG_DIR / "resource-usage.log",
+        [PYTHON_BIN, str(CWD / "src/utils/process/process_usage.py")],
+    )
+
 # run every 5 minutes
 run_5m = should_run_job("5-m")
 if run_5m:
