@@ -92,5 +92,32 @@ custom_proxy: http://dimaslanjaka_JD93N:myProxyCredentials=008@dc.oxylabs.io:800
     assert any(p.has_credentials() for p in result)
 
 
+def test_extract_proxies_ipv6_plain():
+    input_str = "[2001:db8::1]:8080"
+    result = extract_proxies(input_str)
+    assert isinstance(result, (list, tuple))
+    assert any(p.proxy == "[2001:db8::1]:8080" for p in result)
+    assert all(not p.has_credentials() for p in result)
+
+
+def test_extract_proxies_ipv6_with_auth_prefix():
+    input_str = "user:pass@[2001:db8::1]:8080"
+    result = extract_proxies(input_str)
+    assert isinstance(result, (list, tuple))
+    assert any(p.proxy == "[2001:db8::1]:8080" and p.has_credentials() for p in result)
+    p = next(p for p in result if p.proxy == "[2001:db8::1]:8080")
+    assert p.username == "user"
+    assert p.password == "pass"
+
+
+def test_extract_proxies_ipv6_json():
+    input_str = '{"ip": "2001:db8::1","port":"8080"}'
+    result = extract_proxies(input_str)
+    assert isinstance(result, (list, tuple))
+    assert any(
+        p.proxy == "2001:db8::1:8080" or p.proxy == "[2001:db8::1]:8080" for p in result
+    )
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__]))

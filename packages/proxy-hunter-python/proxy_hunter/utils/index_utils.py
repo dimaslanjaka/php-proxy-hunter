@@ -62,19 +62,17 @@ def is_valid_ip(proxy: Optional[str]) -> bool:
     if not proxy:
         return False
 
-    split = proxy.strip().split(":", 1)
-    ip = split[0]
+    ip = proxy.strip()
+    # Strip surrounding brackets for IPv6 literal forms like [2001:db8::1]
+    if ip.startswith("[") and ip.endswith("]"):
+        ip = ip[1:-1]
 
-    # Regex to validate IPv4 addresses
-    is_ip_valid = (
-        re.match(
-            r"^(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)\.(?:25[0-5]|2[0-4][0-9]|[0-1]?[0-9][0-9]?)$",
-            ip,
-        )
-        is not None
-    )
-
-    return is_ip_valid and not ip.startswith("0")
+    try:
+        # Use ipaddress to validate both IPv4 and IPv6
+        ipaddress.ip_address(ip)
+        return True
+    except ValueError:
+        return False
 
 
 def is_valid_hostname(host: str) -> bool:
@@ -123,14 +121,14 @@ def is_valid_proxy(proxy: Optional[str], validate_credential: bool = True) -> bo
         except ValueError:
             return False  # Invalid credentials format
 
-    # Extract host (IP or domain) and port
-    parts = proxy.strip().split(":", 1)
+    # Extract host (IP or domain) and port using rsplit to preserve IPv6
+    parts = proxy.strip().rsplit(":", 1)
     if len(parts) != 2:
         return False
 
     ip, port = parts
 
-    # Accept either a valid IPv4 address or a valid hostname/domain
+    # Accept either a valid IP (IPv4/IPv6) or a valid hostname/domain
     if not (is_valid_ip(ip) or is_valid_hostname(ip)):
         return False
 

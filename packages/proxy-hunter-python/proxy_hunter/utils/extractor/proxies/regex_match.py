@@ -2,7 +2,7 @@ import re
 from typing import List
 from proxy_hunter.Proxy import Proxy
 
-regex = r"(?P<user_pass_host>(?P<username1>[a-zA-Z0-9!$%&*()_+=.-]+):(?P<password1>[a-zA-Z0-9!$%&*()_+=.-]+)@(?P<host1>\d{1,3}(?:\.\d{1,3}){3}|[\w.-]+):(?P<port1>\d{2,5}))|(?P<host_user_pass>(?P<host2>\d{1,3}(?:\.\d{1,3}){3}|[\w.-]+):(?P<port2>\d{2,5})@(?P<username2>[a-zA-Z0-9!$%&*()_+=.-]+):(?P<password2>[a-zA-Z0-9!$%&*()_+=.-]+))|(?P<host_only>(?P<host3>\d{1,3}(?:\.\d{1,3}){3}|[\w.-]+):(?P<port3>\d{2,5}))"
+regex = r"(?P<user_pass_host>(?P<username1>[a-zA-Z0-9!$%&*()_+=.-]+):(?P<password1>[a-zA-Z0-9!$%&*()_+=.-]+)@(?P<host1>\d{1,3}(?:\.\d{1,3}){3}|[\w.-]+|\[[0-9a-fA-F:]+\]):(?P<port1>\d{2,5}))|(?P<host_user_pass>(?P<host2>\d{1,3}(?:\.\d{1,3}){3}|[\w.-]+|\[[0-9a-fA-F:]+\]):(?P<port2>\d{2,5})@(?P<username2>[a-zA-Z0-9!$%&*()_+=.-]+):(?P<password2>[a-zA-Z0-9!$%&*()_+=.-]+))|(?P<host_only>(?P<host3>\d{1,3}(?:\.\d{1,3}){3}|[\w.-]+|\[[0-9a-fA-F:]+\]):(?P<port3>\d{2,5}))"
 
 
 def regex_match(test_str: str) -> List[Proxy]:
