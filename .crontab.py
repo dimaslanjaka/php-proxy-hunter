@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import gc
 import os
 import platform
 import re
@@ -13,6 +14,7 @@ from pathlib import Path
 from typing import Iterable, Sequence
 
 from dotenv import load_dotenv
+
 from src.utils.process.resources_usage import check_system_resources, get_system_usage
 
 CWD = Path(__file__).resolve().parent
@@ -256,6 +258,8 @@ if run_5m_skip_resources:
         [PYTHON_BIN, str(CWD / "src/utils/process/process_usage.py")],
     )
 
+gc.collect()
+
 # run every 5 minutes
 run_5m = should_run_job("5-m")
 if run_5m:
@@ -266,6 +270,8 @@ if run_5m:
     )
 else:
     echo_skip_or_run("5 minutes", False)
+
+gc.collect()
 
 # run every 30 minutes (regular jobs — resource-checked)
 run_30m = should_run_job("30-m")
@@ -279,9 +285,8 @@ if run_30m:
 else:
     echo_skip_or_run("30 minutes", False)
 
+gc.collect()
 
-# run proxy collectors every 4 hours WITHOUT CPU/RAM resource checks
-# This ensures collectors run on their own schedule regardless of system load.
 should_run_proxy_collectors = should_run_job(
     "4-h",
     file_path=CRONTAB_STATE_DIR / "proxy-collectors",
@@ -297,12 +302,12 @@ if should_run_proxy_collectors:
         CRONTAB_LOG_DIR / "proxyCollector.log",
         [PYTHON_BIN, "artisan/proxyCollector.py", "--batch-size=500", "--shuffle"],
     )
-    # `filter_open_port` moved to its own 45-minute schedule (see below)
 else:
     echo_skip_or_run("4 hours", False)
 
 
-# run `filter_open_port` every 45 minutes (separate schedule)
+gc.collect()
+
 run_45m = should_run_job("45-m")
 if run_45m:
     echo_skip_or_run("45 minutes (filter_open_port)", True)
@@ -314,10 +319,10 @@ else:
     echo_skip_or_run("45 minutes (filter_open_port)", False)
 
 
-# run every hour
+gc.collect()
+
 run_1h = should_run_job("1-h")
 if run_1h:
-    # `proxy-classifier-lookup` moved to the daily (24h) schedule
     log_command(
         CRONTAB_LOG_DIR / "filter-duplicate-ips.log",
         [
@@ -335,8 +340,8 @@ if run_1h:
 else:
     echo_skip_or_run("1 hour", False)
 
+gc.collect()
 
-# run every 3 hours
 run_3h = should_run_job("3-h", skip_resource_checking=True)
 if run_3h:
     echo_skip_or_run("3 hours", True)
@@ -348,7 +353,8 @@ else:
     echo_skip_or_run("3 hours", False)
 
 
-# run every 4 hours
+gc.collect()
+
 run_4h = should_run_job("4-h")
 if run_4h:
     echo_skip_or_run("4 hours", True)
@@ -356,7 +362,8 @@ else:
     echo_skip_or_run("4 hours", False)
 
 
-# run every 6 hours
+gc.collect()
+
 run_6h = should_run_job("6-h")
 if run_6h:
     echo_skip_or_run("6 hours", True)
@@ -364,7 +371,8 @@ else:
     echo_skip_or_run("6 hours", False)
 
 
-# run every 12 hours
+gc.collect()
+
 run_12h = should_run_job("12-h")
 if run_12h:
     echo_skip_or_run("12 hours", True)
@@ -394,7 +402,8 @@ else:
     echo_skip_or_run("12 hours", False)
 
 
-# run every 24 hours
+gc.collect()
+
 run_24h = should_run_job("24-h")
 if run_24h:
     echo_skip_or_run("24 hours", True)
@@ -456,9 +465,10 @@ else:
     echo_skip_or_run("24 hours", False)
 
 
-# run every 3 days
-run_72h = should_run_job("72-h")
-if run_72h:
+gc.collect()
+
+should_run_3d = should_run_job("72-h")
+if should_run_3d:
     echo_skip_or_run("72 hours", True)
     log_command(
         CRONTAB_LOG_DIR / "cleanup-backups-3d.log",
@@ -467,6 +477,7 @@ if run_72h:
 else:
     echo_skip_or_run("72 hours", False)
 
+gc.collect()
 
 # run every week
 should_run_weekly = should_run_job("1-w", max_cpu_percent=90, max_ram_percent=90)
@@ -474,6 +485,8 @@ if should_run_weekly:
     echo_skip_or_run("1 week", True)
 else:
     echo_skip_or_run("1 week", False)
+
+gc.collect()
 
 should_run_10d = should_run_job("10-d", max_cpu_percent=90, max_ram_percent=90)
 if should_run_10d:
