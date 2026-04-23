@@ -15,7 +15,6 @@ from typing import Iterable, Sequence
 from dotenv import load_dotenv
 from src.utils.process.resources_usage import check_system_resources, get_system_usage
 
-
 CWD = Path(__file__).resolve().parent
 # Ensure the script runs with the working directory set to the project root
 os.chdir(CWD)
@@ -224,11 +223,28 @@ if run_5m:
 else:
     echo_skip_or_run("5 minutes", False)
 
-# run every 30 minutes
+# run every 30 minutes (regular jobs — resource-checked)
 run_30m = should_run_job("30-m")
 if run_30m:
     echo_skip_or_run("30 minutes", True)
     log_command(CRONTAB_LOG_DIR / "geoip.log", ["php", "artisan/geoIp.php"])
+    log_command(
+        CRONTAB_LOG_DIR / "tun2socks-stability-check.log",
+        [PYTHON_BIN, str(CWD / "artisan/proxy_tun2socks_stability.py"), "---limit=100"],
+    )
+else:
+    echo_skip_or_run("30 minutes", False)
+
+
+# run proxy collectors every 30 minutes WITHOUT CPU/RAM resource checks
+# This ensures collectors run on their own schedule regardless of system load.
+run_30m_collectors = should_run_job(
+    "30-m",
+    file_path=CRONTAB_STATE_DIR / "no-resource-check-30-m",
+    skip_resource_checking=True,
+)
+if run_30m_collectors:
+    echo_skip_or_run("30 minutes", True)
     log_command(
         CRONTAB_LOG_DIR / "proxyCollector2.log",
         [PYTHON_BIN, "artisan/proxyCollector2.py", "--batch-size=500", "--shuffle"],
@@ -238,8 +254,8 @@ if run_30m:
         [PYTHON_BIN, "artisan/proxyCollector.py", "--batch-size=500", "--shuffle"],
     )
     log_command(
-        CRONTAB_LOG_DIR / "tun2socks-stability-check.log",
-        [PYTHON_BIN, str(CWD / "artisan/proxy_tun2socks_stability.py"), "--limit=1000"],
+        CRONTAB_LOG_DIR / "filter_open_port.log",
+        [PYTHON_BIN, str(CWD / "artisan/filter_open_port.py"), "---limit=100"],
     )
 else:
     echo_skip_or_run("30 minutes", False)
@@ -250,14 +266,14 @@ run_1h = should_run_job("1-h")
 if run_1h:
     log_command(
         CRONTAB_LOG_DIR / "proxy-classifier-lookup.log",
-        [PYTHON_BIN, str(CWD / "artisan/proxy-classifier-lookup.py"), "--limit=1000"],
+        [PYTHON_BIN, str(CWD / "artisan/proxy-classifier-lookup.py"), "---limit=100"],
     )
     log_command(
         CRONTAB_LOG_DIR / "filter-duplicate-ips.log",
         [
             PYTHON_BIN,
             str(CWD / "artisan/filter_duplicate_ips.py"),
-            "--limit=1000",
+            "---limit=100",
             "--include-untested",
         ],
     )
@@ -265,17 +281,13 @@ if run_1h:
         CRONTAB_LOG_DIR / "proxy-socks5-checker.log",
         [PYTHON_BIN, str(CWD / "artisan/proxy_socks5_checker.py"), "--limit=100"],
     )
-    log_command(
-        CRONTAB_LOG_DIR / "filter_open_port.log",
-        [PYTHON_BIN, str(CWD / "artisan/filter_open_port.py"), "--limit=1000"],
-    )
     echo_skip_or_run("1 hour", True)
 else:
     echo_skip_or_run("1 hour", False)
 
 
 # run every 3 hours
-run_3h = should_run_job("3-h")
+run_3h = should_run_job("3-h", skip_resource_checking=True)
 if run_3h:
     echo_skip_or_run("3 hours", True)
     log_command(
@@ -406,9 +418,7 @@ else:
 
 
 # run every week
-run_168h = should_run_job(
-    "1-w", max_cpu_percent=90, max_ram_percent=90
-)
+run_168h = should_run_job("1-w", max_cpu_percent=90, max_ram_percent=90)
 if run_168h:
     echo_skip_or_run("1 week", True)
 else:
