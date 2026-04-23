@@ -398,10 +398,6 @@ else:
 run_24h = should_run_job("24-h")
 if run_24h:
     echo_skip_or_run("24 hours", True)
-    cleanup_old_files(
-        [CRONTAB_STATE_DIR, CRONTAB_LOG_DIR],
-        days=40,
-    )
     log_command(
         CRONTAB_LOG_DIR / "backup-db.log", ["bash", "-e", str(CWD / "bin/backup-db")]
     )
@@ -473,8 +469,18 @@ else:
 
 
 # run every week
-run_168h = should_run_job("1-w", max_cpu_percent=90, max_ram_percent=90)
-if run_168h:
+should_run_weekly = should_run_job("1-w", max_cpu_percent=90, max_ram_percent=90)
+if should_run_weekly:
     echo_skip_or_run("1 week", True)
 else:
     echo_skip_or_run("1 week", False)
+
+should_run_10d = should_run_job("10-d", max_cpu_percent=90, max_ram_percent=90)
+if should_run_10d:
+    echo_skip_or_run("10 days", True)
+    cleanup_old_files(
+        [CRONTAB_STATE_DIR, CRONTAB_LOG_DIR],
+        days=40,
+    )
+else:
+    echo_skip_or_run("10 days", False)
