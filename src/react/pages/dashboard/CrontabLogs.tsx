@@ -1,5 +1,6 @@
 import React from 'react';
 import { createUrl } from '../../utils/url';
+import { convertAnsiToHtml } from '../../utils/ansi-to-html';
 
 type CrontabLogItem = {
   name: string;
@@ -149,9 +150,16 @@ export default function CrontabLogs() {
               ) : contentError ? (
                 <p className="text-sm text-red-700 dark:text-red-300">{contentError}</p>
               ) : selectedFile ? (
-                <pre className="text-xs sm:text-sm bg-gray-900 text-gray-100 rounded-md p-3 max-h-[420px] overflow-auto whitespace-pre-wrap break-words">
-                  {logContent || 'No content available.'}
-                </pre>
+                <div className="text-xs sm:text-sm bg-gray-900 text-gray-100 rounded-md p-3 max-h-[420px] overflow-auto whitespace-pre-wrap break-words font-mono">
+                  {logContent ? (
+                    <div
+                      dangerouslySetInnerHTML={{ __html: convertAnsiToHtml(logContent) }}
+                      style={{ whiteSpace: 'pre-wrap' }}
+                    />
+                  ) : (
+                    'No content available.'
+                  )}
+                </div>
               ) : (
                 <p className="text-sm text-gray-500 dark:text-gray-300">
                   Choose a file from the list to read its content.

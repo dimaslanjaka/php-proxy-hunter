@@ -6,7 +6,7 @@ import os
 import sys
 import re
 from typing import Any, Callable, Optional, TypedDict
-from colorama import Fore, Style, just_fix_windows_console
+from colorama import init, Fore, Style, just_fix_windows_console
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
@@ -33,6 +33,8 @@ current_filename = os.path.basename(__file__)
 locker: Optional[FileLockHelper] = None
 
 just_fix_windows_console()
+# Preserve ANSI sequences when stdout is redirected (logs/files).
+init(strip=False, convert=False)
 COLOR_ENABLED = True
 
 
@@ -533,7 +535,9 @@ if __name__ == "__main__":
             db = init_db("mysql")
             db_write_lock = asyncio.Lock()
 
-            async def on_success(proxy_tuple: tuple[str, int], score_result: ProxyScoreResult):
+            async def on_success(
+                proxy_tuple: tuple[str, int], score_result: ProxyScoreResult
+            ):
                 score = score_result["score"]
                 tls_ok = score_result["tls"]
                 proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
@@ -549,7 +553,9 @@ if __name__ == "__main__":
                             },
                         )
 
-            async def on_failure(proxy_tuple: tuple[str, int], score_result: ProxyScoreResult):
+            async def on_failure(
+                proxy_tuple: tuple[str, int], score_result: ProxyScoreResult
+            ):
                 score = score_result["score"]
                 tls_ok = score_result["tls"]
                 proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"

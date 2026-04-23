@@ -10,7 +10,7 @@ from typing import Any, Dict, Optional, Union
 import bs4
 from ansi2html import Ansi2HTMLConverter
 from bs4 import BeautifulSoup
-from colorama import Fore, Style, just_fix_windows_console
+from colorama import init, Fore, Style, just_fix_windows_console
 from proxy_hunter import read_file, remove_ansi, resolve_parent_folder
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -18,6 +18,9 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from .func_platform import is_debug
 
 just_fix_windows_console()
+# Ensure ANSI sequences are not stripped when stdout is redirected.
+# force `strip=False` so color codes remain in non-TTY outputs (log files).
+init(strip=False, convert=False)
 
 
 class ConsoleColor:
@@ -131,13 +134,13 @@ def log_file(filename: Optional[str] = None, *args: Any, **kwargs: Any) -> None:
         filename (str): The path to the log file.
         *args (Any): Positional arguments representing the messages to log.
         **kwargs (Any): Optional keyword arguments:
-            - remove_ansi (bool): Removes ANSI color codes. Defaults to True.
+            - remove_ansi (bool): Removes ANSI color codes. Defaults to False.
             - ansi_html (bool): Converts ANSI to HTML. Defaults to False.
             - print_args (bool): Prints the message to stdout. Defaults to True.
             - end (str): String appended after the message when printing. Defaults to newline.
     """
     global css_content
-    should_remove_ansi = kwargs.pop("remove_ansi", True)
+    should_remove_ansi = kwargs.pop("remove_ansi", False)
     ansi_html = kwargs.pop("ansi_html", False)
     print_args = kwargs.pop("print_args", True)
     end = kwargs.pop("end", "\n")
@@ -188,7 +191,7 @@ def log_proxy(*args: Any, **kwargs: Any) -> None:
     Args:
         *args (Any): Positional arguments representing the messages to log.
         **kwargs (Any): Optional keyword arguments:
-            - remove_ansi (bool): Removes ANSI color codes. Defaults to True.
+            - remove_ansi (bool): Removes ANSI color codes. Defaults to False.
             - ansi_html (bool): Converts ANSI to HTML. Defaults to False.
             - print_args (bool): Prints the message to stdout. Defaults to True.
             - end (str): String appended after the message when printing. Defaults to newline.
@@ -203,7 +206,7 @@ def log_error(*args: Any, **kwargs: Any) -> None:
     Args:
         *args (Any): Positional arguments representing the messages to log.
         **kwargs (Any): Optional keyword arguments:
-            - remove_ansi (bool): Removes ANSI color codes. Defaults to True.
+            - remove_ansi (bool): Removes ANSI color codes. Defaults to False.
             - ansi_html (bool): Converts ANSI to HTML. Defaults to False.
             - print_args (bool): Prints the message to stdout. Defaults to True.
             - end (str): String appended after the message when printing. Defaults to newline.
@@ -281,7 +284,7 @@ def log_browser(*args: Any, **kwargs: Any) -> None:
     Args:
         *args (Any): Positional arguments representing the messages to log.
         **kwargs (Any): Optional keyword arguments:
-            - remove_ansi (bool): Removes ANSI color codes. Defaults to True.
+            - remove_ansi (bool): Removes ANSI color codes. Defaults to False.
             - ansi_html (bool): Converts ANSI to HTML. Defaults to False.
             - print_args (bool): Prints the message to stdout. Defaults to True.
             - end (str): String appended after the message when printing. Defaults to newline.

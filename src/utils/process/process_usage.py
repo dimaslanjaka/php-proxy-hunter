@@ -5,9 +5,10 @@ import sys
 from datetime import datetime
 from colorama import init, Fore, Style
 
-# Enable color only if running in terminal
-USE_COLOR = sys.stdout.isatty()
-init(autoreset=True if USE_COLOR else False)
+# Always enable color
+USE_COLOR = True
+# Preserve ANSI sequences when stdout is redirected
+init(autoreset=True, strip=False, convert=False)
 
 
 def bytes_to_mb(b):

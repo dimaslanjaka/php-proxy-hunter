@@ -18,7 +18,7 @@ from src.shared import init_db, init_readonly_db
 from src.utils.date.timeAgo import time_ago
 from src.utils.file.FileLockHelper import FileLockHelper
 
-init(autoreset=True)
+init(autoreset=True, strip=False, convert=False)
 
 current_filename = os.path.basename(__file__)
 locker: Optional[FileLockHelper] = None
@@ -122,7 +122,9 @@ async def process_proxies_async(
             proxy_by_value[proxy_str] = proxy
             ordered_proxy_values.append(proxy_str)
 
-        pending_proxy_values, already_checked = marker.filter_unseen(ordered_proxy_values)
+        pending_proxy_values, already_checked = marker.filter_unseen(
+            ordered_proxy_values
+        )
         valid_proxies = [proxy_by_value[proxy] for proxy in pending_proxy_values]
         if not valid_proxies:
             return {
@@ -168,7 +170,9 @@ async def process_proxies_async(
 
             marker.mark(str(result["proxy"]))
 
-            suffix = f" ({result['previous_status']})" if result["previous_status"] else ""
+            suffix = (
+                f" ({result['previous_status']})" if result["previous_status"] else ""
+            )
             print(
                 f"{result['proxy']} {status_text} last checked {result['last_check_ago']}"
                 f"{suffix}"
@@ -204,7 +208,9 @@ if __name__ == "__main__":
             last_checked=yesterday_date_rfc3339,
         )
 
-        print(f"Checking {len(proxies)} proxies concurrently ({args.concurrency} workers)")
+        print(
+            f"Checking {len(proxies)} proxies concurrently ({args.concurrency} workers)"
+        )
 
         typed_proxies: List[Proxy] = dict_to_proxy_list(proxies)
         stats = asyncio.run(process_proxies_async(typed_proxies, db, args.concurrency))

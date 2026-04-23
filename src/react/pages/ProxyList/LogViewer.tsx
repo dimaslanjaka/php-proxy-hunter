@@ -1,7 +1,7 @@
 import React from 'react';
-import Convert from 'ansi-to-html';
 import { createUrl } from '../../utils/url';
 import { getUserInfo } from '../../utils/user';
+import { convertAnsiToHtml } from '../../utils/ansi-to-html';
 
 // helper kept for compatibility if used elsewhere
 export async function getUserProxyLogUrl() {
@@ -63,17 +63,7 @@ const LogViewer: React.FC = () => {
   const [typeLog, setTypeLog] = React.useState('');
   const [oldLog, setOldLog] = React.useState('');
 
-  // Convert ANSI codes to HTML
-  const convertAnsiToHtml = (ansiText: string): string => {
-    const converter = new Convert({ newline: true });
-    let html = converter.toHtml(ansiText);
-
-    // Fix dark blue (#00A or #0000AA) to be readable on dark backgrounds
-    html = html.replace(/style="color:#00A"/g, 'style="color:#0099ff"');
-    html = html.replace(/style="color:#0000AA"/g, 'style="color:#0099ff"');
-
-    return html;
-  };
+  // ANSI→HTML conversion is provided by shared utility
 
   // On mount, fetch user id to use with logs endpoints
   React.useEffect(() => {
