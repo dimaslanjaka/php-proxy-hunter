@@ -9,22 +9,14 @@ if (!function_exists('setMultiPermissions')) {
 if (!function_exists('parseQueryOrPostBody')) {
   require_once __DIR__ . '/../utils/server/postdata.php';
 }
+if (!function_exists('get_project_root')) {
+  require_once __DIR__ . '/../PhpProxyHunter/utils/path.php';
+}
 
 /**
- * Resolve project root safely using defined() + constant() with fallbacks.
+ * Use centralized project root helper `get_project_root()` provided
+ * by src/PhpProxyHunter/utils/path.php (loaded via Composer autoload).
  */
-if (!function_exists('resolve_project_root')) {
-  function resolve_project_root(): string {
-    if (defined('PHP_PROXY_HUNTER_PROJECT_ROOT')) {
-      return constant('PHP_PROXY_HUNTER_PROJECT_ROOT');
-    }
-    $env = getenv('PHP_PROXY_HUNTER_PROJECT_ROOT') ?: getenv('PROJECT_ROOT');
-    if (is_string($env) && $env !== '') {
-      return rtrim($env, DIRECTORY_SEPARATOR);
-    }
-    return dirname(__DIR__, 2);
-  }
-}
 
 $isCli = php_sapi_name() === 'cli';
 
@@ -137,24 +129,24 @@ function getUserId(): string {
 }
 
 // Ensure config directory exists and has proper permissions
-$__pph_root = resolve_project_root();
+$__pph_root = get_project_root();
 if (!file_exists($__pph_root . '/config')) {
   mkdir($__pph_root . '/config');
 }
 setMultiPermissions($__pph_root . '/config');
 
 function getUserFile(string $user_id): string {
-  $root = resolve_project_root();
+  $root = get_project_root();
   return $root . "/config/$user_id.json";
 }
 
 function getUserStatusFile(string $user_id): string {
-  $root = resolve_project_root();
+  $root = get_project_root();
   return $root . "/tmp/status/$user_id.txt";
 }
 
 function getUserLogFile(string $user_id): string {
-  $root = resolve_project_root();
+  $root = get_project_root();
   return $root . "/tmp/logs/$user_id.txt";
 }
 

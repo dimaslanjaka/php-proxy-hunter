@@ -15,11 +15,10 @@ function getFullUrl($path) {
   // normalize using unixPath helper (composer autoload assumed)
   $normalized = unixPath($path);
 
-  // Map against PHP_PROXY_HUNTER_PROJECT_ROOT (assumed defined by project)
+  // Map against project root returned by get_project_root()
   $relative = $normalized;
-  if (defined('PHP_PROXY_HUNTER_PROJECT_ROOT') && !empty(PHP_PROXY_HUNTER_PROJECT_ROOT)) {
-    // Normalize project root then remove it from the path (replace with empty string)
-    $rootRaw  = realpath(PHP_PROXY_HUNTER_PROJECT_ROOT) ?: PHP_PROXY_HUNTER_PROJECT_ROOT;
+  $rootRaw  = realpath(get_project_root()) ?: get_project_root();
+  if (!empty($rootRaw)) {
     $root     = unixPath(rtrim($rootRaw, '/\\'));
     $relative = preg_replace('#^' . preg_quote($root, '#') . '#i', '', $normalized);
     // collapse duplicate slashes

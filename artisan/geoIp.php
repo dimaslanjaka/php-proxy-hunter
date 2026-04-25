@@ -23,7 +23,7 @@ if (!empty($options['userId'])) {
 $uid          = getUserId();
 $config       = getConfig($uid);
 $lockFilePath = tmp() . "/locks/geoIp-$uid.lock";
-$statusFile   = PHP_PROXY_HUNTER_PROJECT_ROOT . '/status.txt';
+$statusFile   = get_project_root() . '/status.txt';
 
 /* DB */
 $connections = refreshDbConnections(true);
@@ -175,7 +175,7 @@ foreach ($extract as $idx => $item) {
     // use local mmdb as last resort
     if (!$fetched) {
       $ip       = extractIPs($item->proxy)[0];
-      $mmdbPath = PHP_PROXY_HUNTER_PROJECT_ROOT . '/src/GeoLite2-City.mmdb';
+      $mmdbPath = get_project_root() . '/src/GeoLite2-City.mmdb';
       if (file_exists($mmdbPath)) {
         // try to use local mmdb
         $reader = new \GeoIp2\Database\Reader($mmdbPath);
