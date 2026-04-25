@@ -16,15 +16,14 @@ class Session
    * @param string|null $session_folder Optional custom folder for storing session files.
    * @throws Exception If session folder creation fails or session cannot be started.
    */
-  public function __construct(int $timeout, $session_folder = null)
-  {
+  public function __construct(int $timeout, $session_folder = null) {
     if (!empty($session_folder) && !file_exists($session_folder)) {
       @mkdir($session_folder, 0755, true);
     }
     if (!self::isSessionStarted()) {
       $name = md5($this->session_prefix_name . $timeout . Server::fingerprint(true));
       if (empty(trim($session_folder))) {
-        $session_folder = __DIR__ . '/../../tmp/sessions';
+        $session_folder = get_project_root() . '/tmp/sessions';
       }
 
       // Normalize and ensure the session folder exists. If creation or permissions fail,
@@ -74,8 +73,7 @@ class Session
    *
    * @return bool Returns true if session is active, false otherwise.
    */
-  public static function isSessionStarted(): bool
-  {
+  public static function isSessionStarted(): bool {
     return PHP_SESSION_ACTIVE == session_status();
   }
 
@@ -84,8 +82,7 @@ class Session
    *
    * @return array An associative array containing session-related information.
    */
-  public static function dump(): array
-  {
+  public static function dump(): array {
     return [
       'sessions' => [
         'active'                  => PHP_SESSION_NONE == session_status(),
@@ -108,8 +105,7 @@ class Session
    * @return DateTime The current date and time.
    * @throws Exception If the DateTime creation fails.
    */
-  public function now(): DateTime
-  {
+  public function now(): DateTime {
     return new DateTime('now', new DateTimeZone('Asia/Jakarta'));
   }
 
@@ -120,8 +116,7 @@ class Session
    *
    * @return bool True when regeneration succeeds, false otherwise.
    */
-  public static function rotateNow(): bool
-  {
+  public static function rotateNow(): bool {
     if (!self::isSessionStarted()) {
       return false;
     }
@@ -135,8 +130,7 @@ class Session
     return false;
   }
 
-  public function rotateSession($validateAuthenticated = true)
-  {
+  public function rotateSession($validateAuthenticated = true) {
     if (!self::isSessionStarted()) {
       return;
     }
@@ -165,8 +159,7 @@ class Session
    *
    * @return void
    */
-  public static function clearCookies()
-  {
+  public static function clearCookies() {
     // Loop through the $_COOKIE array and delete each cookie
     foreach ($_COOKIE as $cookie_name => $cookie_value) {
       // Set cookies to expire in the past to delete them
@@ -183,8 +176,7 @@ class Session
    *
    * @return bool
    */
-  public static function clearSessions($clearCookies = true)
-  {
+  public static function clearSessions($clearCookies = true) {
     // Start the session if not already started
     if (!self::isSessionStarted()) {
       session_start();
