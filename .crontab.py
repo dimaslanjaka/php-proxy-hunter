@@ -95,12 +95,18 @@ load_dotenv(dotenv_path=CWD / ".env")
 
 
 def parse_interval_to_seconds(interval: str) -> int:
-    """Convert a compact interval string (e.g. 5-m, 1-h, 1-w, 1-y) to seconds."""
-    match = re.fullmatch(r"\s*(\d+)\s*-\s*([mhwy])\s*", interval.lower())
+    """Convert a compact interval string to seconds.
+
+    Accepts both hyphenated and compact forms, e.g. `5-m` or `5m`,
+    `1-h` or `1h`, `2-d` or `2d`, `1-w` or `1w`, `1-y` or `1y`.
+    """
+
+    # Allow optional hyphen between number and unit (e.g. '5-m' or '5m')
+    match = re.fullmatch(r"\s*(\d+)\s*-?\s*([mhdwy])\s*", interval.lower())
     if not match:
         raise ValueError(
-            "Invalid interval format. Use '<number>-<unit>' where unit is one of: "
-            "m (minute), h (hour), w (week), y (year)."
+            "Invalid interval format. Use '<number><unit>' or '<number>-<unit>' where "
+            "unit is one of: m (minute), h (hour), d (day), w (week), y (year)."
         )
 
     amount = int(match.group(1))
@@ -109,6 +115,7 @@ def parse_interval_to_seconds(interval: str) -> int:
     unit_seconds = {
         "m": 60,
         "h": 60 * 60,
+        "d": 24 * 60 * 60,
         "w": 7 * 24 * 60 * 60,
         "y": 365 * 24 * 60 * 60,
     }
