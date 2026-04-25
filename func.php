@@ -170,8 +170,7 @@ $argv = isset($argv) ? $argv : [];
  * @param string $property The property name to compare
  * @return array An array of unique objects
  */
-function uniqueClassObjectsByProperty(array $array, string $property): array
-{
+function uniqueClassObjectsByProperty(array $array, string $property): array {
   $tempArray = [];
   $result    = [];
   foreach ($array as $item) {
@@ -192,8 +191,7 @@ function uniqueClassObjectsByProperty(array $array, string $property): array
  * @param string|null $string The string to check.
  * @return bool True if the string is base64 encoded, false otherwise.
  */
-function isBase64Encoded($string): bool
-{
+function isBase64Encoded($string): bool {
   if (empty($string)) {
     return false;
   }
@@ -223,8 +221,7 @@ function isBase64Encoded($string): bool
  * @param string|null $stringToRemove The string to remove from the source file.
  * @return string Message indicating success or failure.
  */
-function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFilePath, $stringToRemove): string
-{
+function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFilePath, $stringToRemove): string {
   if (!file_exists($destinationFilePath)) {
     file_put_contents($destinationFilePath, '');
   }
@@ -315,8 +312,7 @@ function removeStringAndMoveToFile(string $sourceFilePath, string $destinationFi
 /**
  * get cache file from `curlGetWithProxy`
  */
-function curlGetCache($url): string
-{
+function curlGetCache($url): string {
   return __DIR__ . '/.cache/' . md5($url);
 }
 
@@ -332,8 +328,7 @@ function curlGetCache($url): string
  * @param string|null $password Optional proxy password to use for proxy authentication.
  * @return string|false The response content or false on failure.
  */
-function curlGetWithProxy(string $url, $proxy = null, $proxyType = 'http', $cacheTime = 86400 * 360, string $cacheDir = __DIR__ . '/.cache/', $username = null, $password = null)
-{
+function curlGetWithProxy(string $url, $proxy = null, $proxyType = 'http', $cacheTime = 86400 * 360, string $cacheDir = __DIR__ . '/.cache/', $username = null, $password = null) {
   // Generate cache file path based on URL
   if (!file_exists($cacheDir)) {
     mkdir($cacheDir);
@@ -379,8 +374,7 @@ function curlGetWithProxy(string $url, $proxy = null, $proxyType = 'http', $cach
  * @param string $filename The path to the text file.
  * @return bool True on success, false on failure.
  */
-function rewriteIpPortFile(string $filename): bool
-{
+function rewriteIpPortFile(string $filename): bool {
   if (!file_exists($filename) || !is_readable($filename) || !is_writable($filename)) {
     echo "File '$filename' is not readable or writable" . PHP_EOL;
     return false;
@@ -435,8 +429,7 @@ function rewriteIpPortFile(string $filename): bool
  * @param string $filename The path to the file to be read.
  * @return array|false An array containing the lines of the file on success, false on failure.
  */
-function readFileLinesToArray(string $filename)
-{
+function readFileLinesToArray(string $filename) {
   // Check if the file exists and is readable
   if (!is_readable($filename)) {
     return false;
@@ -469,8 +462,7 @@ function readFileLinesToArray(string $filename)
  *
  * @return array An array containing full paths of files with the specified extension.
  */
-function getFilesByExtension(string $folder, $extension = 'txt'): array
-{
+function getFilesByExtension(string $folder, $extension = 'txt'): array {
   if (!file_exists($folder)) {
     echo "$folder not exist" . PHP_EOL;
     return [];
@@ -504,227 +496,6 @@ function getFilesByExtension(string $folder, $extension = 'txt'): array
   return $files;
 }
 
-// Function to parse command line arguments
-function parseArgs($args): array
-{
-  $parsedArgs = [];
-
-  foreach ($args as $arg) {
-    if (substr($arg, 0, 2) === '--') {
-      // Argument is in the format --key=value
-      $parts = explode('=', substr($arg, 2), 2);
-      $key   = $parts[0];
-      $value = $parts[1] ?? true;
-      // If value is not provided, set it to true
-      $parsedArgs[$key] = $value;
-    }
-  }
-
-  return $parsedArgs;
-}
-
-// Default user ID to "CLI" assuming the script is running from the command line
-$user_id = 'CLI';
-
-// Check if the script is running in CLI mode or not
-if (!$isCli) {
-  // --- Case 1: Running via web server ---
-
-  // Prioritize email → then user_id → then session_id
-  if (isset($_SESSION['email']) && isValidEmail($_SESSION['email'])) {
-    // Use valid session email first
-    $user_id_source = $_SESSION['email'];
-  } elseif (!empty($_SESSION['user_id'])) {
-    // Use session user ID if available
-    $user_id_source = $_SESSION['user_id'];
-  } else {
-    // Fallback: use PHP session ID
-    $user_id_source = session_id();
-  }
-
-  // Hash the chosen ID for privacy and consistency
-  $user_id = md5($user_id_source);
-} else {
-  // --- Case 2: Running in CLI mode ---
-
-  // Parse command-line arguments using a helper function
-  $parsedArgs = parseArgs($argv);
-
-  // Extract CLI user ID if provided (userId or uid)
-  $cliUserId = '';
-  if (!empty($parsedArgs)) {
-    if (isset($parsedArgs['userId'])) {
-      $cliUserId = $parsedArgs['userId'];
-    } elseif (isset($parsedArgs['uid'])) {
-      $cliUserId = $parsedArgs['uid'];
-    }
-  }
-
-  // If CLI user ID is non-empty, override default "CLI"
-  if (!empty(trim($cliUserId))) {
-    $user_id = $cliUserId;
-  }
-}
-
-// Set the resolved user ID in your system
-setUserId($user_id);
-
-/**
- * Set the current user ID and create a user config file if it doesn't exist.
- *
- * @param string $new_user_id The new user ID to be set.
- *
- * This function sets the global user ID, ensures the user config file exists,
- * and writes default config if the file is not already present.
- */
-function setUserId(string $new_user_id)
-{
-  global $user_id;
-  $user_file = !empty($new_user_id) ? getUserFile($new_user_id) : null;
-
-  if ($user_file != null) {
-    // Ensure the directory for the user file exists
-    if (!file_exists(dirname($user_file))) {
-      mkdir(dirname($user_file), 0777, true);
-    }
-
-    // Write default user config if file does not exist
-    if (!file_exists($user_file)) {
-      $headers = [
-        'X-Dynatrace: MT_3_6_2809532683_30-0_24d94a15-af8c-49e7-96a0-1ddb48909564_0_1_619',
-        'X-Api-Key: vT8tINqHaOxXbGE7eOWAhA==',
-        'Authorization: Bearer',
-        'X-Request-Id: 63337f4c-ec03-4eb8-8caa-4b7cd66337e3',
-        'X-Request-At: 2024-04-07T20:57:14.73+07:00',
-        'X-Version-App: 5.8.8',
-        'User-Agent: myXL / 5.8.8(741); StandAloneInstall; (samsung; SM-G955N; SDK 25; Android 7.1.2)',
-        'Content-Type: application/json; charset=utf-8',
-      ];
-
-      $data = [
-        'endpoint' => $new_user_id == 'CLI'
-          ? 'https://api.myxl.xlaxiata.co.id/api/v1/xl-stores/options/list'
-          : 'https://bing.com',
-        'headers' => $new_user_id == 'CLI'
-          ? $headers
-          : ['User-Agent: Mozilla/5.0 (Linux; Android 14; Pixel 6 Pro Build/UPB3.230519.014) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.60 Mobile Safari/537.36 GNews Android/2022137898'],
-        'type' => 'http|socks4|socks5',
-      ];
-
-      $file = getUserFile($new_user_id);
-      write_file($file, json_encode($data));
-    }
-
-    // Replace global user ID if different from current
-    if ($user_id != $new_user_id) {
-      $user_id = $new_user_id;
-    }
-  }
-}
-
-/**
- * Retrieve the current global user ID.
- *
- * @return string The current user ID.
- */
-function getUserId(): string
-{
-  global $user_id;
-  return $user_id;
-}
-
-if (!file_exists(__DIR__ . '/config')) {
-  mkdir(__DIR__ . '/config');
-}
-setMultiPermissions(__DIR__ . '/config');
-
-function getUserFile(string $user_id): string
-{
-  return __DIR__ . "/config/$user_id.json";
-}
-
-function getUserStatusFile(string $user_id): string
-{
-  return __DIR__ . "/tmp/status/$user_id.txt";
-}
-
-function getUserLogFile(string $user_id): string
-{
-  return __DIR__ . "/tmp/logs/$user_id.txt";
-}
-
-function resetUserLogFile(string $user_id): bool
-{
-  $user_file = getUserLogFile($user_id);
-  $now       = date('Y-m-d H:i:s');
-  $content   = "Log reset at $now\n";
-  return file_put_contents($user_file, $content, LOCK_EX) !== false;
-}
-
-function addUserLog(string $user_id, string $message): bool
-{
-  $user_file = getUserLogFile($user_id);
-  if (!file_exists(dirname($user_file))) {
-    mkdir(dirname($user_file), 0777, true);
-  }
-  if (!file_exists($user_file)) {
-    $now    = date('Y-m-d H:i:s');
-    $header = "Log created at $now\n";
-    file_put_contents($user_file, $header, LOCK_EX);
-  }
-  return file_put_contents($user_file, date('Y-m-d H:i:s') . ' ' . $message . PHP_EOL, FILE_APPEND | LOCK_EX) !== false;
-}
-
-function getConfig(string $user_id): array
-{
-  $user_file = getUserFile($user_id);
-  if (!file_exists($user_file)) {
-    setUserId($user_id);
-    $user_file = getUserFile($user_id);
-  }
-  if (!is_readable($user_file)) {
-    setMultiPermissions($user_file, false);
-  }
-  // Read the JSON file into a string
-  $jsonString = read_file($user_file);
-
-  // Decode the JSON string into a PHP array
-  $data = json_decode($jsonString, true);
-  // Use true for associative array, false or omit for object
-
-  $defaults = [
-    'endpoint' => 'https://google.com',
-    'headers'  => [],
-    'type'     => 'http|socks4|socks5',
-    'user_id'  => $user_id,
-  ];
-
-  // Check if decoding was successful
-  if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
-    // Decoding failed
-    // echo 'Error decoding JSON: ' . json_last_error_msg();
-    return $defaults;
-  } else {
-    return mergeArrays($defaults, $data);
-  }
-}
-
-function setConfig($user_id, $data): array
-{
-  $user_file = getUserFile($user_id);
-  $defaults  = getConfig($user_id);
-  // remove conflict data
-  unset($defaults['headers']);
-  // Encode the data to JSON format
-  $nData   = mergeArrays($defaults, $data);
-  $newData = json_encode($nData);
-  // write data
-  file_put_contents($user_file, $newData);
-  // set permission
-  setMultiPermissions($user_file);
-  return $nData;
-}
-
 /**
  * Merges two shallow multidimensional arrays.
  *
@@ -737,8 +508,7 @@ function setConfig($user_id, $data): array
  * @param array $arr2 The second array to merge.
  * @return array The merged array.
  */
-function mergeArrays(array $arr1, array $arr2): array
-{
+function mergeArrays(array $arr1, array $arr2): array {
   $keys = array_keys($arr2);
   foreach ($keys as $key) {
     if (isset($arr1[$key]) && is_numeric($key)) {
@@ -759,8 +529,7 @@ function mergeArrays(array $arr1, array $arr2): array
  * @param bool $cors Whether to include CORS headers. Default is true.
  * @return void
  */
-function setCacheHeaders($max_age_minutes, bool $cors = true): void
-{
+function setCacheHeaders($max_age_minutes, bool $cors = true): void {
   if ($cors) {
     // Allow from any origin
     header('Access-Control-Allow-Origin: *');
@@ -783,8 +552,7 @@ function setCacheHeaders($max_age_minutes, bool $cors = true): void
  * @param string $message The confirmation message.
  * @return bool True if user confirms (y/yes), false otherwise (n/no).
  */
-function confirmAction(string $message = 'Are you sure? (y/n): '): bool
-{
+function confirmAction(string $message = 'Are you sure? (y/n): '): bool {
   $validResponses = ['y', 'yes', 'n', 'no'];
   $response       = '';
 
@@ -806,8 +574,7 @@ function confirmAction(string $message = 'Are you sure? (y/n): '): bool
  * @param callable|null $callback A callback function to be called for each item during iteration.
  * @return void
  */
-function iterateArray(array $array, int $limit = 50, $callback = null)
-{
+function iterateArray(array $array, int $limit = 50, $callback = null) {
   $arrayLength = count($array);
   $limit       = min($arrayLength, $limit);
   // Get the minimum of array length and $limit
@@ -828,8 +595,7 @@ function iterateArray(array $array, int $limit = 50, $callback = null)
  * @param string $inputFile The path to the input file.
  * @return void
  */
-function fixFile(string $inputFile)
-{
+function fixFile(string $inputFile) {
   if (!file_exists($inputFile)) {
     echo "fixFile: $inputFile is not found" . PHP_EOL;
     return;
@@ -880,8 +646,7 @@ function fixFile(string $inputFile)
   }
 }
 
-function isCygwinInstalled()
-{
+function isCygwinInstalled() {
   $cygwinExecutables = ['bash', 'ls'];
   // List of Cygwin executables to check
 
@@ -897,8 +662,7 @@ function isCygwinInstalled()
   // None of the Cygwin executables found
 }
 
-function runPythonInBackground($scriptPath, $commandArgs = [], $identifier = null)
-{
+function runPythonInBackground($scriptPath, $commandArgs = [], $identifier = null) {
   global $isWin;
 
   // Convert arguments to command line string
@@ -951,8 +715,7 @@ function runPythonInBackground($scriptPath, $commandArgs = [], $identifier = nul
   ];
 }
 
-function runShellCommandLive($command)
-{
+function runShellCommandLive($command) {
   if (!is_string($command)) {
     throw new InvalidArgumentException('Command must be a string');
   }
@@ -992,8 +755,7 @@ function runShellCommandLive($command)
   }
 }
 
-function safe_json_decode($json, $assoc = true)
-{
+function safe_json_decode($json, $assoc = true) {
   $decoded = json_decode($json, $assoc);
 
   // Check for JSON decode errors
@@ -1016,8 +778,7 @@ function safe_json_decode($json, $assoc = true)
  *
  * @return void
  */
-function remove_array_keys(array &$array, array $keysToRemove)
-{
+function remove_array_keys(array &$array, array $keysToRemove) {
   foreach ($array as $key => &$value) {
     if (is_array($value)) {
       // Recursively apply the function to nested arrays
