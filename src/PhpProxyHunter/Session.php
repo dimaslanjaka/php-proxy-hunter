@@ -21,7 +21,10 @@ class Session
       @mkdir($session_folder, 0755, true);
     }
     if (!self::isSessionStarted()) {
-      $name = md5($this->session_prefix_name . $timeout . Server::fingerprint(true));
+      // Use HMAC-SHA256 instead of MD5. This requires an application secret
+      // to provide stronger integrity; fallback to a safe default for dev.
+      $secret = getenv('APP_SECRET') ?: 'php_proxy_hunter_default_secret';
+      $name   = hash_hmac('sha256', $this->session_prefix_name . $timeout . Server::fingerprint(true), $secret);
       if (empty(trim($session_folder))) {
         $session_folder = get_project_root() . '/tmp/sessions';
       }
