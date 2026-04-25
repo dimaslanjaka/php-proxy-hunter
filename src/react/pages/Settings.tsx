@@ -22,6 +22,26 @@ const Settings = () => {
   const [success, setSuccess] = useState('');
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [credentials, setCredentials] = useState<Array<any>>([]);
+  const [loadingCredentials, setLoadingCredentials] = useState<boolean>(false);
+  const [showRemoveModal, setShowRemoveModal] = useState<boolean>(false);
+  const [selectedCredentialId, setSelectedCredentialId] = useState<string | null>(null);
+
+  const fetchCredentials = async () => {
+    setLoadingCredentials(true);
+    try {
+      const res = await axios.get(createUrl('/php_backend/webauthn/list_credentials.php'));
+      if (res.data && res.data.error === false) {
+        setCredentials(res.data.credentials || []);
+      } else {
+        setCredentials([]);
+      }
+    } catch (_e) {
+      setCredentials([]);
+    } finally {
+      setLoadingCredentials(false);
+    }
+  };
 
   React.useEffect(() => {
     let mounted = true;
@@ -36,6 +56,8 @@ const Settings = () => {
           setUsername(data.username || '');
           setEmail(data.email || '');
           setToken(data.token || '');
+          // fetch registered passkeys for this user
+          fetchCredentials();
         }
       } catch (_err) {
         window.location.href = '/login';
@@ -99,6 +121,8 @@ const Settings = () => {
         const verifyRes = await axios.post(verifyUrl, { credential });
         if (verifyRes.data && verifyRes.data.error === false) {
           setSuccess(t('settings_webauthn_registered') || 'Security key registered');
+          // refresh list
+          fetchCredentials();
         } else {
           setError(verifyRes.data?.message || 'Registration failed');
         }
@@ -106,6 +130,29 @@ const Settings = () => {
     } catch (e: any) {
       console.error('WebAuthn register error', e);
       setError(e?.response?.data?.message || e.message || 'WebAuthn register failed');
+    }
+  };
+
+  const requestRemoveCredential = (credential_id: string) => {
+    setSelectedCredentialId(credential_id);
+    setShowRemoveModal(true);
+  };
+
+  const performRemoveCredential = async () => {
+    const credential_id = selectedCredentialId;
+    setShowRemoveModal(false);
+    setSelectedCredentialId(null);
+    if (!credential_id) return;
+    try {
+      const res = await axios.post(createUrl('/php_backend/webauthn/remove_credential.php'), { credential_id });
+      if (res.data && res.data.error === false) {
+        showSnackbar({ message: 'Removed', type: 'success' });
+        fetchCredentials();
+      } else {
+        showSnackbar({ message: res.data?.message || 'Failed to remove', type: 'danger' });
+      }
+    } catch (e: any) {
+      showSnackbar({ message: e?.response?.data?.message || e.message || 'Failed to remove', type: 'danger' });
     }
   };
 
@@ -244,8 +291,69 @@ const Settings = () => {
             <span className="mr-2">
               <i className="fa-duotone fa-key" aria-hidden="true"></i>
             </span>
-            Register Security Key (for login)
+            {t('settings_register_webauthn')}
           </button>
+          <div className="mt-4 w-full bg-white dark:bg-gray-800 p-3 rounded shadow-inner">
+            <h3 className="font-semibold mb-2 text-gray-700 dark:text-gray-200">Registered Security Keys</h3>
+            {loadingCredentials ? (
+              <div>{t('loading')}</div>
+            ) : credentials.length === 0 ? (
+              <div className="text-sm text-gray-500">{t('settings_no_passkeys')}</div>
+            ) : (
+              credentials.map((c) => (
+                <div key={c.credential_id} className="flex items-center justify-between py-2 border-b last:border-b-0">
+                  <div className="truncate mr-2 text-sm text-gray-800 dark:text-gray-100">{c.credential_id}</div>
+                  <div className="flex items-center gap-2">
+                    <button
+                      type="button"
+                      onClick={() => requestRemoveCredential(c.credential_id)}
+                      className="text-sm text-red-600 hover:underline">
+                      {t('delete')}
+                    </button>
+                  </div>
+                </div>
+              ))
+            )}
+          </div>
+          {/* Modal (Flowbite style) */}
+          {showRemoveModal && (
+            <div
+              id="deleteModal"
+              tabIndex={-1}
+              aria-hidden={false}
+              className="fixed inset-0 z-50 flex items-center justify-center">
+              <div className="fixed inset-0 bg-black/50" onClick={() => setShowRemoveModal(false)}></div>
+              <div className="relative p-4 w-full max-w-md">
+                <div className="relative p-4 text-center bg-white rounded-lg shadow dark:bg-gray-800 sm:p-5">
+                  <button
+                    type="button"
+                    className="text-gray-400 absolute top-2.5 right-2.5 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-600 dark:hover:text-white"
+                    onClick={() => setShowRemoveModal(false)}>
+                    <i className="fa-duotone fa-xmark" aria-hidden="true" style={{ fontSize: '1.25rem' }}></i>
+                    <span className="sr-only">Close modal</span>
+                  </button>
+                  <i
+                    className="fa-duotone fa-trash text-gray-400 dark:text-gray-500 text-3xl mb-3.5 mx-auto"
+                    aria-hidden="true"></i>
+                  <p className="mb-4 text-gray-500 dark:text-gray-300">{t('settings_remove_passkey_confirm')}</p>
+                  <div className="flex justify-center items-center space-x-4">
+                    <button
+                      type="button"
+                      onClick={() => setShowRemoveModal(false)}
+                      className="py-2 px-3 text-sm font-medium text-gray-500 bg-white rounded-lg border border-gray-200 hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600">
+                      {t('settings_remove_cancel')}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => performRemoveCredential()}
+                      className="py-2 px-3 text-sm font-medium text-center text-white bg-red-600 rounded-lg hover:bg-red-700 focus:ring-4 focus:outline-none focus:ring-red-300 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-900">
+                      {t('settings_remove_confirm')}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </div>
       </form>
     </div>

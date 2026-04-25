@@ -22,11 +22,17 @@ $challenge_b64 = rtrim(strtr(base64_encode($challenge), '+/', '-_'), '=');
 
 $_SESSION['webauthn_assertion_challenge_' . $idKey] = $challenge_b64;
 
-$allow  = [];
-$stored = db_get_webauthn_credential($idKey);
-if ($stored) {
-  $allow[] = ['type' => 'public-key', 'id' => $stored['credential_id']];
-} else {
+$allow       = [];
+$stored_list = db_get_webauthn_credentials($idKey);
+if (!empty($stored_list)) {
+  foreach ($stored_list as $stored) {
+    if (!empty($stored['credential_id'])) {
+      $allow[] = ['type' => 'public-key', 'id' => $stored['credential_id']];
+    }
+  }
+}
+
+if (empty($allow)) {
   // No credential registered for this account — don't allow generic assertion prompt
   respond_json(['error' => true, 'message' => 'no credentials registered for this account'], 400);
 }

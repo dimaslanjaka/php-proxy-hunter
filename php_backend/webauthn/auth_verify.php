@@ -22,10 +22,18 @@ if (!$storedChallenge) {
 }
 
 // Load stored credential for this idKey and ensure the assertion is from that credential
-$storedCred = null;
-$storedCred = db_get_webauthn_credential($idKey);
+// Find stored credential by the assertion's credential id
+$storedCred        = null;
+$assertionIdLookup = $assertion['id'] ?? ($assertion['rawId'] ?? '');
+$storedCred        = db_get_webauthn_credential_by_credential_id($assertionIdLookup);
 if (!$storedCred) {
-  respond_json(['error' => true, 'message' => 'no registered credential for this account'], 400);
+  respond_json(['error' => true, 'message' => 'no registered credential matching assertion'], 400);
+}
+
+// Ensure the credential belongs to the claimed user (idKey)
+$storedUserKey = isset($storedCred['user_key']) ? $storedCred['user_key'] : null;
+if ($storedUserKey && strtolower($storedUserKey) !== strtolower($idKey)) {
+  respond_json(['error' => true, 'message' => 'credential does not belong to this account'], 400);
 }
 
 $clientDataJSON    = base64_decode(strtr($assertion['response']['clientDataJSON'], '-_', '+/'));
@@ -35,12 +43,8 @@ if ($receivedChallenge !== $storedChallenge) {
   respond_json(['error' => true, 'message' => 'challenge mismatch'], 400);
 }
 
-// Ensure assertion's credential id matches stored credential id for this account
-$assertionId = $assertion['id'] ?? ($assertion['rawId'] ?? '');
-$storedId    = isset($storedCred['credential_id']) ? $storedCred['credential_id'] : ($storedCred['id'] ?? '');
-if ($assertionId !== $storedId) {
-  respond_json(['error' => true, 'message' => 'credential id mismatch'], 400);
-}
+// At this point we've located the stored credential record by id; in production verify signature
+// Minimal check is implicit by using the stored credential found above
 
 // Minimal successful check — in production verify signature with stored public key
 // For now, accept and mark user as authenticated

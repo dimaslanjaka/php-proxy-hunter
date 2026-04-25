@@ -22,15 +22,13 @@ class UserDBMigration
   /** @var Meta */
   protected $meta;
 
-  public function __construct($pdo)
-  {
+  public function __construct($pdo) {
     $this->pdo    = $pdo;
     $this->driver = $pdo->getAttribute(PDO::ATTR_DRIVER_NAME);
     $this->meta   = new Meta($pdo);
   }
 
-  public function close()
-  {
+  public function close() {
     if ($this->meta) {
       $this->meta->close();
       $this->meta = null;
@@ -38,18 +36,16 @@ class UserDBMigration
     $this->pdo = null;
   }
 
-  public function __destruct()
-  {
+  public function __destruct() {
     $this->close();
   }
 
-  public function run()
-  {
+  public function run() {
     $this->migrateAddToken();
+    $this->migrateWebauthnCredentials();
   }
 
-  protected function migrateAddToken()
-  {
+  protected function migrateAddToken() {
     $metaKey = 'user_db_added_token_' . $this->driver . '_' . PACKAGE_VERSION;
     if ($this->meta->hasKey($metaKey)) {
       return;
@@ -104,8 +100,7 @@ class UserDBMigration
    * Populate auth_user.token for rows where token is NULL or empty.
    * Ensures tokens are unique; retries on collision a few times.
    */
-  protected function populateMissingTokens()
-  {
+  protected function populateMissingTokens() {
     try {
       $stmt = $this->pdo->query("SELECT id FROM auth_user WHERE token IS NULL OR token = ''");
       $ids  = $stmt->fetchAll(PDO::FETCH_COLUMN);
@@ -138,6 +133,122 @@ class UserDBMigration
       }
     } catch (PDOException $e) {
       error_log('UserDBMigration populateMissingTokens error: ' . $e->getMessage());
+    }
+  }
+
+  /**
+   * Migrate legacy webauthn_credentials table (single credential per user)
+   * to the new multi-row schema used by the app.
+   */
+  protected function migrateWebauthnCredentials() {
+    $metaKey = 'webauthn_credentials_migrated_' . $this->driver . '_' . PACKAGE_VERSION;
+    if ($this->meta->hasKey($metaKey)) {
+      return;
+    }
+
+    try {
+      // Check if table exists
+      if ($this->driver === 'sqlite') {
+        $tableStmt   = $this->pdo->query("SELECT name FROM sqlite_master WHERE type='table' AND name='webauthn_credentials'");
+        $tableExists = (bool) $tableStmt->fetch(PDO::FETCH_COLUMN);
+        if (!$tableExists) {
+          // nothing to migrate
+          $this->meta->set($metaKey, '1');
+          return;
+        }
+
+        // Inspect columns
+        $stmt  = $this->pdo->query("PRAGMA table_info('webauthn_credentials')");
+        $cols  = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $hasId = false;
+        foreach ($cols as $col) {
+          if (isset($col['name']) && $col['name'] === 'id') {
+            $hasId = true;
+            break;
+          }
+        }
+
+        if ($hasId) {
+          // Already new schema (or at least has id) — mark migrated and stop
+          $this->meta->set($metaKey, '1');
+          return;
+        }
+
+        // Legacy schema detected — perform migration
+        $this->pdo->beginTransaction();
+        // Rename old table
+        $this->pdo->exec('ALTER TABLE webauthn_credentials RENAME TO webauthn_credentials_old');
+        // Create new table (matches db.php schema)
+        $createSql = 'CREATE TABLE IF NOT EXISTS webauthn_credentials (
+          id INTEGER PRIMARY KEY AUTOINCREMENT,
+          user_key TEXT NOT NULL,
+          credential_id TEXT NOT NULL UNIQUE,
+          credential_json TEXT,
+          sign_count INTEGER DEFAULT 0,
+          created_at TEXT DEFAULT CURRENT_TIMESTAMP
+        )';
+        $this->pdo->exec($createSql);
+        // Copy rows
+        $this->pdo->exec('INSERT INTO webauthn_credentials (user_key, credential_id, credential_json, sign_count, created_at) SELECT user_key, credential_id, credential_json, sign_count, created_at FROM webauthn_credentials_old');
+        // Drop old
+        $this->pdo->exec('DROP TABLE webauthn_credentials_old');
+        $this->pdo->commit();
+        $this->meta->set($metaKey, '1');
+        return;
+      } else {
+        // MySQL flow
+        $tableStmt   = $this->pdo->query("SHOW TABLES LIKE 'webauthn_credentials'");
+        $tableExists = (bool) $tableStmt->fetch(PDO::FETCH_COLUMN);
+        if (!$tableExists) {
+          $this->meta->set($metaKey, '1');
+          return;
+        }
+
+        // Inspect columns
+        $colStmt = $this->pdo->query('SHOW COLUMNS FROM `webauthn_credentials`');
+        $cols    = $colStmt->fetchAll(PDO::FETCH_ASSOC);
+        $hasId   = false;
+        foreach ($cols as $col) {
+          if (isset($col['Field']) && $col['Field'] === 'id') {
+            $hasId = true;
+            break;
+          }
+        }
+
+        if ($hasId) {
+          $this->meta->set($metaKey, '1');
+          return;
+        }
+
+        // Legacy schema detected — perform migration
+        $this->pdo->beginTransaction();
+        // Rename table to backup
+        $this->pdo->exec('RENAME TABLE `webauthn_credentials` TO `webauthn_credentials_old`');
+        // Create new table
+        $createSql = 'CREATE TABLE IF NOT EXISTS webauthn_credentials (
+          id INT NOT NULL AUTO_INCREMENT PRIMARY KEY,
+          user_key VARCHAR(255) NOT NULL,
+          credential_id TEXT NOT NULL UNIQUE,
+          credential_json JSON DEFAULT NULL,
+          sign_count INT DEFAULT 0,
+          created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4';
+        $this->pdo->exec($createSql);
+        // Copy rows
+        $this->pdo->exec('INSERT INTO webauthn_credentials (user_key, credential_id, credential_json, sign_count, created_at) SELECT user_key, credential_id, credential_json, sign_count, created_at FROM webauthn_credentials_old');
+        // Drop old
+        $this->pdo->exec('DROP TABLE IF EXISTS webauthn_credentials_old');
+        $this->pdo->commit();
+        $this->meta->set($metaKey, '1');
+        return;
+      }
+    } catch (PDOException $e) {
+      try {
+        $this->pdo->rollBack();
+      } catch (\Throwable $t) {
+      }
+      $this->meta->delete($metaKey);
+      error_log('UserDBMigration webauthn migration error: ' . $e->getMessage());
     }
   }
 }
