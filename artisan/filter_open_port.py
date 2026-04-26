@@ -3,8 +3,6 @@ import sys
 import os
 from typing import Any, Dict, List, Optional, TypedDict
 
-from colorama import init
-
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
@@ -17,8 +15,6 @@ from src.func_console import green, red
 from src.shared import init_db, init_readonly_db
 from src.utils.date.timeAgo import time_ago
 from src.utils.file.FileLockHelper import FileLockHelper
-
-init(autoreset=True, strip=False, convert=False)
 
 current_filename = os.path.basename(__file__)
 locker: Optional[FileLockHelper] = None
