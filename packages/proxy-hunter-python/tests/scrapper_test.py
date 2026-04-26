@@ -24,7 +24,8 @@ def modular():
         help="Increase output verbosity",
         action="store_true",
     )
-    args = parser.parse_args()
+    # Tests run in diverse environments; ignore unknown args
+    args = parser.parse_known_args()[0]
 
     scrape(args.proxy, args.output, args.verbose)
 

@@ -21,7 +21,8 @@ def run_proxy_checker(max_proxies: Optional[int] = None):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Proxy Checker")
     parser.add_argument("--max", type=int, help="Maximum number of proxies to check")
-    args = parser.parse_args()
+    # Allow unknown args so external wrappers can pass extra flags
+    args = parser.parse_known_args()[0]
     if args.max:
         max_proxies = args.max
     else:

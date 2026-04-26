@@ -168,7 +168,8 @@ def main():
         help="Use a random user agent per proxy",
         action="store_true",
     )
-    args = parser.parse_args()
+    # Allow unknown args so external wrappers can pass extra flags
+    args = parser.parse_known_args()[0]
     check(
         file=args.list,
         timeout=args.timeout,

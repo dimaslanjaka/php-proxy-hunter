@@ -34,13 +34,13 @@ def _probe_proxy(proxy_entry: Dict[str, Any]) -> Dict[str, Any]:
         return result
 
     checks = {
-        proto: check_proxy(proxy=proxy_str, proxy_type=proto, endpoint=PROTOCOL_ENDPOINT)
+        proto: check_proxy(
+            proxy=proxy_str, proxy_type=proto, endpoint=PROTOCOL_ENDPOINT
+        )
         for proto in PROTOCOLS
     }
     working_protocols = [
-        getattr(check, "type", proto)
-        for proto, check in checks.items()
-        if check.result
+        getattr(check, "type", proto) for proto, check in checks.items() if check.result
     ]
     result["port_open"] = True
     result["working_protocols"] = working_protocols
@@ -52,12 +52,15 @@ def _delete_proxies(db: ProxyDB, proxies_to_delete: List[str]) -> int:
     if not unique_proxies:
         return 0
 
-    placeholders = ", ".join(["%s" if db.driver == "mysql" else "?"] * len(unique_proxies))
+    placeholders = ", ".join(
+        ["%s" if db.driver == "mysql" else "?"] * len(unique_proxies)
+    )
     db.get_db().execute_query(
         f"DELETE FROM proxies WHERE proxy IN ({placeholders})",
         unique_proxies,
     )
     return len(unique_proxies)
+
 
 def main() -> int:
     parser = argparse.ArgumentParser()
@@ -87,7 +90,8 @@ def main() -> int:
         default=None,
         help="Limit number of duplicate IPs to fetch (overrides default batch)",
     )
-    args = parser.parse_args()
+    # Allow unknown args so external wrappers can pass extra flags
+    args = parser.parse_known_args()[0]
 
     lock_name = args.uid if args.uid else os.path.basename(__file__)
     locker = FileLockHelper(get_relative_path(f"tmp/locks/{lock_name}.lock"))
@@ -102,8 +106,12 @@ def main() -> int:
             db = init_readonly_db()
         elif args.production:
             db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
-            db_host = os.getenv("MYSQL_HOST_PRODUCTION", os.getenv("MYSQL_HOST", "localhost"))
-            db_user = os.getenv("MYSQL_USER_PRODUCTION", os.getenv("MYSQL_USER", "root"))
+            db_host = os.getenv(
+                "MYSQL_HOST_PRODUCTION", os.getenv("MYSQL_HOST", "localhost")
+            )
+            db_user = os.getenv(
+                "MYSQL_USER_PRODUCTION", os.getenv("MYSQL_USER", "root")
+            )
             db_pass = os.getenv("MYSQL_PASS_PRODUCTION", os.getenv("MYSQL_PASS", ""))
             db = ProxyDB(
                 start=True,
@@ -185,7 +193,9 @@ def main() -> int:
             ORDER BY {random_function}
             LIMIT {placeholder}
             """
-            proxies_with_ip = db.db.execute_query_fetch(sql_proxies_with_ip, (ip, batch))
+            proxies_with_ip = db.db.execute_query_fetch(
+                sql_proxies_with_ip, (ip, batch)
+            )
             if not isinstance(proxies_with_ip, list) or not proxies_with_ip:
                 print(yellow(f"    No proxies to process for IP {ip}."))
                 continue
@@ -199,8 +209,12 @@ def main() -> int:
                 proxy_by_value[proxy_value] = proxy_row
                 ordered_proxy_values.append(proxy_value)
 
-            pending_proxy_values, already_checked = marker.filter_unseen(ordered_proxy_values)
-            proxies_to_process = [proxy_by_value[value] for value in pending_proxy_values]
+            pending_proxy_values, already_checked = marker.filter_unseen(
+                ordered_proxy_values
+            )
+            proxies_to_process = [
+                proxy_by_value[value] for value in pending_proxy_values
+            ]
             if already_checked:
                 print(
                     yellow(
@@ -270,7 +284,11 @@ def main() -> int:
 
             if len(proxies_to_delete) == len(proxies_to_process) and proxies_to_delete:
                 proxies_to_delete.pop()
-                print(yellow("    All proxies had closed ports; kept one to avoid deleting all."))
+                print(
+                    yellow(
+                        "    All proxies had closed ports; kept one to avoid deleting all."
+                    )
+                )
 
             if proxies_to_delete:
                 print(

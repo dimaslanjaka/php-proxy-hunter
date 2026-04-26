@@ -14,6 +14,7 @@ Options:
   --days N      Files older than N days will be removed (default: 2)
   --dry-run     Print files that would be removed without deleting
 """
+
 from __future__ import annotations
 
 import argparse
@@ -76,7 +77,8 @@ def parse_args() -> argparse.Namespace:
         action="store_true",
         help="Show files to be deleted without removing them",
     )
-    return p.parse_args()
+    # Allow unknown args so external wrappers can pass extra flags
+    return p.parse_known_args()[0]
 
 
 def main() -> int:

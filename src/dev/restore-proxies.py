@@ -161,7 +161,8 @@ def main():
     )
     # verbose logging is always enabled
 
-    args = parser.parse_args()
+    # Allow unknown args so external wrappers can pass extra flags
+    args = parser.parse_known_args()[0]
 
     local_dbhost = os.getenv("MYSQL_HOST", "localhost")
     production_dbhost = os.getenv("MYSQL_HOST_PRODUCTION")

@@ -267,7 +267,8 @@ def main():
     )
     parser.add_argument("--install", action="store_true", help="Install packages")
 
-    args = parser.parse_args()
+    # Allow unknown args so external wrappers can pass extra flags
+    args = parser.parse_known_args()[0]
 
     if args.generate and not args.install:
         generate_requirements()

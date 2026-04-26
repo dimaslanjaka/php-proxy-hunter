@@ -96,7 +96,8 @@ def main():
         default=get_relative_path("backups/proxies"),
     )
 
-    args = parser.parse_args()
+    # Allow unknown args so external wrappers can pass extra flags
+    args = parser.parse_known_args()[0]
 
     proxy_db = init_db(args.db_type)
     if not proxy_db.db:

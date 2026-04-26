@@ -12,7 +12,6 @@ import argparse
 import math
 from src.func import get_relative_path
 
-
 CHUNK = 4 * 1024 * 1024
 
 
@@ -142,7 +141,8 @@ def main() -> int:
         default=None,
         help="Remote file path to use instead of creating one",
     )
-    args = parser.parse_args()
+    # Allow unknown args so external wrappers can pass extra flags
+    args = parser.parse_known_args()[0]
     return run_speed_test(size_mb=args.size_mb, remote_file=args.remote_file)
 
 

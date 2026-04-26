@@ -288,7 +288,8 @@ if __name__ == "__main__":
         "--non-ssl", action="store_true", help="Use only non-SSL working proxies"
     )
     parser.add_argument("--uid", type=str, help="Override lock filename (unique id)")
-    args = parser.parse_args()
+    # Allow unknown args so external wrappers can pass extra flags
+    args = parser.parse_known_args()[0]
 
     # Apply optional UID override for the lock filename
     current_filename = args.uid if args.uid else os.path.basename(__file__)

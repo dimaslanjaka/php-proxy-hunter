@@ -39,7 +39,9 @@ def parse_args(
         default=default_concurrency,
         help="Number of workers to run in parallel",
     )
-    return parser.parse_args()
+    # Allow unknown args so callers can pass extra flags without failing
+    # (useful when scripts are invoked with framework/container args).
+    return parser.parse_known_args()[0]
 
 
 def normalize_proxy_str(proxy_str: str) -> Optional[Tuple[str, int]]:

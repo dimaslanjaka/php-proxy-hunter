@@ -232,7 +232,8 @@ def main():
         default=3,
         help="Max concurrent proxyCollector processes allowed (exit early when reached)",
     )
-    args = parser.parse_args()
+    # Allow unknown args so external wrappers can pass extra flags
+    args = parser.parse_known_args()[0]
 
     # Use a single global declaration for the per-file lock variable
     global _global_file_lock

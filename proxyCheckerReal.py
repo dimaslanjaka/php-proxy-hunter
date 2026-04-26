@@ -430,7 +430,8 @@ def main_real_proxy_checker(limit: int = 100):
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Proxy Tool")
     parser.add_argument("--max", type=int, help="Maximum number of proxies to check")
-    args = parser.parse_args()
+    # Allow unknown args so external wrappers can pass extra flags
+    args = parser.parse_known_args()[0]
     limit = 100
     if args.max:
         limit = args.max

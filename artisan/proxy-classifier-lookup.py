@@ -45,7 +45,8 @@ def main():
         default=1000,
         help="Limit number of proxies to process when looking up classification",
     )
-    args = parser.parse_args()
+    # Allow unknown args so external wrappers can pass extra flags
+    args = parser.parse_known_args()[0]
     # Apply optional UID override for the lock filename
     current_lock_name = (
         args.uid if getattr(args, "uid", None) else os.path.basename(__file__)
