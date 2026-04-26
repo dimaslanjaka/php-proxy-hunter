@@ -21,7 +21,7 @@ if (!$isCli) {
   exit('web server access disallowed');
 }
 
-$lockFilePath = tmp() . '/proxies-all.lock';
+$lockFilePath = tmp('proxies-all.lock');
 $statusFile   = __DIR__ . '/../status.txt';
 
 $isAdmin          = false;
@@ -174,7 +174,7 @@ iterateBigFilesLineByLine($files, 500, function ($line) use ($proxy_db, $str_lim
   }
 });
 
-$indicator_all           = tmp() . '/proxies-all-should-iterating-database.txt';
+$indicator_all           = tmp('proxies-all-should-iterating-database.txt');
 $indicator_all_not_found = !file_exists($indicator_all);
 $indicator_all_expired   = isFileCreatedMoreThanHours($indicator_all, 24);
 $can_do_iterate          = $indicator_all_not_found || $indicator_all_expired;

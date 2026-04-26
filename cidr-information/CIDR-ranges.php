@@ -19,7 +19,7 @@ ini_set('memory_limit', '1024M');
 // CIDR source
 $filePath = __DIR__ . '/CIDR.txt';
 
-$outputDir = tmp() . '/ips';
+$outputDir = tmp('ips');
 
 // Read lines of the file into an array
 $lines = file($filePath, FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES);

@@ -50,15 +50,15 @@ if (empty($filename)) {
   $filename = md5($file . json_encode($parseQuery));
 }
 
-$runner      = unixPath(tmp() . "/runners/$filename" . ($isWin ? '.bat' : '.sh'));
-$output_file = unixPath(tmp() . "/logs/$filename.txt");
-$pid_file    = unixPath(tmp() . "/runners/$filename.pid");
+$runner      = unixPath(tmp('runners', $filename . ($isWin ? '.bat' : '.sh')));
+$output_file = unixPath(tmp('logs', $filename . '.txt'));
+$pid_file    = unixPath(tmp('runners', $filename . '.pid'));
 
 // Truncate output file
 truncateFile($output_file);
 
 // Disable directory listing
-write_file(tmp() . '/logs/index.html', '');
+write_file(tmp('logs', 'index.html'), '');
 
 // Construct the command
 $cmd = "$venvCall && python $file $commandArgs > $output_file 2>&1 & echo $! > $pid_file";

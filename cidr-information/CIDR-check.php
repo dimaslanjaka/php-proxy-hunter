@@ -20,7 +20,7 @@ $max              = 500; // default max proxies to be checked
 $maxExecutionTime = 2 * 60; // 2 mins
 $isAdmin          = false;
 $basename         = basename(__FILE__, '.php');
-$lockFilePath     = tmp() . "/runners/$basename.lock";
+$lockFilePath     = tmp('runners', $basename . '.lock');
 $statusFile       = __DIR__ . '/../status.txt';
 $short_opts       = 'p:m::';
 $long_opts        = [
@@ -48,7 +48,7 @@ if (!empty($options['admin']) && $options['admin'] !== 'false') {
   set_time_limit(0);
 }
 
-$folder = tmp() . '/ips-ports';
+$folder = tmp('ips-ports');
 if (!empty($options['path']) && file_exists($options['path'])) {
   $filePath = $options['path'];
 } else {
@@ -91,8 +91,7 @@ if (file_exists($lockFilePath) && !is_debug() && !$isAdmin) {
   write_file($statusFile, 'scan generated IP:PORT');
 }
 
-function exitProcess()
-{
+function exitProcess() {
   global $lockFilePath, $statusFile;
   if (file_exists($lockFilePath)) {
     unlink($lockFilePath);

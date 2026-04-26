@@ -100,13 +100,13 @@ if (file_exists($output_file)) {
 }
 setPermissions($output_file, true);
 truncateFile($output_file);
-$pid_file = tmp() . '/runners/' . basename($file, '.php') . '.pid';
+$pid_file = tmp('runners', basename($file, '.php') . '.pid');
 if (file_exists($pid_file)) {
   $pid_file = realpath($pid_file);
 }
 
 if (!$isCli) {
-  $main_lock_file = tmp() . '/runners/' . sanitizeFilename(Server::getRequestIP()) . '.lock';
+  $main_lock_file = tmp('runners', sanitizeFilename(Server::getRequestIP()) . '.lock');
   $lock_files[]   = $main_lock_file;
 
   if (file_exists($main_lock_file)) {
@@ -128,7 +128,7 @@ if (!empty($ips)) {
 }
 
 // validate lock files
-$lock_file    = tmp() . '/runners/' . basename($file, '.php') . '.lock';
+$lock_file    = tmp('runners', basename($file, '.php') . '.lock');
 $lock_files[] = $lock_file;
 if (file_exists($lock_file) && !is_debug()) {
   exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
@@ -139,7 +139,7 @@ echo $cmd . "\n\n";
 if (!$isCli) {
   $cmd = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
 
-  $runner = tmp() . '/runners/' . basename(__FILE__, '.php') . ($isWin ? '.bat' : '.sh');
+  $runner = tmp('runners', basename(__FILE__, '.php') . ($isWin ? '.bat' : '.sh'));
   write_file($runner, $cmd);
   write_file($lock_file, '');
   runBashOrBatch($runner);

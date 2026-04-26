@@ -35,7 +35,7 @@ if (!$isCli) {
     $id .= Server::useragent();
   }
   $user_id     = getUserId();
-  $webLockFile = tmp() . "/runners/$user_id-parallel-web-" . sanitizeFilename($id) . '.lock';
+  $webLockFile = tmp('runners', $user_id . '-parallel-web-' . sanitizeFilename($id) . '.lock');
   if (file_exists($webLockFile) && !$isAdmin) {
     exit(date(DATE_RFC3339) . ' another process still running (web lock file is locked) ' . basename(__FILE__, '.php') . PHP_EOL);
   } else {
@@ -76,8 +76,8 @@ if (!$isCli) {
   $cmd                = 'php ' . escapeshellarg($file);
 
   $user_id     = getUserId();
-  $runner      = tmp() . "/runners/parallel-cli-$user_id-$id" . ($isWin ? '.bat' : '.sh');
-  $cliLockFile = tmp() . "/runners/parallel-cli-$user_id-$id.lock";
+  $runner      = tmp('runners', 'parallel-cli-' . $user_id . '-' . $id . ($isWin ? '.bat' : '.sh'));
+  $cliLockFile = tmp('runners', 'parallel-cli-' . $user_id . '-' . $id . '.lock');
   $uid         = getUserId();
   $cmd .= ' --userId=' . escapeshellarg($uid);
   $cmd .= ' --lockFile=' . escapeshellarg(unixPath($cliLockFile));

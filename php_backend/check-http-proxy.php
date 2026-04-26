@@ -49,8 +49,8 @@ if (!$isCli) {
     // Generate hash filename using current script and user ID
     $hashFilename = "$currentScriptFilename/$userId";
     // Lock file path for web server execution
-    $webServerLock  = tmp() . "/locks/$hashFilename.lock";
-    $output_file    = tmp() . "/logs/$hashFilename.txt";
+    $webServerLock  = tmp('locks', $hashFilename . '.lock');
+    $output_file    = tmp('logs', $hashFilename . '.txt');
     $embedOutputUrl = getFullUrl($output_file);
 
     // Stop if lock file exists AND is not stale (less than 2 minutes old)
@@ -94,7 +94,7 @@ if (!$isCli) {
     $cmd = sprintf('%s > %s 2>&1', $cmd, escapeshellarg($output_file));
 
     // Create a runner script for the command
-    $runner = tmp() . "/runners/$hashFilename" . ($isWin ? '.bat' : '.sh');
+    $runner = tmp('runners', $hashFilename . ($isWin ? '.bat' : '.sh'));
     write_file($runner, $cmd);
 
     // Execute the runner script in background
@@ -178,11 +178,11 @@ if (!empty($options['lockFile'])) {
   $lockFilePath = $options['lockFile'];
 } else {
   // CLI mode without web request - create lock file path
-  $lockFilePath = unixPath(tmp() . '/locks/' . $hashFilename . '.lock');
+  $lockFilePath = unixPath(tmp('locks', $hashFilename . '.lock'));
 }
 
 // Define lock folder and file paths
-$lockFolder = unixPath(tmp() . '/locks/');
+$lockFolder = unixPath(tmp('locks'));
 $lockFiles  = glob($lockFolder . "/$currentScriptFilename*.lock");
 
 // Limit simultaneous processes to 2
@@ -222,8 +222,7 @@ if ($fileLock->lock()) {
  * Check if the proxy is working (HTTP only)
  * @param string $proxy proxy string or JSON array
  */
-function check($proxy)
-{
+function check($proxy) {
   global $proxy_db, $hashFilename, $isAdmin, $isCli;
 
   // Extract proxies from string or array and shuffle

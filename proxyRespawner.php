@@ -51,7 +51,7 @@ if (!$isCli) {
 } else {
   $id = 'CLI';
 }
-$lockFilePath = tmp() . '/runners/respawner-' . sanitizeFilename($id) . '.lock';
+$lockFilePath = tmp('runners', 'respawner-' . sanitizeFilename($id) . '.lock');
 $statusFile   = __DIR__ . '/status.txt';
 
 if (!$isCli) {
@@ -144,9 +144,9 @@ if ($isCli) {
     $id = Server::useragent();
   }
   // lock file same as scanPorts.php
-  $webLockFile = tmp() . '/runners/respawner-web-' . sanitizeFilename($id) . '.lock';
+  $webLockFile = tmp('runners', 'respawner-web-' . sanitizeFilename($id) . '.lock');
 
-  $runner = tmp() . '/runners/' . basename($webLockFile, '.lock') . ($isWin ? '.bat' : '.sh');
+  $runner = tmp('runners', basename($webLockFile, '.lock') . ($isWin ? '.bat' : '.sh'));
   $uid    = getUserId();
   $cmd .= ' --userId=' . escapeshellarg($uid);
   $cmd .= ' --lockFile=' . escapeshellarg(unixPath($webLockFile));

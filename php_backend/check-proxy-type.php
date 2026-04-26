@@ -48,11 +48,11 @@ if (function_exists('set_time_limit')) {
 if (!$isCli) {
   if (isset($request['proxy'])) {
     $hashFilename   = "$currentScriptFilename/$userId";
-    $output_file    = tmp() . "/logs/$hashFilename.txt";
+    $output_file    = tmp('logs', $hashFilename . '.txt');
     $embedOutputUrl = getFullUrl($output_file);
 
     // Define web server lock file path
-    $webServerLock = tmp() . "/locks/$hashFilename.lock";
+    $webServerLock = tmp('locks', $hashFilename . '.lock');
 
     // Stop if lock file exists AND is not stale (less than 2 minutes old)
     if (file_exists($webServerLock)) {
@@ -102,7 +102,7 @@ if (!$isCli) {
     $cmd = sprintf('%s > %s 2>&1', $cmd, escapeshellarg($output_file));
 
     // Create a runner script for the command
-    $runner = tmp() . "/runners/$hashFilename" . ($isWin ? '.bat' : '.sh');
+    $runner = tmp('runners', $hashFilename . ($isWin ? '.bat' : '.sh'));
     // Save the command into the runner script
     write_file($runner, $cmd);
 
@@ -190,10 +190,10 @@ if (!empty($options['lockFile'])) {
   $lockFilePath = $options['lockFile'];
 } else {
   // CLI mode without web request - create lock file path
-  $lockFilePath = unixPath(tmp() . '/locks/' . $hashFilename . '.lock');
+  $lockFilePath = unixPath(tmp('locks', $hashFilename . '.lock'));
 }
 
-$lockFolder = unixPath(tmp() . '/locks/');
+$lockFolder = unixPath(tmp('locks'));
 $lockFiles  = glob($lockFolder . "/$currentScriptFilename*.lock");
 // Exit if too many lock files exist
 if (count($lockFiles) > 2) {

@@ -6,17 +6,15 @@ require_once __DIR__ . '/../../../src/utils/process/runBashOrBatch.php';
 
 class RunBashOrBatchTest extends TestCase
 {
-  public function tearDown(): void
-  {
+  public function tearDown(): void {
     // clean up both tmp/logs and repo-level logs (tests may write to either)
-    @unlink(tmp() . '/logs/sample-error-status.txt');
-    @unlink(tmp() . '/logs/sample-error.txt');
+    @unlink(tmp('logs', 'sample-error-status.txt'));
+    @unlink(tmp('logs', 'sample-error.txt'));
     @unlink(__DIR__ . '/../../../logs/sample-error-status.txt');
-    @unlink(tmp() . '/logs/sample-error-runBashOrBatch.txt');
+    @unlink(tmp('logs', 'sample-error-runBashOrBatch.txt'));
   }
 
-  public function testPhpScriptErrorIsCaptured()
-  {
+  public function testPhpScriptErrorIsCaptured() {
     $script = __DIR__ . '/sample-error.php';
     // Create a runner script that invokes PHP on the sample script, then run it
     $runner = createBatchOrBashRunner('sample-error', 'php ' . escapeshellarg($script));

@@ -41,7 +41,7 @@ function getPublicIP($cache = false, $cacheTimeout = 300, $proxyInfo = [], $nonS
     ];
   }
 
-  $cacheDir = tmp() . '/runners/public-ip';
+  $cacheDir = tmp('runners', 'public-ip');
   if (!is_dir($cacheDir)) {
     @mkdir($cacheDir, 0777, true);
   }
@@ -82,7 +82,7 @@ function getPublicIP($cache = false, $cacheTimeout = 300, $proxyInfo = [], $nonS
         $proxyInfo['type'] = $type;
         $ch                = buildCurl(
           $proxyInfo['proxy'] ?? null,
-          $proxyInfo['type'] ?? null,
+          $proxyInfo['type']  ?? null,
           $url,
           ['User-Agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:133.0) Gecko/20100101 Firefox/133.0'],
           $proxyInfo['username'] ?? null,

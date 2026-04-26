@@ -25,9 +25,9 @@ if (!$isCli) {
   Server::allowCors(true);
 
   // Generate hash filename and paths
-  $output_file    = tmp() . "/logs/$hashFilename.txt";
+  $output_file    = tmp('logs', $hashFilename . '.txt');
   $embedOutputUrl = getFullUrl($output_file);
-  $webServerLock  = tmp() . "/locks/$hashFilename.lock";
+  $webServerLock  = tmp('locks', $hashFilename . '.lock');
 
   // Check if another process is running
   if (file_exists($webServerLock)) {
@@ -64,7 +64,7 @@ if (!$isCli) {
   $cmd = sprintf('%s > %s 2>&1', $cmd, escapeshellarg($output_file));
 
   // Create a runner script for the command
-  $runner = tmp() . "/runners/$hashFilename" . ($isWin ? '.bat' : '.sh');
+  $runner = tmp('runners', $hashFilename . ($isWin ? '.bat' : '.sh'));
   // Save the command into the runner script
   write_file($runner, $cmd);
 

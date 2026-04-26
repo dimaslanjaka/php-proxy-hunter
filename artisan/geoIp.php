@@ -22,7 +22,7 @@ if (!empty($options['userId'])) {
 
 $uid          = getUserId();
 $config       = getConfig($uid);
-$lockFilePath = tmp() . "/locks/geoIp-$uid.lock";
+$lockFilePath = tmp('locks', "geoIp-$uid.lock");
 $statusFile   = get_project_root('status.txt');
 
 /* DB */

@@ -40,7 +40,7 @@ if (isset($request['proxy'])) {
 }
 
 // validate lock files
-$lock_file    = tmp() . '/locks/geoIp' . $uid . '.lock';
+$lock_file    = tmp('locks', 'geoIp' . $uid . '.lock');
 $lock_files[] = $lock_file;
 if (file_exists($lock_file) && !$isAdmin) {
   exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
@@ -51,7 +51,7 @@ echo $cmd . "\n\n";
 // Run command in background
 
 // prepare runner/output dirs and runner file
-$runner = tmp() . '/runners/geoIp' . $uid . ($isWin ? '.bat' : '.sh');
+$runner = tmp('runners', 'geoIp' . $uid . ($isWin ? '.bat' : '.sh'));
 write_file($output_file, '[' . date('Y-m-d H:i:s') . "] Starting geoIp background process...\n");
 write_file($pid_file, '[' . date('Y-m-d H:i:s') . "] PID log for geoIp background process:\n");
 ensure_dir(dirname($lock_file));

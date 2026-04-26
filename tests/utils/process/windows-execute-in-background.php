@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../../../func.php';
 
-$output_file = tmp() . '/logs/sample-output-method-2.txt';
+$output_file = tmp('logs', 'sample-output-method-2.txt');
 truncateFile($output_file);
 
 echo "Output file: $output_file\n";

@@ -73,7 +73,7 @@ function checkProxyInParallel(array $proxies, $custom_endpoint = null, $print_he
         break;
       }
     }
-    $run_file = tmp() . '/runners/' . basename(__FILE__, '.php') . '-' . sanitizeFilename($item[0]->proxy) . '.txt';
+    $run_file = tmp('runners', basename(__FILE__, '.php') . '-' . sanitizeFilename($item[0]->proxy) . '.txt');
     // schedule release current proxy thread lock
     Scheduler::register(function () use ($run_file) {
       delete_path($run_file);
@@ -258,7 +258,7 @@ function schedule_remover() {
   if (!empty($str_to_remove)) {
     // remove already indexed proxies
     Scheduler::register(function () use ($str_to_remove) {
-      $files = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
+      $files  = [__DIR__ . '/dead.txt', __DIR__ . '/proxies.txt', __DIR__ . '/proxies-all.txt'];
       $assets = array_filter(getFilesByExtension(__DIR__ . '/assets/proxies'), function ($fn) {
         return strpos($fn, 'added-') !== false;
       });
@@ -284,7 +284,7 @@ function schedule_remover() {
 }
 
 function cleanUp() {
-  $directory = tmp() . '/runners/';
+  $directory = tmp('runners');
 
   // Get the current time
   $current_time = time();

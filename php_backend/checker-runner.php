@@ -8,9 +8,8 @@ require_once __DIR__ . '/shared.php';
  * Extracted from check-http-proxy.php and check-https-proxy.php to
  * reduce duplication for logging, proxy loading and simple runner utilities.
  */
-function get_log_file_shared(string $hashFilename): string
-{
-  $_logFile = tmp() . "/logs/{$hashFilename}.txt";
+function get_log_file_shared(string $hashFilename): string {
+  $_logFile = tmp('logs', $hashFilename . '.txt');
   $dir      = dirname($_logFile);
   if (!is_dir($dir)) {
     @mkdir($dir, 0777, true);
@@ -22,8 +21,7 @@ function get_log_file_shared(string $hashFilename): string
   return $_logFile;
 }
 
-function _log_shared(string $hashFilename, ...$args): void
-{
+function _log_shared(string $hashFilename, ...$args): void {
   global $isCli;
   $_logFile = get_log_file_shared($hashFilename);
   $message  = join(' ', $args) . PHP_EOL;
@@ -42,8 +40,7 @@ function _log_shared(string $hashFilename, ...$args): void
    * Mode is a string 'http' or 'https' to let caller apply simple filtering logic.
    * Returns raw content suitable to pass to the script's check() function.
    */
-function load_proxies_for_mode($file, $proxy, $mode, $proxy_db)
-{
+function load_proxies_for_mode($file, $proxy, $mode, $proxy_db) {
   if (!$file && !$proxy) {
     // Merge working and untested proxies
     $proxiesDb = array_merge($proxy_db->getWorkingProxies(100), $proxy_db->getUntestedProxies(100));
@@ -89,8 +86,7 @@ function load_proxies_for_mode($file, $proxy, $mode, $proxy_db)
  * @param int $timeout The timeout in seconds for curl requests (default: 5)
  * @return array An associative array of protocol types => boolean (true if working, false otherwise)
  */
-function reTestProxy(\PhpProxyHunter\Proxy $checkerOptions, $timeout = 5)
-{
+function reTestProxy(\PhpProxyHunter\Proxy $checkerOptions, $timeout = 5) {
   // Fixed list of proxy types to test
   $proxyTypes = ['http', 'socks4', 'socks5', 'socks4a', 'socks5h'];
   $proxy      = $checkerOptions->proxy;

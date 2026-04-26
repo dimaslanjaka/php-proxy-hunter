@@ -24,8 +24,8 @@ if (!$isCli) {
     $userId                = getUserId();
     $currentScriptFilename = basename(__FILE__, '.php');
     $hashFilename          = "$currentScriptFilename/$userId";
-    $webServerLock         = tmp() . "/locks/$hashFilename.lock";
-    $output_file           = tmp() . "/logs/$hashFilename.txt";
+    $webServerLock         = tmp('locks', $hashFilename . '.lock');
+    $output_file           = tmp('logs', $hashFilename . '.txt');
     $embedOutputUrl        = getFullUrl($output_file);
 
     // If lock exists and not stale (<2 minutes), reject
@@ -59,7 +59,7 @@ if (!$isCli) {
     $cmd = trim($cmd);
     $cmd = sprintf('%s > %s 2>&1', $cmd, escapeshellarg($output_file));
 
-    $runner = tmp() . "/runners/$hashFilename" . ($isWin ? '.bat' : '.sh');
+    $runner = tmp('runners', $hashFilename . ($isWin ? '.bat' : '.sh'));
     write_file($runner, $cmd);
     runBashOrBatch($runner);
 
@@ -128,7 +128,7 @@ if ($isCli) {
 $hashFilename = $hashFilename ?? (basename(__FILE__, '.php') . '/manual');
 
 // Lock management and file lock helper
-$lockFolder = unixPath(tmp() . '/locks/');
+$lockFolder = unixPath(tmp('locks'));
 $lockFiles  = glob($lockFolder . '/' . basename(__FILE__, '.php') . '*.lock');
 if (count($lockFiles) > 2) {
   _log_shared($hashFilename ?? 'CLI', 'Anonymity checker process limit reached. Terminating process.');
@@ -138,7 +138,7 @@ if (count($lockFiles) > 2) {
 use PhpProxyHunter\FileLockHelper;
 
 $runAllowed   = false;
-$lockFilePath = isset($options['lockFile']) ? $options['lockFile'] : unixPath(tmp() . '/locks/' . $hashFilename . '.lock');
+$lockFilePath = isset($options['lockFile']) ? $options['lockFile'] : unixPath(tmp('locks', $hashFilename . '.lock'));
 $fileLock     = new FileLockHelper($lockFilePath);
 if ($fileLock->lock()) {
   $runAllowed = true;

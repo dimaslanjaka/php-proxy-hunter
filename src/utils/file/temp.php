@@ -12,7 +12,11 @@
  *   tmp('cache', 'session'); // => /path/to/project/tmp/cache/session
  *
  * @param string ...$args Optional path segments to append to the tmp directory.
- * @return string|false Absolute path to the resulting temporary directory on success, or false on failure.
+ *                      If the last segment looks like a filename (has an extension),
+ *                      the function will create the containing directory but will
+ *                      not create or chmod the file itself.
+ * @return string|false Absolute path to the resulting temporary directory or file on
+ *                      success, or false on failure.
  *
  * Failure reasons:
  * - getProjectRoot() throws or cannot be resolved.
@@ -20,31 +24,48 @@
  * - Failed to set permissions (chmod failure).
  */
 function tmp(...$args) {
-  $projectRoot = getProjectRoot();
-
-  // Base directory for temp folder
-  $tmpDir = $projectRoot . '/tmp';
-
-  // Append additional directories from $args
-  foreach ($args as $arg) {
-    $tmpDir .= '/' . ltrim($arg, '/');  // Ensure no leading slashes
-  }
-
-  // Create temp folder if it doesn't exist
-  if (!file_exists($tmpDir)) {
-    if (!mkdir($tmpDir, 0755, true)) {
-      // Log an error and return false if folder creation fails
-      error_log("Failed to create directory: $tmpDir");
-      return false;
-    }
-  }
-
-  // Set permissions for the directory, avoid 0777
-  if (!chmod($tmpDir, 0755)) {
-    // Log an error if setting permissions fails
-    error_log("Failed to set permissions for directory: $tmpDir");
+  // Prefer new helper name if available, but fall back for backwards compatibility
+  if (function_exists('get_project_root')) {
+    $projectRoot = get_project_root();
+  } elseif (function_exists('getProjectRoot')) {
+    $projectRoot = getProjectRoot();
+  } else {
+    error_log('No project root helper available (get_project_root/getProjectRoot)');
     return false;
   }
 
-  return $tmpDir;
+  $projectRoot = rtrim((string) $projectRoot, "\/\\");
+  $baseTmp     = $projectRoot . DIRECTORY_SEPARATOR . 'tmp';
+
+  // Normalize and filter args
+  $parts = array_values(array_filter(array_map(function ($p) {
+    return $p === null ? '' : trim((string) $p, "\/\\");
+  }, $args), fn ($p) => $p !== ''));
+
+  // Detect file
+  $last   = $parts ? end($parts) : null;
+  $isFile = $last && pathinfo($last, PATHINFO_EXTENSION) !== '';
+
+  // Build directory path only
+  $dirParts = $isFile ? array_slice($parts, 0, -1) : $parts;
+  $dirPath  = $baseTmp . ($dirParts ? DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $dirParts) : '');
+
+  // Directory must exist
+  if (!is_dir($dirPath)) {
+    error_log("Directory does not exist: $dirPath");
+    return false;
+  }
+
+  // 🚀 EARLY RETURN FOR FILE — no chmod executed at all
+  if ($isFile) {
+    return $dirPath . DIRECTORY_SEPARATOR . $last;
+  }
+
+  // Only directories reach here → safe to chmod
+  if (!@chmod($dirPath, 0755)) {
+    error_log("Failed to set permissions for directory: $dirPath");
+    return false;
+  }
+
+  return $dirPath;
 }

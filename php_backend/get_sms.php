@@ -12,13 +12,12 @@ header('Cache-Control: no-store, no-cache, must-revalidate, post-check=0, pre-ch
 header('Pragma: no-cache');
 
 // === Helpers ===
-function json_pretty($data): string
-{
+function json_pretty($data): string {
   return json_encode($data, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
 }
 
 // === Define common log paths ===
-$tmpDir     = tmp() . '/sms';
+$tmpDir     = tmp('sms');
 $logFile    = "{$tmpDir}/get_sms.txt";
 $otpLogFile = "{$tmpDir}/get_sms_otp.txt";
 
@@ -58,6 +57,6 @@ $hash = getUserId();
 $base = "{$tmpDir}/{$hash}";
 
 write_file("{$base}.txt", json_pretty($request) . PHP_EOL);
-write_file("{$base}_post.txt", json_pretty($_POST)   . PHP_EOL);
-write_file("{$base}_get.txt", json_pretty($_GET)    . PHP_EOL);
+write_file("{$base}_post.txt", json_pretty($_POST) . PHP_EOL);
+write_file("{$base}_get.txt", json_pretty($_GET) . PHP_EOL);
 write_file("{$base}_request.txt", json_pretty($_REQUEST) . PHP_EOL);

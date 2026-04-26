@@ -17,7 +17,7 @@ if (!empty($parseData['ip'])) {
 
 foreach ($ips as $ip) {
   if (isValidIp($ip)) {
-    $outputPath = tmp() . '/ips-ports/' . $ip . '.txt';
+    $outputPath = tmp('ips-ports', $ip . '.txt');
     // skip generate IP:PORT when output file exist
     if (file_exists($outputPath)) {
       continue;

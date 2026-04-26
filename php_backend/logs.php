@@ -20,7 +20,7 @@ if ($perPage < 1 || $perPage > 500) {
 
 $hash = isset($request['hash']) ? $request['hash'] : '';
 if (!empty($hash)) {
-  $logFile = tmp() . '/logs/' . $hash . '.txt';
+  $logFile = tmp('logs', $hash . '.txt');
   // Safely read the requested log file. Avoid PHP warnings if file is missing
   // or not readable and provide distinct messages for each case.
   if (file_exists($logFile)) {
@@ -108,7 +108,7 @@ if ($isAdmin) {
   if (isset($request['cron'])) {
     if (isset($request['file'])) {
       $requestedFile = basename($request['file']);
-      $logPath       = tmp("logs/crontab/{$requestedFile}");
+      $logPath       = tmp('logs', 'crontab', $requestedFile);
       if (file_exists($logPath) && is_readable($logPath)) {
         $logData = read_file($logPath);
         if ($logData !== false) {
@@ -120,7 +120,7 @@ if ($isAdmin) {
         respond_text("Log file not found or not readable: {$requestedFile}", 404);
       }
     }
-    $cronDir  = tmp('logs/crontab');
+    $cronDir  = tmp('logs', 'crontab');
     $cronLogs = [];
     if (is_dir($cronDir)) {
       $files = glob($cronDir . '/*.{txt,log}', GLOB_BRACE);

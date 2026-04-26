@@ -163,7 +163,7 @@ function do_check($filePath, $background = false) {
 function saveRangePorts(string $ip) {
   $explode    = explode(':', $ip);
   $ip         = $explode[0];
-  $outputPath = tmp() . '/ips-ports/' . sanitizeFilename($ip) . '.txt';
+  $outputPath = tmp('ips-ports', sanitizeFilename($ip) . '.txt');
   createParentFolders($outputPath);
 
   // Create generated IP:PORT when output file not found

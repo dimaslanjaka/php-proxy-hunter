@@ -19,7 +19,7 @@ $uid         = getUserId();
 $core_db  = new CoreDB($dbFile, $dbHost, $dbName, $dbUser, $dbPass, false, $dbType);
 $proxy_db = $core_db->proxy_db;
 
-$lockDir      = tmp() . '/locks';
+$lockDir      = tmp('locks');
 $lockFilePath = "$lockDir/proxyWorking.lock";
 $writerLock   = "$lockDir/proxyWorking-writer.lock";
 
@@ -34,7 +34,7 @@ if (!$isCli) {
   $phpBinary = getPhpExecutable(true);
   $script    = escapeshellarg(__FILE__);
 
-  $outputFile = tmp() . "/logs/user-$uid/proxyWorking.log";
+  $outputFile = tmp('logs', "user-$uid/proxyWorking.log");
   $pidFile    = "$projectRoot/tmp/runners/proxyWorking-$uid.pid";
   $runnerFile = "$projectRoot/tmp/runners/proxyWorking" . (PHP_OS_FAMILY === 'Windows' ? '.bat' : '.sh');
 

@@ -676,9 +676,9 @@ function runPythonInBackground($scriptPath, $commandArgs = [], $identifier = nul
   // Determine paths and commands
   $cwd         = __DIR__;
   $filename    = !empty($identifier) ? sanitizeFilename($identifier) : sanitizeFilename(unixPath("$scriptPath/$commandArgsString"));
-  $runner      = unixPath(tmp() . "/runners/$filename" . ($isWin ? '.bat' : '.sh'));
-  $output_file = unixPath(tmp() . "/logs/$filename.txt");
-  $pid_file    = unixPath(tmp() . "/runners/$filename.pid");
+  $runner      = unixPath(tmp('runners', $filename . ($isWin ? '.bat' : '.sh')));
+  $output_file = unixPath(tmp('logs', $filename . '.txt'));
+  $pid_file    = unixPath(tmp('runners', $filename . '.pid'));
 
   // Truncate output file
   truncateFile($output_file);

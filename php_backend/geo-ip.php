@@ -25,7 +25,7 @@ if ($isProxy) {
   $ip = explode(':', $extracted[0]->proxy)[0];
   // Run proxy geo lookup in background to avoid blocking
   $cmd          = 'php ' . escapeshellarg(realpath(__DIR__ . '/../geoIp.php')) . ' --str=' . escapeshellarg($extracted[0]->proxy);
-  $scriptRunner = tmp() . '/runners/geoIp/' . md5($extracted[0]->proxy) . '.sh';
+  $scriptRunner = tmp('runners', 'geoIp', md5($extracted[0]->proxy) . '.sh');
 
   // create a small runner wrapper so the detached process can be started reliably
   $isWind = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';

@@ -107,9 +107,9 @@ if (empty($processes)) {
   // Define lock file paths with comments preserved
   $lockFiles = [
     // php_backend/proxy-checker.php lock file
-    tmp() . '/locks/user-' . $userId . '/php_backend/proxy-checker.lock',
+    tmp('locks', 'user-' . $userId . '/php_backend/proxy-checker.lock'),
     // php_backend/geoIp.php lock file
-    tmp() . '/locks/user-' . $userId . '/geoIp.lock',
+    tmp('locks', 'user-' . $userId . '/geoIp.lock'),
   ];
 
   // Delete each lock file if it exists
