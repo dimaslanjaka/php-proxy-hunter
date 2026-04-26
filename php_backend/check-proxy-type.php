@@ -159,7 +159,7 @@ if (!empty($options['lockFile'])) {
 $file = isset($options['f']) ? $options['f'] : (isset($options['file']) ? $options['file'] : null);
 
 // Generate hash filename from file (avoid passing null to basename)
-$hashFilename = (is_string($file) && $file !== '') ? basename($file, '.txt') : '';
+$hashFilename = (is_string($file) && !empty($file)) ? basename($file, '.txt') : '';
 if ($hashFilename == '.txt' || empty($hashFilename)) {
   // Fallback hash filename
   $hashFilename = "$currentScriptFilename/cli";

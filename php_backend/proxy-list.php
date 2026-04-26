@@ -96,7 +96,7 @@ try {
       $col = $request['columns'][$colIndex]['data'];
       // sanitize column name (allow basic alphanum and underscore)
       $col = preg_replace('/[^a-zA-Z0-9_]/', '', $col);
-      if ($col !== '') {
+      if (!empty($col)) {
         $orderBy = $col . ' ' . $dir;
       }
     }
@@ -115,17 +115,17 @@ try {
   $recordsFiltered = $recordsTotal;
   $whereParts      = [];
   $countParams     = [];
-  if ($search !== '') {
+  if (!empty($search)) {
     $whereParts[] = 'proxy LIKE :search';
     // Escape SQL LIKE wildcard characters to perform literal substring search
     $esc                    = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
     $countParams[':search'] = '%' . $esc . '%';
   }
-  if ($statusFilter !== '') {
+  if (!empty($statusFilter)) {
     $whereParts[]           = 'status = :status';
     $countParams[':status'] = $statusFilter;
   }
-  if ($typeFilter !== '') {
+  if (!empty($typeFilter)) {
     // If filtering for tun2socks, match proxies with tun2socks numeric value > 0.
     if (strtolower($typeFilter) === 'tun2socks') {
       $whereParts[] = '(tun2socks + 0) > 0';
@@ -141,12 +141,12 @@ try {
       $countParams[':type'] = '%' . $typeFilter . '%';
     }
   }
-  if ($countryFilter !== '') {
+  if (!empty($countryFilter)) {
     $whereParts[]            = 'country LIKE :country';
     $escCountry              = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $countryFilter);
     $countParams[':country'] = '%' . $escCountry . '%';
   }
-  if ($cityFilter !== '') {
+  if (!empty($cityFilter)) {
     $whereParts[]         = 'city LIKE :city';
     $escCity              = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $cityFilter);
     $countParams[':city'] = '%' . $escCity . '%';
@@ -163,17 +163,17 @@ try {
   $whereParts = [];
   $where      = '';
   $params     = [];
-  if ($search !== '') {
+  if (!empty($search)) {
     $whereParts[] = 'proxy LIKE :search';
     // Escape SQL LIKE wildcard characters to perform literal substring search
     $esc               = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $search);
     $params[':search'] = '%' . $esc . '%';
   }
-  if ($statusFilter !== '') {
+  if (!empty($statusFilter)) {
     $whereParts[]      = 'status = :status';
     $params[':status'] = $statusFilter;
   }
-  if ($typeFilter !== '') {
+  if (!empty($typeFilter)) {
     if (strtolower($typeFilter) === 'tun2socks') {
       $whereParts[] = '(tun2socks + 0) > 0';
     } elseif (strtolower($typeFilter) === 'ssl') {
@@ -187,12 +187,12 @@ try {
       $params[':type'] = '%' . $typeFilter . '%';
     }
   }
-  if ($countryFilter !== '') {
+  if (!empty($countryFilter)) {
     $whereParts[]       = 'country LIKE :country';
     $escCountry         = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $countryFilter);
     $params[':country'] = '%' . $escCountry . '%';
   }
-  if ($cityFilter !== '') {
+  if (!empty($cityFilter)) {
     $whereParts[]    = 'city LIKE :city';
     $escCity         = str_replace(['\\', '%', '_'], ['\\\\', '\\%', '\\_'], $cityFilter);
     $params[':city'] = '%' . $escCity . '%';
