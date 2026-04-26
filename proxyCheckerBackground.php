@@ -20,8 +20,8 @@ if (!$isCli) {
 
 // Run a long-running process in the background
 $file        = realpath(__DIR__ . '/proxyChecker.php');
-$output_file = __DIR__ . '/proxyChecker.txt';
-$pid_file    = __DIR__ . '/tmp/runners/proxyChecker.pid';
+$output_file = get_project_root('proxyChecker.txt');
+$pid_file    = tmp('runners', 'proxyChecker.pid');
 setMultiPermissions([$file, $output_file, $pid_file], true);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 $cmd   = 'php ' . escapeshellarg($file);
@@ -30,7 +30,7 @@ $uid = getUserId();
 $cmd .= ' --userId=' . escapeshellarg($uid);
 
 // validate lock files
-if (file_exists(__DIR__ . '/proxyChecker.lock') && !is_debug()) {
+if (file_exists(get_project_root('proxyChecker.lock')) && !is_debug()) {
   exit(date(DATE_RFC3339) . ' another process still running' . PHP_EOL);
 }
 
@@ -39,7 +39,7 @@ $cmd = trim($cmd);
 echo $cmd . "\n\n";
 
 $cmd    = sprintf('%s > %s 2>&1 & echo $! >> %s', $cmd, escapeshellarg($output_file), escapeshellarg($pid_file));
-$runner = __DIR__ . '/tmp/runners/proxyChecker' . ($isWin ? '.bat' : '.sh');
+$runner = get_project_root('tmp', 'runners', 'proxyChecker' . ($isWin ? '.bat' : '.sh'));
 
 write_file($runner, $cmd);
 
