@@ -65,12 +65,24 @@ function write_file(string $inputFile, string $data): bool {
   }
 
   // Get the directory name from the file path
+  if (empty($inputFile)) {
+    error_log('write_file called with empty $inputFile');
+    return false;
+  }
   $dir = dirname($inputFile);
 
+  // Validate directory string
+  if (!is_string($dir) || trim($dir) === '') {
+    error_log("write_file: invalid directory for file: {$inputFile}");
+    return false;
+  }
+
   // Create the parent folder if it doesn't exist
-  if (!is_dir($dir)) {
-    if (!mkdir($dir, 0777, true)) {
-      // Failed to create the directory
+  if (!file_exists($dir)) {
+    // Avoid attempting to create directories with invalid paths
+    $ok = @mkdir($dir, 0777, true);
+    if ($ok === false) {
+      error_log("write_file: failed to create directory: {$dir}");
       return false;
     }
   }

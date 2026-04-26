@@ -24,15 +24,7 @@
  * - Failed to set permissions (chmod failure).
  */
 function tmp(...$args) {
-  // Prefer new helper name if available, but fall back for backwards compatibility
-  if (function_exists('get_project_root')) {
-    $projectRoot = get_project_root();
-  } elseif (function_exists('getProjectRoot')) {
-    $projectRoot = getProjectRoot();
-  } else {
-    error_log('No project root helper available (get_project_root/getProjectRoot)');
-    return false;
-  }
+  $projectRoot = get_project_root();
 
   $projectRoot = rtrim((string) $projectRoot, "\/\\");
   $baseTmp     = $projectRoot . DIRECTORY_SEPARATOR . 'tmp';
@@ -51,21 +43,21 @@ function tmp(...$args) {
   $dirPath  = $baseTmp . ($dirParts ? DIRECTORY_SEPARATOR . implode(DIRECTORY_SEPARATOR, $dirParts) : '');
 
   // Directory must exist
-  if (!is_dir($dirPath)) {
-    error_log("Directory does not exist: $dirPath");
-    return false;
-  }
+  // Do not create or validate directories here — return the computed path
+  // so callers may create or check as needed. Only attempt to chmod when the
+  // directory actually exists to avoid warnings.
 
   // 🚀 EARLY RETURN FOR FILE — no chmod executed at all
   if ($isFile) {
     return $dirPath . DIRECTORY_SEPARATOR . $last;
   }
 
-  // Only directories reach here → safe to chmod
-  if (!@chmod($dirPath, 0755)) {
-    error_log("Failed to set permissions for directory: $dirPath");
-    return false;
+  // Only attempt to set permissions if the directory exists
+  if (is_dir($dirPath)) {
+    if (!@chmod($dirPath, 0755)) {
+      error_log("Failed to set permissions for directory: $dirPath");
+    }
   }
 
-  return $dirPath;
+  return $isFile ? $dirPath . DIRECTORY_SEPARATOR . $last : $dirPath;
 }
