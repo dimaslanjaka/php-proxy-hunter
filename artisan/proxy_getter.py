@@ -44,6 +44,11 @@ def parse_args(
         default=default_concurrency,
         help="Number of workers to run in parallel",
     )
+    parser.add_argument(
+        "--uid",
+        type=str,
+        help="Override lock filename (unique id)",
+    )
     # Allow unknown args so callers can pass extra flags without failing
     # (useful when scripts are invoked with framework/container args).
     return parser.parse_known_args()[0]

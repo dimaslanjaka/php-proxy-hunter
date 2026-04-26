@@ -459,10 +459,12 @@ async def run_until_found(
 # ---------- ENTRY ----------
 
 if __name__ == "__main__":
+    # Use shared parser which already exposes --uid
     args = parse_args()
+    lock_name = args.uid if getattr(args, "uid", None) else current_filename
 
     # Create and acquire file lock
-    locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
+    locker = FileLockHelper(get_relative_path(f"tmp/locks/{lock_name}.lock"))
     if not locker.lock():
         print("Another instance is running. Exiting.")
         sys.exit(0)
