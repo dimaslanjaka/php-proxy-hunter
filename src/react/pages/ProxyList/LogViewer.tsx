@@ -18,33 +18,6 @@ export async function getUserProxyLogUrl() {
   }
 }
 
-async function fetchHttpsProxyCheckerResult(hash: string): Promise<string> {
-  const url = createUrl('/php_backend/logs.php');
-  const res = await fetch(`${url}?hash=check-https-proxy/${encodeURIComponent(hash)}`);
-  if (!res.ok) {
-    return `Failed to fetch https result: ${res.status} ${res.statusText}`;
-  }
-  return await res.text();
-}
-
-async function fetchHttpProxyCheckerResult(hash: string): Promise<string> {
-  const url = createUrl('/php_backend/logs.php');
-  const res = await fetch(`${url}?hash=check-http-proxy/${encodeURIComponent(hash)}`);
-  if (!res.ok) {
-    return `Failed to fetch http result: ${res.status} ${res.statusText}`;
-  }
-  return await res.text();
-}
-
-async function fetchProxyTypeDetectionResult(hash: string): Promise<string> {
-  const url = createUrl('/php_backend/logs.php');
-  const res = await fetch(`${url}?hash=check-proxy-type/${encodeURIComponent(hash)}`);
-  if (!res.ok) {
-    return `Failed to fetch proxy type result: ${res.status} ${res.statusText}`;
-  }
-  return await res.text();
-}
-
 async function fetchCheckOldProxyResult(hash: string): Promise<string> {
   const url = createUrl('/php_backend/logs.php');
   const res = await fetch(`${url}?hash=check-old-proxy/${encodeURIComponent(hash)}`);
@@ -56,98 +29,78 @@ async function fetchCheckOldProxyResult(hash: string): Promise<string> {
 
 const LogViewer: React.FC = () => {
   // no longer using the proxy-checker.php log reset; only poll logs.php
-  const [activeTab, setActiveTab] = React.useState<'https' | 'http' | 'type' | 'old'>('https');
+  const [activeTab, setActiveTab] = React.useState<'old' | 'executor'>('executor');
   const [hash, setHash] = React.useState('');
-  const [httpsLog, setHttpsLog] = React.useState('');
-  const [httpLog, setHttpLog] = React.useState('');
-  const [typeLog, setTypeLog] = React.useState('');
   const [oldLog, setOldLog] = React.useState('');
+  const [executorFiles, setExecutorFiles] = React.useState<Array<any>>([]);
+  const [executorIndex, setExecutorIndex] = React.useState<number | null>(null);
+  const [executorLog, setExecutorLog] = React.useState('');
 
   // ANSI→HTML conversion is provided by shared utility
-
-  // On mount, fetch user id to use with logs endpoints
   React.useEffect(() => {
-    (async () => {
+    let isMounted = true;
+
+    const fetchData = async () => {
       try {
-        const data = await getUserInfo();
-        if (data && (data as any).uid) {
-          const uid = (data as any).uid;
-          setHash(uid);
+        const [userData, logsRes] = await Promise.all([
+          getUserInfo(),
+          fetch(createUrl('/php_backend/logs.php', { executor: 1 }), { credentials: 'include' })
+        ]);
+
+        // handle user
+        if (isMounted && userData?.uid) {
+          setHash(userData.uid);
+        }
+
+        // handle logs
+        if (isMounted && logsRes.ok) {
+          const json = await logsRes.json();
+          if (Array.isArray(json)) {
+            setExecutorFiles(json);
+          }
         }
       } catch (_e) {
-        // ignore
+        // ignore failures
       }
-    })();
+    };
+
+    fetchData();
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
-  // Poll HTTPS result when httpsHash is available and https tab is active
+  // Poll executor log when an executor file is selected
   React.useEffect(() => {
     let interval: number | undefined;
-    if (activeTab === 'https' && hash) {
-      const fetchHttps = async () => {
+    if (activeTab === 'executor' && executorIndex !== null && executorFiles[executorIndex]) {
+      const filename = executorFiles[executorIndex].name;
+      const fetchExec = async () => {
         try {
-          const text = await fetchHttpsProxyCheckerResult(hash);
-          setHttpsLog((prev) => {
+          const res = await fetch(createUrl('/php_backend/logs.php', { executor: 1, file: filename }), {
+            credentials: 'include'
+          });
+          if (!res.ok) {
+            setExecutorLog(`Failed to fetch executor log: ${res.status} ${res.statusText}`);
+            return;
+          }
+          const text = await res.text();
+          setExecutorLog((prev) => {
             if (prev.trim() === text.trim()) return prev;
             return text;
           });
-        } catch {
-          setHttpsLog('Failed to fetch https result.');
+        } catch (_err) {
+          setExecutorLog('Failed to fetch executor log.');
         }
       };
-      fetchHttps();
-      interval = window.setInterval(fetchHttps, 3000);
+      fetchExec();
+      interval = window.setInterval(fetchExec, 3000);
     }
     return () => {
       if (interval) clearInterval(interval);
     };
-  }, [activeTab, hash]);
-
-  // Poll HTTP result when httpHash is available and http tab is active
-  React.useEffect(() => {
-    let interval: number | undefined;
-    if (activeTab === 'http' && hash) {
-      const fetchHttp = async () => {
-        try {
-          const text = await fetchHttpProxyCheckerResult(hash);
-          setHttpLog((prev) => {
-            if (prev.trim() === text.trim()) return prev;
-            return text;
-          });
-        } catch {
-          setHttpLog('Failed to fetch http result.');
-        }
-      };
-      fetchHttp();
-      interval = window.setInterval(fetchHttp, 3000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [activeTab, hash]);
-
-  // Poll proxy type detection result when available and type tab is active
-  React.useEffect(() => {
-    let interval: number | undefined;
-    if (activeTab === 'type' && hash) {
-      const fetchType = async () => {
-        try {
-          const text = await fetchProxyTypeDetectionResult(hash);
-          setTypeLog((prev) => {
-            if (prev.trim() === text.trim()) return prev;
-            return text;
-          });
-        } catch {
-          setTypeLog('Failed to fetch proxy type result.');
-        }
-      };
-      fetchType();
-      interval = window.setInterval(fetchType, 3000);
-    }
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [activeTab, hash]);
+  }, [activeTab, executorIndex, executorFiles]);
 
   // Poll check old proxy result when available and old tab is active
   React.useEffect(() => {
@@ -183,36 +136,7 @@ const LogViewer: React.FC = () => {
         {/* Tabs */}
         <div className="mb-3">
           <ul className="flex -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400" role="tablist">
-            <li role="presentation">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeTab === 'https'}
-                className={`inline-block p-2 rounded-t-lg border-b-2 ${activeTab === 'https' ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 bg-gray-100 dark:bg-gray-800' : 'border-transparent hover:text-gray-600 dark:hover:text-gray-300'}`}
-                onClick={() => setActiveTab('https')}>
-                HTTPS check
-              </button>
-            </li>
-            <li role="presentation">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeTab === 'http'}
-                className={`inline-block p-2 rounded-t-lg border-b-2 ${activeTab === 'http' ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 bg-gray-100 dark:bg-gray-800' : 'border-transparent hover:text-gray-600 dark:hover:text-gray-300'}`}
-                onClick={() => setActiveTab('http')}>
-                HTTP check
-              </button>
-            </li>
-            <li role="presentation">
-              <button
-                type="button"
-                role="tab"
-                aria-selected={activeTab === 'type'}
-                className={`inline-block p-2 rounded-t-lg border-b-2 ${activeTab === 'type' ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 bg-gray-100 dark:bg-gray-800' : 'border-transparent hover:text-gray-600 dark:hover:text-gray-300'}`}
-                onClick={() => setActiveTab('type')}>
-                Type detection
-              </button>
-            </li>
+            {/* Removed default tabs: HTTPS, HTTP, Type detection */}
             <li role="presentation">
               <button
                 type="button"
@@ -223,79 +147,82 @@ const LogViewer: React.FC = () => {
                 Check old proxy
               </button>
             </li>
+            {executorFiles.map((f, i) => (
+              <li role="presentation" key={f.name}>
+                <button
+                  type="button"
+                  role="tab"
+                  aria-selected={activeTab === 'executor' && executorIndex === i}
+                  className={`inline-block p-2 rounded-t-lg border-b-2 ${activeTab === 'executor' && executorIndex === i ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 bg-gray-100 dark:bg-gray-800' : 'border-transparent hover:text-gray-600 dark:hover:text-gray-300'}`}
+                  onClick={() => {
+                    setActiveTab('executor');
+                    setExecutorIndex(i);
+                  }}>
+                  {f.name.replace(/(\.php|\.py)?\.logs?$/i, '')}
+                </button>
+              </li>
+            ))}
           </ul>
+          <div className="mt-2 flex items-center gap-2">
+            <button
+              type="button"
+              title="Refresh executor list"
+              aria-label="Refresh executor list"
+              className="text-xs px-2 py-1 text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded transition-colors"
+              onClick={async () => {
+                try {
+                  const res = await fetch(createUrl('/php_backend/logs.php', { executor: 1 }), {
+                    credentials: 'include'
+                  });
+                  if (res.ok) {
+                    const json = await res.json();
+                    if (Array.isArray(json)) setExecutorFiles(json);
+                  }
+                } catch (_err) {
+                  // ignore
+                }
+              }}>
+              <i className="fa-solid fa-sync" aria-hidden="true"></i>
+            </button>
+
+            <button
+              type="button"
+              title="Clear all executor logs"
+              aria-label="Clear all executor logs"
+              className="text-xs px-2 py-1 text-red-600 dark:text-red-300 bg-red-50 dark:bg-red-900 border border-red-100 dark:border-red-700 hover:bg-red-100 dark:hover:bg-red-800 rounded transition-colors"
+              onClick={async () => {
+                if (!confirm('Clear all executor logs for your user?')) return;
+                try {
+                  const res = await fetch(createUrl('/php_backend/logs.php', { executor: 1, clear: 1 }), {
+                    credentials: 'include'
+                  });
+                  if (res.ok) {
+                    // refresh list after clearing
+                    const json = await (
+                      await fetch(createUrl('/php_backend/logs.php', { executor: 1 }), { credentials: 'include' })
+                    ).json();
+                    if (Array.isArray(json)) {
+                      setExecutorFiles(json);
+                    } else {
+                      setExecutorFiles([]);
+                    }
+                    // Reset UI to default state after clearing
+                    setActiveTab('old');
+                    setExecutorIndex(null);
+                    setExecutorLog('');
+                  }
+                } catch (_err) {
+                  // ignore
+                }
+              }}>
+              <i className="fa-solid fa-trash" aria-hidden="true"></i>
+            </button>
+          </div>
         </div>
 
         {/* The old 'Checker Log' tab was removed because php_backend/proxy-checker.php no longer exists. */}
 
-        {/* HTTPS panel */}
-        <div className={`${activeTab === 'https' ? '' : 'hidden'}`}>
-          <div className="mb-2">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Logs HTTPS check for UID:</span>
-              <span className="font-mono text-sm text-gray-900 dark:text-gray-100 break-words max-w-full overflow-auto">
-                {hash || '—'}
-              </span>
-            </div>
-          </div>
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 h-64 overflow-auto font-mono text-xs whitespace-pre-wrap transition-colors duration-300">
-            {httpsLog ? (
-              <div
-                dangerouslySetInnerHTML={{ __html: convertAnsiToHtml(httpsLog) }}
-                className="text-gray-800 dark:text-gray-100"
-                style={{ whiteSpace: 'pre-wrap' }}
-              />
-            ) : (
-              <span className="text-gray-400 dark:text-gray-500">No https result fetched yet.</span>
-            )}
-          </div>
-        </div>
-
-        {/* HTTP panel */}
-        <div className={`${activeTab === 'http' ? '' : 'hidden'}`}>
-          <div className="mb-2">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Logs HTTP check for UID:</span>
-              <span className="font-mono text-sm text-gray-900 dark:text-gray-100 break-words max-w-full overflow-auto">
-                {hash || '—'}
-              </span>
-            </div>
-          </div>
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 h-64 overflow-auto font-mono text-xs whitespace-pre-wrap transition-colors duration-300">
-            {httpLog ? (
-              <div
-                dangerouslySetInnerHTML={{ __html: convertAnsiToHtml(httpLog) }}
-                className="text-gray-800 dark:text-gray-100"
-                style={{ whiteSpace: 'pre-wrap' }}
-              />
-            ) : (
-              <span className="text-gray-400 dark:text-gray-500">No http result fetched yet.</span>
-            )}
-          </div>
-        </div>
-
-        {/* Proxy type detection panel */}
-        <div className={`${activeTab === 'type' ? '' : 'hidden'}`}>
-          <div className="mb-2">
-            <div className="flex flex-col sm:flex-row sm:items-center gap-1">
-              <span className="text-xs text-gray-500 dark:text-gray-400">Logs proxy type detection for UID:</span>
-              <span className="font-mono text-sm text-gray-900 dark:text-gray-100 break-words max-w-full overflow-auto">
-                {hash || '—'}
-              </span>
-            </div>
-          </div>
-          <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 h-64 overflow-auto font-mono text-xs whitespace-pre-wrap transition-colors duration-300">
-            {typeLog ? (
-              <div
-                dangerouslySetInnerHTML={{ __html: convertAnsiToHtml(typeLog) }}
-                className="text-gray-800 dark:text-gray-100"
-                style={{ whiteSpace: 'pre-wrap' }}
-              />
-            ) : (
-              <span className="text-gray-400 dark:text-gray-500">No proxy type result fetched yet.</span>
-            )}
-          </div>
-        </div>
+        {/* Default check tabs removed (HTTPS / HTTP / Type) */}
 
         {/* Check old proxy panel */}
         <div className={`${activeTab === 'old' ? '' : 'hidden'}`}>
@@ -316,6 +243,30 @@ const LogViewer: React.FC = () => {
               />
             ) : (
               <span className="text-gray-400 dark:text-gray-500">No check old proxy result fetched yet.</span>
+            )}
+          </div>
+        </div>
+        {/* Executor dynamic panels */}
+        <div className={`${activeTab === 'executor' ? '' : 'hidden'}`}>
+          <div className="mb-2">
+            <div className="flex flex-col sm:flex-row sm:items-center gap-1">
+              <span className="text-xs text-gray-500 dark:text-gray-400">Executor log:</span>
+              <span className="font-mono text-sm text-gray-900 dark:text-gray-100 break-words max-w-full overflow-auto">
+                {executorIndex !== null && executorFiles[executorIndex]
+                  ? executorFiles[executorIndex].name.replace(/(\.php|\.py)?\.logs?$/i, '')
+                  : '—'}
+              </span>
+            </div>
+          </div>
+          <div className="border border-gray-200 dark:border-gray-700 rounded-lg bg-gray-50 dark:bg-gray-800 text-gray-900 dark:text-gray-100 p-3 h-64 overflow-auto font-mono text-xs whitespace-pre-wrap transition-colors duration-300">
+            {executorLog ? (
+              <div
+                dangerouslySetInnerHTML={{ __html: convertAnsiToHtml(executorLog) }}
+                className="text-gray-800 dark:text-gray-100"
+                style={{ whiteSpace: 'pre-wrap' }}
+              />
+            ) : (
+              <span className="text-gray-400 dark:text-gray-500">No executor log fetched yet.</span>
             )}
           </div>
         </div>

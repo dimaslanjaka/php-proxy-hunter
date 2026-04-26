@@ -26,7 +26,7 @@ if (!empty($hash)) {
   if (file_exists($logFile)) {
     if (is_readable($logFile)) {
       $logData = read_file($logFile);
-      if ($logData !== false && $logData !== '') {
+      if ($logData !== false && !empty($logData)) {
         echo $logData;
       } else {
         echo "No logs found for {$hash}." . PHP_EOL;
@@ -49,10 +49,66 @@ if (!empty($hash)) {
   exit;
 }
 
+// Allow unauthenticated access to executor logs
+if (isset($request['executor'])) {
+  // If a specific file is requested, return its contents (only within user's logs dir)
+  $uid        = getUserId();
+  $folderUser = tmp('logs', $uid);
+  if (isset($request['file'])) {
+    // Only accept a filename (basename). Do not allow absolute paths.
+    $requestedName = basename((string)$request['file']);
+
+    // Only allow typical log extensions
+    $allowedExt = ['log', 'txt'];
+    $ext        = strtolower(pathinfo($requestedName, PATHINFO_EXTENSION));
+    if (!in_array($ext, $allowedExt, true)) {
+      respond_text('Invalid log file requested', 400);
+    }
+
+    $logPath = tmp('logs', $uid, $requestedName);
+    if (!file_exists($logPath) || !is_file($logPath) || !is_readable($logPath)) {
+      respond_text('Log file not found or not readable', 404);
+    }
+
+    $data = read_file($logPath);
+    if ($data === false) {
+      respond_text('Failed to read log file', 500);
+    }
+    respond_text($data);
+  }
+
+  if (isset($request['clear'])) {
+    // Clear all logs for the user
+    if (is_dir($folderUser)) {
+      $files = glob($folderUser . '/*.{txt,log}', GLOB_BRACE);
+      foreach ($files as $file) {
+        @unlink($file);
+      }
+    }
+    respond_json(['cleared' => true]);
+  }
+
+  // Otherwise, list log files for the user
+  $userLogs = [];
+  if (is_dir($folderUser)) {
+    $files = glob($folderUser . '/*.{txt,log}', GLOB_BRACE);
+    foreach ($files as $file) {
+      $userLogs[] = [
+        'name'  => basename($file),
+        'size'  => human_filesize(filesize($file)),
+        'mtime' => filemtime($file),
+      ];
+    }
+  }
+  respond_json($userLogs);
+}
+
 // Handle unauthenticated access to own logs
 if (empty($_SESSION['authenticated_email'])) {
   respond_json(['authenticated' => false, 'error' => true, 'message' => 'Not authenticated']);
 }
+
+
 
 if (isset($request['me'])) {
   if (empty($_SESSION['authenticated_email'])) {
@@ -101,7 +157,6 @@ if (isset($request['me'])) {
     'total'         => $total,
   ]);
 }
-
 
 if ($isAdmin) {
   // crontab logs

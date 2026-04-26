@@ -7,10 +7,10 @@ interface CheckProxyResponse {
 }
 
 export async function checkProxyHttps(proxies: string): Promise<CheckProxyResponse> {
-  return await fetch(createUrl('/php_backend/check-https-proxy.php'), {
+  return await fetch(createUrl('/php_backend/executor.php'), {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ proxy: proxies }),
+    body: JSON.stringify({ proxy: proxies, file: '/php_backend/check-https-proxy.php' }),
     credentials: 'include'
   })
     .then((res) => res.json())

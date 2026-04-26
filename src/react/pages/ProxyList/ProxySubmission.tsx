@@ -1,8 +1,8 @@
 import { ReactFormSaver, ReactFormSaverRef } from 'jquery-form-saver/react';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { checkProxy, checkOldProxy, checkProxyType, checkProxyHttp, checkProxyHttps } from '../../utils/proxy';
 import { useSnackbar } from '../../components/Snackbar';
+import { checkOldProxy, checkProxyHttps } from '../../utils/proxy';
 import { createUrl } from '../../utils/url';
 
 export default function ProxySubmission() {
@@ -20,10 +20,41 @@ export default function ProxySubmission() {
   const [isLoading, setIsLoading] = React.useState(false);
   const [activeTab, setActiveTab] = React.useState<'submit' | 'fetch'>('submit');
   const formSaverRef = React.useRef<ReactFormSaverRef | null>(null);
+  const lastFetchAt = React.useRef<number | null>(null);
   const { showSnackbar } = useSnackbar();
+  const [selectedCheckBackend, setSelectedCheckBackend] = React.useState<string>('');
+  const [executorList, setExecutorList] = React.useState<Array<{ name: string; path: string }>>([]);
+
+  React.useEffect(() => {
+    // fetch available executor scripts
+    fetch(createUrl('/php_backend/executor.php', { list: 1 }), { method: 'GET', credentials: 'include' })
+      .then((r) => r.json())
+      .then((json) => {
+        if (Array.isArray(json)) {
+          // Expect items like { name: string, path: string }
+          const list = json.filter(
+            (v) => v && typeof v === 'object' && typeof v.path === 'string' && typeof v.name === 'string'
+          );
+          setExecutorList(list as Array<{ name: string; path: string }>);
+          // set default selected backend when list is available and none selected
+          if (list.length > 0 && !selectedCheckBackend) {
+            setSelectedCheckBackend(list[0].path);
+          }
+        }
+      })
+      .catch(() => {
+        // ignore failures silently
+      });
+  }, []);
 
   const onRestore = (element: HTMLElement, data: any) => {
     if (element.id == 'proxyTextarea') {
+      // If we recently fetched proxies, prefer the fetched content and skip
+      // restoring the older saved value for a short grace period.
+      const now = Date.now();
+      if (lastFetchAt.current && now - lastFetchAt.current < 10000) {
+        return;
+      }
       setTextarea(data);
     }
   };
@@ -43,30 +74,31 @@ export default function ProxySubmission() {
         }
       })
       .finally(() => {
-        checkProxy(textarea)
-          .then((res) => {
-            // res: { error?: boolean; message: string }
-            const isError = res?.error === true;
+        // Always use executor.php: pass `file` (endpoint or /artisan script) and `str` (proxies)
+        setIsLoading(true);
+        fetch(createUrl('/php_backend/executor.php'), {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+          body: new URLSearchParams({ file: selectedCheckBackend, str: textarea })
+        })
+          .then((r) => r.json())
+          .then((json) => {
+            const msg = json?.message || json?.logFile || JSON.stringify(json);
             try {
-              showSnackbar({
-                message: res?.message || (isError ? 'Proxy check failed' : 'Proxies checked'),
-                type: isError ? 'danger' : 'success'
-              });
+              showSnackbar({ message: msg || 'Executor started', type: json?.error ? 'danger' : 'success' });
             } catch {
               /* ignore */
             }
           })
-          .catch((_err) => {
-            console.error(_err);
+          .catch((err) => {
+            console.error(err);
             try {
-              showSnackbar({ message: `Proxy check failed: ${String(_err)}`, type: 'danger' });
+              showSnackbar({ message: `Executor failed: ${String(err)}`, type: 'danger' });
             } catch {
               /* ignore */
             }
           })
-          .finally(() => {
-            setIsLoading(false);
-          });
+          .finally(() => setIsLoading(false));
       });
   }
 
@@ -215,16 +247,30 @@ export default function ProxySubmission() {
         }
 
         // Replace textarea with fetched proxies (not append)
-        const textareaElement = document.getElementById('proxyTextarea') as HTMLTextAreaElement;
-        if (textareaElement) {
-          textareaElement.value = allProxies;
-          setTextarea(allProxies);
-
-          // Sync with form saver immediately
-          if (formSaverRef.current) {
-            formSaverRef.current.saveElementValue(textareaElement);
-          }
+        // Always update React state so the value appears when switching to the Submit tab,
+        // even if the textarea DOM element is not currently mounted.
+        setTextarea(allProxies);
+        // Record fetch time so onRestore won't overwrite immediately
+        if (typeof lastFetchAt !== 'undefined' && lastFetchAt !== null) {
+          lastFetchAt.current = Date.now();
         }
+        // Ensure the Submit tab is active and the textarea DOM is updated. Use
+        // requestAnimationFrame/timeout to allow React to mount the textarea before syncing.
+        setActiveTab('submit');
+        requestAnimationFrame(() => {
+          const textareaElement = document.getElementById('proxyTextarea') as HTMLTextAreaElement | null;
+          if (textareaElement) {
+            textareaElement.value = allProxies;
+            // Sync with form saver immediately
+            if (formSaverRef.current) {
+              try {
+                formSaverRef.current.saveElementValue(textareaElement);
+              } catch (_e) {
+                // ignore errors from form saver
+              }
+            }
+          }
+        });
 
         try {
           showSnackbar({
@@ -290,6 +336,28 @@ export default function ProxySubmission() {
                   Proxy Submission
                 </h2>
                 <div className="flex gap-2">
+                  <div className="flex items-center gap-2">
+                    <label htmlFor="checkBackend" className="sr-only">
+                      Select check backend
+                    </label>
+                    <select
+                      id="checkBackend"
+                      value={selectedCheckBackend}
+                      onChange={(e) => setSelectedCheckBackend(e.target.value)}
+                      className="text-xs p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                      {executorList.length > 0 ? (
+                        executorList.map((it) => (
+                          <option key={it.path} value={it.path}>
+                            {it.name}
+                          </option>
+                        ))
+                      ) : (
+                        <option value="" disabled>
+                          Loading executor list...
+                        </option>
+                      )}
+                    </select>
+                  </div>
                   <button
                     type="button"
                     className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-200 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
@@ -334,30 +402,6 @@ export default function ProxySubmission() {
                 <div className="flex gap-2 flex-wrap">
                   <button
                     type="button"
-                    disabled={isLoading || !textarea}
-                    className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-emerald-600 hover:bg-emerald-700 disabled:bg-gray-400 active:bg-emerald-800 rounded-lg transition-colors"
-                    onClick={() => runSingleCheck(checkProxyType, 'Type check initiated', 'Check type failed')}>
-                    <i className="fa-duotone fa-solid fa-filter" aria-hidden="true"></i>
-                    Check Type
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isLoading || !textarea}
-                    className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-sky-600 hover:bg-sky-700 disabled:bg-gray-400 active:bg-sky-800 rounded-lg transition-colors"
-                    onClick={() => runSingleCheck(checkProxyHttp, 'HTTP check initiated', 'Check HTTP failed')}>
-                    <i className="fa-duotone fa-globe"></i>
-                    Check HTTP
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isLoading || !textarea}
-                    className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-violet-600 hover:bg-violet-700 disabled:bg-gray-400 active:bg-violet-800 rounded-lg transition-colors"
-                    onClick={() => runSingleCheck(checkProxyHttps, 'HTTPS check initiated', 'Check HTTPS failed')}>
-                    <i className="fa-duotone fa-lock"></i>
-                    Check HTTPS
-                  </button>
-                  <button
-                    type="button"
                     disabled={isLoading}
                     className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 active:bg-rose-800 rounded-lg transition-colors"
                     onClick={handleCheckUntestedHttps}>
@@ -369,7 +413,16 @@ export default function ProxySubmission() {
                     disabled={isLoading}
                     className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 active:bg-blue-800 rounded-lg transition-colors">
                     <i className="fa-duotone fa-paper-plane"></i>
-                    Check All
+                    {(() => {
+                      if (selectedCheckBackend.startsWith('/php_backend/')) {
+                        return selectedCheckBackend.replace('/php_backend/', '');
+                      }
+                      if (selectedCheckBackend.startsWith('/artisan/')) {
+                        const found = executorList.find((it) => it.path === selectedCheckBackend);
+                        return found ? found.name : selectedCheckBackend.replace('/artisan/', '');
+                      }
+                      return 'Run';
+                    })()}
                   </button>
                   <button
                     type="button"
