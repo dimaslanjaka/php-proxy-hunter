@@ -3,12 +3,8 @@ import json
 import sys, os
 from pathlib import Path
 from typing import Any, Dict, List
-from colorama import init
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
-
-# Preserve ANSI sequences when stdout is redirected; this allows logs to contain colors
-init(strip=False, convert=False)
 
 from src.func import get_relative_path
 from src.ProxyDB import ProxyDB

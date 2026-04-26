@@ -10,17 +10,16 @@ from typing import Any, Dict, Optional, Union
 import bs4
 from ansi2html import Ansi2HTMLConverter
 from bs4 import BeautifulSoup
-from colorama import init, Fore, Style, just_fix_windows_console
+from colorama import init, Fore, Style
 from proxy_hunter import read_file, remove_ansi, resolve_parent_folder
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from .func_platform import is_debug
 
-just_fix_windows_console()
 # Ensure ANSI sequences are not stripped when stdout is redirected.
 # force `strip=False` so color codes remain in non-TTY outputs (log files).
-init(strip=False, convert=False)
+init(autoreset=True, strip=False, convert=False)
 
 
 class ConsoleColor:

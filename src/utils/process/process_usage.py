@@ -3,12 +3,10 @@ import time
 import os
 import sys
 from datetime import datetime
-from colorama import init, Fore, Style
 
-# Always enable color
-USE_COLOR = True
-# Preserve ANSI sequences when stdout is redirected
-init(autoreset=True, strip=False, convert=False)
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
+
+from src.func_console import red, yellow, green
 
 
 def bytes_to_mb(b):
@@ -22,19 +20,13 @@ def normalize_cmd(cmd: str) -> str:
     return cmd
 
 
-def color_percent(value):
-    if not USE_COLOR:
-        return ""
+def color_percent_value_text(value: float, text: str) -> str:
+    """Return colored `text` according to `value` thresholds."""
     if value >= 70:
-        return Fore.RED
-    elif value >= 30:
-        return Fore.YELLOW
-    else:
-        return Fore.GREEN
-
-
-def reset():
-    return Style.RESET_ALL if USE_COLOR else ""
+        return red(text)
+    if value >= 30:
+        return yellow(text)
+    return green(text)
 
 
 def main():
@@ -104,15 +96,10 @@ def main():
     print(f"\n=== {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===")
 
     for cpu, mem_mb, mem_percent, cmd in results[:10]:
-        cpu_c = color_percent(cpu)
-        ram_c = color_percent(mem_percent)
-        r = reset()
+        cpu_s = color_percent_value_text(cpu, f"{cpu:.2f}%")
+        ram_s = color_percent_value_text(mem_percent, f"{mem_percent:.2f}%")
 
-        print(
-            f"{cmd} | "
-            f"CPU {cpu_c}{cpu:.2f}%{r} | "
-            f"RAM {mem_mb:.2f}MB ({ram_c}{mem_percent:.2f}%{r})"
-        )
+        print(f"{cmd} | " f"CPU {cpu_s} | " f"RAM {mem_mb:.2f}MB ({ram_s})")
 
 
 if __name__ == "__main__":
