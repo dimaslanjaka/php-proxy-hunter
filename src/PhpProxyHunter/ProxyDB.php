@@ -302,8 +302,10 @@ class ProxyDB
       $shouldRandomize = ($randomize === true);
     }
 
+    // Use orderBy variable instead of appending ORDER BY to WHERE clause
+    $orderBy = null;
     if ($shouldRandomize) {
-      $whereClause .= ' ORDER BY ' . $this->getRandomFunction();
+      $orderBy = $this->getRandomFunction();
     }
 
     // Pagination (page/perPage) takes precedence over legacy $limit
@@ -316,15 +318,8 @@ class ProxyDB
       $finalLimit = $perPage;
     }
 
-    // Add LIMIT and OFFSET to WHERE clause if needed
-    if ($finalLimit !== null && $finalLimit > 0) {
-      $whereClause .= ' LIMIT ' . (int)$finalLimit;
-      if ($offset !== null) {
-        $whereClause .= ' OFFSET ' . (int)$offset;
-      }
-    }
-
-    return $this->db->select('proxies', '*', $whereClause ?: null, $params);
+    // Call select passing ORDER BY, LIMIT and OFFSET as parameters
+    return $this->db->select('proxies', '*', $whereClause ?: null, $params, $orderBy, $finalLimit, $offset);
   }
 
   /**
