@@ -6,11 +6,11 @@ import os
 import sys
 import re
 from typing import Any, Callable, Optional, TypedDict
-from colorama import init, Fore, Style, just_fix_windows_console
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
+from src.func_console import ConsoleColor, cyan, green, red
 from src.shared import init_db
 from src.func import get_relative_path
 from src.database.SQLiteMarker import SQLiteMarker
@@ -31,11 +31,7 @@ TARGET_SCORE = 70
 
 current_filename = os.path.basename(__file__)
 locker: Optional[FileLockHelper] = None
-
-just_fix_windows_console()
-# Preserve ANSI sequences when stdout is redirected (logs/files).
-init(strip=False, convert=False)
-COLOR_ENABLED = True
+# Use ConsoleColor from src.func_console to ensure consistent ANSI handling
 
 
 class ProxyScoreResult(TypedDict):
@@ -47,19 +43,15 @@ class ProxyScoreResult(TypedDict):
 
 
 def color_value_text(value: int) -> str:
-    if not COLOR_ENABLED:
-        return str(value)
-
     clamped = max(0, min(100, value))
     red = int(255 * (100 - clamped) / 100)
     green = int(255 * clamped / 100)
-    return f"\x1b[38;2;{red};{green};0m{value}{Style.RESET_ALL}"
+    reset = ConsoleColor.COLORS.get("reset", "\x1b[0m")
+    return f"\x1b[38;2;{red};{green};0m{value}{reset}"
 
 
 def color_proxy_text(value: str) -> str:
-    if not COLOR_ENABLED:
-        return value
-    return f"{Fore.CYAN}{value}{Style.RESET_ALL}"
+    return cyan(value)
 
 
 def color_score_value_text(message: str, stage: str) -> str:
@@ -85,17 +77,14 @@ def color_score_value_text(message: str, stage: str) -> str:
 
 
 def color_status_text(message: str, stage: str) -> str:
-    if not COLOR_ENABLED:
-        return message
-
     highlighted = color_score_value_text(message, stage)
 
     def replacer(match: re.Match[str]) -> str:
         word = match.group(0)
         lowered = word.lower()
         if lowered.startswith("fail"):
-            return f"{Fore.RED}{word}{Style.RESET_ALL}"
-        return f"{Fore.GREEN}{word}{Style.RESET_ALL}"
+            return red(word)
+        return green(word)
 
     return re.sub(
         r"\b(pass|success|succeed|succeeded|fail|failed)\b",
