@@ -10,13 +10,8 @@ if (!function_exists('parseQueryOrPostBody')) {
   require_once __DIR__ . '/../utils/server/postdata.php';
 }
 if (!function_exists('get_project_root')) {
-  require_once __DIR__ . '/../PhpProxyHunter/utils/path.php';
+  require_once __DIR__ . '/../PhpProxyHunter/utils/get_project_root.php';
 }
-
-/**
- * Use centralized project root helper `get_project_root()` provided
- * by src/PhpProxyHunter/utils/path.php (loaded via Composer autoload).
- */
 
 $isCli = php_sapi_name() === 'cli';
 

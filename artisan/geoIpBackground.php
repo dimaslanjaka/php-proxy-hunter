@@ -18,9 +18,9 @@ if (!is_cli()) {
 
 // Run a long-running process in the background
 $lock_files   = [];
-$file         = get_project_root() . '/artisan/geoIp.php';
-$output_file  = get_project_root() . '/proxyChecker.txt';
-$pid_file     = get_project_root() . '/geoIpBackground.pid';
+$file         = get_project_root('artisan', 'geoIp.php');
+$output_file  = get_project_root('proxyChecker.txt');
+$pid_file     = get_project_root('geoIpBackground.pid');
 $lock_files[] = $pid_file;
 setMultiPermissions([$file, $output_file, $pid_file]);
 $isWin = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';

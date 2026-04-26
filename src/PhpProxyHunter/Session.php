@@ -26,7 +26,7 @@ class Session
       $secret = getenv('APP_SECRET') ?: 'php_proxy_hunter_default_secret';
       $name   = hash_hmac('sha256', $this->session_prefix_name . $timeout . Server::fingerprint(true), $secret);
       if (empty(trim($session_folder))) {
-        $session_folder = get_project_root() . '/tmp/sessions';
+        $session_folder = get_project_root('tmp', 'sessions');
       }
 
       // Normalize and ensure the session folder exists. If creation or permissions fail,

@@ -12,7 +12,7 @@
  * @return string|false The IP address as a string if found, or false if not found.
  */
 function getServerIp() {
-  $filePath = get_project_root() . '/tmp/locks/server-ip.txt';
+  $filePath = get_project_root('tmp', 'locks', 'server-ip.txt');
   $result   = false;
 
   // Delete cached IP file if it's older than 5 mins on debug devices

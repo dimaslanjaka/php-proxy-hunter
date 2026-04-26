@@ -142,14 +142,14 @@ function buildCurl(
     if (defined('CURL_SSLVERSION_TLSv1_3') && $ssl === 3) {
       // Check for TLS 1.3 support first (if available)
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_3);
-    // CURL_SSLVERSION_TLSv1_3 = 7
+      // CURL_SSLVERSION_TLSv1_3 = 7
     } elseif (defined('CURL_SSLVERSION_TLSv1_2') && $ssl === 2) {
       // Check for TLS 1.2 support
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_2);
     } elseif (defined('CURL_SSLVERSION_TLSv1_0') && $ssl === 1) {
       // Check for TLS 1.0 support
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1_0);
-    // CURL_SSLVERSION_TLSv1_0 = 4
+      // CURL_SSLVERSION_TLSv1_0 = 4
     } elseif (defined('CURL_SSLVERSION_MAX_DEFAULT')) {
       curl_setopt($ch, CURLOPT_SSLVERSION, CURL_SSLVERSION_MAX_DEFAULT);
     }
@@ -176,7 +176,7 @@ function buildCurl(
   // curl_setopt($ch, CURLOPT_HEADER, true);
   curl_setopt($ch, CURLOPT_FOLLOWLOCATION, true);
 
-  $cookies = get_project_root() . '/tmp/cookies/default.txt';
+  $cookies = get_project_root('tmp', 'cookies', 'default.txt');
   if (!is_dir(dirname($cookies))) {
     mkdir(dirname($cookies), 0777, true);
   }
