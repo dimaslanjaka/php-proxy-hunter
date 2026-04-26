@@ -28,6 +28,11 @@ def parse_args(
         help="Single proxy string (example: 127.0.0.1:1080)",
     )
     parser.add_argument(
+        "--file",
+        dest="proxy_file",
+        help="Path to a file containing proxies (one per line)",
+    )
+    parser.add_argument(
         "--limit",
         type=int,
         default=default_limit,
@@ -64,6 +69,10 @@ def normalize_proxy_str(proxy_str: str) -> Optional[Tuple[str, int]]:
 
 def load_proxies_from_cli() -> List[Tuple[str, int]]:
     args = parse_args()
+    # If a proxy file was provided, prefer loading from file.
+    proxy_file = str(getattr(args, "proxy_file", "") or "").strip()
+    if proxy_file:
+        return load_proxies_from_file(proxy_file)
 
     raw_proxy_text = "\n".join(
         value

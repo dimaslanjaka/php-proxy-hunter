@@ -28,6 +28,11 @@ def main():
         type=str,
         help="Override lock filename (unique id)",
     )
+    parser.add_argument(
+        "--file",
+        dest="proxy_file",
+        help="Path to a file containing proxies (one per line)",
+    )
     parser.add_argument("--proxy", help="Proxy string to parse into IP(s)")
     parser.add_argument(
         "--production",
@@ -102,6 +107,24 @@ def main():
                 print("No valid proxy found in the provided string.")
                 return
             for proxy in proxies:
+                ip = proxy.proxy.split(":")[0]
+                proxyData.append((proxy.proxy, ip))
+        elif getattr(args, "proxy_file", None):
+            path = str(args.proxy_file or "").strip()
+            if not os.path.isfile(path):
+                print(f"Proxy file not found: {path}")
+                return
+            try:
+                with open(path, "r", encoding="utf-8") as f:
+                    raw = f.read()
+            except OSError as exc:
+                print(f"Unable to read proxy file {path}: {exc}")
+                return
+            parsed = extract_proxies(raw)
+            if not parsed:
+                print("No valid proxy rows found in file.")
+                return
+            for proxy in parsed:
                 ip = proxy.proxy.split(":")[0]
                 proxyData.append((proxy.proxy, ip))
         elif db.db:

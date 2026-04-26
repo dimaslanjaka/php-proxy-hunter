@@ -14,7 +14,7 @@ if (!$isCli) {
 }
 
 /* Options */
-$options = getopt('', ['str:', 'userId']);
+$options = getopt('', ['str:', 'file::', 'userId']);
 
 if (!empty($options['userId'])) {
   setUserId($options['userId']);
@@ -35,6 +35,14 @@ $string_data = '89.58.45.94:45729';
 /* CLI input */
 if (isset($options['str'])) {
   $string_data = rawurldecode(trim($options['str']));
+} elseif (!empty($options['file'])) {
+  $filePath = trim($options['file']);
+  if (file_exists($filePath) && is_file($filePath)) {
+    $string_data = file_get_contents($filePath);
+  } else {
+    echo "Proxy file not found: $filePath\n";
+    exit(1);
+  }
 } else {
   // fetch up to 100 proxies with missing geo fields using DB helper
   $where = "country IS NULL OR country = '' OR timezone IS NULL OR timezone = ''";
