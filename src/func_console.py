@@ -15,11 +15,9 @@ from proxy_hunter import read_file, remove_ansi, resolve_parent_folder
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from .func_platform import is_debug
+from src.func_platform import is_debug
 
-# Ensure ANSI sequences are not stripped when stdout is redirected.
-# force `strip=False` so color codes remain in non-TTY outputs (log files).
-init(autoreset=True, strip=False, convert=False)
+init(autoreset=True, strip=False, convert=True)
 
 
 class ConsoleColor:
