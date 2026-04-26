@@ -94,11 +94,7 @@ if (!empty($file)) {
   if (!is_dir(dirname($outputFile))) {
     @mkdir(dirname($outputFile), 0755, true);
   }
-  if (!file_exists($outputFile)) {
-    write_file($outputFile, '=== Log for ' . basename($file) . ' started at ' . date('Y-m-d H:i:s') . " ===\n\nCommand: " . implode(' ', $cmd) . "\n\n");
-  } else {
-    append_content_with_lock($outputFile, "\n\n=== New execution at " . date('Y-m-d H:i:s') . " ===\n\nCommand: " . implode(' ', $cmd) . "\n\n");
-  }
+  write_file($outputFile, '=== Log for ' . basename($file) . ' started at ' . date('Y-m-d H:i:s') . " ===\n\nCommand: " . implode(' ', $cmd) . "\n\n");
 
   $cmd[] = '>>';
   $cmd[] = escapeshellarg($outputFile);
@@ -129,7 +125,8 @@ if (!empty($file)) {
     $escapedBin       = str_replace('"', '\\"', $binDir);
     $script           = "#!/usr/bin/env bash\n";
     $script .= "WORKSPACE_FOLDER=\"{$escapedWorkspace}\"\n";
-    $script .= "export PATH=\"{$posixExtras}:{$escapedBin}:$PATH\"\n";
+    // Ensure a minimal system PATH is present for webrunner environments
+    $script .= "export PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:{$posixExtras}:{$escapedBin}:$PATH\"\n";
     $script .= $commandStr . "\n";
   }
 
