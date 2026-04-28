@@ -124,10 +124,11 @@ def parse_interval_to_seconds(interval: str) -> int:
 
 def should_run_job(
     interval: str,
-    file_path: Path | None = None,
+    file_path: str | Path | None = None,
     max_cpu_percent: int = 50,
     max_ram_percent: int = 50,
     skip_resource_checking: bool = False,
+    ensure_run_daily: bool = True,
 ) -> bool:
     """Return whether a scheduled job should run and update its state timestamp.
 
@@ -143,37 +144,55 @@ def should_run_job(
         max_cpu_percent: Maximum allowed CPU usage percentage.
         max_ram_percent: Maximum allowed RAM usage percentage.
         skip_resource_checking: If True, bypass CPU/RAM checks.
+        ensure_run_daily: If True, ensure short-interval jobs (<= 24h)
+            will run at least once every 24 hours even if resource checks fail.
 
     Returns:
         True if the job should run now (and state is updated), otherwise False.
     """
+    # Accept `file_path` as `None`, `str`, or `Path`. If omitted, use a
+    # per-interval state file under `tmp/crontab/<interval>`.
     if file_path is None:
         file_path = CRONTAB_STATE_DIR / interval
+    elif isinstance(file_path, str):
+        file_path = Path(file_path)
 
     current_time = int(time.time())
     interval_seconds = parse_interval_to_seconds(interval)
 
-    if file_path.is_file():
-        try:
+    try:
+        if file_path.is_file():
             last_fetch = int(file_path.read_text(encoding="utf-8").strip())
-        except ValueError:
+        else:
             last_fetch = 0
+    except ValueError:
+        last_fetch = 0
 
-        elapsed = current_time - last_fetch
-        if elapsed >= interval_seconds:
-            if skip_resource_checking or check_system_resources(
-                max_cpu_percent, max_ram_percent
-            ):
-                file_path.write_text(str(current_time), encoding="utf-8")
-                return True
-            return False
+    elapsed = current_time - last_fetch
+
+    # If the configured interval has elapsed, prefer to run only when
+    # resource checks pass. However, to ensure short-interval jobs (<= 24h)
+    # run at least once per day, allow a forced run if it's been >= 24h
+    # since the last run even when resource checks fail.
+    if elapsed >= interval_seconds:
+        if skip_resource_checking or check_system_resources(
+            max_cpu_percent, max_ram_percent
+        ):
+            file_path.write_text(str(current_time), encoding="utf-8")
+            return True
+
+        # Fallback: for intervals at or below 1 day, force a run if the job
+        # is stale for 24 hours or more and `ensure_run_daily` is enabled.
+        if (
+            ensure_run_daily
+            and interval_seconds <= 24 * 60 * 60
+            and elapsed >= 24 * 60 * 60
+        ):
+            file_path.write_text(str(current_time), encoding="utf-8")
+            return True
+
         return False
 
-    if skip_resource_checking or check_system_resources(
-        max_cpu_percent, max_ram_percent
-    ):
-        file_path.write_text(str(current_time), encoding="utf-8")
-        return True
     return False
 
 
