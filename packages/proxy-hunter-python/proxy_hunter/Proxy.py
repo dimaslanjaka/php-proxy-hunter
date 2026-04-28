@@ -144,6 +144,44 @@ class Proxy:
         """
         return json.dumps(self.to_dict())
 
+    @staticmethod
+    def from_list(dict_list: List[Dict[str, Any]]) -> List["Proxy"]:
+        """
+        Create a list of Proxy instances from a list of dictionaries.
+
+        :param dict_list: List of dicts where each dict contains proxy attributes.
+        :return: List of Proxy objects.
+        """
+        proxies: List[Proxy] = []
+        for item in dict_list:
+            proxy = Proxy(
+                proxy=str(item.get("proxy")) if item.get("proxy") is not None else "",
+                id=item.get("id"),
+                latency=item.get("latency"),
+                type=item.get("type"),
+                region=item.get("region"),
+                city=item.get("city"),
+                country=item.get("country"),
+                last_check=item.get("last_check"),
+                anonymity=item.get("anonymity"),
+                status=item.get("status"),
+                timezone=item.get("timezone"),
+                longitude=item.get("longitude"),
+                private=item.get("private"),
+                latitude=item.get("latitude"),
+                lang=item.get("lang"),
+                useragent=item.get("useragent"),
+                webgl_vendor=item.get("webgl_vendor"),
+                webgl_renderer=item.get("webgl_renderer"),
+                browser_vendor=item.get("browser_vendor"),
+                username=item.get("username"),
+                password=item.get("password"),
+                https=item.get("https"),
+                tun2socks=item.get("tun2socks"),
+            )
+            proxies.append(proxy)
+        return proxies
+
 
 def dict_to_proxy_list(dict_list: List[Dict[str, Any]]) -> List[Proxy]:
     """
@@ -152,31 +190,4 @@ def dict_to_proxy_list(dict_list: List[Dict[str, Any]]) -> List[Proxy]:
     :param dict_list: List of dictionaries, each representing a proxy with its attributes.
     :return: List of Proxy objects instantiated from the provided dictionaries.
     """
-    proxy_list = []
-    for item in dict_list:
-        proxy = Proxy(
-            proxy=str(item.get("proxy")),
-            id=item.get("id"),
-            latency=item.get("latency"),
-            type=item.get("type"),
-            region=item.get("region"),
-            city=item.get("city"),
-            country=item.get("country"),
-            last_check=item.get("last_check"),
-            anonymity=item.get("anonymity"),
-            status=item.get("status"),
-            timezone=item.get("timezone"),
-            longitude=item.get("longitude"),
-            private=item.get("private"),
-            latitude=item.get("latitude"),
-            lang=item.get("lang"),
-            useragent=item.get("useragent"),
-            webgl_vendor=item.get("webgl_vendor"),
-            webgl_renderer=item.get("webgl_renderer"),
-            browser_vendor=item.get("browser_vendor"),
-            username=item.get("username"),
-            password=item.get("password"),
-            tun2socks=item.get("tun2socks"),
-        )
-        proxy_list.append(proxy)
-    return proxy_list
+    return Proxy.from_list(dict_list)
