@@ -24,6 +24,7 @@ export default function ProxySubmission() {
   const { showSnackbar } = useSnackbar();
   const [selectedCheckBackend, setSelectedCheckBackend] = React.useState<string>('');
   const [executorList, setExecutorList] = React.useState<Array<{ name: string; path: string }>>([]);
+  const STORAGE_KEY = 'proxy-submission.selectedCheckBackend';
   const nameCounts = React.useMemo(() => {
     const map: Record<string, number> = {};
     executorList.forEach((it) => {
@@ -45,7 +46,16 @@ export default function ProxySubmission() {
           setExecutorList(list as Array<{ name: string; path: string }>);
           // set default selected backend when list is available and none selected
           if (list.length > 0 && !selectedCheckBackend) {
-            setSelectedCheckBackend(list[0].path);
+            try {
+              const saved = localStorage.getItem(STORAGE_KEY);
+              if (saved && list.some((it) => it.path === saved)) {
+                setSelectedCheckBackend(saved);
+              } else {
+                setSelectedCheckBackend(list[0].path);
+              }
+            } catch (_e) {
+              setSelectedCheckBackend(list[0].path);
+            }
           }
         }
       })
@@ -53,6 +63,17 @@ export default function ProxySubmission() {
         // ignore failures silently
       });
   }, []);
+
+  // Persist selected executor so it remains selected when user returns
+  React.useEffect(() => {
+    try {
+      if (selectedCheckBackend) {
+        localStorage.setItem(STORAGE_KEY, selectedCheckBackend);
+      }
+    } catch (_e) {
+      // ignore storage errors
+    }
+  }, [selectedCheckBackend]);
 
   const onRestore = (element: HTMLElement, data: any) => {
     if (element.id == 'proxyTextarea') {
@@ -422,7 +443,7 @@ export default function ProxySubmission() {
                   </button>
                   <button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={isLoading || executorList.length === 0 || !selectedCheckBackend}
                     className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 active:bg-blue-800 rounded-lg transition-colors">
                     <i className="fa-duotone fa-paper-plane"></i>
                     {(() => {
