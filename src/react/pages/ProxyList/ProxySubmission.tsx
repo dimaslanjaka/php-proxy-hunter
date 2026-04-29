@@ -4,6 +4,7 @@ import { useTranslation } from 'react-i18next';
 import { useSnackbar } from '../../components/Snackbar';
 import { checkOldProxy, checkProxyHttps } from '../../utils/proxy';
 import { createUrl } from '../../utils/url';
+import { get, postForm, post } from '../../utils/ajax-helper';
 
 export default function ProxySubmission() {
   const { t } = useTranslation();
@@ -35,8 +36,7 @@ export default function ProxySubmission() {
 
   React.useEffect(() => {
     // fetch available executor scripts
-    fetch(createUrl('/php_backend/executor.php', { list: 1 }), { method: 'GET', credentials: 'include' })
-      .then((r) => r.json())
+    get(createUrl('/php_backend/executor.php', { list: 1 }))
       .then((json) => {
         if (Array.isArray(json)) {
           // Expect items like { name: string, path: string }
@@ -92,11 +92,7 @@ export default function ProxySubmission() {
     setIsLoading(true);
 
     // Send proxies to backend for addition
-    fetch(createUrl('/php_backend/proxy-add.php'), {
-      method: 'POST',
-      credentials: 'include',
-      body: new URLSearchParams({ proxies: textarea })
-    })
+    postForm(createUrl('/php_backend/proxy-add.php'), new URLSearchParams({ proxies: textarea }))
       .catch((_err) => {
         console.error(_err);
         try {
@@ -108,13 +104,10 @@ export default function ProxySubmission() {
       .finally(() => {
         // Always use executor.php: pass `file` (endpoint or /artisan script) and `str` (proxies)
         setIsLoading(true);
-        fetch(createUrl('/php_backend/executor.php'), {
-          method: 'POST',
-          credentials: 'include',
-          headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-          body: new URLSearchParams({ file: selectedCheckBackend, str: textarea })
-        })
-          .then((r) => r.json())
+        postForm(
+          createUrl('/php_backend/executor.php'),
+          new URLSearchParams({ file: selectedCheckBackend, str: textarea })
+        )
           .then((json) => {
             const msg = json?.message || json?.logFile || JSON.stringify(json);
             try {
@@ -167,8 +160,8 @@ export default function ProxySubmission() {
     // Request a capped number of untested proxies instead of asking for "all" (-1)
     const url = createUrl('/php_backend/proxy-list.php', { status: 'untested', length: 1000 });
     setIsLoading(true);
-    fetch(url, { method: 'POST', credentials: 'include' })
-      .then((r) => r.json())
+    post(url)
+      .then((r) => r)
       .then((json) => {
         if (!json || !json.data || !Array.isArray(json.data) || json.data.length === 0) {
           try {
@@ -250,14 +243,8 @@ export default function ProxySubmission() {
     setIsLoading(true);
     Promise.all(
       urlsToFetch.map((url) =>
-        fetch(createUrl('/php_backend/proxy.php', { url }), { credentials: 'include' })
-          .then((r) => {
-            if (!r.ok) {
-              console.error(`Failed to fetch from ${url}: HTTP ${r.status}`);
-              return '';
-            }
-            return r.text();
-          })
+        get(createUrl('/php_backend/proxy.php', { url }), { responseType: 'text' })
+          .then((text) => (text == null ? '' : String(text)))
           .catch((err) => {
             console.error(`Failed to fetch from ${url}:`, err);
             return '';

@@ -95,7 +95,16 @@ if (!empty($file)) {
     @mkdir(dirname($outputFile), 0755, true);
   }
 
-  write_file($outputFile, '=== Log for ' . basename($file) . ' started at ' . date('Y-m-d H:i:s') . " ===\n\nCommand: " . implode(' ', $cmd) . "\n\n");
+  $role      = $isAdmin ? 'admin' : 'user';
+  $logHeader = '=== Log for ' . basename($file) . ' (' . $role . ') started at ' . date('Y-m-d H:i:s') . " ===\n\n";
+  if ($isAdmin) {
+    $logHeader .= 'Command:\n';
+    $logHeader .= $cmd[0] . ' ' . $cmd[1] . "\n";
+    for ($i = 2; $i < count($cmd); $i++) {
+      $logHeader .= '  ' . $cmd[$i] . "\n";
+    }
+  }
+  write_file($outputFile, $logHeader);
 
   $cmd[] = '>>';
   $cmd[] = escapeshellarg($outputFile);
