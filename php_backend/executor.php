@@ -50,8 +50,9 @@ if (!empty($file)) {
   if (!$isArtisan && !$isPhpBackend) {
     respond_json(['error' => 'the requested file is disallowed'], 403);
   }
-  $key = pathinfo($check, PATHINFO_FILENAME);
-  if (!isset($executorFiles[$key])) {
+  $key      = pathinfo($check, PATHINFO_FILENAME);
+  $basename = basename($check); // may include extension, e.g. "geoIp.py"
+  if (!isset($executorFiles[$key]) && !isset($executorFiles[$basename])) {
     respond_json(['error' => 'the requested file is disallowed'], 403);
   }
 
@@ -101,7 +102,23 @@ if (!empty($file)) {
     $logHeader .= 'Command:\n';
     $logHeader .= $cmd[0] . ' ' . $cmd[1] . "\n";
     for ($i = 2; $i < count($cmd); $i++) {
-      $logHeader .= '  ' . $cmd[$i] . "\n";
+      $arg     = $cmd[$i];
+      $display = $arg;
+      if (strpos($arg, '--str=') === 0 || strpos($arg, '--proxy=') === 0) {
+        $pos    = strpos($arg, '=');
+        $prefix = substr($arg, 0, $pos + 1);
+        $val    = substr($arg, $pos + 1);
+        if (strlen($val) >= 2 && (($val[0] === "'" && $val[strlen($val) - 1] === "'") || ($val[0] === '"' && $val[strlen($val) - 1] === '"'))) {
+          $val = substr($val, 1, -1);
+        }
+        $val = str_replace("\\'", "'", $val);
+        if (strlen($val) > 100) {
+          $val = substr($val, 0, 100) . '...';
+        }
+        $display = $prefix . escapeshellarg($val);
+      }
+
+      $logHeader .= '  ' . $display . "\n";
     }
   }
   write_file($outputFile, $logHeader);
