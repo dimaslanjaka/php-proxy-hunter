@@ -1,0 +1,113 @@
+import os
+import time
+import sys
+from concurrent.futures import ThreadPoolExecutor, as_completed
+
+from proxy_hunter import is_valid_proxy
+
+# Add parent directory to path
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
+from src.func import get_relative_path
+from src.shared import init_db, init_readonly_db
+from src.utils.parse_args import parse_args
+
+# ---- CONFIG ----
+MAX_WORKERS = 20
+ONE_DAY_SECONDS = 24 * 3600
+
+
+def clean_proxies(db):
+    """Remove invalid proxies using concurrency."""
+    proxies = [p["proxy"] for p in db.get_all_proxies()]
+    invalid = []
+
+    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+        future_map = {executor.submit(is_valid_proxy, p): p for p in proxies}
+
+        for future in as_completed(future_map):
+            proxy = future_map[future]
+            try:
+                if not future.result():
+                    invalid.append(proxy)
+            except Exception:
+                invalid.append(proxy)
+
+    for proxy in invalid:
+        print(f"Deleting invalid proxy: {proxy}")
+        db.remove(proxy)
+
+
+def clean_directory(base_path, now):
+    """Clean files older than 1 day and remove empty dirs."""
+    if not os.path.exists(base_path):
+        return
+
+    for entry in os.scandir(base_path):
+        path = entry.path
+        try:
+            if entry.is_dir():
+                clean_directory(path, now)
+                if not os.listdir(path):
+                    print(f"Removing empty directory: {path}")
+                    os.rmdir(path)
+
+            elif entry.is_file():
+                if now - entry.stat().st_mtime > ONE_DAY_SECONDS:
+                    print(f"Removing old file: {path}")
+                    os.remove(path)
+
+        except Exception as e:
+            print(f"Error cleaning {path}: {e}")
+
+    # Remove base dir if empty
+    if not os.listdir(base_path):
+        print(f"Removing empty directory: {base_path}")
+        os.rmdir(base_path)
+
+
+if __name__ == "__main__":
+    args = parse_args(
+        description="Python Cleaner Script",
+        additional=[
+            {
+                "flags": ["--readonly"],
+                "description": "Use read-only DB connection (no updates)",
+                "action": "store_true",
+            }
+        ],
+    )
+
+    db = init_readonly_db() if args.attr("readonly", False) else init_db("mysql")
+
+    # ---- Show proxy stats ----
+    try:
+        counts = db.count_by_status()
+        print("Proxy counts by status:")
+        for item in counts:
+            print(f"  {item.get('status') or '(empty)'}: {item.get('count', 0)}")
+    except Exception as e:
+        print("Failed to get proxy counts:", e)
+
+    # ---- Clean proxies ----
+    if not args.attr("readonly", False):
+        clean_proxies(db)
+
+    # ---- Clean directories ----
+    now = time.time()
+    dirs = [
+        "tmp/logs/crontab",
+        "tmp/build",
+        "tmp/requests_cache",
+        "tmp/caches",
+        "tmp/runners",
+        "tmp/proxies",
+        "tmp/sms",
+        "tmp/mirror",
+        "tmp/status",
+        "tmp/download",
+        "tmp/ips-ports",
+    ]
+
+    for d in dirs:
+        clean_directory(get_relative_path(d), now)

@@ -442,6 +442,10 @@ if run_24h:
         CRONTAB_LOG_DIR / "php-cleaner.log", ["php", str(CWD / "artisan/cleaner.php")]
     )
     log_command(
+        CRONTAB_LOG_DIR / "python-cleaner.log",
+        [PYTHON_BIN, str(CWD / "artisan/cleaner.py")],
+    )
+    log_command(
         CRONTAB_LOG_DIR / "cleanup-backups.log",
         [
             "find",
