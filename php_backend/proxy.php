@@ -5,13 +5,16 @@ require_once __DIR__ . '/shared.php';
 // General-purpose proxy with CORS bypass for assets (JS, CSS, TXT, JSON, etc.)
 // 1-day cache
 
-$CACHE_DIR = __DIR__ . '/../tmp/asset-cache';
+$CACHE_DIR = __DIR__ . '/../tmp/download';
 $CACHE_TTL = 86400;
 // 24h
 $MAX_BYTES = 10 * 1024 * 1024;
 // 10MB limit
 $ALLOWED_HOSTS = [];
 // restrict here if needed (leave empty for all)
+$ALLOWED_CALLER_DOMAINS = ['127.0.0.1', '::1', 'localhost', 'php.webmanajemen.com', 'sh.webmanajemen.com', 'webmanajemen.com', 'dev.webmanajemen.com'];
+// restrict which calling origins/referrers may request this proxy.
+// Example: ['example.com', '*.myapp.com'] — leave empty to allow all callers
 $DEFAULT_TIMEOUT = 10;
 
 // Allowed MIME types for this proxy
@@ -31,6 +34,20 @@ PhpProxyHunter\Server::allowCors();
 
 $request = parseQueryOrPostBody();
 $raw     = isset($request['url']) ? $request['url'] : '';
+// Enforce caller-origin whitelist early
+if (!empty($ALLOWED_CALLER_DOMAINS)) {
+  $callerHost = \PhpProxyHunter\Server::getRequestOriginHost();
+  // If no origin/referrer provided, allow only local requests (localhost/127.0.0.1)
+  if ($callerHost === null) {
+    $remote  = isset($_SERVER['REMOTE_ADDR']) ? $_SERVER['REMOTE_ADDR'] : null;
+    $isLocal = in_array($remote, ['127.0.0.1', '::1', 'localhost'], true) || php_sapi_name() === 'cli';
+    if (!$isLocal) {
+      send_error(403, 'Caller origin missing or not allowed');
+    }
+  } elseif (!isAllowedCaller($ALLOWED_CALLER_DOMAINS, $callerHost)) {
+    send_error(403, 'Caller origin not allowed');
+  }
+}
 // match JS decodeURIComponent
 $url = rawurldecode($raw);
 // check is base64
@@ -155,7 +172,7 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 // flush content
 ob_end_flush();
 
-function send_error(int $code, string $msg): void {
+function send_error(int $code, string $msg) {
   http_response_code($code);
   header('Content-Type: text/plain; charset=utf-8');
   exit($msg);
@@ -164,4 +181,33 @@ function send_error(int $code, string $msg): void {
 function isValidBase64(string $str): bool {
   $decoded = base64_decode($str, true);
   return ($decoded !== false && base64_encode($decoded) === $str) ? true : false;
+}
+
+/**
+ * Return the host from the request's Origin or Referer header, or null if none present.
+ */
+
+/**
+ * Check whether a host is allowed by a list of patterns.
+ * Patterns can be exact hosts (example.com) or wildcard subdomains (*.example.com).
+ */
+function isAllowedCaller(array $allowedPatterns, string $host): bool {
+  $host = strtolower($host);
+  foreach ($allowedPatterns as $pattern) {
+    $pattern = strtolower(trim($pattern));
+    if ($pattern === $host) {
+      return true;
+    }
+    if (strpos($pattern, '*.') === 0) {
+      $base = substr($pattern, 2);
+      if ($host === $base || substr($host, -strlen($base)) === $base) {
+        // ensure proper boundary (e.g. allowed *.example.com matches a.example.com but not badexample.com)
+        $idx = strlen($host) - strlen($base) - 1;
+        if ($idx >= 0 && $host[$idx] === '.') {
+          return true;
+        }
+      }
+    }
+  }
+  return false;
 }
