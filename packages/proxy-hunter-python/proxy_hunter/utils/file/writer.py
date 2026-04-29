@@ -1,5 +1,4 @@
 import json
-import os
 from typing import Any, Optional
 from .folder import resolve_parent_folder
 
@@ -16,7 +15,7 @@ def write_json(file_path: str, data: Any) -> None:
         return
 
     # Ensure parent directories exist
-    os.makedirs(os.path.dirname(file_path), exist_ok=True)
+    resolve_parent_folder(file_path)
 
     with open(file_path, "w", encoding="utf-8") as file:
         json.dump(data, file, indent=2, ensure_ascii=False)
@@ -37,3 +36,20 @@ def write_file(file_path: Optional[str], content: Optional[str]) -> None:
                 file.write(content or "")
     except Exception as e:
         print(f"Error writing {file_path} - {e}")
+
+
+def append_file(file_path: Optional[str], content: Optional[str]) -> None:
+    """
+    Append content to a file, creating parent directories as needed.
+
+    Args:
+        file_path: path to append to
+        content: string content to append (or None)
+    """
+    try:
+        if file_path:
+            resolve_parent_folder(file_path)
+            with open(file_path, "a", encoding="utf-8") as file:
+                file.write(content or "")
+    except Exception as e:
+        print(f"Error appending {file_path} - {e}")

@@ -27,5 +27,5 @@ from .folder import (
     join_path,
 )
 from .permissions import fix_permissions
-from .writer import write_file, write_json
+from .writer import write_file, write_json, append_file
 from .path import realpath

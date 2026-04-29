@@ -31,6 +31,7 @@ from .file import (
     write_json,
     file_exists,
     realpath,
+    append_file,
 )
 from .md5 import md5
 from .index_utils import (

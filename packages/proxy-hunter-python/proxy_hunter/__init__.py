@@ -86,6 +86,7 @@ from .utils import (
     unique_non_empty_strings,
     write_file,
     write_json,
+    append_file,
 )
 from .utils.extractor.proxies.extract_proxies import extract_proxies
 from .utils.extractor.proxies.extract_proxies_from_file import extract_proxies_from_file
