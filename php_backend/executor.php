@@ -94,6 +94,7 @@ if (!empty($file)) {
   if (!is_dir(dirname($outputFile))) {
     @mkdir(dirname($outputFile), 0755, true);
   }
+
   write_file($outputFile, '=== Log for ' . basename($file) . ' started at ' . date('Y-m-d H:i:s') . " ===\n\nCommand: " . implode(' ', $cmd) . "\n\n");
 
   $cmd[] = '>>';
@@ -106,11 +107,21 @@ if (!empty($file)) {
   $workspace  = get_project_root();
   $commandStr = implode(' ', $cmd);
 
+  $PATH = getenv('PATH');
+
   if ($isWin) {
     // Prepare Windows-style workspace path without trailing backslash
     $workspaceWin = str_replace('/', '\\', rtrim($workspace, '/\\'));
     // Mirror cmd-here.bat CUSTOM_PATH entries and include workspace-specific bins
+    // Append the current PHP process PATH into CUSTOM_PATH (sanitized)
+    $winPath = '';
+    if (!empty($PATH)) {
+      $winPath = str_replace('"', '', str_replace('/', '\\', $PATH));
+    }
     $customPath = "%LOCALAPPDATA%\\nvm;C:\\nvm4w\\nodejs;C:\\Program Files\\Nox\\bin;D:\\Program Files\\Nox\\bin;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\usr\\bin;%PATH%;{$workspaceWin}\\node_modules\\.bin;{$workspaceWin}\\bin;{$workspaceWin}\\vendor\\bin;C:\\laragon\\bin\\mysql\\mysql-8.4.3-winx64\\bin;C:\\laragon\\bin\\php\\php-8.4.11-Win32-vs17-x64;C:\\laragon\\bin\\git\\bin;C:\\laragon\\bin\\python\\python-3.13;C:\\laragon\\bin\\memcached\\memcached-1.6.8-win64-mingw";
+    if ($winPath !== '') {
+      $customPath .= ';' . $winPath;
+    }
 
     $script = "@echo off\r\n";
     $script .= "set \"WORKSPACE_FOLDER={$workspaceWin}\"\r\n";
@@ -136,11 +147,18 @@ if (!empty($file)) {
   }
   runBashOrBatch($runner);
 
-  respond_json([
+  $response = [
     'logFile' => toUnixPath(str_replace(get_project_root(), '', $outputFile)),
-    'command' => implode(' ', $cmd),
-    'message' => 'Execution ' . toUnixPath(str_replace(get_project_root(), '', $cmd[0])) . ' ' . toUnixPath(str_replace(get_project_root(), '', $cmd[1])) . ' started.',
-  ]);
+  ];
+
+  if ($isAdmin) {
+    $response['command'] = implode(' ', $cmd);
+    $response['message'] = 'Execution ' . toUnixPath(str_replace(get_project_root(), '', $cmd[0])) . ' ' . toUnixPath(str_replace(get_project_root(), '', $cmd[1])) . ' started.';
+  } else {
+    $response['message'] = 'Execution started.';
+  }
+
+  respond_json($response);
 }
 
 if (isset($request['list'])) {
