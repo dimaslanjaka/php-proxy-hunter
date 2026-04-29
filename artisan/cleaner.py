@@ -8,6 +8,7 @@ from proxy_hunter import is_valid_proxy
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+from src.ProxyDB import ProxyDB
 from src.func import get_relative_path
 from src.shared import init_db, init_readonly_db
 from src.utils.parse_args import parse_args
@@ -17,7 +18,7 @@ MAX_WORKERS = 20
 ONE_DAY_SECONDS = 24 * 3600
 
 
-def clean_proxies(db):
+def clean_proxies(db: "ProxyDB"):
     """Remove invalid proxies using concurrency."""
     proxies = [p["proxy"] for p in db.get_all_proxies()]
     invalid = []
@@ -35,7 +36,14 @@ def clean_proxies(db):
 
     for proxy in invalid:
         print(f"Deleting invalid proxy: {proxy}")
-        db.remove(proxy)
+        try:
+            if getattr(db, "driver", "").lower() == "mysql":
+                sql = "DELETE FROM proxies WHERE proxy = %s"
+            else:
+                sql = "DELETE FROM proxies WHERE proxy = ?"
+            db.get_db().execute_query(sql, [proxy.strip()])
+        except Exception as e:
+            print(f"Failed to delete proxy {proxy}: {e}")
 
 
 def clean_directory(base_path, now):
