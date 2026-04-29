@@ -2,6 +2,7 @@ import os
 import json
 import requests
 import pickle
+from typing import Optional
 
 
 class GeoPlugin:
@@ -56,14 +57,16 @@ class GeoPlugin:
         response = self.fetch(host)
         return self.load_response(response)
 
-    def load_response(self, response: requests.Response):
+    def load_response(
+        self, response: Optional[requests.Response]
+    ) -> Optional[requests.Response]:
         if response:
             try:
                 data = response.json()
                 if data.get(
                     "geoplugin_status"
                 ) == 429 or "too many request" in data.get("geoplugin_message", ""):
-                    if os.path.exists(self.cacheFile):
+                    if self.cacheFile is not None and os.path.exists(self.cacheFile):
                         os.remove(self.cacheFile)
                 else:
                     self.city = data.get("geoplugin_city")
@@ -123,7 +126,7 @@ class GeoPlugin:
             and decoded_data.get("geoplugin_status") == 429
             and "too many request" in decoded_data.get("geoplugin_message", "")
         ):
-            if os.path.exists(self.cacheFile):
+            if self.cacheFile is not None and os.path.exists(self.cacheFile):
                 os.remove(self.cacheFile)
             # geo2 = GeoPlugin2()  # Assuming GeoPlugin2 is defined similarly
             # geoplugin = geo2.locate(ip)
@@ -165,7 +168,7 @@ class GeoPlugin:
             print(f"Error: {e}")
             return None
 
-    def convert(self, amount, float=2, symbol=True):
+    def convert(self, amount, ndigits=2, symbol=True):
         if (
             not isinstance(self.currencyConverter, (int, float))
             or self.currencyConverter == 0
@@ -176,9 +179,9 @@ class GeoPlugin:
             print("Warning: The amount passed to GeoPlugin::convert is not numeric.")
             return amount
         return (
-            f"{self.currencySymbol}{round(amount * self.currencyConverter, float)}"
+            f"{self.currencySymbol}{round(amount * self.currencyConverter, ndigits)}"
             if symbol
-            else round(amount * self.currencyConverter, float)
+            else round(amount * self.currencyConverter, ndigits)
         )
 
     def nearby(self, radius=10, limit=None):
