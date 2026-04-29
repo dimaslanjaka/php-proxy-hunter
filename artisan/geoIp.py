@@ -14,6 +14,7 @@ from src.func import get_relative_path
 from src.func_console import blue, cyan, green, magenta, orange, red, white, yellow
 from src.geoPlugin import get_geo_ip
 from src.ProxyDB import ProxyDB
+from src.database.SQLiteMarker import SQLiteMarker
 from src.utils.file.FileLockHelper import FileLockHelper
 
 if __name__ == "__main__":
@@ -27,6 +28,14 @@ if __name__ == "__main__":
         sys.exit(0)
 
     db = ProxyDB()
+    # Initialize marker here so it's always a valid instance (not None)
+    marker = SQLiteMarker(
+        db_filename="geoip.sqlite",
+        table_name="geoip_checked",
+        key_column="proxy",
+        base_dir="tmp/database",
+    )
+    processed_proxies: list[str] = []
     try:
         proxy_file = get_relative_path("proxies.txt")
 
@@ -61,6 +70,22 @@ if __name__ == "__main__":
                 str(row.get("proxy") or "").strip() for row in rows if row.get("proxy")
             ]
             source_label = "db"
+
+        # Deduplicate while preserving order and filter already-checked proxies
+        proxy_by_key: dict[str, str] = {}
+        ordered_keys: list[str] = []
+        for p in proxies:
+            key = str(p).strip()
+            if not key or key in proxy_by_key:
+                continue
+            proxy_by_key[key] = p
+            ordered_keys.append(key)
+
+        pending_keys, already_checked = marker.filter_unseen(ordered_keys)
+        proxies = [proxy_by_key[k] for k in pending_keys]
+        print(
+            f"[MARKER] pending={len(proxies)}, already_checked={already_checked}, total_unique={len(ordered_keys)}"
+        )
 
         random.shuffle(proxies)
         device_ip = get_device_ip()
@@ -138,6 +163,17 @@ if __name__ == "__main__":
                 print(red(f"Failed to update proxy file {proxy_file}: {e}"))
 
     finally:
+        try:
+            # Mark successfully processed proxies so they are skipped next run
+            for p in processed_proxies:
+                try:
+                    marker.mark(p)
+                except Exception:
+                    pass
+            marker.close()
+        except Exception:
+            pass
+
         if locker:
             locker.unlock()
         db.close()
