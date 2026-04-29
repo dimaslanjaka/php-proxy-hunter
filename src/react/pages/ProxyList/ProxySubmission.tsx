@@ -92,7 +92,11 @@ export default function ProxySubmission() {
     setIsLoading(true);
 
     // Send proxies to backend for addition
-    fetch(createUrl('/php_backend/proxy-add.php'), { method: 'POST', body: new URLSearchParams({ proxies: textarea }) })
+    fetch(createUrl('/php_backend/proxy-add.php'), {
+      method: 'POST',
+      credentials: 'include',
+      body: new URLSearchParams({ proxies: textarea })
+    })
       .catch((_err) => {
         console.error(_err);
         try {
@@ -106,6 +110,7 @@ export default function ProxySubmission() {
         setIsLoading(true);
         fetch(createUrl('/php_backend/executor.php'), {
           method: 'POST',
+          credentials: 'include',
           headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
           body: new URLSearchParams({ file: selectedCheckBackend, str: textarea })
         })
@@ -162,7 +167,7 @@ export default function ProxySubmission() {
     // Request a capped number of untested proxies instead of asking for "all" (-1)
     const url = createUrl('/php_backend/proxy-list.php', { status: 'untested', length: 1000 });
     setIsLoading(true);
-    fetch(url, { method: 'POST' })
+    fetch(url, { method: 'POST', credentials: 'include' })
       .then((r) => r.json())
       .then((json) => {
         if (!json || !json.data || !Array.isArray(json.data) || json.data.length === 0) {
@@ -245,7 +250,7 @@ export default function ProxySubmission() {
     setIsLoading(true);
     Promise.all(
       urlsToFetch.map((url) =>
-        fetch(createUrl('/php_backend/proxy.php', { url }))
+        fetch(createUrl('/php_backend/proxy.php', { url }), { credentials: 'include' })
           .then((r) => {
             if (!r.ok) {
               console.error(`Failed to fetch from ${url}: HTTP ${r.status}`);
