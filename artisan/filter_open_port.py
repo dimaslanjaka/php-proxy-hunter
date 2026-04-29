@@ -7,7 +7,7 @@ PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
 from proxy_hunter import Proxy, dict_to_proxy_list, is_port_open
-from artisan.proxy_getter import parse_args
+from src.utils.parse_args import parse_args
 from src.database.SQLiteMarker import SQLiteMarker
 from src.func import get_relative_path
 from src.func_date import get_current_rfc3339_time, get_yesterday_rfc3339_time

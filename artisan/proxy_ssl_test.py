@@ -19,7 +19,7 @@ sys.path.append(PROJECT_ROOT)
 from artisan.proxy_checker_httpx import test_proxy
 from src.ASNLookup import ASNLookup
 from src.func import get_relative_path
-from src.func_console import ConsoleColor, green, magenta, red, yellow
+from src.func_console import green, magenta, red, yellow
 from src.func_date import get_current_rfc3339_time, is_date_rfc3339_hour_more_than
 from src.func_platform import is_debug
 from src.ProxyDB import ProxyDB
@@ -207,7 +207,9 @@ if __name__ == "__main__":
             proxy = data["proxy"]
             if is_date_rfc3339_hour_more_than(data.get("last_check"), 24) is False:
                 print(
-                    yellow(f"[SKIP] Proxy checked within last 24 hours, skipping: {proxy}")
+                    yellow(
+                        f"[SKIP] Proxy checked within last 24 hours, skipping: {proxy}"
+                    )
                 )
                 continue
             if not proxy:
@@ -282,7 +284,10 @@ if __name__ == "__main__":
                         )
                         db.update_data(
                             proxy,
-                            {"https": "false", "last_check": get_current_rfc3339_time()},
+                            {
+                                "https": "false",
+                                "last_check": get_current_rfc3339_time(),
+                            },
                         )
                 else:
                     print(

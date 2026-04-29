@@ -8,8 +8,8 @@ from proxy_hunter import get_device_ip
 from artisan.proxy_getter import (
     load_proxies_from_cli,
     load_proxies_from_file,
-    parse_args,
 )
+from src.utils.parse_args import parse_args
 from src.func import get_relative_path
 from src.func_console import blue, cyan, green, magenta, orange, red, white, yellow
 from src.geoPlugin import get_geo_ip

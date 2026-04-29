@@ -13,9 +13,9 @@ sys.path.append(PROJECT_ROOT)
 from src.func import get_relative_path
 from artisan.proxy_getter import (
     load_working_proxies_from_db,
-    parse_args,
     load_proxies_from_file,
 )
+from src.utils.parse_args import parse_args
 from artisan.proxy_socks5_checker import (
     filter_test_socks5_proxies,
     to_socks5_list,

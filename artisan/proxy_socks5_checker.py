@@ -16,10 +16,10 @@ from src.func_console import cyan, red
 from src.database.SQLiteMarker import SQLiteMarker
 from src.utils.file.FileLockHelper import FileLockHelper
 from artisan.proxy_getter import (
-    parse_args,
     load_proxies_from_file,
     load_proxies_from_cli,
 )
+from src.utils.parse_args import parse_args
 from src.shared import init_db
 
 current_filename = os.path.basename(__file__)
@@ -363,10 +363,7 @@ if __name__ == "__main__":
 
             if not proxies:
                 proxies = to_proxy_rows(
-                    db.get_all_proxies(
-                        limit=args.limit,
-                        randomize=True
-                    )
+                    db.get_all_proxies(limit=args.limit, randomize=True)
                 )
                 source_label = "db"
 
@@ -446,10 +443,7 @@ if __name__ == "__main__":
                 f"[INFO] Tested {len(proxy_candidates)} proxies, passed {len(proxy_working)}"
             )
 
-            tested_set = {
-                normalize_proxy_value(proxy)
-                for proxy in proxy_candidates
-            }
+            tested_set = {normalize_proxy_value(proxy) for proxy in proxy_candidates}
             for tested_proxy in tested_set:
                 marker.mark(tested_proxy)
 

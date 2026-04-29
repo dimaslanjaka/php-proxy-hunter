@@ -10,7 +10,7 @@ from typing import Any, Callable, Optional, TypedDict
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
-from src.func_console import ConsoleColor, cyan, green, red
+from src.func_console import cyan, green, red
 from src.shared import init_db
 from src.func import get_relative_path
 from src.database.SQLiteMarker import SQLiteMarker
@@ -19,8 +19,8 @@ from artisan.proxy_getter import (
     load_proxies_from_cli,
     load_proxies_from_file,
     normalize_proxy_str,
-    parse_args,
 )
+from src.utils.parse_args import parse_args
 
 TARGET_HOST = "1.1.1.1"
 TLS_HOST = "www.google.com"
@@ -46,7 +46,7 @@ def color_value_text(value: int) -> str:
     clamped = max(0, min(100, value))
     red = int(255 * (100 - clamped) / 100)
     green = int(255 * clamped / 100)
-    reset = ConsoleColor.COLORS.get("reset", "\x1b[0m")
+    reset = "\x1b[0m"
     return f"\x1b[38;2;{red};{green};0m{value}{reset}"
 
 
