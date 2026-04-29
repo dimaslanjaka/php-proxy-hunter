@@ -37,7 +37,7 @@ class ConsoleColor:
     }
 
     @classmethod
-    def colorize(cls, text: str | None, color: str = "reset") -> str:
+    def colorize(cls, text: str | int | float | None, color: str = "reset") -> str:
         """Colorize the specified text.
 
         Args:
@@ -51,63 +51,81 @@ class ConsoleColor:
         reset_code = cls.COLORS["reset"]
         if text is None:
             text = ""
+        else:
+            text = str(text)
         return f"{color_code}{text}{reset_code}"
 
 
-def red(text: str | None) -> str:
+def red(text: str | int | float | None) -> str:
     """Return text in bright red."""
     if text is None:
         text = ""
+    else:
+        text = str(text)
     return f"{Style.BRIGHT}{Fore.RED}{text}{Style.RESET_ALL}"
 
 
-def magenta(text: str | None) -> str:
+def magenta(text: str | int | float | None) -> str:
     """Return text in bright magenta."""
     if text is None:
         text = ""
+    else:
+        text = str(text)
     return f"{Style.BRIGHT}{Fore.MAGENTA}{text}{Style.RESET_ALL}"
 
 
-def yellow(text: str | None) -> str:
+def yellow(text: str | int | float | None) -> str:
     """Return text in bright yellow."""
     if text is None:
         text = ""
+    else:
+        text = str(text)
     return f"{Style.BRIGHT}{Fore.YELLOW}{text}{Style.RESET_ALL}"
 
 
-def green(text: str | None) -> str:
+def green(text: str | int | float | None) -> str:
     """Return text in bright green."""
     if text is None:
         text = ""
+    else:
+        text = str(text)
     return f"{Style.BRIGHT}{Fore.GREEN}{text}{Style.RESET_ALL}"
 
 
-def cyan(text: str | None) -> str:
+def cyan(text: str | int | float | None) -> str:
     """Return text in bright cyan."""
     if text is None:
         text = ""
+    else:
+        text = str(text)
     return f"{Style.BRIGHT}{Fore.CYAN}{text}{Style.RESET_ALL}"
 
 
-def orange(text: str | None) -> str:
+def orange(text: str | int | float | None) -> str:
     """Return text in bright orange."""
     orange_color = "\033[38;5;208m"
     if text is None:
         text = ""
+    else:
+        text = str(text)
     return f"{Style.BRIGHT}{orange_color}{text}{Style.RESET_ALL}"
 
 
-def blue(text: str | None) -> str:
+def blue(text: str | int | float | None) -> str:
     """Return text in bright blue."""
     if text is None:
         text = ""
+    else:
+        text = str(text)
     return f"{Style.BRIGHT}{Fore.BLUE}{text}{Style.RESET_ALL}"
 
 
-def white(text: str | None) -> str:
+def white(text: str | int | float | None) -> str:
     """Return text in bright white."""
     if text is None:
         text = ""
+    else:
+        text = str(text)
     return f"{Style.BRIGHT}{Fore.WHITE}{text}{Style.RESET_ALL}"
 
 
