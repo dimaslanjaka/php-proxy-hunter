@@ -64,7 +64,11 @@ def real_check(proxy: str, url: str, title_should_be: str):
                 log += f"  {key}: {value}\n"
             if check.response.text:
                 soup = BeautifulSoup(check.response.text, "html.parser")
-                response_title = soup.title.string.strip() if soup.title else ""
+                response_title = (
+                    soup.title.string.strip()
+                    if soup.title and soup.title.string
+                    else ""
+                )
                 log += f"TITLE: {response_title}\n"
                 if title_should_be.lower() in response_title.lower():
                     protocols.append(proxy_type.lower())
@@ -187,16 +191,14 @@ class Command(BaseCommand):
         if untested_proxies:
             proxies.extend(untested_proxies)
 
-        active_proxies = self.select_proxies(
-            f"""
+        active_proxies = self.select_proxies(f"""
             SELECT *
             FROM proxies
             WHERE status = 'active'
             AND datetime(last_check) < datetime('now', '-4 hours')
             ORDER BY RANDOM()
             LIMIT {max_proxies};
-            """
-        )
+            """)
         if active_proxies:
             proxies.extend(active_proxies)
 
