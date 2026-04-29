@@ -1,12 +1,9 @@
 import concurrent.futures
 from typing import Optional
 
-from colorama import Fore, Style, init
+from colorama import Fore, Style
 
 from proxy_hunter.curl.request_helper import build_request
-
-# Initialize colorama
-init()
 
 
 def is_prox(proxy_server: str, debug: bool = False) -> Optional[str]:
