@@ -2,6 +2,7 @@
 
 # Determine the current script directory
 SCRIPT_DIR=$(dirname "$(realpath "$0")")
+PROJECT_DIR=$(dirname "$SCRIPT_DIR")
 USER="www-data"
 
 # Detect if running on a VPS or desktop
@@ -184,7 +185,7 @@ fi
 
 # run commit history builder on non-VPS environments
 if [ $IS_VPS -eq 0 ]; then
-  node --no-warnings=ExperimentalWarning --loader ts-node/esm "$CWD/src/dev/git-history.builder.ts"
+  node --no-warnings=ExperimentalWarning --loader ts-node/esm "$PROJECT_DIR/src/dev/git-history.builder.ts"
 fi
 
 # Fix permissions
@@ -214,4 +215,4 @@ elif [ "$OS" = "Linux" ]; then
 fi
 
 # Run database migrations
-"$CWD/bin/py" "src/migrations/migrate.py" || true
+"$PROJECT_DIR/bin/py" "src/migrations/migrate.py" || true
