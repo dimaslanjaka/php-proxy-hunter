@@ -58,8 +58,14 @@ def parse_args(
     parser.add_argument(
         "--limit",
         type=int,
-        default=default_limit,
-        help="DB proxy load limit when no CLI proxy input is provided",
+        default=None,
+        help="DB proxy load limit when no CLI proxy input is provided (alias: --max)",
+    )
+    parser.add_argument(
+        "--max",
+        type=int,
+        default=None,
+        help="Alias for --limit; used when --limit is not provided",
     )
     parser.add_argument(
         "--concurrency",
@@ -84,11 +90,20 @@ def parse_args(
     # (useful when scripts are invoked with framework/container args).
     ns = parser.parse_known_args()[0]
 
+    # Prefer explicit --limit; if not provided, fall back to --max; otherwise use default
+    raw_limit = getattr(ns, "limit", None)
+    raw_max = getattr(ns, "max", None)
+    final_limit = (
+        raw_limit
+        if raw_limit is not None
+        else (raw_max if raw_max is not None else default_limit)
+    )
+
     return ParseArgs(
         proxy_string=getattr(ns, "proxy_string", None),
         single_proxy=getattr(ns, "single_proxy", None),
         proxy_file=getattr(ns, "proxy_file", None),
-        limit=getattr(ns, "limit", default_limit),
+        limit=final_limit,
         concurrency=getattr(ns, "concurrency", default_concurrency),
         uid=getattr(ns, "uid", None),
         admin=getattr(ns, "admin", False),
