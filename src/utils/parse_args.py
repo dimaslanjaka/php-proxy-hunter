@@ -1,6 +1,9 @@
 import argparse
 from dataclasses import dataclass
-from typing import Optional
+from typing import Optional, Any, TypeVar
+
+# Generic type for attr() return value inference
+T = TypeVar("T")
 
 
 def _str_to_bool(value: Optional[str]) -> bool:
@@ -32,11 +35,19 @@ class ParseArgs:
     uid: Optional[str] = None
     admin: bool = False
 
+    def attr(self, name: str, default: T) -> T:
+        """Return attribute value if present, otherwise `default`.
+
+        `default` is required and its type determines the generic return type `T`.
+        """
+        return getattr(self, name, default)
+
 
 def parse_args(
     default_limit: int = 100,
     default_concurrency: int = 4,
     description: str = "Find a tun2socks-compatible SOCKS5 proxy",
+    additional: Optional[list] = None,
 ) -> ParseArgs:
     """Parse common CLI arguments used across artisan scripts.
 
@@ -44,9 +55,15 @@ def parse_args(
     - default_limit: fallback value used when neither `--limit` nor `--max` are provided.
     - default_concurrency: default number of workers when `--concurrency` is not provided.
     - description: text passed to `argparse.ArgumentParser(description=...)`.
+    - additional: optional list of dicts to dynamically register extra arguments.
+      Each dict may contain keys like `flag`/`flags` (string or list), `dest`,
+      `description` (maps to argparse `help`), `action` (argparse action string,
+      e.g. 'store_true'), `type`, and `default`.
 
     Returns:
-    - `ParseArgs` dataclass with parsed values.
+    - `ParseArgs` dataclass with parsed values. Any dynamically added args are
+      attached as attributes on the returned instance so callers can access
+      `args.<name>`.
     """
     parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
@@ -95,6 +112,71 @@ def parse_args(
         type=_str_to_bool,
         help="Admin mode. Use --admin, --admin=true or --admin=false.",
     )
+
+    # Register any additional dynamic args
+    if additional:
+        for spec in additional:
+            if not isinstance(spec, dict):
+                continue
+            flags = None
+            if "flags" in spec:
+                flags = spec.get("flags")
+            elif "flag" in spec:
+                flags = spec.get("flag")
+            elif "action" in spec:
+                # allow passing a flag via the 'action' key for convenience
+                action_val = spec.get("action")
+                if isinstance(action_val, str) and action_val.startswith("-"):
+                    flags = action_val
+
+            if not flags:
+                continue
+            if isinstance(flags, str):
+                flags = [flags]
+
+            kwargs = {}
+            # help/description
+            if "help" in spec:
+                kwargs["help"] = spec.get("help")
+            elif "description" in spec:
+                kwargs["help"] = spec.get("description")
+            # dest
+            if "dest" in spec:
+                kwargs["dest"] = spec.get("dest")
+            # argparse action (store_true, store_false, etc.)
+            if "action_type" in spec:
+                kwargs["action"] = spec.get("action_type")
+            elif "action" in spec and spec.get("action") in (
+                "store_true",
+                "store_false",
+                "store_const",
+                "append",
+                "count",
+            ):
+                kwargs["action"] = spec.get("action")
+            # type handling: accept type object or short string
+            if "type" in spec:
+                t = spec.get("type")
+                if isinstance(t, str):
+                    if t == "int":
+                        kwargs["type"] = int
+                    elif t == "float":
+                        kwargs["type"] = float
+                    elif t == "bool":
+                        kwargs["type"] = _str_to_bool
+                    else:
+                        # fallback: do not set
+                        pass
+                else:
+                    kwargs["type"] = t
+            if "default" in spec:
+                kwargs["default"] = spec.get("default")
+
+            try:
+                parser.add_argument(*flags, **kwargs)
+            except Exception:
+                # ignore malformed spec to preserve robustness
+                continue
     # Allow unknown args so callers can pass extra flags without failing
     # (useful when scripts are invoked with framework/container args).
     ns = parser.parse_known_args()[0]
@@ -108,7 +190,7 @@ def parse_args(
         else (raw_max if raw_max is not None else default_limit)
     )
 
-    return ParseArgs(
+    result = ParseArgs(
         proxy_string=getattr(ns, "proxy_string", None),
         single_proxy=getattr(ns, "single_proxy", None),
         proxy_file=getattr(ns, "proxy_file", None),
@@ -117,3 +199,13 @@ def parse_args(
         uid=getattr(ns, "uid", None),
         admin=getattr(ns, "admin", False),
     )
+
+    # Attach any dynamic args from namespace to the returned dataclass instance
+    for name, val in vars(ns).items():
+        if not hasattr(result, name):
+            try:
+                setattr(result, name, val)
+            except Exception:
+                pass
+
+    return result

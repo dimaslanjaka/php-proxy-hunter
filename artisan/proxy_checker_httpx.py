@@ -6,7 +6,6 @@ import json
 import re
 import time
 import httpx
-import argparse
 from httpx_socks import AsyncProxyTransport
 from proxy_hunter import extract_proxies
 from typing import Dict, Any, Optional
@@ -19,6 +18,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.func import get_relative_path
 from src.shared import init_db, init_readonly_db
 from src.func_date import get_current_rfc3339_time
+from src.utils.parse_args import parse_args
 from src.utils.file.FileLockHelper import FileLockHelper
 from src.ProxyDB import ProxyDB
 from src.func_platform import is_debug
@@ -280,16 +280,27 @@ async def main(db: ProxyDB, non_ssl: bool = False) -> None:
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Proxy checker (httpx).")
-    parser.add_argument(
-        "--readonly", action="store_true", help="Use readonly DB connection"
+    # Use shared parser and register dynamic args `--readonly` and `--non-ssl`
+    args = parse_args(
+        default_limit=100,
+        description="Proxy checker (httpx).",
+        additional=[
+            {
+                "flag": "--readonly",
+                "description": "Use readonly DB connection",
+                "action": "store_true",
+                "dest": "readonly",
+                "default": False,
+            },
+            {
+                "flag": "--non-ssl",
+                "description": "Use only non-SSL working proxies",
+                "action": "store_true",
+                "dest": "non_ssl",
+                "default": False,
+            },
+        ],
     )
-    parser.add_argument(
-        "--non-ssl", action="store_true", help="Use only non-SSL working proxies"
-    )
-    parser.add_argument("--uid", type=str, help="Override lock filename (unique id)")
-    # Allow unknown args so external wrappers can pass extra flags
-    args = parser.parse_known_args()[0]
 
     # Apply optional UID override for the lock filename
     current_filename = args.uid if args.uid else os.path.basename(__file__)
@@ -300,13 +311,13 @@ if __name__ == "__main__":
         print("Another instance is running. Exiting.")
         sys.exit(0)
 
-    db = init_readonly_db() if args.readonly else init_db("mysql")
+    db = init_readonly_db() if args.attr("readonly", False) else init_db("mysql")
 
     if is_debug():
-        asyncio.run(main(db, args.non_ssl))
+        asyncio.run(main(db, args.attr("non_ssl", False)))
     else:
         try:
-            asyncio.run(main(db, args.non_ssl))
+            asyncio.run(main(db, args.attr("non_ssl", False)))
         except Exception as e:
             print(f"Unhandled exception: {e}")
     if locker:
