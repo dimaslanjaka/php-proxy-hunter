@@ -1,4 +1,3 @@
-import argparse
 import os
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
@@ -13,7 +12,8 @@ from src.database.SQLiteMarker import SQLiteMarker
 from src.func import get_relative_path
 from src.func_console import green, magenta, red, yellow
 from src.func_date import get_current_rfc3339_time
-from src.shared import init_db, init_readonly_db
+from src.shared import init_db
+from src.utils.parse_args import parse_args
 from src.utils.file.FileLockHelper import FileLockHelper
 
 current_filename = os.path.basename(__file__)
@@ -63,35 +63,8 @@ def _delete_proxies(db: ProxyDB, proxies_to_delete: List[str]) -> int:
 
 
 def main() -> int:
-    parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "--uid",
-        type=str,
-        help="Override lock filename (unique id)",
-    )
-    parser.add_argument(
-        "--production",
-        action="store_true",
-        help="Use production database (write-enabled; may perform destructive operations)",
-    )
-    parser.add_argument(
-        "--readonly",
-        action="store_true",
-        help="Use readonly production database (init_readonly_db)",
-    )
-    parser.add_argument(
-        "--include-untested",
-        action="store_true",
-        help="Include untested proxies when selecting duplicates",
-    )
-    parser.add_argument(
-        "--limit",
-        type=int,
-        default=None,
-        help="Limit number of duplicate IPs to fetch (overrides default batch)",
-    )
-    # Allow unknown args so external wrappers can pass extra flags
-    args = parser.parse_known_args()[0]
+    # Use shared parser: supports --limit/--max and --uid
+    args = parse_args(default_limit=100, description="Filter Duplicate IPs")
 
     lock_name = args.uid if args.uid else os.path.basename(__file__)
     locker = FileLockHelper(get_relative_path(f"tmp/locks/{lock_name}.lock"))
@@ -102,27 +75,8 @@ def main() -> int:
     db = None
     marker = None
     try:
-        if args.readonly:
-            db = init_readonly_db()
-        elif args.production:
-            db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
-            db_host = os.getenv(
-                "MYSQL_HOST_PRODUCTION", os.getenv("MYSQL_HOST", "localhost")
-            )
-            db_user = os.getenv(
-                "MYSQL_USER_PRODUCTION", os.getenv("MYSQL_USER", "root")
-            )
-            db_pass = os.getenv("MYSQL_PASS_PRODUCTION", os.getenv("MYSQL_PASS", ""))
-            db = ProxyDB(
-                start=True,
-                db_type="mysql",
-                mysql_host=db_host,
-                mysql_dbname=db_name,
-                mysql_user=db_user,
-                mysql_password=db_pass,
-            )
-        else:
-            db = init_db("mysql")
+        # Always use init_db for a writable DB in this script
+        db = init_db("mysql")
 
         if not db.db:
             print(red("Database not initialized. Exiting."))
@@ -144,17 +98,9 @@ def main() -> int:
         random_function = "RAND()" if is_mysql else "RANDOM()"
         placeholder = "%s" if is_mysql else "?"
 
-        include_untested = args.include_untested
-        status_filter_inner = (
-            "WHERE status != 'active'"
-            if include_untested
-            else "WHERE status != 'active' AND status != 'untested'"
-        )
-        status_filter_trailing = (
-            "AND status != 'active'"
-            if include_untested
-            else "AND status != 'active' AND status != 'untested'"
-        )
+        # Always include untested proxies
+        status_filter_inner = "WHERE status != 'active'"
+        status_filter_trailing = "AND status != 'active'"
 
         sql_duplicate_ips = f"""
         SELECT ip, COUNT(*) AS count_duplicates
@@ -170,7 +116,9 @@ def main() -> int:
         """
 
         default_batch = 1000
-        batch = args.limit if args.limit is not None else default_batch
+        batch = (
+            args.limit if getattr(args, "limit", None) is not None else default_batch
+        )
         offset = 0
 
         res = db.db.execute_query_fetch(sql_duplicate_ips, (batch, offset))
