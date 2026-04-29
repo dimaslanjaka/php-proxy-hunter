@@ -107,7 +107,8 @@ if (!empty($file)) {
   $workspace  = get_project_root();
   $commandStr = implode(' ', $cmd);
 
-  $PATH = getenv('PATH');
+  $PATH      = getenv('PATH');
+  $finalPATH = '';
 
   if ($isWin) {
     // Prepare Windows-style workspace path without trailing backslash
@@ -122,6 +123,7 @@ if (!empty($file)) {
     if ($winPath !== '') {
       $customPath .= ';' . $winPath;
     }
+    $finalPATH = $customPath;
 
     $script = "@echo off\r\n";
     $script .= "set \"WORKSPACE_FOLDER={$workspaceWin}\"\r\n";
@@ -137,7 +139,8 @@ if (!empty($file)) {
     $script           = "#!/usr/bin/env bash\n";
     $script .= "WORKSPACE_FOLDER=\"{$escapedWorkspace}\"\n";
     // Ensure a minimal system PATH is present for webrunner environments
-    $script .= "export PATH=\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:{$posixExtras}:{$escapedBin}:$PATH\"\n";
+    $finalPATH = "\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:{$posixExtras}:{$escapedBin}:$PATH\"";
+    $script .= "export PATH=$finalPATH\n";
     $script .= $commandStr . "\n";
   }
 
@@ -152,6 +155,7 @@ if (!empty($file)) {
   ];
 
   if ($isAdmin) {
+    $response['PATH']    = $finalPATH;
     $response['command'] = implode(' ', $cmd);
     $response['message'] = 'Execution ' . toUnixPath(str_replace(get_project_root(), '', $cmd[0])) . ' ' . toUnixPath(str_replace(get_project_root(), '', $cmd[1])) . ' started.';
   } else {
