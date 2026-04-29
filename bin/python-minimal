@@ -4,27 +4,42 @@ set -e
 # set variable
 SCRIPT_DIR="$(dirname "$(realpath "$0")")"
 CWD="$(dirname "$SCRIPT_DIR")"
-PY="$CWD/bin/py"
 
 # add bin to PATH
 export PATH="$CWD/bin:$PATH"
 
-# create venv if not exists and install dependencies
-if [ ! -d "venv" ]; then
-  if command -v python3 &> /dev/null; then
-    python3 -m venv venv
-    python3 -m pip install --upgrade pip
-  elif command -v python &> /dev/null; then
-    python -m venv venv
-    python -m pip install --upgrade pip
+# Prefer .venv then venv in repository root; fall back to creating 'venv'
+VENV_DIR="venv"
+if [ -d "$CWD/.venv" ]; then
+  VENV_DIR=".venv"
+elif [ -d "$CWD/venv" ]; then
+  VENV_DIR="venv"
+fi
+
+# create virtualenv if missing
+if [ ! -d "$CWD/$VENV_DIR" ]; then
+  if command -v python3 >/dev/null 2>&1; then
+    python3 -m venv "$CWD/$VENV_DIR"
+    python3 -m pip install --upgrade pip || true
+  elif command -v python >/dev/null 2>&1; then
+    python -m venv "$CWD/$VENV_DIR"
+    python -m pip install --upgrade pip || true
   else
     echo "Python is not installed." >&2
     exit 1
   fi
 fi
 
-if [ -f "venv/bin/activate" ]; then
-  . venv/bin/activate
+# activate the chosen venv if possible
+if [ -f "$CWD/$VENV_DIR/bin/activate" ]; then
+  # shellcheck disable=SC1090
+  . "$CWD/$VENV_DIR/bin/activate"
+fi
+
+# set PY to venv python, fallback to bin/py
+PY="$CWD/$VENV_DIR/bin/python"
+if [ ! -x "$PY" ]; then
+  PY="$CWD/bin/py"
 fi
 
 "$PY" -m pip install --upgrade pip || true

@@ -28,14 +28,23 @@ if not defined PY_CREATOR (
 )
 
 @REM create venv if not exists
-if not exist venv (
-  	%PY_CREATOR% -m venv venv
-)
-if exist venv\Scripts\activate.bat (
-		call venv\Scripts\activate.bat
+REM Prefer .venv then venv in repository root; fall back to creating 'venv'
+set "VENV_DIR=venv"
+if exist "%CWD%\.venv" (
+    set "VENV_DIR=.venv"
+) else if exist "%CWD%\venv" (
+    set "VENV_DIR=venv"
 )
 
-set "PY=%CWD%\venv\Scripts\python.exe"
+if not exist "%CWD%\%VENV_DIR%" (
+    "%PY_CREATOR%" -m venv "%CWD%\%VENV_DIR%"
+)
+
+if exist "%CWD%\%VENV_DIR%\Scripts\activate.bat" (
+    call "%CWD%\%VENV_DIR%\Scripts\activate.bat"
+)
+
+set "PY=%CWD%\%VENV_DIR%\Scripts\python.exe"
 call %PY% -m pip install --upgrade pip
 call %PY% -m pip install -r "%CWD%\requirements-base.txt"
 call %PY% -m pip install -r "%CWD%\requirements-minimal.txt"
