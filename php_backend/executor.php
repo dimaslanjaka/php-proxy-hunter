@@ -30,7 +30,7 @@ $executorFiles = [
   'proxy_tun2socks_stability' => 'Tun2Socks Stability Test',
   'proxy_socks5_checker'      => 'SOCKS5 Proxy Checker',
   'proxy-classifier-lookup'   => 'Proxy Classifier Lookup',
-  'geoIp'                     => 'GeoIP Lookup',
+  'geoIp.py'                  => 'GeoIP Lookup',
   // php_backend helpers (filename without extension)
   'check-proxy-type'  => 'Check Proxy Type',
   'check-http-proxy'  => 'Check HTTP Proxy',
@@ -177,27 +177,74 @@ if (!empty($file)) {
 if (isset($request['list'])) {
   $files = [];
   foreach ($executorFiles as $key => $label) {
-    // Prefer artisan .php and .py (show both if present), then php_backend .php
-    $artisanPhp = get_project_root('artisan', $key . '.php');
-    $artisanPy  = get_project_root('artisan', $key . '.py');
-    $phpBackend = get_project_root('php_backend', $key . '.php');
+    // Allow executor map keys to include an explicit extension (e.g. "geoIp.py").
+    // Prefer artisan .php and .py (show both if present), then php_backend .php.
+    $found  = false;
+    $hasExt = strpos($key, '.') !== false;
 
-    $found = false;
-    if (file_exists($artisanPhp) && is_file($artisanPhp)) {
-      $files[] = ['name' => $label, 'path' => '/artisan/' . $key . '.php'];
-      $found   = true;
-    }
-    if (file_exists($artisanPy) && is_file($artisanPy)) {
-      $files[] = ['name' => $label, 'path' => '/artisan/' . $key . '.py'];
-      $found   = true;
-    }
+    if ($hasExt) {
+      // If the key already contains an extension, prefer that exact filename.
+      $artisanExact = get_project_root('artisan', $key);
+      if (file_exists($artisanExact) && is_file($artisanExact)) {
+        $files[] = ['name' => $label, 'path' => '/artisan/' . $key];
+        $found   = true;
+      }
 
-    if (!$found) {
-      if (file_exists($phpBackend) && is_file($phpBackend)) {
-        $files[] = ['name' => $label, 'path' => '/php_backend/' . $key . '.php'];
-      } else {
-        // fallback to artisan .php path
+      $ext = strtolower(pathinfo($key, PATHINFO_EXTENSION));
+      if (!$found && $ext === 'php') {
+        $phpBackendExact = get_project_root('php_backend', $key);
+        if (file_exists($phpBackendExact) && is_file($phpBackendExact)) {
+          $files[] = ['name' => $label, 'path' => '/php_backend/' . $key];
+          $found   = true;
+        }
+      }
+
+      // If nothing matched using the explicit name, fall back to the original
+      // discovery using the base filename (without extension).
+      if (!$found) {
+        $base       = pathinfo($key, PATHINFO_FILENAME);
+        $artisanPhp = get_project_root('artisan', $base . '.php');
+        $artisanPy  = get_project_root('artisan', $base . '.py');
+        $phpBackend = get_project_root('php_backend', $base . '.php');
+
+        if (file_exists($artisanPhp) && is_file($artisanPhp)) {
+          $files[] = ['name' => $label, 'path' => '/artisan/' . $base . '.php'];
+          $found   = true;
+        }
+        if (file_exists($artisanPy) && is_file($artisanPy)) {
+          $files[] = ['name' => $label, 'path' => '/artisan/' . $base . '.py'];
+          $found   = true;
+        }
+        if (!$found) {
+          if (file_exists($phpBackend) && is_file($phpBackend)) {
+            $files[] = ['name' => $label, 'path' => '/php_backend/' . $base . '.php'];
+          } else {
+            $files[] = ['name' => $label, 'path' => '/artisan/' . $base . '.php'];
+          }
+        }
+      }
+    } else {
+      // No extension in map key: original behavior
+      $artisanPhp = get_project_root('artisan', $key . '.php');
+      $artisanPy  = get_project_root('artisan', $key . '.py');
+      $phpBackend = get_project_root('php_backend', $key . '.php');
+
+      if (file_exists($artisanPhp) && is_file($artisanPhp)) {
         $files[] = ['name' => $label, 'path' => '/artisan/' . $key . '.php'];
+        $found   = true;
+      }
+      if (file_exists($artisanPy) && is_file($artisanPy)) {
+        $files[] = ['name' => $label, 'path' => '/artisan/' . $key . '.py'];
+        $found   = true;
+      }
+
+      if (!$found) {
+        if (file_exists($phpBackend) && is_file($phpBackend)) {
+          $files[] = ['name' => $label, 'path' => '/php_backend/' . $key . '.php'];
+        } else {
+          // fallback to artisan .php path
+          $files[] = ['name' => $label, 'path' => '/artisan/' . $key . '.php'];
+        }
       }
     }
   }

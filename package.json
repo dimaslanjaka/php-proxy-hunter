@@ -48,7 +48,8 @@
     "test:watch": "npm test -- --watch",
     "update:ncu": "npx npm-check-updates -u --reject='typescript,ts-node'",
     "update:sha": "npx binary-collections pkg-res-updater",
-    "tailscale": "./bin/py tailscale/mysql-test.py"
+    "tailscale": "./bin/py tailscale/mysql-test.py",
+    "serve": "npm run dev:react"
   },
   "workspaces": {
     "packages": [
