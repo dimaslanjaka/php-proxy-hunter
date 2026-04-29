@@ -268,14 +268,16 @@
     "ESLINT_USE_FLAT_CONFIG": "true",
     "NUITKA_CACHE_DIR": "${workspaceFolder}/tmp/nuitka-cache",
     "PATH": "/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:/usr/games:/usr/local/games:/usr/lib/wsl/lib:${workspaceFolder}/bin:${workspaceFolder}/node_modules/.bin:${workspaceFolder}/vendor/bin",
-    "PHP_CS_FIXER_IGNORE_ENV": "1"
+    "PHP_CS_FIXER_IGNORE_ENV": "1",
+    "PUPPETEER_SKIP_DOWNLOAD": "true"
   },
   "terminal.integrated.env.windows": {
     "DEBUG_PKG": "1",
     "ESLINT_USE_FLAT_CONFIG": "true",
     "NUITKA_CACHE_DIR": "${workspaceFolder}\\tmp\\nuitka-cache",
     "PATH": "${env:LOCALAPPDATA}\\nvm;C:\\nvm4w\\nodejs;C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\usr\\bin;${env:PATH};${workspaceFolder}\\node_modules\\.bin;${workspaceFolder}\\bin;${workspaceFolder}\\vendor\\bin;C:\\laragon\\bin\\mysql\\mysql-8.4.3-winx64\\bin",
-    "PHP_CS_FIXER_IGNORE_ENV": "1"
+    "PHP_CS_FIXER_IGNORE_ENV": "1",
+    "PUPPETEER_SKIP_DOWNLOAD": "true"
   },
   "terminal.integrated.profiles.windows": {
     "Cygwin": {
