@@ -168,19 +168,28 @@ if (!empty($file)) {
 if (isset($request['list'])) {
   $files = [];
   foreach ($executorFiles as $key => $label) {
-    // Prefer artisan .php, then artisan .py, then php_backend .php
+    // Prefer artisan .php and .py (show both if present), then php_backend .php
     $artisanPhp = get_project_root('artisan', $key . '.php');
     $artisanPy  = get_project_root('artisan', $key . '.py');
     $phpBackend = get_project_root('php_backend', $key . '.php');
+
+    $found = false;
     if (file_exists($artisanPhp) && is_file($artisanPhp)) {
       $files[] = ['name' => $label, 'path' => '/artisan/' . $key . '.php'];
-    } elseif (file_exists($artisanPy) && is_file($artisanPy)) {
+      $found   = true;
+    }
+    if (file_exists($artisanPy) && is_file($artisanPy)) {
       $files[] = ['name' => $label, 'path' => '/artisan/' . $key . '.py'];
-    } elseif (file_exists($phpBackend) && is_file($phpBackend)) {
-      $files[] = ['name' => $label, 'path' => '/php_backend/' . $key . '.php'];
-    } else {
-      // fallback to artisan .php path
-      $files[] = ['name' => $label, 'path' => '/artisan/' . $key . '.php'];
+      $found   = true;
+    }
+
+    if (!$found) {
+      if (file_exists($phpBackend) && is_file($phpBackend)) {
+        $files[] = ['name' => $label, 'path' => '/php_backend/' . $key . '.php'];
+      } else {
+        // fallback to artisan .php path
+        $files[] = ['name' => $label, 'path' => '/artisan/' . $key . '.php'];
+      }
     }
   }
 

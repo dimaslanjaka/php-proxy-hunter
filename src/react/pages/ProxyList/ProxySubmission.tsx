@@ -24,6 +24,13 @@ export default function ProxySubmission() {
   const { showSnackbar } = useSnackbar();
   const [selectedCheckBackend, setSelectedCheckBackend] = React.useState<string>('');
   const [executorList, setExecutorList] = React.useState<Array<{ name: string; path: string }>>([]);
+  const nameCounts = React.useMemo(() => {
+    const map: Record<string, number> = {};
+    executorList.forEach((it) => {
+      map[it.name] = (map[it.name] || 0) + 1;
+    });
+    return map;
+  }, [executorList]);
 
   React.useEffect(() => {
     // fetch available executor scripts
@@ -346,11 +353,16 @@ export default function ProxySubmission() {
                       onChange={(e) => setSelectedCheckBackend(e.target.value)}
                       className="text-xs p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
                       {executorList.length > 0 ? (
-                        executorList.map((it) => (
-                          <option key={it.path} value={it.path}>
-                            {it.name}
-                          </option>
-                        ))
+                        executorList.map((it) => {
+                          const showFilename = nameCounts[it.name] > 1;
+                          const ext = it.path.endsWith('.py') ? '.py' : it.path.endsWith('.php') ? '.php' : '';
+                          const label = showFilename ? `${it.name} (${ext})` : it.name;
+                          return (
+                            <option key={it.path} value={it.path}>
+                              {label}
+                            </option>
+                          );
+                        })
                       ) : (
                         <option value="" disabled>
                           Loading executor list...
@@ -419,7 +431,11 @@ export default function ProxySubmission() {
                       }
                       if (selectedCheckBackend.startsWith('/artisan/')) {
                         const found = executorList.find((it) => it.path === selectedCheckBackend);
-                        return found ? found.name : selectedCheckBackend.replace('/artisan/', '');
+                        if (found) {
+                          const ext = found.path.endsWith('.py') ? '.py' : found.path.endsWith('.php') ? '.php' : '';
+                          return nameCounts[found.name] > 1 ? `${found.name} (${ext})` : found.name;
+                        }
+                        return selectedCheckBackend.replace('/artisan/', '');
                       }
                       return 'Run';
                     })()}
