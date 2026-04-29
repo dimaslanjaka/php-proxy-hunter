@@ -99,7 +99,7 @@ if (!empty($file)) {
   $role      = $isAdmin ? 'admin' : 'user';
   $logHeader = '=== Log for ' . basename($file) . ' (' . $role . ') started at ' . date('Y-m-d H:i:s') . " ===\n\n";
   if ($isAdmin) {
-    $logHeader .= 'Command:\n';
+    $logHeader .= "Command:\n";
     $logHeader .= $cmd[0] . ' ' . $cmd[1] . "\n";
     for ($i = 2; $i < count($cmd); $i++) {
       $arg     = $cmd[$i];
@@ -120,6 +120,7 @@ if (!empty($file)) {
 
       $logHeader .= '  ' . $display . "\n";
     }
+    $logHeader .= "\n";
   }
   write_file($outputFile, $logHeader);
 
