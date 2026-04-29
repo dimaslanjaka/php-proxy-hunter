@@ -25,9 +25,45 @@ def extract_proxies(string: Optional[str]) -> List[Proxy]:
     # Use the regex_match helper (covers user:pass@host:port, host:port@user:pass, host:port)
     regex_match_results = regex_match(string)
     for p in regex_match_results:
-        # Validate matches returned by regex_match to avoid false positives
-        if is_valid_proxy(p.proxy):
-            results.append(p)
+        # Extract a clean host:port from noisy matched strings. Many logs
+        # contain prefixed/trailing characters like 'XSDn209.1.2.3:80' or
+        # "1.1.1.1:80n". Try to find the first IPv4/IPv6 + port pair and
+        # preserve credentials from the original match.
+        proxy_val = str(getattr(p, "proxy", "") or "").strip()
+        # Pattern matches bracketed IPv6 or IPv4 followed by a port (allow 1-5 digits)
+        inner_pattern = (
+            r"(\[[0-9a-fA-F:]+\]|(?:\d{1,3}(?:\.\d{1,3}){3}))[:\s]*((?!0)\d{1,5})"
+        )
+        m = re.search(inner_pattern, proxy_val)
+        if m:
+            host = m.group(1)
+            port = m.group(2)
+            clean_proxy = f"{host}:{port}"
+            candidate = Proxy(
+                proxy=clean_proxy, username=p.username, password=p.password
+            )
+            if is_valid_proxy(candidate.proxy):
+                results.append(candidate)
+            continue
+
+        # Fallbacks:
+        # 1) If the original proxy_val already looks like a valid proxy (hostname:port), keep it.
+        if is_valid_proxy(proxy_val):
+            results.append(
+                Proxy(proxy=proxy_val, username=p.username, password=p.password)
+            )
+            continue
+
+        # 2) Otherwise try simple leading 'n' sanitization (e.g. 'n1.2.3.4')
+        if (
+            proxy_val.startswith("n")
+            and len(proxy_val) > 1
+            and (proxy_val[1].isdigit() or proxy_val[1] == "[")
+        ):
+            proxy_val = proxy_val[1:]
+            sanitized = Proxy(proxy=proxy_val, username=p.username, password=p.password)
+            if is_valid_proxy(sanitized.proxy):
+                results.append(sanitized)
 
     # Perform the matching IP PORT (whitespaces) - support bracketed IPv6
     re_whitespace = r"(\[[0-9a-fA-F:]+\]|(?:\d{1,3}(?:\.\d{1,3}){3}))\s+((?!0)\d{2,5})"
@@ -39,6 +75,14 @@ def extract_proxies(string: Optional[str]) -> List[Proxy]:
 
     # Process whitespace matches (tuples of (ip, port))
     for ip, port in matches2:
+        # Strip leading 'n' if present in logs (e.g. 'n1.2.3.4' or 'n[2001:db8::1]')
+        if (
+            ip
+            and ip.startswith("n")
+            and len(ip) > 1
+            and (ip[1].isdigit() or ip[1] == "[")
+        ):
+            ip = ip[1:]
         if is_valid_ip(ip):
             proxy = f"{ip}:{port}"
             if is_valid_proxy(proxy):
@@ -46,6 +90,14 @@ def extract_proxies(string: Optional[str]) -> List[Proxy]:
 
     # Process JSON matches (tuples of (ip, port))
     for ip, port in matches3:
+        # Strip leading 'n' if present in logs
+        if (
+            ip
+            and ip.startswith("n")
+            and len(ip) > 1
+            and (ip[1].isdigit() or ip[1] == "[")
+        ):
+            ip = ip[1:]
         if is_valid_ip(ip):
             proxy = f"{ip}:{port}"
             if is_valid_proxy(proxy):

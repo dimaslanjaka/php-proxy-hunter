@@ -130,5 +130,31 @@ def test_should_not_extract_invalid_proxies():
     assert len(result) == 0, f"Expected 0 valid proxies, got {len(result)}"
 
 
+def test_extract_proxies_mixed_content():
+    input_str = """
+    CX n217.171.94.214:10801. Skipping...
+    XSDn209.38.214.48:1080
+    'n209.38.214.48'. lorem ipsum 1.1.1.1:80n
+    WEn209.38.214.48:1080. Skipping...
+    XSDn217.12.209.4:1080
+    'n217.12.209.4'. lorem ipsum 1.1.1.1:80n
+    Gn217.12.209.4:1080. Skipping...
+
+    below is 5 IPV6 proxies sample:
+    [2001:0db8:85a3:0000:0000:8a2e:0370:7334]:8080
+    [2607:f8b0:4005:080a::200e]:3128
+    [2a03:2880:f003:c07:face:b00c::2]:1080
+    [2404:6800:4003:c02::64]:8000
+    [2001:4860:4860::8888]:1080
+    """
+    result = extract_proxies(input_str)
+    assert isinstance(result, (list, tuple))
+    assert len(result) == 9, f"Expected 9 valid proxies, got {len(result)}"
+    assert any(p.proxy == "217.171.94.214:10801" for p in result)
+    assert any(p.proxy == "209.38.214.48:1080" for p in result)
+    assert any(p.proxy == "217.12.209.4:1080" for p in result)
+    assert any(p.proxy == "1.1.1.1:80" for p in result)
+
+
 if __name__ == "__main__":
     sys.exit(pytest.main([__file__]))
