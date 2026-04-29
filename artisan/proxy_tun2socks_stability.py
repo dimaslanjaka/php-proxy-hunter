@@ -474,13 +474,35 @@ if __name__ == "__main__":
             cli_proxies = load_proxies_from_cli()
             if len(cli_proxies) != 0:
                 proxies = cli_proxies
-                source_label = "CLI input"
+                # If CLI provided a file via --file, resolve and assign it to
+                # `proxy_file` so later removal uses the same file path.
+                if getattr(args, "proxy_file", None) and args.proxy_file:
+                    proxy_file = (
+                        args.proxy_file
+                        if os.path.exists(args.proxy_file)
+                        else get_relative_path(args.proxy_file)
+                    )
+                    source_label = f"file://{proxy_file}"
+                else:
+                    source_label = "CLI input"
                 print(f"{source_label} {len(proxies)} proxies loaded")
 
             if len(proxies) == 0:
                 proxies = load_proxies_from_file(proxy_file)
                 if proxies:
-                    source_label = f"file input ({proxy_file})"
+                    # If CLI provided a file via --file, resolve and assign it to
+                    # `proxy_file` so later removal uses the same file path.
+                    if getattr(args, "proxy_file", None) and args.proxy_file:
+                        proxy_file = (
+                            args.proxy_file
+                            if os.path.exists(args.proxy_file)
+                            else get_relative_path(args.proxy_file)
+                        )
+                        source_label = f"file://{proxy_file}"
+                    else:
+                        # Proxies were loaded from a file (default or explicit); mark
+                        # the source as the file so processed proxies will be removed.
+                        source_label = f"file://{proxy_file}"
                     print(f"{source_label} {len(proxies)} proxies loaded")
 
             if len(proxies) == 0:
