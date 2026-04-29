@@ -1,5 +1,6 @@
 import React from 'react';
 import { createUrl } from '../../utils/url';
+import { get } from '../../utils/ajax-helper';
 import { convertAnsiToHtml } from '../../utils/ansi-to-html';
 
 type CrontabLogItem = {
@@ -36,14 +37,7 @@ export default function CrontabLogs() {
     setLoadingList(true);
     setListError('');
     try {
-      const response = await fetch(createUrl('/php_backend/logs.php', { cron: 1 }), {
-        credentials: 'include'
-      });
-      if (!response.ok) {
-        throw new Error(`Failed to load logs list (${response.status})`);
-      }
-
-      const data = (await response.json()) as CrontabLogsResponse;
+      const data = await get<CrontabLogsResponse>(createUrl('/php_backend/logs.php', { cron: 1 }));
       setLogs(Array.isArray(data.logs) ? data.logs : []);
     } catch (error) {
       const message = error instanceof Error ? error.message : 'Unable to fetch crontab logs.';
@@ -60,15 +54,10 @@ export default function CrontabLogs() {
     setContentError('');
     setLogContent('');
     try {
-      const response = await fetch(createUrl('/php_backend/logs.php', { cron: 1, file: fileName }), {
-        credentials: 'include'
+      const text = await get<string>(createUrl('/php_backend/logs.php', { cron: 1, file: fileName }), {
+        responseType: 'text'
       });
-      if (!response.ok) {
-        throw new Error(`Failed to load ${fileName} (${response.status})`);
-      }
-
-      const text = await response.text();
-      setLogContent(text || 'This log file is empty.');
+      setLogContent((text as string) || 'This log file is empty.');
     } catch (error) {
       const message = error instanceof Error ? error.message : `Unable to fetch ${fileName}.`;
       setContentError(message);

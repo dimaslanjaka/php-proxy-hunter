@@ -1,4 +1,5 @@
 import { createUrl } from './url';
+import { postJson } from './ajax-helper';
 
 interface CheckProxyResponse {
   error: boolean;
@@ -7,54 +8,46 @@ interface CheckProxyResponse {
 }
 
 export async function checkProxyHttps(proxies: string): Promise<CheckProxyResponse> {
-  return await fetch(createUrl('/php_backend/executor.php'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ proxy: proxies, file: '/php_backend/check-https-proxy.php' }),
-    credentials: 'include'
-  })
-    .then((res) => res.json())
-    .catch((e) => {
-      return { error: true, message: e.message, logFile: null };
+  try {
+    const res = await postJson<CheckProxyResponse>(createUrl('/php_backend/executor.php'), {
+      proxy: proxies,
+      file: '/php_backend/check-https-proxy.php'
     });
+    return res;
+  } catch (e: any) {
+    return { error: true, message: e?.message || String(e), logFile: null };
+  }
 }
 
 export async function checkProxyHttp(proxies: string): Promise<CheckProxyResponse> {
-  return await fetch(createUrl('/php_backend/check-http-proxy.php'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ proxy: proxies }),
-    credentials: 'include'
-  })
-    .then((res) => res.json())
-    .catch((e) => {
-      return { error: true, message: e.message, logFile: null };
+  try {
+    const res = await postJson<CheckProxyResponse>(createUrl('/php_backend/check-http-proxy.php'), {
+      proxy: proxies
     });
+    return res;
+  } catch (e: any) {
+    return { error: true, message: e?.message || String(e), logFile: null };
+  }
 }
 
 export async function checkProxyType(proxies: string): Promise<CheckProxyResponse> {
-  return await fetch(createUrl('/php_backend/check-proxy-type.php'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ proxy: proxies }),
-    credentials: 'include'
-  })
-    .then((res) => res.json())
-    .catch((e) => {
-      return { error: true, message: e.message, logFile: null };
+  try {
+    const res = await postJson<CheckProxyResponse>(createUrl('/php_backend/check-proxy-type.php'), {
+      proxy: proxies
     });
+    return res;
+  } catch (e: any) {
+    return { error: true, message: e?.message || String(e), logFile: null };
+  }
 }
 
 export async function checkOldProxy(): Promise<CheckProxyResponse> {
-  return await fetch(createUrl('/php_backend/check-old-proxy.php'), {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    credentials: 'include'
-  })
-    .then((res) => res.json())
-    .catch((e) => {
-      return { error: true, message: e.message, logFile: null };
-    });
+  try {
+    const res = await postJson<CheckProxyResponse>(createUrl('/php_backend/check-old-proxy.php'), {});
+    return res;
+  } catch (e: any) {
+    return { error: true, message: e?.message || String(e), logFile: null };
+  }
 }
 
 export async function checkProxy(proxies: string) {

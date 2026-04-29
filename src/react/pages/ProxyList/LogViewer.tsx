@@ -1,6 +1,7 @@
 import React from 'react';
 import { createUrl } from '../../utils/url';
 import { getUserInfo } from '../../utils/user';
+import { get } from '../../utils/ajax-helper';
 import { convertAnsiToHtml } from '../../utils/ansi-to-html';
 
 // helper kept for compatibility if used elsewhere
@@ -20,11 +21,17 @@ export async function getUserProxyLogUrl() {
 
 async function fetchCheckOldProxyResult(hash: string): Promise<string> {
   const url = createUrl('/php_backend/logs.php');
-  const res = await fetch(`${url}?hash=check-old-proxy/${encodeURIComponent(hash)}`);
-  if (!res.ok) {
-    return `Failed to fetch check old proxy result: ${res.status} ${res.statusText}`;
+  try {
+    const text = await get<string>(`${url}?hash=check-old-proxy/${encodeURIComponent(hash)}`, {
+      responseType: 'text'
+    } as any);
+    return text || '';
+  } catch (err: any) {
+    if (err && err.response) {
+      return `Failed to fetch check old proxy result: ${err.response.status} ${err.response.statusText || ''}`;
+    }
+    return `Failed to fetch check old proxy result: ${String(err)}`;
   }
-  return await res.text();
 }
 
 const LogViewer: React.FC = () => {
@@ -44,7 +51,7 @@ const LogViewer: React.FC = () => {
       try {
         const [userData, logsRes] = await Promise.all([
           getUserInfo(),
-          fetch(createUrl('/php_backend/logs.php', { executor: 1 }), { credentials: 'include' })
+          get(createUrl('/php_backend/logs.php', { executor: 1 }))
         ]);
 
         // handle user
@@ -53,11 +60,8 @@ const LogViewer: React.FC = () => {
         }
 
         // handle logs
-        if (isMounted && logsRes.ok) {
-          const json = await logsRes.json();
-          if (Array.isArray(json)) {
-            setExecutorFiles(json);
-          }
+        if (isMounted && Array.isArray(logsRes)) {
+          setExecutorFiles(logsRes as Array<any>);
         }
       } catch (_e) {
         // ignore failures
@@ -78,14 +82,13 @@ const LogViewer: React.FC = () => {
       const filename = executorFiles[executorIndex].name;
       const fetchExec = async () => {
         try {
-          const res = await fetch(createUrl('/php_backend/logs.php', { executor: 1, file: filename }), {
-            credentials: 'include'
-          });
-          if (!res.ok) {
-            setExecutorLog(`Failed to fetch executor log: ${res.status} ${res.statusText}`);
+          const text = await get<string>(createUrl('/php_backend/logs.php', { executor: 1, file: filename }), {
+            responseType: 'text'
+          } as any);
+          if (typeof text !== 'string') {
+            setExecutorLog('Failed to fetch executor log.');
             return;
           }
-          const text = await res.text();
           setExecutorLog((prev) => {
             if (prev.trim() === text.trim()) return prev;
             return text;
@@ -171,13 +174,8 @@ const LogViewer: React.FC = () => {
               className="text-xs px-2 py-1 text-gray-600 dark:text-gray-300 bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 rounded transition-colors"
               onClick={async () => {
                 try {
-                  const res = await fetch(createUrl('/php_backend/logs.php', { executor: 1 }), {
-                    credentials: 'include'
-                  });
-                  if (res.ok) {
-                    const json = await res.json();
-                    if (Array.isArray(json)) setExecutorFiles(json);
-                  }
+                  const json = await get(createUrl('/php_backend/logs.php', { executor: 1 }));
+                  if (Array.isArray(json)) setExecutorFiles(json);
                 } catch (_err) {
                   // ignore
                 }
@@ -193,24 +191,22 @@ const LogViewer: React.FC = () => {
               onClick={async () => {
                 if (!confirm('Clear all executor logs for your user?')) return;
                 try {
-                  const res = await fetch(createUrl('/php_backend/logs.php', { executor: 1, clear: 1 }), {
-                    credentials: 'include'
-                  });
-                  if (res.ok) {
-                    // refresh list after clearing
-                    const json = await (
-                      await fetch(createUrl('/php_backend/logs.php', { executor: 1 }), { credentials: 'include' })
-                    ).json();
+                  await get(createUrl('/php_backend/logs.php', { executor: 1, clear: 1 }));
+                  // refresh list after clearing
+                  try {
+                    const json = await get(createUrl('/php_backend/logs.php', { executor: 1 }));
                     if (Array.isArray(json)) {
                       setExecutorFiles(json);
                     } else {
                       setExecutorFiles([]);
                     }
-                    // Reset UI to default state after clearing
-                    setActiveTab('old');
-                    setExecutorIndex(null);
-                    setExecutorLog('');
+                  } catch (_err) {
+                    setExecutorFiles([]);
                   }
+                  // Reset UI to default state after clearing
+                  setActiveTab('old');
+                  setExecutorIndex(null);
+                  setExecutorLog('');
                 } catch (_err) {
                   // ignore
                 }

@@ -1,5 +1,6 @@
 import React from 'react';
 import { createUrl } from '../../utils/url';
+import { get } from '../../utils/ajax-helper';
 import { LogEntry, LogsResponse } from '../../../../types/php_backend/logs';
 import { Pagination } from '../../components/Pagination';
 import DetailsCell from '../../components/DetailsCell';
@@ -22,8 +23,7 @@ export default function LogsSection() {
     isFetching = true;
     setLoading(true);
     const url = createUrl('/php_backend/logs.php', { page: pageNum, per_page: perPage });
-    fetch(url)
-      .then((response) => response.json())
+    get(url)
       .then((data) => {
         if (JSON.stringify(data) !== JSON.stringify(prevLogsRef.current)) {
           setLogsData(data);

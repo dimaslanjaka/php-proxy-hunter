@@ -5,6 +5,7 @@ import { createUrl } from '../utils/url';
 import ReactMarkdown from 'react-markdown';
 import style from './Changelog.module.scss';
 import { getUserInfo } from '../utils/user';
+import { get } from '../utils/ajax-helper';
 import { Nullable } from 'safelinkify';
 
 type Commit = ReturnType<typeof gitHistoryToJson>[number];
@@ -57,10 +58,9 @@ export default function Changelog() {
 
         const url = createUrl(`/data/git-history.json`, params);
 
-        const res = await fetch(url, {
+        const commits: Commit[] = await get<Commit[]>(url, {
           headers: import.meta.env.DEV ? { 'Cache-Control': 'no-cache', Pragma: 'no-cache' } : undefined
         });
-        const commits: Commit[] = await res.json();
         if (!cancelled) {
           console.log(commits.slice(0, 5));
           setCommits(commits);
