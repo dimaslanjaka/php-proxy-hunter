@@ -7,53 +7,13 @@ import sys
 import threading
 from typing import Any, Dict, Optional, Union
 
-import bs4
-from ansi2html import Ansi2HTMLConverter
-from bs4 import BeautifulSoup
 from colorama import init, Fore, Style
-from proxy_hunter import read_file, remove_ansi, resolve_parent_folder
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.func_platform import is_debug
-
-init(autoreset=True, strip=False, convert=True)
-
-
-class ConsoleColor:
-    """A helper class for colorizing and formatting console output."""
-
-    # ANSI escape codes for text colors
-    COLORS: Dict[str, str] = {
-        "reset": "\033[0m",
-        "black": "\033[30m",
-        "red": "\033[31m",
-        "green": "\033[32m",
-        "yellow": "\033[33m",
-        "blue": "\033[34m",
-        "purple": "\033[35m",
-        "cyan": "\033[36m",
-        "white": "\033[37m",
-    }
-
-    @classmethod
-    def colorize(cls, text: str | int | float | None, color: str = "reset") -> str:
-        """Colorize the specified text.
-
-        Args:
-            text (str | None): The text to be colorized.
-            color (str, optional): The color name. Defaults to 'reset'.
-
-        Returns:
-            str: The colorized text.
-        """
-        color_code = cls.COLORS.get(color, cls.COLORS["reset"])
-        reset_code = cls.COLORS["reset"]
-        if text is None:
-            text = ""
-        else:
-            text = str(text)
-        return f"{color_code}{text}{reset_code}"
+# Import `is_debug` lazily inside `debug_log()` to avoid import-time side-effects
+# Initialize colorama (always) so Windows streams are wrapped for color handling.
+init(autoreset=True, strip=False, convert=False)
 
 
 def red(text: str | int | float | None) -> str:
@@ -195,14 +155,18 @@ def log_file(filename: Optional[str] = None, *args: Any, **kwargs: Any) -> None:
             sys.stdout.flush()
 
     if ansi_html:
+        from ansi2html import Ansi2HTMLConverter
+        from bs4 import BeautifulSoup
+        import bs4 as _bs4
+
         conv = Ansi2HTMLConverter()
         html_content = conv.convert(message)
         soup = BeautifulSoup(html_content, "html.parser")
         pre_tag = soup.find("pre", class_="ansi2html-content")
-        if isinstance(pre_tag, bs4.element.Tag):
+        if isinstance(pre_tag, _bs4.element.Tag):
             message = pre_tag.decode_contents().strip()
             style_tag = soup.find("style")
-            if isinstance(style_tag, bs4.element.Tag):
+            if isinstance(style_tag, _bs4.element.Tag):
                 css_text = style_tag.get_text()
                 if css_text not in css_content:
                     css_content += f"{css_text}\n\n"
@@ -213,6 +177,8 @@ def log_file(filename: Optional[str] = None, *args: Any, **kwargs: Any) -> None:
         else:
             message = "Fail convert ANSI to HTML. pre_tag is not type of element Tag"
     elif should_remove_ansi:
+        from proxy_hunter import remove_ansi
+
         message = remove_ansi(message)
 
     if file_path:
@@ -259,6 +225,9 @@ def log_error(*args: Any, **kwargs: Any) -> None:
 
 def debug_log(*args: Any, **kwargs: Any) -> None:
     """Log debugging information to the console and a debug file."""
+    from src.func_platform import is_debug
+    from proxy_hunter import write_file
+
     if is_debug():
         sep = kwargs.get("sep", " ")
         end = kwargs.get("end", "\n")
@@ -267,7 +236,6 @@ def debug_log(*args: Any, **kwargs: Any) -> None:
         print(message, end="")
         # Write to file
         file_path = "tmp/debug.log"
-        resolve_parent_folder(file_path)
         with open(file_path, "a") as file:
             file.write(message)
 
@@ -346,6 +314,8 @@ def read_log_file(log_file_path: str) -> str:
         str: The log file content converted into an HTML structure,
              with ANSI escape codes optionally removed and CSS applied.
     """
+    from proxy_hunter import read_file
+
     content = str(read_file(log_file_path))
     lines = re.split(r"\r?\n", content)
     html_content = (
