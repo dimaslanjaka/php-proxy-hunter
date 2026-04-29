@@ -155,15 +155,13 @@ header('Access-Control-Allow-Headers: Content-Type, Authorization');
 // flush content
 ob_end_flush();
 
-function send_error(int $code, string $msg): void
-{
+function send_error(int $code, string $msg): void {
   http_response_code($code);
   header('Content-Type: text/plain; charset=utf-8');
   exit($msg);
 }
 
-function isValidBase64(string $str): bool
-{
+function isValidBase64(string $str): bool {
   $decoded = base64_decode($str, true);
   return ($decoded !== false && base64_encode($decoded) === $str) ? true : false;
 }

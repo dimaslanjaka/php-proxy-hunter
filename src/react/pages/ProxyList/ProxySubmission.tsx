@@ -243,7 +243,11 @@ export default function ProxySubmission() {
     setIsLoading(true);
     Promise.all(
       urlsToFetch.map((url) =>
-        get(createUrl('/php_backend/proxy.php', { url }), { responseType: 'text' })
+        // Do not send credentials when fetching third-party proxy lists —
+        // the proxy endpoint returns Access-Control-Allow-Origin: * which
+        // is incompatible with credentialed requests. Override axios
+        // `withCredentials` to false for these requests.
+        get(createUrl('/php_backend/proxy.php', { url }), { responseType: 'text', withCredentials: false })
           .then((text) => (text == null ? '' : String(text)))
           .catch((err) => {
             console.error(`Failed to fetch from ${url}:`, err);
