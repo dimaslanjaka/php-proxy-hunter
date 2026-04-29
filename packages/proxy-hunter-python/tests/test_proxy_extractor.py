@@ -124,6 +124,8 @@ def test_should_not_extract_invalid_proxies():
     invalidproxy:1234, user:pass@invalid, [2001:db8::1],
     ms-text-size-adjust:100
     -webkit-text-size-adjust:100
+    B0C7E:69834
+    B0.0s.lkd.0j:69834
     """
     result = extract_proxies(input_str)
     assert isinstance(result, (list, tuple))
