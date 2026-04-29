@@ -1,4 +1,4 @@
-import argparse
+from src.utils.parse_args import parse_args
 import concurrent.futures
 import os
 import random
@@ -178,7 +178,7 @@ class ProxyCheckerReal:
         """
         checker = ProxyChecker(60000, False)
         result = None
-        for url in checker.proxy_judges:
+        for url in checker.anonymity_helper.proxy_judges:
             response = None
             try:
                 response = build_request(proxy, "http", endpoint=url)
@@ -202,7 +202,9 @@ class ProxyCheckerReal:
                     else ""
                 )
                 if "AZ Environment".lower() in response_title.lower():
-                    result = checker.parse_anonymity(response.text)
+                    result = checker.anonymity_helper.parse_anonymity(
+                        body=response.text, proxy=proxy
+                    ).anonymity
                     self.log(f"{proxy} anonymity is {green(result)}\t")
                     # break when success
                     break
@@ -360,7 +362,7 @@ def worker(item: Dict[str, Any]):
     finally:
         if db:
             db.close()
-        return {"result": False}
+        # Do not return from finally: preserve earlier return value or re-raise exception
 
 
 def using_pool(proxies: List[Dict[str, Any]], pool_size: int = 5):
@@ -428,13 +430,9 @@ def main_real_proxy_checker(limit: int = 100):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Proxy Tool")
-    parser.add_argument("--max", type=int, help="Maximum number of proxies to check")
-    # Allow unknown args so external wrappers can pass extra flags
-    args = parser.parse_known_args()[0]
-    limit = 100
-    if args.max:
-        limit = args.max
+    # Use shared parser which supports --limit and --max
+    args = parse_args(default_limit=100, description="Proxy Tool")
+    limit = int(getattr(args, "limit", 100) or 100)
 
     # proxy = "18.169.133.105:132"
     # sc = real_check(proxy, "http://httpforever.com/", "http forever")
