@@ -799,6 +799,42 @@ class ProxyDB:
             result = []
         return cast(List[Dict[str, Union[str, None]]], result)
 
+    def count_by_status(self) -> List[Dict[str, Union[str, int]]]:
+        """
+        Return a list of dicts with status and count of proxies for that status.
+
+        Example: [{"status": "active", "count": 123}, ...]
+        """
+        try:
+            sql_where = "1=1 GROUP BY status"
+            # Use same select signature as other methods: table, columns, where, params
+            result = self.get_db().select(
+                "proxies", "status, COUNT(*) AS count", sql_where, []
+            )
+            if not result:
+                return []
+            out: List[Dict[str, Union[str, int]]] = []
+            for row in result:
+                status_val = row.get("status")
+                # DB may return count as int or str; normalize to int
+                raw_count = row.get("count")
+                try:
+                    count_val = int(raw_count) if raw_count is not None else 0
+                except Exception:
+                    try:
+                        count_val = int(str(raw_count))
+                    except Exception:
+                        count_val = 0
+                out.append(
+                    {
+                        "status": status_val if status_val is not None else "",
+                        "count": count_val,
+                    }
+                )
+            return out
+        except Exception:
+            return []
+
     def fix_empty_data(self, results: List[Dict[str, Union[str, None]]]):
         if not results:
             return []
