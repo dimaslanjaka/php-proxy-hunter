@@ -83,6 +83,16 @@ def orange(text: str) -> str:
     return f"{Style.BRIGHT}{orange_color}{text}{Style.RESET_ALL}"
 
 
+def blue(text: str) -> str:
+    """Return text in bright blue."""
+    return f"{Style.BRIGHT}{Fore.BLUE}{text}{Style.RESET_ALL}"
+
+
+def white(text: str) -> str:
+    """Return text in bright white."""
+    return f"{Style.BRIGHT}{Fore.WHITE}{text}{Style.RESET_ALL}"
+
+
 def restart_script() -> None:
     """Restart the current script."""
     print("restarting....", end=" ")
