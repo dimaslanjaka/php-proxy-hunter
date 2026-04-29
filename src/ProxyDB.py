@@ -738,22 +738,20 @@ class ProxyDB:
         if not limit:
             limit = sys.maxsize
 
+        # Desired semantics: include rows where status is NULL or empty string,
+        # and also any row whose status is NOT one of ('active','port-closed','dead').
+        params: List[Union[str, int]]
         if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
-            order_clause = f" ORDER BY RAND()" if randomize else ""
-            result = self.get_db().select(
-                "proxies",
-                "*",
-                f"status IS NULL OR status = %s OR status = %s OR status = %s OR status = %s{order_clause} LIMIT {limit}",
-                ["untested", "", "port-open", "open-port"],
-            )
+            order_clause = " ORDER BY RAND()" if randomize else ""
+            sql_where = f"status IS NULL OR status = %s OR status NOT IN (%s, %s, %s){order_clause} LIMIT {limit}"
+            params = ["", "active", "port-closed", "dead"]
+            result = self.get_db().select("proxies", "*", sql_where, params)
         else:
-            order_clause = f" ORDER BY RANDOM()" if randomize else ""
-            result = self.get_db().select(
-                "proxies",
-                "*",
-                f"status IS NULL OR status = ? OR status = ? OR status = ? OR status = ?{order_clause} LIMIT {limit}",
-                ["untested", "", "port-open", "open-port"],
-            )
+            order_clause = " ORDER BY RANDOM()" if randomize else ""
+            sql_where = f"status IS NULL OR status = ? OR status NOT IN (?,?,?){order_clause} LIMIT {limit}"
+            params = ["", "active", "port-closed", "dead"]
+            result = self.get_db().select("proxies", "*", sql_where, params)
+
         if not result:
             return []
         return cast(List[Dict[str, Union[str, None]]], result)

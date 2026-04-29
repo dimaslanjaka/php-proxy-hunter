@@ -276,9 +276,10 @@ class ProxyDB {
    */
   async getUntestedProxies(rand = true, limit = 1000) {
     if (!this.db) await this.startConnection();
-    const result = this.db.select('proxies', '*', 'status = ?', ['untested'], rand, limit);
-    const result2 = this.db.select('proxies', '*', 'status = ? OR status IS NULL OR status = ?', ['untested', '']);
-    return result.concat(result2);
+    const where = 'status IS NULL OR status = ? OR status NOT IN (?, ?, ?)';
+    const params = ['', 'active', 'port-closed', 'dead'];
+    const result = this.db.select('proxies', '*', where, params, rand, limit) || [];
+    return result;
   }
 
   /**
