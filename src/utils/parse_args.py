@@ -36,10 +36,19 @@ class ParseArgs:
 def parse_args(
     default_limit: int = 100,
     default_concurrency: int = 4,
+    description: str = "Find a tun2socks-compatible SOCKS5 proxy",
 ) -> ParseArgs:
-    parser = argparse.ArgumentParser(
-        description="Find a tun2socks-compatible SOCKS5 proxy"
-    )
+    """Parse common CLI arguments used across artisan scripts.
+
+    Parameters
+    - default_limit: fallback value used when neither `--limit` nor `--max` are provided.
+    - default_concurrency: default number of workers when `--concurrency` is not provided.
+    - description: text passed to `argparse.ArgumentParser(description=...)`.
+
+    Returns:
+    - `ParseArgs` dataclass with parsed values.
+    """
+    parser = argparse.ArgumentParser(description=description)
     parser.add_argument(
         "--str",
         dest="proxy_string",

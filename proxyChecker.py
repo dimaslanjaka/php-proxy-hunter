@@ -1,10 +1,10 @@
 import traceback
-import argparse
 from time import sleep
 from typing import Optional
 from src.func import get_relative_path
 from proxy_hunter import truncate_file_content
 from src.func_proxy import check_all_proxies
+from src.utils.parse_args import parse_args
 
 
 def run_proxy_checker(max_proxies: Optional[int] = None):
@@ -19,13 +19,8 @@ def run_proxy_checker(max_proxies: Optional[int] = None):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(description="Proxy Checker")
-    parser.add_argument("--max", type=int, help="Maximum number of proxies to check")
-    # Allow unknown args so external wrappers can pass extra flags
-    args = parser.parse_known_args()[0]
-    if args.max:
-        max_proxies = args.max
-    else:
-        max_proxies = 100
+    # Use shared parser which supports --limit and --max
+    args = parse_args(default_limit=100, description="Proxy Checker")
+    max_proxies = int(getattr(args, "limit", 100) or 100)
     run_proxy_checker(max_proxies)
     sleep(3)  # Wait 3 seconds before exit
