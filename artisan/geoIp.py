@@ -85,7 +85,7 @@ if __name__ == "__main__":
 
             print(geoIp.to_json(), "\n")
             print(
-                f"Proxy {cyan(proxy)} is located in {orange(geoIp.city) if geoIp.city else 'Unknown City'}, {yellow(geoIp.country_name) if geoIp.country_name else 'Unknown Country'}. {green('✓')}"
+                f"Proxy {cyan(proxy)} is located in {orange(geoIp.city) if geoIp.city else 'Unknown City'}, {yellow(geoIp.country_name) if geoIp.country_name else 'Unknown Country'}. {green('OK')}"
             )
             try:
                 db.update_data(
