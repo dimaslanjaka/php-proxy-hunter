@@ -11,30 +11,20 @@ from proxy_checker import ProxyChecker
 from proxy_hunter.curl.func_useragent import get_pc_useragent
 from proxy_hunter.curl.request_helper import build_request
 from proxy_hunter.utils.regex_utils import find_substring_from_regex
+from proxy_checker.utils.get_device_ip import get_device_ip as checker_get_device_ip
 
 
 def get_device_ip() -> Union[None, str]:
-    ip_services = [
-        "https://api64.ipify.org",
-        "https://ipinfo.io/ip",
-        "https://api.myip.com",
-        "https://ip.42.pl/raw",
-        "https://ifconfig.me/ip",
-        "https://cloudflare.com/cdn-cgi/trace",
-        "https://httpbin.org/ip",
-        "https://api.ipify.org",
-    ]
-    for url in ip_services:
-        response = build_request(endpoint=url)
-        if response and response.ok:
-            # parse IP using regex
-            ip_address_match = re.search(
-                r"(?!0)(?:(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)\.){3}(?:25[0-5]|2[0-4][0-9]|[01]?[0-9][0-9]?)",
-                response.text,
-            )
-            if ip_address_match:
-                return ip_address_match.group(0)
-    return None
+    """Delegate to the canonical implementation in `proxy_checker`.
+
+    Returns None on failure to preserve the original contract used elsewhere
+    in this package.
+    """
+    try:
+        ip = checker_get_device_ip()
+        return ip if ip else None
+    except Exception:
+        return None
 
 
 class ProxyCheckResult:
