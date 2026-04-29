@@ -353,13 +353,24 @@ if __name__ == "__main__":
             cli_rows = to_proxy_rows(load_proxies_from_cli())
             if len(cli_rows) != 0:
                 proxies = cli_rows
-                source_label = "cli"
+                # If CLI provided a file via --file, resolve and assign it to
+                # `proxy_file` so later removal uses the same file path.
+                if getattr(args, "proxy_file", None) and args.proxy_file:
+                    proxy_file = (
+                        args.proxy_file
+                        if os.path.exists(args.proxy_file)
+                        else get_relative_path(args.proxy_file)
+                    )
+                    source_label = f"file://{proxy_file}"
+                else:
+                    source_label = "cli"
 
             if not proxies:
                 file_rows = to_proxy_rows(load_proxies_from_file(proxy_file))
                 if file_rows:
                     proxies = file_rows
-                    source_label = "file"
+                    # Mark file-loaded sources with the resolved path so cleanup runs
+                    source_label = f"file://{proxy_file}"
 
             if not proxies:
                 proxies = to_proxy_rows(
