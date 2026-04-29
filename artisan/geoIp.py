@@ -58,6 +58,7 @@ if __name__ == "__main__":
         print(f"Proxy source: {blue(source_label)} ({white(len(proxies))} candidates)")
 
         processed = 0
+        processed_proxies: list[str] = []
         for proxy in proxies:
             if processed >= (args.limit or 100):
                 break
@@ -91,8 +92,40 @@ if __name__ == "__main__":
                     proxy, {"city": geoIp.city, "country": geoIp.country_name}
                 )
                 processed += 1
+                processed_proxies.append(proxy)
             except Exception as e:
                 print(red(f"Failed to update DB for proxy {proxy}: {e}"))
+
+        # If proxies were sourced from the proxies file, remove successfully
+        # processed proxies from that file so they are not reprocessed later.
+        if source_label.startswith("file") and processed_proxies:
+            try:
+                if os.path.exists(proxy_file):
+                    with open(proxy_file, "r", encoding="utf-8") as f:
+                        lines = f.readlines()
+
+                    processed_set = {p.strip() for p in processed_proxies}
+                    removed_count = sum(1 for l in lines if l.strip() in processed_set)
+
+                    # Keep lines that are not in processed_set and are not empty
+                    new_lines = [
+                        l.rstrip("\n")
+                        for l in lines
+                        if l.strip() and l.strip() not in processed_set
+                    ]
+
+                    with open(proxy_file, "w", encoding="utf-8") as f:
+                        if new_lines:
+                            f.write("\n".join(new_lines) + "\n")
+                        else:
+                            # clear file
+                            f.truncate(0)
+
+                    print(
+                        f"Removed {green(removed_count)} processed proxies from {blue(proxy_file)}"
+                    )
+            except Exception as e:
+                print(red(f"Failed to update proxy file {proxy_file}: {e}"))
 
     finally:
         if locker:
