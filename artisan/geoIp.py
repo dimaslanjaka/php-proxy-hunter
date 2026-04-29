@@ -37,13 +37,23 @@ if __name__ == "__main__":
         cli_proxies = load_proxies_from_cli()
         if cli_proxies:
             proxies = [f"{h}:{p}" for (h, p) in cli_proxies]
-            source_label = "cli"
+            # If CLI provided a file via --file, resolve and assign it to
+            # `proxy_file` so later removal uses the same file path.
+            if getattr(args, "proxy_file", None) and args.proxy_file:
+                proxy_file = (
+                    args.proxy_file
+                    if os.path.exists(args.proxy_file)
+                    else get_relative_path(args.proxy_file)
+                )
+                source_label = f"file://{proxy_file}"
+            else:
+                source_label = "cli"
 
         if not proxies:
             file_proxies = load_proxies_from_file(proxy_file)
             if file_proxies:
                 proxies = [f"{h}:{p}" for (h, p) in file_proxies]
-                source_label = f"file ({proxy_file})"
+                source_label = f"file://{proxy_file}"
 
         if not proxies:
             rows = db.get_working_proxies(limit=args.limit, randomize=True)
