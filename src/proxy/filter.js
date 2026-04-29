@@ -19,7 +19,7 @@ dbPaths.forEach((path) => {
   }
 });
 
-fs.ensureDir('tmp/caches'); // Ensure the cache directory exists
+fs.ensureDir('tmp/caches', { mode: 0o755 }); // Ensure the cache directory exists
 
 /**
  * Fetch proxies with the same IP.
