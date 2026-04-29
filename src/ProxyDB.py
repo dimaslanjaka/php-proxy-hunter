@@ -409,7 +409,7 @@ class ProxyDB:
             except Exception:
                 return []
 
-    def remove(self, proxy, delete_from_added: bool = False):
+    def remove(self, proxy: Optional[str], delete_from_added: bool = False):
         proxy = self.normalize_proxy(proxy)
         if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
             self.get_db().delete("proxies", "proxy = %s", [proxy.strip()])
