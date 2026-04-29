@@ -25,6 +25,12 @@ if [ -z "$CWD" ]; then
   exit 1
 fi
 
+# Prefer .venv over venv: if both exist, keep .venv and remove venv
+if [ -d "$CWD/.venv" ] && [ -d "$CWD/venv" ]; then
+  echo "Both .venv and venv detected; preferring .venv and removing venv"
+  rm -rf "$CWD/venv" || true
+fi
+
 OS=$(uname -s)
 # Apply crontab
 if [ "$OS" = "Linux" ] && [ $IS_VPS -eq 1 ]; then
