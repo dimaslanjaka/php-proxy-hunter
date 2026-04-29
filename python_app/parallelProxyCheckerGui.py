@@ -32,7 +32,7 @@ from PySide6.QtCore import Qt, Signal, QThread
 from PySide6.QtGui import QIcon, QColor, QBrush
 from src.pyside6.utils.settings import save_text, load_text
 from proxy_hunter import build_request, extract_proxies, Proxy
-from src.geoPlugin import get_geo_ip2
+from src.geoPlugin import get_geo_ip
 
 
 class ParallelCheckerWorkerThread(QThread):
@@ -371,7 +371,7 @@ class ParallelProxyChecker(QWidget):
                     if not current_country or current_country in ("-", ""):
                         proxy_username = getattr(data, "username", None)
                         proxy_password = getattr(data, "password", None)
-                        geo = get_geo_ip2(data.proxy, proxy_username, proxy_password)
+                        geo = get_geo_ip(data.proxy, proxy_username, proxy_password)
                         if geo:
                             # Only set fields the UI already expects (`country` and `city`).
                             # Avoid assigning numeric fields or new unknown attributes

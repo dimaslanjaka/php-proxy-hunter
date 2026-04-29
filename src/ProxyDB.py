@@ -15,7 +15,7 @@ from proxy_hunter import (
 from data.webgl import random_webgl_data
 from src.func import get_nuitka_file, get_relative_path
 from src.func_date import get_current_rfc3339_time
-from src.geoPlugin import get_geo_ip2
+from src.geoPlugin import get_geo_ip
 from src.SQLiteHelper import SQLiteHelper
 from src.MySQLHelper import MySQLHelper
 
@@ -819,7 +819,7 @@ class ProxyDB:
         ):
             _proxy = item.get("proxy")
             if _proxy:
-                geo = get_geo_ip2(_proxy)
+                geo = get_geo_ip(_proxy)
                 if geo:
                     modify = True
                     db_data.update(

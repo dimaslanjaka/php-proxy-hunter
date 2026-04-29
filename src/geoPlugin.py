@@ -122,7 +122,7 @@ class GeoIpResult:
         return json.dumps(self.to_dict())
 
 
-def get_geo_ip2(
+def get_geo_ip(
     proxy: str,
     proxy_username: Optional[str] = None,
     proxy_password: Optional[str] = None,
@@ -297,7 +297,7 @@ def get_geo_ip2(
             )
 
     except Exception as e:
-        print(f"Error in geoIp2: {e}")
+        print(f"Error in get_geo_ip: {e}")
         return None
 
 

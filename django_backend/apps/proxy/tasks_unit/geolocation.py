@@ -17,7 +17,7 @@ from django_backend.apps.proxy.utils import execute_select_query, execute_sql_qu
 from src.func import get_relative_path
 from src.func_console import log_file
 from proxy_hunter import random_windows_ua
-from src.geoPlugin import get_geo_ip2
+from src.geoPlugin import get_geo_ip
 
 global_tasks: Set[Union[threading.Thread, Future]] = set()
 result_log_file = get_relative_path("proxyChecker.txt")
@@ -68,7 +68,7 @@ def fetch_geo_ip(data: Optional[str] = None):
 
     if model and model["proxy"]:
         # print("geolocation model", json.dumps(model, indent=2))
-        detail = get_geo_ip2(model["proxy"], model["username"], model["password"])
+        detail = get_geo_ip(model["proxy"], model["username"], model["password"])
         # print("geolocation detail", json.dumps(detail.to_dict(), indent=2))
         if detail:
             model["city"] = detail.city
@@ -120,7 +120,7 @@ def fetch_geo_ip(data: Optional[str] = None):
         result["data"] = model
     elif valid_ip or valid_proxy:
         # ip only
-        result["data"] = get_geo_ip2(data).to_dict()
+        result["data"] = get_geo_ip(data).to_dict()
         result["messages"] = "IP Only"
         result["error"] = False
     return result
