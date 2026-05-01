@@ -10,6 +10,42 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.func_console import log_error
 
 
+def day_to_seconds(days: int) -> int:
+    """Convert days to seconds.
+
+    Args:
+        days: Number of days.
+
+    Returns:
+        Equivalent seconds as int.
+    """
+    return int(days * 24 * 3600)
+
+
+def hour_to_seconds(hours: int) -> int:
+    """Convert hours to seconds.
+
+    Args:
+        hours: Number of hours.
+
+    Returns:
+        Equivalent seconds as int.
+    """
+    return int(hours * 3600)
+
+
+def minute_to_seconds(minutes: int) -> int:
+    """Convert minutes to seconds.
+
+    Args:
+        minutes: Number of minutes.
+
+    Returns:
+        Equivalent seconds as int.
+    """
+    return int(minutes * 60)
+
+
 def is_current_time_more_than_rfc3339(given_datetime_str: str) -> Optional[bool]:
     """
     Checks if the current date and time are more than the given date and time in RFC 3339 format.
