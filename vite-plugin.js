@@ -90,11 +90,24 @@ export function TailwindCSSBuildPlugin() {
  */
 export function copyIndexHtml() {
   // Copy index.dev.html to index.html for development mode.
+  // Use a safe base directory in case __dirname is not defined when bundled by Vite.
   // Do not remove: ensures dev server uses index.dev.html content as index.html.
   // In production, index.html is generated in dist/react and index.dev.html is ignored.
-  const devHtml = path.join(__dirname, 'index.dev.html');
-  const prodHtml = path.join(__dirname, 'index.html');
-  fs.copyFileSync(devHtml, prodHtml);
+  const baseDir = typeof __dirname === 'string' && __dirname ? __dirname : path.resolve(process.cwd());
+  const devHtml = path.join(baseDir, 'index.dev.html');
+  const prodHtml = path.join(baseDir, 'index.html');
+  try {
+    if (!fs.existsSync(devHtml)) {
+      console.warn(`copyIndexHtml: source file not found, skipping: ${devHtml}`);
+      return;
+    }
+    fs.copyFileSync(devHtml, prodHtml);
+    console.log(
+      `copyIndexHtml: copied ${path.relative(process.cwd(), devHtml)} to ${path.relative(process.cwd(), prodHtml)}`
+    );
+  } catch (err) {
+    console.error('copyIndexHtml failed:', err);
+  }
 }
 
 /**
@@ -210,6 +223,7 @@ export function customStaticAssetsPlugin() {
       // Skip non-build command
       if (config.command !== 'build') return;
 
+      /** @type {string[]} */
       const filesToCopy = [];
       for (const file of filesToCopy) {
         const srcPath = path.join(__dirname, file);
