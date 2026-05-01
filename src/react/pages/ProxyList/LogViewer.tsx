@@ -138,25 +138,27 @@ const LogViewer: React.FC = () => {
         </div>
         {/* Tabs */}
         <div className="mb-3">
-          <ul className="flex -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400" role="tablist">
+          <ul
+            className="flex flex-nowrap overflow-x-auto space-x-2 -mb-px text-sm font-medium text-center text-gray-500 dark:text-gray-400"
+            role="tablist">
             {/* Removed default tabs: HTTPS, HTTP, Type detection */}
-            <li role="presentation">
+            <li role="presentation" className="flex-shrink-0">
               <button
                 type="button"
                 role="tab"
                 aria-selected={activeTab === 'old'}
-                className={`inline-block p-2 rounded-t-lg border-b-2 ${activeTab === 'old' ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 bg-gray-100 dark:bg-gray-800' : 'border-transparent hover:text-gray-600 dark:hover:text-gray-300'}`}
+                className={`inline-block p-2 rounded-t-lg border-b-2 whitespace-nowrap ${activeTab === 'old' ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 bg-gray-100 dark:bg-gray-800' : 'border-transparent hover:text-gray-600 dark:hover:text-gray-300'}`}
                 onClick={() => setActiveTab('old')}>
                 Check old proxy
               </button>
             </li>
             {executorFiles.map((f, i) => (
-              <li role="presentation" key={f.name}>
+              <li role="presentation" key={f.name} className="flex-shrink-0">
                 <button
                   type="button"
                   role="tab"
                   aria-selected={activeTab === 'executor' && executorIndex === i}
-                  className={`inline-block p-2 rounded-t-lg border-b-2 ${activeTab === 'executor' && executorIndex === i ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 bg-gray-100 dark:bg-gray-800' : 'border-transparent hover:text-gray-600 dark:hover:text-gray-300'}`}
+                  className={`inline-block p-2 rounded-t-lg border-b-2 whitespace-nowrap ${activeTab === 'executor' && executorIndex === i ? 'text-blue-600 border-blue-600 dark:text-blue-500 dark:border-blue-500 bg-gray-100 dark:bg-gray-800' : 'border-transparent hover:text-gray-600 dark:hover:text-gray-300'}`}
                   onClick={() => {
                     setActiveTab('executor');
                     setExecutorIndex(i);
