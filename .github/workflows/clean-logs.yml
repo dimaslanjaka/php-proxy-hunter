@@ -1,4 +1,6 @@
 name: Clean GitHub Actions Logs
+env:
+  PUPPETEER_SKIP_DOWNLOAD: 'true'
 
 on:
   workflow_dispatch:

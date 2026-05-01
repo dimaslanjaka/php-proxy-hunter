@@ -1,4 +1,6 @@
 name: Checker Python
+env:
+  PUPPETEER_SKIP_DOWNLOAD: 'true'
 
 on:
   push:

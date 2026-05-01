@@ -1,4 +1,6 @@
 name: Checker PHP
+env:
+  PUPPETEER_SKIP_DOWNLOAD: 'true'
 
 on:
   push:

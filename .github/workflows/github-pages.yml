@@ -77,6 +77,7 @@ env:
   MYSQL_PASS: ${{ secrets.MYSQL_PASS }}
   MYSQL_DBNAME: ${{ secrets.MYSQL_DBNAME }}
   MYSQL_HOST: ${{ secrets.MYSQL_HOST }}
+  PUPPETEER_SKIP_DOWNLOAD: 'true'
 
 jobs:
   build-and-deploy:
