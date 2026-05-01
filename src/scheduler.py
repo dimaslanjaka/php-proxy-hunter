@@ -2,6 +2,7 @@ import atexit
 import threading
 from typing import Callable, List
 
+
 class SchedulerHelper:
     """
     A helper class to manage scheduling functions to run at program exit.

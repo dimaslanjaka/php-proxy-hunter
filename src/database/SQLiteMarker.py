@@ -6,7 +6,6 @@ from typing import Iterable, List, Optional, Set, Tuple, Union
 from src.SQLiteHelper import SQLiteHelper
 from src.func import get_relative_path
 
-
 _IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
 
@@ -122,12 +121,16 @@ class SQLiteMarker:
         pending = [value for value in cleaned if value not in existing]
         return pending, len(existing)
 
-    def _resolve_valid_until(self, valid_until: Optional[Union[str, int]]) -> Optional[str]:
+    def _resolve_valid_until(
+        self, valid_until: Optional[Union[str, int]]
+    ) -> Optional[str]:
         if valid_until is None:
             return None
 
         if isinstance(valid_until, int):
-            return (datetime.now(timezone.utc) + timedelta(days=valid_until)).isoformat()
+            return (
+                datetime.now(timezone.utc) + timedelta(days=valid_until)
+            ).isoformat()
 
         return self._normalize_rfc3339(valid_until)
 

@@ -2,7 +2,6 @@ import mysql.connector
 from mysql.connector import Error
 from typing import Any, List, Optional, Union, Dict, Sequence, cast
 
-
 DISCONNECT_ERRNOS = {2006, 2013, 2055, 4031}
 
 

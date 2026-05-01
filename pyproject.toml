@@ -5,15 +5,7 @@ build-backend = "setuptools.build_meta"
 [tool.pyright]
 pythonVersion = "3.11"
 pythonPlatform = "Windows"
-include = [
-  "src",
-  "*.py",
-  "data",
-  "django_backend",
-  "tests",
-  "xl",
-  "bas"
-]
+include = ["src", "*.py", "data", "django_backend", "tests", "xl", "bas"]
 exclude = [
   "**/node_modules",
   "**/__pycache__",
@@ -32,14 +24,16 @@ exclude = [
   "xl",
   "src",
   "data",
-  "django_backend"
+  "django_backend",
+  "**/.*",
+  ".venv",
 ]
 extraPaths = [
   "venv/Lib/site-packages",
   "packages/proxy-hunter-python",
   "packages/proxy-checker-python",
   "packages/rsa-utility",
-  "packages/selenium-stealth"
+  "packages/selenium-stealth",
 ]
 defineConstant = { DEBUG = true }
 reportMissingImports = "error"
@@ -50,11 +44,31 @@ reportOptionalMemberAccess = "warning"
 [tool.pytest.ini_options]
 minversion = "6.0"
 addopts = "-ra -v"
-testpaths = [
-    "tests"
-]
-python_files = [
-    "test_*.py",
-    "*_test.py"
-]
+testpaths = ["tests"]
+python_files = ["test_*.py", "*_test.py"]
 cache_dir = "tmp/pytest"
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+required-version = "26"
+include = '\.pyi?$'
+
+# Formatting behavior
+skip-string-normalization = false
+skip-magic-trailing-comma = false
+preview = false
+unstable = false
+
+# File collection
+extend-exclude = '''
+(
+  ^/foo.py
+  | .*_pb2.py
+)
+'''
+force-exclude = '''
+(
+  ^/generated/
+)
+'''
