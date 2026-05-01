@@ -18,7 +18,7 @@ from src.database.SQLiteMarker import SQLiteMarker
 from src.utils.file.FileLockHelper import FileLockHelper
 
 if __name__ == "__main__":
-    args = parse_args(default_limit=1)
+    args = parse_args(default_limit=10)
 
     # Lock file name can be overridden with --uid
     lock_name = args.uid if getattr(args, "uid", None) else os.path.basename(__file__)
