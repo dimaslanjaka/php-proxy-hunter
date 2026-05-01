@@ -193,7 +193,15 @@ if (!empty($file)) {
 }
 
 if (isset($request['list'])) {
-  $files = [];
+  // Try reading cached list (1 day TTL) using packages/proxy-checker-python helper.
+  $files     = [];
+  $cacheFile = tmp('build', 'executor_files.json');
+  // Instantiate the FileCache directly (no class_exists check).
+  $cache  = new \ProxyChecker\FileCache($cacheFile);
+  $cached = $cache->readCache();
+  if ($cached !== null) {
+    respond_json($cached);
+  }
   foreach ($executorFiles as $key => $label) {
     // Allow executor map keys to include an explicit extension (e.g. "geoIp.py").
     // Prefer artisan .php and .py (show both if present), then php_backend .php.
@@ -266,6 +274,10 @@ if (isset($request['list'])) {
       }
     }
   }
+
+  // Attempt to write cache (no try/catch). The fallback object implements
+  // writeCache() as a no-op so $cache is never null.
+  $cache->writeCache($files, 86400); // cache for one day
 
   respond_json($files);
 }
