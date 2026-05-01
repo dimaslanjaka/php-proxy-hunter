@@ -8,6 +8,7 @@ from proxy_hunter import is_valid_proxy
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+from src.func_date import day_to_seconds
 from src.ProxyDB import ProxyDB
 from src.func import get_relative_path
 from src.shared import init_db, init_readonly_db
@@ -15,7 +16,6 @@ from src.utils.parse_args import parse_args
 
 # ---- CONFIG ----
 MAX_WORKERS = 20
-ONE_DAY_SECONDS = 24 * 3600
 
 
 def clean_proxies(db: "ProxyDB"):
@@ -46,8 +46,17 @@ def clean_proxies(db: "ProxyDB"):
             print(f"Failed to delete proxy {proxy}: {e}")
 
 
-def clean_directory(base_path, now):
-    """Clean files older than 1 day and remove empty dirs."""
+def clean_directory(base_path: str, expire_seconds: int = 0) -> None:
+    """Clean files older than `expire_seconds` and remove empty dirs.
+
+    Args:
+        base_path: Path to directory to clean.
+        expire_seconds: Age threshold in seconds; files older than this are removed.
+    """
+    now = time.time()
+    if expire_seconds == 0:
+        expire_seconds = day_to_seconds(7)  # Default to 7 days
+
     if not os.path.exists(base_path):
         return
 
@@ -55,13 +64,13 @@ def clean_directory(base_path, now):
         path = entry.path
         try:
             if entry.is_dir():
-                clean_directory(path, now)
+                clean_directory(path, expire_seconds)
                 if not os.listdir(path):
                     print(f"Removing empty directory: {path}")
                     os.rmdir(path)
 
             elif entry.is_file():
-                if now - entry.stat().st_mtime > ONE_DAY_SECONDS:
+                if now - entry.stat().st_mtime > expire_seconds:
                     print(f"Removing old file: {path}")
                     os.remove(path)
 
@@ -102,7 +111,6 @@ if __name__ == "__main__":
         clean_proxies(db)
 
     # ---- Clean directories ----
-    now = time.time()
     dirs = [
         "tmp/logs/crontab",
         "tmp/build",
@@ -118,4 +126,6 @@ if __name__ == "__main__":
     ]
 
     for d in dirs:
-        clean_directory(get_relative_path(d), now)
+        clean_directory(get_relative_path(d))
+
+    clean_directory(get_relative_path("assets/proxies"), day_to_seconds(1))
