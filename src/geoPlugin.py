@@ -277,6 +277,22 @@ def get_geo_ip(
                 except Exception:
                     pass
 
+            # If still missing country info, try external HTTP-based providers
+            if not all([country_name, country_code]):
+                try:
+                    ext = try_external_geo(ip)
+                    if ext:
+                        country_name = ext.get("country_name") or country_name
+                        country_code = ext.get("country_code") or country_code
+                        city = ext.get("city") or city
+                        latitude = ext.get("latitude") or latitude
+                        longitude = ext.get("longitude") or longitude
+                        timezone = ext.get("timezone") or timezone
+                        region_name = ext.get("region") or region_name
+                        region_code = ext.get("region_code") or region_code
+                except Exception:
+                    pass
+
             if country_code:
                 lang = get_locale_from_country_code(country_code)
                 if not lang:
@@ -420,6 +436,66 @@ def get_timezones_by_lat_lon(latitude: float, longitude: float) -> Optional[List
     tf = TimezoneFinder()
     timezone = tf.timezone_at(lat=latitude, lng=longitude)
     return [timezone] if timezone else None
+
+
+def query_ip_api(ip: str, timeout: int = 6) -> Optional[Dict[str, Any]]:
+    """Query ip-api.com for geolocation (no API key required, limited rate)."""
+    try:
+        r = requests.get(f"http://ip-api.com/json/{ip}", timeout=timeout)
+        if r.ok:
+            j = r.json()
+            if j.get("status") == "success":
+                return {
+                    "city": j.get("city"),
+                    "country_name": j.get("country"),
+                    "country_code": j.get("countryCode"),
+                    "latitude": j.get("lat"),
+                    "longitude": j.get("lon"),
+                    "timezone": j.get("timezone"),
+                    "region": j.get("regionName"),
+                    "region_code": j.get("region"),
+                }
+    except Exception:
+        pass
+    return None
+
+
+def query_ipwhois(ip: str, timeout: int = 6) -> Optional[Dict[str, Any]]:
+    """Query ipwhois.app for geolocation."""
+    try:
+        r = requests.get(f"https://ipwhois.app/json/{ip}", timeout=timeout)
+        if r.ok:
+            j = r.json()
+            # ipwhois returns a 'success' boolean in some responses
+            if j.get("success", True) is not False:
+                tz = None
+                if isinstance(j.get("timezone"), dict):
+                    tz = j.get("timezone").get("id")
+                return {
+                    "city": j.get("city"),
+                    "country_name": j.get("country"),
+                    "country_code": j.get("country_code"),
+                    "latitude": float(j.get("latitude")) if j.get("latitude") else None,
+                    "longitude": (
+                        float(j.get("longitude")) if j.get("longitude") else None
+                    ),
+                    "timezone": tz or j.get("timezone"),
+                }
+    except Exception:
+        pass
+    return None
+
+
+def try_external_geo(ip: str) -> Optional[Dict[str, Any]]:
+    """Try a sequence of external HTTP-based geolocation providers."""
+    for fn in (query_ip_api, query_ipwhois):
+        try:
+            res = fn(ip)
+            if res:
+                return res
+        except Exception:
+            continue
+    return None
 
 
 if __name__ == "__main__":
