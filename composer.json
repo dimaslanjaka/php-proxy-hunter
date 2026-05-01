@@ -35,11 +35,19 @@
       }
     },
     {
+      "type": "path",
+      "url": "packages/proxy-checker-python",
+      "options": {
+        "symlink": true
+      }
+    },
+    {
       "type": "vcs",
       "url": "https://github.com/helpcenterio/country-codes"
     }
   ],
   "require": {
+    "dimaslanjaka/proxy-checker-python": "dev-master",
     "dimaslanjaka/proxy-hunter-php": "dev-master",
     "composer-plugin-api": "^2.3",
     "annexare/countries-list": "^3.1",
