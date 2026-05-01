@@ -123,13 +123,13 @@ jobs:
             **/dist/**
             **/yarn.lock
             **/public/**
+            **/.yarn
+            **/.cache
+            public/
           key: ${{ runner.os }}-node-${{ hashFiles('.husky/hash.txt') }}
           restore-keys: |
             ${{ runner.os }}-node-${{ hashFiles('.husky/hash.txt') }}
             ${{ runner.os }}-node-
-
-      - name: Clean dist and tmp
-        run: rm -rf dist/* tmp/*
 
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
