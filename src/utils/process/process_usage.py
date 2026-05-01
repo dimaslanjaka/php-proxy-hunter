@@ -6,7 +6,10 @@ from datetime import datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
-from src.func_console import red, yellow, green
+from src.utils.process.resources_usage import (
+    color_percent_value_text,
+    display_system_usage,
+)
 
 
 def bytes_to_mb(b):
@@ -18,15 +21,6 @@ def normalize_cmd(cmd: str) -> str:
     if cmd.startswith("\\??\\") or cmd.startswith("\\\\?\\"):
         return cmd[4:]
     return cmd
-
-
-def color_percent_value_text(value: float, text: str) -> str:
-    """Return colored `text` according to `value` thresholds."""
-    if value >= 70:
-        return red(text)
-    if value >= 30:
-        return yellow(text)
-    return green(text)
 
 
 def main():
@@ -104,3 +98,4 @@ def main():
 
 if __name__ == "__main__":
     main()
+    display_system_usage(0.1)
