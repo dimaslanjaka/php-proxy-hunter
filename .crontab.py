@@ -304,7 +304,8 @@ run_30m = should_run_job("30-m")
 if run_30m:
     echo_skip_or_run("30 minutes", True)
     log_command(
-        CRONTAB_LOG_DIR / "geoip.log", [PYTHON_BIN, str(CWD / "artisan/geoIp.py")]
+        CRONTAB_LOG_DIR / "geoip.log",
+        [PYTHON_BIN, str(CWD / "artisan/geoIp.py"), "--limit=100"],
     )
     log_command(
         CRONTAB_LOG_DIR / "tun2socks-stability-check.log",
