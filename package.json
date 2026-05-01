@@ -212,7 +212,7 @@
     "prettier": "^3.6.2",
     "prettier-plugin-embed": "^0.5.0",
     "prettier-plugin-sh": "^0.18.0",
-    "prettier-plugin-sql": "^0.19.2",
+    "prettier-plugin-sql": "^0.20.0",
     "prettier-plugin-twig": "https://github.com/dimaslanjaka/prettier-plugin-twig/archive/9bf90f7.tar.gz",
     "react": "^19.2.0",
     "react-dom": "^19.2.0",
