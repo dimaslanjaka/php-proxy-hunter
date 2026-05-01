@@ -9,17 +9,20 @@ from typing import List
 
 def run_command(command: List[str]):
     try:
-        result = subprocess.run(
-            command, check=True, stdout=subprocess.PIPE, stderr=subprocess.PIPE
-        )
-        return result.stdout.decode("utf-8").strip()
+        return subprocess.run(
+            command,
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        ).stdout.strip()
     except subprocess.CalledProcessError:
         return None
 
 
 def is_git_repo_and_on_branch(branch_name: str = "python"):
     return (
-        run_command(["git", "rev-parse", "--is-inside-work-tree"]) is not None
+        run_command(["git", "rev-parse", "--is-inside-work-tree"])
         and run_command(["git", "branch", "--show-current"]) == branch_name
     )
 
@@ -32,56 +35,59 @@ def check_package(package_name: str):
         return False
 
 
-def delete_path(path: str) -> None:
-    if os.path.exists(path):
-        try:
-            if os.path.isdir(path):
-                shutil.rmtree(path, ignore_errors=True)
-            elif os.path.isfile(path):
-                os.remove(path)
-            print(f"'{path}' deleted successfully.")
-        except OSError as e:
-            print(f"Error deleting '{path}': {e}")
-    else:
+def delete_path(path: str):
+    if not os.path.exists(path):
         print(f"Path '{path}' does not exist.")
+        return
+
+    try:
+        if os.path.isdir(path):
+            shutil.rmtree(path, ignore_errors=True)
+        else:
+            os.remove(path)
+        print(f"'{path}' deleted successfully.")
+    except OSError as e:
+        print(f"Error deleting '{path}': {e}")
 
 
 def ensure_directories(directories: List[str]):
-    current_directory = os.path.dirname(os.path.abspath(__file__))
-    for dir_path in directories:
-        full_path = os.path.join(current_directory, dir_path)
+    base_dir = os.path.dirname(os.path.abspath(__file__))
+    for d in directories:
+        full_path = os.path.join(base_dir, d)
         os.makedirs(full_path, exist_ok=True)
         os.chmod(full_path, stat.S_IRWXU | stat.S_IRWXG | stat.S_IRWXO)
 
 
-# List of packages to check
+def run_pip_install(*requirements_files: str):
+    for req in requirements_files:
+        subprocess.check_call([sys.executable, "-m", "pip", "install", "-r", req])
+
+
+# ---- Packages ----
 packages = ["pycountry", "django", "requests", "pytz", "timezonefinder"]
 
-# Add Windows-specific packages if needed
-if platform.system() == "Windows" and is_git_repo_and_on_branch("python"):
-    packages.extend(["PySide6", "wmi", "qtawesome", "nuitka"])
+if platform.system() == "Windows" and is_git_repo_and_on_branch():
+    packages += ["PySide6", "wmi", "qtawesome", "nuitka"]
 
-# Check for missing packages
 missing_packages = [pkg for pkg in packages if not check_package(pkg)]
+
 if missing_packages:
     print(f"Missing packages: {', '.join(missing_packages)}")
-    # Generate requirements.txt
+
     subprocess.check_call([sys.executable, "requirements_install.py", "--generate"])
-    # Install missing packages
-    subprocess.check_call(
-        [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"]
-    )
-    subprocess.check_call(
-        [sys.executable, "-m", "pip", "install", "-r", "requirements-base.txt"]
-    )
-    subprocess.check_call(
-        [sys.executable, "-m", "pip", "install", "-r", "requirements-minimal.txt"]
+
+    run_pip_install(
+        "requirements.txt",
+        "requirements-base.txt",
+        "requirements-minimal.txt",
     )
 else:
     print("All required packages are installed.")
 
-# Define directories
+
+# ---- Directories ----
 temp_dirs = ["tmp/runners", "tmp/logs"]
+
 dirs = [
     ".cache",
     "config",
@@ -90,12 +96,11 @@ dirs = [
     "assets/chrome",
     "tmp/cookies",
     "tmp/data",
-    "tmp/logs",
     "dist",
-] + temp_dirs
+    *temp_dirs,  # avoids duplication
+]
 
-# Clean temporary directories and recreate all necessary directories
-for temp_dir in temp_dirs:
-    delete_path(temp_dir)
+for d in temp_dirs:
+    delete_path(d)
 
 ensure_directories(dirs)
