@@ -46,6 +46,7 @@ src/react/components/theme.*
 
 # Assets & Static
 /public/static
+/public/assets/fonts
 /app
 /proxyManager.js
 /index.html

@@ -10,7 +10,8 @@ import {
   indexHtmlReplacementPlugin,
   manualHmrPlugin,
   prepareVitePlugins,
-  TailwindCSSBuildPlugin
+  TailwindCSSBuildPlugin,
+  copyFontsPlugin
 } from './vite-plugin.js';
 import { execSync } from 'child_process';
 import legacy from '@vitejs/plugin-legacy';
@@ -77,6 +78,7 @@ export const viteConfig = defineConfig({
     prepareVitePlugins(),
     manualHmrPlugin(),
     indexHtmlReplacementPlugin(),
+    copyFontsPlugin(),
     fontsResolverPlugin(),
     TailwindCSSBuildPlugin(),
     react(),

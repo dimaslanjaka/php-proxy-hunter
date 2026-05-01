@@ -258,6 +258,49 @@ export function customStaticAssetsPlugin() {
   };
 }
 
+/**
+ * Simple plugin to copy all fonts to `public/assets/fonts` and ensure
+ * `dist/react/assets/fonts` exists before the build starts. This prevents
+ * Rollup/Vite ENOENT failures when emitting fingerprinted font assets.
+ * @returns {import('vite').Plugin}
+ */
+export function copyFontsPlugin() {
+  /** @type {import('vite').ResolvedConfig} */
+  let viteConfig;
+  return {
+    name: 'copy-fonts-plugin',
+    configResolved(config) {
+      viteConfig = config;
+    },
+    buildStart() {
+      try {
+        const srcDir = path.join(__dirname, 'assets/fonts');
+        const publicDest = path.join(__dirname, 'public', 'assets', 'fonts');
+        const outDir =
+          (viteConfig && viteConfig.build && viteConfig.build.outDir) || path.join(__dirname, 'dist', 'react');
+        const distDest = path.join(outDir, 'assets', 'fonts');
+
+        if (!fs.existsSync(srcDir)) {
+          console.warn(`copy-fonts-plugin: source fonts directory not found: ${srcDir}`);
+          return;
+        }
+
+        // Ensure destination directories exist
+        fs.ensureDirSync(publicDest);
+        fs.ensureDirSync(distDest);
+
+        // Copy fonts to public (for static serving) and to dist output (defensive)
+        fs.copySync(srcDir, publicDest, { overwrite: true, dereference: true });
+        fs.copySync(srcDir, distDest, { overwrite: true, dereference: true });
+
+        console.log(`copy-fonts-plugin: copied fonts -> public/assets/fonts and ${path.relative(__dirname, distDest)}`);
+      } catch (err) {
+        console.error('copy-fonts-plugin error:', err);
+      }
+    }
+  };
+}
+
 const lockFilePath = path.join(__dirname, 'tmp/locks/.dev-server-lock');
 const buildLockFilePath = path.join(__dirname, 'tmp/locks/.build-lock');
 fs.ensureDirSync(path.dirname(lockFilePath));
