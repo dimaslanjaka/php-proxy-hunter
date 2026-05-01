@@ -222,13 +222,70 @@ export function execWithBashrc(conn, command) {
 }
 
 /**
+ * Check existence and type of a remote path using ssh2-sftp-client.
+ * @param {string} target - Remote path to test (POSIX-style recommended).
+ * @param {object} [config={}] - Optional connection overrides passed to `createSftp`.
+ * @returns {Promise<'d'|'-'|'l'|false>} Returns `'d'` for directory, `'-'` for file,
+ * `'l'` for symlink, or `false` if the path does not exist.
+ */
+export async function remoteExists(target, config = {}) {
+  return useSftp(async (sftp) => {
+    return await sftp.exists(target);
+  }, config);
+}
+
+/**
+ * Boolean existence check for a remote path.
+ * @param {string} target - Remote path to test.
+ * @param {object} [config={}] - Optional connection overrides passed to `createSftp`.
+ * @returns {Promise<boolean>} Resolves to `true` if the path exists (file/dir/symlink),
+ * otherwise `false`.
+ */
+export async function remoteExistsBoolean(target, config = {}) {
+  return (await remoteExists(target, config)) !== false;
+}
+
+/**
  * Perform `git pull` in the project repository on the remote host via SSH.
  * @returns {Promise<{stdout: string, stderr: string, code: number, signal: string}>}
  */
 export function gitPull() {
   return withSSH(async (conn) => {
-    // project update
-    await execWithBashrc(conn, `cd ${remotePath} && git pull --recurse-submodules --no-edit`);
+    console.log('Updating project repository on remote host...');
+    // pull or clone packages/proxy-checker-python remote https://github.com/dimaslanjaka/proxy-checker-python.git
+    if (!(await remoteExistsBoolean(`${remotePath}/packages/proxy-checker-python/.git`))) {
+      console.log('Cloning proxy-checker-python submodule on remote host...');
+      await execWithBashrc(
+        conn,
+        `git clone --depth=1 --recurse-submodules https://github.com/dimaslanjaka/proxy-checker-python.git ${remotePath}/packages/proxy-checker-python`
+      );
+    } else {
+      console.log('Pulling latest changes for proxy-checker-python submodule on remote host...');
+      // check packages/proxy-checker-python/.git is file, remove folder packages/proxy-checker-python and clone again if it is
+      if ((await remoteExists(`${remotePath}/packages/proxy-checker-python/.git`)) === '-') {
+        console.log(
+          'Detected .git file instead of directory for proxy-checker-python. Re-cloning submodule on remote host...'
+        );
+        await deleteRemotePath(`${remotePath}/packages/proxy-checker-python`);
+        await execWithBashrc(
+          conn,
+          `git clone --depth=1 --recurse-submodules https://github.com/dimaslanjaka/proxy-checker-python.git ${remotePath}/packages/proxy-checker-python`
+        );
+      }
+      await execWithBashrc(
+        conn,
+        `cd ${remotePath}/packages/proxy-checker-python && git pull --recurse-submodules --no-edit --no-commit`
+      );
+    }
+    // run composer require "dimaslanjaka/proxy-checker-python:dev-master" -W in the project repository on the server
+    console.log('Ensuring proxy-checker-python composer dependency is up to date on remote host...');
+    await execWithBashrc(
+      conn,
+      `cd ${remotePath} && php bin/composer.phar require "dimaslanjaka/proxy-checker-python:dev-master" -W --no-interaction`
+    );
+    // update the project repository on the server
+    console.log('Pulling latest changes for main project repository on remote host...');
+    await execWithBashrc(conn, `cd ${remotePath} && git pull`);
   });
 }
 
