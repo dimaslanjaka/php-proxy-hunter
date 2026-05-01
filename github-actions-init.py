@@ -71,6 +71,12 @@ if missing_packages:
     subprocess.check_call(
         [sys.executable, "-m", "pip", "install", "-r", "requirements.txt"]
     )
+    subprocess.check_call(
+        [sys.executable, "-m", "pip", "install", "-r", "requirements-base.txt"]
+    )
+    subprocess.check_call(
+        [sys.executable, "-m", "pip", "install", "-r", "requirements-minimal.txt"]
+    )
 else:
     print("All required packages are installed.")
 
