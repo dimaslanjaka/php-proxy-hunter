@@ -366,7 +366,7 @@ if run_3h:
     echo_skip_or_run("3 hours", True)
     log_command(
         CRONTAB_LOG_DIR / "proxy_checker_httpx.log",
-        [PYTHON_BIN, str(CWD / "artisan/proxy_checker_httpx.py")],
+        [PYTHON_BIN, str(CWD / "artisan/proxy_checker_httpx.py"), "--limit=100"],
     )
 else:
     echo_skip_or_run("3 hours", False)
