@@ -227,7 +227,8 @@ export function execWithBashrc(conn, command) {
  */
 export function gitPull() {
   return withSSH(async (conn) => {
-    return execWithBashrc(conn, `cd ${remotePath} && git pull`);
+    // project update
+    await execWithBashrc(conn, `cd ${remotePath} && git pull --recurse-submodules --no-edit`);
   });
 }
 
