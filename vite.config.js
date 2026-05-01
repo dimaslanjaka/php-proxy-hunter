@@ -1,22 +1,23 @@
+import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
+import browserslist from 'browserslist';
+import { execSync } from 'child_process';
 import dotenv from 'dotenv';
+import { browserslistToTargets } from 'lightningcss';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
 import mkcert from 'vite-plugin-mkcert';
+import { node_modules_folders, sanitizeFilename } from './vite-chunks.js';
 import {
+  copyFontsPlugin,
   customStaticAssetsPlugin,
   fontsResolverPlugin,
   indexHtmlReplacementPlugin,
   manualHmrPlugin,
   prepareVitePlugins,
-  TailwindCSSBuildPlugin,
-  copyFontsPlugin
+  TailwindCSSBuildPlugin
 } from './vite-plugin.js';
-import { execSync } from 'child_process';
-import legacy from '@vitejs/plugin-legacy';
-import browserslist from 'browserslist';
-import { browserslistToTargets } from 'lightningcss';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -106,6 +107,8 @@ export const viteConfig = defineConfig({
   },
   // Build configuration
   build: {
+    // Ensure an explicit JS target so the legacy plugin doesn't override it.
+    target: 'es2018',
     outDir: distPath,
     commonjsOptions: {
       transformMixedEsModules: true,
@@ -154,8 +157,14 @@ export const viteConfig = defineConfig({
       // https://rollupjs.org/configuration-options/
       maxParallelFileOps: 2,
       output: {
-        manualChunks: (id) => {
+        manualChunks: (id, _manualChunkMeta) => {
           if (id.includes('node_modules')) {
+            for (const pkg of node_modules_folders) {
+              if (id.includes(path.join('node_modules', pkg))) {
+                return sanitizeFilename(pkg, { replaceWith: '-' });
+              }
+            }
+
             if (id.startsWith('react')) {
               if (id.includes('router')) {
                 return 'react-router';
@@ -284,7 +293,11 @@ export const viteConfig = defineConfig({
 if (!isGithubCI && viteConfig.plugins) {
   viteConfig.plugins.push(
     legacy({
-      targets: ['defaults', 'not IE 11']
+      // Provide the browserslist query to control which legacy browsers to support.
+      targets: 'defaults, not IE 11',
+      // Disable rendering separate legacy chunks to avoid duplicate
+      // `__vite_legacy_guard` injections when manual chunking occurs.
+      renderLegacyChunks: false
     })
   );
 }
