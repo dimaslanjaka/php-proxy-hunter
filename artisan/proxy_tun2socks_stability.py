@@ -21,6 +21,7 @@ from artisan.proxy_getter import (
     normalize_proxy_str,
 )
 from src.utils.parse_args import parse_args
+from src.geoPlugin import get_geo_ip
 
 TARGET_HOST = "1.1.1.1"
 TLS_HOST = "www.google.com"
@@ -557,6 +558,8 @@ if __name__ == "__main__":
                 latency = score_result.get("latency")
                 latency_ms = int(latency * 1000) if latency is not None else None
                 proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
+                # retrieve geo info in thread to avoid blocking event loop
+                geo = await asyncio.to_thread(get_geo_ip, proxy)
                 async with db_write_lock:
                     if score > 0:
                         data = {
@@ -566,6 +569,12 @@ if __name__ == "__main__":
                             "https": "true" if tls_ok else "false",
                             "latency": latency_ms,
                         }
+                        if geo:
+                            if getattr(geo, "city", None):
+                                data["city"] = geo.city
+                            if getattr(geo, "country_name", None):
+                                data["country"] = geo.country_name
+
                         db.update_data(proxy, data)
 
             async def on_failure(
@@ -574,17 +583,23 @@ if __name__ == "__main__":
                 score = score_result["score"]
                 tls_ok = score_result["tls"]
                 proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
+                # retrieve geo info in thread to avoid blocking event loop
+                geo = await asyncio.to_thread(get_geo_ip, proxy)
                 async with db_write_lock:
                     latency = score_result.get("latency")
                     latency_ms = int(latency * 1000) if latency is not None else None
-                    db.update_data(
-                        proxy,
-                        {
-                            "tun2socks": score,
-                            "https": "true" if tls_ok else "false",
-                            "latency": latency_ms,
-                        },
-                    )
+                    data = {
+                        "tun2socks": score,
+                        "https": "true" if tls_ok else "false",
+                        "latency": latency_ms,
+                    }
+                    if geo:
+                        if getattr(geo, "city", None):
+                            data["city"] = geo.city
+                        if getattr(geo, "country_name", None):
+                            data["country"] = geo.country_name
+
+                    db.update_data(proxy, data)
 
             try:
                 result, tested_set = asyncio.run(
