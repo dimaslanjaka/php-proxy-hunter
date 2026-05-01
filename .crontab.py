@@ -206,14 +206,15 @@ def _finalize_log(
         fh.write(f"Command: {' '.join(command)}\n")
 
 
-def log_command(log_file: Path, command: Iterable[str]) -> None:
+def log_command(log_file: str | Path, command: Iterable[str]) -> None:
     cmd = [str(part) for part in command]
-    log_file.parent.mkdir(parents=True, exist_ok=True)
+    lf = Path(log_file)
+    lf.parent.mkdir(parents=True, exist_ok=True)
 
-    with log_file.open("w", encoding="utf-8") as fh:
+    with lf.open("w", encoding="utf-8") as fh:
         fh.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Running: {' '.join(cmd)}\n")
 
-    with log_file.open("a", encoding="utf-8") as fh:
+    with lf.open("a", encoding="utf-8") as fh:
         process = subprocess.Popen(
             cmd,
             stdout=fh,
@@ -223,7 +224,7 @@ def log_command(log_file: Path, command: Iterable[str]) -> None:
         )
 
     thread = threading.Thread(
-        target=_finalize_log, args=(log_file, process, cmd), daemon=True
+        target=_finalize_log, args=(lf, process, cmd), daemon=True
     )
     thread.start()
 
@@ -272,12 +273,6 @@ def cleanup_old_files(
                     except OSError as e:
                         print(f"Failed to delete {path}: {e}")
 
-
-# Log resource usage every run (for monitoring and debugging)
-log_command(
-    CRONTAB_LOG_DIR / "resource-usage.log",
-    [PYTHON_BIN, str(CWD / "src/utils/process/process_usage.py")],
-)
 
 gc.collect()
 
@@ -525,3 +520,16 @@ if should_run_10d:
     )
 else:
     echo_skip_or_run("10 days", False)
+
+gc.collect()
+
+
+# Log resource usage every run (for monitoring and debugging)
+log_command(
+    CRONTAB_LOG_DIR / "resource-usage.log",
+    [PYTHON_BIN, str(CWD / "src/utils/process/process_usage.py")],
+)
+log_command(
+    CWD / "tmp/logs/system-usage.json",
+    [PYTHON_BIN, str(CWD / "src/utils/process/process_usage.py"), "--json"],
+)

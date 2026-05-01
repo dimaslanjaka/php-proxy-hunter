@@ -189,8 +189,8 @@ def get_storage_usage(path: str | None = None) -> int | None:
 
 
 def display_system_usage(
-    sample_cpu_seconds: float = 0.5, storage_path: str | None = None
-) -> None:
+    sample_cpu_seconds: float = 0.5, storage_path: str | None = None, json: bool = False
+) -> None | dict:
     cpu_usage, ram_usage = get_system_usage(sample_cpu_seconds=sample_cpu_seconds)
     storage_usage = get_storage_usage(storage_path)
 
@@ -289,11 +289,14 @@ def display_system_usage(
         return f"{int(val)}{units[idx]}"
 
     parts: list[str] = []
+    human_parts: list[str] = []
     # CPU
     if cpu_usage is not None:
         parts.append(f"CPU={color_percent_value_text(cpu_usage, f'{cpu_usage}%')}")
+        human_parts.append(f"CPU={cpu_usage}%")
     else:
         parts.append("CPU=?")
+        human_parts.append("CPU=?")
 
     # RAM
     if (
@@ -304,11 +307,16 @@ def display_system_usage(
         parts.append(
             f"RAM={color_percent_value_text(ram_percent, f'{ram_percent}%')} ({_fmt_bytes(ram_used_bytes)}/{_fmt_bytes(ram_total_bytes)})"
         )
+        human_parts.append(
+            f"RAM={ram_percent}% ({_fmt_bytes(ram_used_bytes)}/{_fmt_bytes(ram_total_bytes)})"
+        )
     else:
         if ram_usage is not None:
             parts.append(f"RAM={color_percent_value_text(ram_usage, f'{ram_usage}%')}")
+            human_parts.append(f"RAM={ram_usage}%")
         else:
             parts.append("RAM=?")
+            human_parts.append("RAM=?")
 
     # Storage
     if (
@@ -319,13 +327,31 @@ def display_system_usage(
         parts.append(
             f"Storage={color_percent_value_text(storage_percent, f'{storage_percent}%')} ({_fmt_bytes(storage_used_bytes)}/{_fmt_bytes(storage_total_bytes)})"
         )
+        human_parts.append(
+            f"Storage={storage_percent}% ({_fmt_bytes(storage_used_bytes)}/{_fmt_bytes(storage_total_bytes)})"
+        )
     else:
         if storage_usage is not None:
             parts.append(
                 f"Storage={color_percent_value_text(storage_usage, f'{storage_usage}%')}"
             )
+            human_parts.append(f"Storage={storage_usage}%")
         else:
             parts.append("Storage=?")
+            human_parts.append("Storage=?")
+
+    if json:
+        # build a machine-readable summary
+        return {
+            "cpu_usage": cpu_usage,
+            "ram_percent": ram_percent,
+            "ram_used_bytes": ram_used_bytes,
+            "ram_total_bytes": ram_total_bytes,
+            "storage_percent": storage_percent,
+            "storage_used_bytes": storage_used_bytes,
+            "storage_total_bytes": storage_total_bytes,
+            "human": ", ".join(human_parts),
+        }
 
     print("System usage summary at exit: " + ", ".join(parts))
 

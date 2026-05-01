@@ -2,10 +2,12 @@ import psutil
 import time
 import os
 import sys
+import json
 from datetime import datetime
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
+from src.utils.parse_args import parse_args
 from src.utils.process.resources_usage import (
     color_percent_value_text,
     display_system_usage,
@@ -24,6 +26,14 @@ def normalize_cmd(cmd: str) -> str:
 
 
 def main():
+    # parse CLI args and add --json flag
+    args = parse_args(
+        additional=[
+            {"flags": "--json", "action_type": "store_true", "help": "Output JSON"}
+        ]
+    )
+    use_json = getattr(args, "json", False)
+
     total_ram = psutil.virtual_memory().total
     current_pid = os.getpid()
     parent_pid = os.getppid()
@@ -87,15 +97,41 @@ def main():
     results.sort(key=lambda x: x[0], reverse=True)
 
     # Output
-    print(f"\n=== {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===")
+    if use_json:
+        now = datetime.now().strftime("%Y-%m-%dT%H:%M:%S")
+        procs = []
+        for cpu, mem_mb, mem_percent, cmd in results[:10]:
+            procs.append(
+                {
+                    "cmd": cmd,
+                    "cpu_percent": round(float(cpu), 2),
+                    "mem_mb": round(float(mem_mb), 2),
+                    "mem_percent": round(float(mem_percent), 2),
+                }
+            )
 
-    for cpu, mem_mb, mem_percent, cmd in results[:10]:
-        cpu_s = color_percent_value_text(cpu, f"{cpu:.2f}%")
-        ram_s = color_percent_value_text(mem_percent, f"{mem_percent:.2f}%")
+        # ask display_system_usage for a machine-readable system summary
+        system_summary = display_system_usage(0.1, None, json=True)
 
-        print(f"{cmd} | " f"CPU {cpu_s} | " f"RAM {mem_mb:.2f}MB ({ram_s})")
+        payload = {
+            "timestamp": now,
+            "processes": procs,
+            "system": system_summary,
+        }
+
+        print(json.dumps(payload, indent=2))
+    else:
+        print(f"\n=== {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===")
+
+        for cpu, mem_mb, mem_percent, cmd in results[:10]:
+            cpu_s = color_percent_value_text(cpu, f"{cpu:.2f}%")
+            ram_s = color_percent_value_text(mem_percent, f"{mem_percent:.2f}%")
+
+            print(f"{cmd} | " f"CPU {cpu_s} | " f"RAM {mem_mb:.2f}MB ({ram_s})")
+
+        # Provide human-readable system summary for non-JSON output
+        display_system_usage(0.1)
 
 
 if __name__ == "__main__":
     main()
-    display_system_usage(0.1)
