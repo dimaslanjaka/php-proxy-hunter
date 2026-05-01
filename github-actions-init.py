@@ -86,8 +86,6 @@ else:
 
 
 # ---- Directories ----
-temp_dirs = ["tmp/runners", "tmp/logs"]
-
 dirs = [
     ".cache",
     "config",
@@ -97,10 +95,7 @@ dirs = [
     "tmp/cookies",
     "tmp/data",
     "dist",
-    *temp_dirs,  # avoids duplication
 ]
 
-for d in temp_dirs:
-    delete_path(d)
 
 ensure_directories(dirs)
