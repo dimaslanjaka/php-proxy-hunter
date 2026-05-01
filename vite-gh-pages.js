@@ -19,7 +19,7 @@ const buildOutDir = (viteConfig && viteConfig.build && viteConfig.build.outDir) 
  * Builds the project for GitHub Pages and deploys it.
  * @returns {Promise<void>}
  */
-async function buildForGithubPages() {
+export async function buildForGithubPages() {
   // Clean the output directory
   if (fs.existsSync(buildOutDir)) {
     fs.rmSync(buildOutDir, { recursive: true, force: true });
@@ -411,9 +411,4 @@ function escapeXml(str) {
     .replace(/>/g, '&gt;')
     .replace(/"/g, '&quot;')
     .replace(/'/g, '&apos;');
-}
-
-// Run the build and deploy process
-if (process.argv.some((arg) => arg.includes('vite-gh-pages.js'))) {
-  buildForGithubPages().catch(console.error);
 }

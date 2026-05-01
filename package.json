@@ -24,7 +24,7 @@
   "scripts": {
     "build": "npm run build:packages && npm run build:rollup && npm run build:react",
     "build:docs": "yarn workspace gh-pages-builder run build",
-    "build:gh-pages": "node vite-gh-pages.js",
+    "build:gh-pages": "node vite-gh-pages.runner.js",
     "build:packages": "yarn workspaces foreach --no-private --all run build",
     "build:react": "npm run build:tailwind && cross-env NODE_OPTIONS=\"--max_old_space_size=4096 --openssl-legacy-provider\" vite build",
     "build:rollup": "rollup -c rollup.config.js",

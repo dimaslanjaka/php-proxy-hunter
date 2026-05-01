@@ -148,7 +148,7 @@ jobs:
         run: yarn build
 
       - name: Build React app
-        run: node vite-gh-pages.js
+        run: yarn build:gh-pages
 
       - name: Build commit message
         id: commitmsg
