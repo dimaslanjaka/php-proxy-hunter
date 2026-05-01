@@ -553,18 +553,20 @@ if __name__ == "__main__":
             ):
                 score = score_result["score"]
                 tls_ok = score_result["tls"]
+                # convert latency (seconds) -> milliseconds for DB
+                latency = score_result.get("latency")
+                latency_ms = int(latency * 1000) if latency is not None else None
                 proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
                 async with db_write_lock:
                     if score > 0:
-                        db.update_data(
-                            proxy,
-                            {
-                                "tun2socks": score,
-                                "type": "socks5",
-                                "status": "active",
-                                "https": "true" if tls_ok else "false",
-                            },
-                        )
+                        data = {
+                            "tun2socks": score,
+                            "type": "socks5",
+                            "status": "active",
+                            "https": "true" if tls_ok else "false",
+                            "latency": latency_ms,
+                        }
+                        db.update_data(proxy, data)
 
             async def on_failure(
                 proxy_tuple: tuple[str, int], score_result: ProxyScoreResult
@@ -573,9 +575,15 @@ if __name__ == "__main__":
                 tls_ok = score_result["tls"]
                 proxy = f"{proxy_tuple[0]}:{proxy_tuple[1]}"
                 async with db_write_lock:
+                    latency = score_result.get("latency")
+                    latency_ms = int(latency * 1000) if latency is not None else None
                     db.update_data(
                         proxy,
-                        {"tun2socks": score, "https": "true" if tls_ok else "false"},
+                        {
+                            "tun2socks": score,
+                            "https": "true" if tls_ok else "false",
+                            "latency": latency_ms,
+                        },
                     )
 
             try:
@@ -622,7 +630,7 @@ if __name__ == "__main__":
 
             if result:
                 proxy_tuple, score = result
-                print(f"FOUND: {proxy_tuple} => {score}")
+                print(f"FOUND: {proxy_tuple} => {color_value_text(score)}")
             else:
                 print("No compatible tun2socks proxy found")
         finally:
