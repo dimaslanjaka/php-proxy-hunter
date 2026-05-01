@@ -24,7 +24,12 @@ if (empty($str) && isset($request['proxy'])) {
 if (!empty($str)) {
   $str = preg_replace("/\r?\n/", '\\n', $str);
 }
-$uid = getUserId();
+$uid   = getUserId();
+$limit = $request['limit'] ?? $request['max'] ?? 1;
+// Limit for non-admin should not exceed 100 (protect against abuse and shell command length limits).
+if (!$isAdmin) {
+  $limit = min($limit, 100);
+}
 // Allowed executor scripts mapping (key = basename without extension => friendly name)
 $executorFiles = [
   'proxy_tun2socks_stability' => 'Tun2Socks Stability Test',
@@ -86,6 +91,7 @@ if (!empty($file)) {
   $cmd[]    = '--uid=' . escapeshellarg($uid);
   $lockFile = tmp('locks', substr(md5(basename($file) . '-' . $uid), 0, 16) . '.lock');
   $cmd[]    = '--lockFile=' . escapeshellarg($lockFile);
+  $cmd[]    = '--limit=' . escapeshellarg($limit);
 
   if ($isAdmin) {
     $cmd[] = '--admin=' . escapeshellarg('true');

@@ -26,6 +26,8 @@ export default function ProxySubmission() {
   const [selectedCheckBackend, setSelectedCheckBackend] = React.useState<string>('');
   const [executorList, setExecutorList] = React.useState<Array<{ name: string; path: string }>>([]);
   const STORAGE_KEY = 'proxy-submission.selectedCheckBackend';
+  const STORAGE_KEY_LIMIT = 'proxy-submission.selectedCheckBackendLimit';
+  const [limit, setLimit] = React.useState<string>('1');
   const nameCounts = React.useMemo(() => {
     const map: Record<string, number> = {};
     executorList.forEach((it) => {
@@ -63,6 +65,25 @@ export default function ProxySubmission() {
         // ignore failures silently
       });
   }, []);
+
+  // restore saved limit value
+  React.useEffect(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_LIMIT);
+      if (saved) setLimit(saved);
+    } catch (_e) {
+      // ignore
+    }
+  }, []);
+
+  // persist limit selection
+  React.useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY_LIMIT, String(limit));
+    } catch (_e) {
+      // ignore
+    }
+  }, [limit]);
 
   // Persist selected executor so it remains selected when user returns
   React.useEffect(() => {
@@ -106,7 +127,7 @@ export default function ProxySubmission() {
         setIsLoading(true);
         postForm(
           createUrl('/php_backend/executor.php'),
-          new URLSearchParams({ file: selectedCheckBackend, str: textarea })
+          new URLSearchParams({ file: selectedCheckBackend, str: textarea, limit: String(limit || '1') })
         )
           .then((json) => {
             const msg = json?.message || json?.logFile || JSON.stringify(json);
@@ -359,8 +380,31 @@ export default function ProxySubmission() {
                     aria-hidden="true"></i>
                   Proxy Submission
                 </h2>
-                <div className="flex gap-2">
-                  <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2">
+                  <button
+                    type="button"
+                    className="inline-flex items-center justify-center gap-2 px-2 md:px-3 py-1 text-xs font-medium text-blue-600 dark:text-blue-200 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors flex-shrink-0 w-10 md:w-auto h-8"
+                    title={t('populate_with_sample_proxies')}
+                    onClick={() => {
+                      const sampleProxies = `103.160.204.144:80\n103.160.204.144:80@username:password\nuser:pass@103.160.204.144:80`;
+                      const textareaElement = document.getElementById('proxyTextarea') as HTMLTextAreaElement;
+                      if (textareaElement) {
+                        textareaElement.value = sampleProxies;
+                        setTextarea(sampleProxies);
+                        if (formSaverRef.current) {
+                          formSaverRef.current.saveElementValue(textareaElement);
+                        }
+                      }
+                    }}>
+                    <i className="fa-duotone fa-wand-magic-sparkles"></i>
+                    <span className="hidden md:inline">{t('populate_with_sample_proxies')}</span>
+                  </button>
+                </div>
+              </div>
+              {/* Executor selector and limit - placed below header to keep header inline with Populate */}
+              <div className="mb-3">
+                <div className="flex gap-2 items-center flex-wrap">
+                  <div className="min-w-0 flex-1">
                     <label htmlFor="checkBackend" className="sr-only">
                       Select check backend
                     </label>
@@ -368,7 +412,8 @@ export default function ProxySubmission() {
                       id="checkBackend"
                       value={selectedCheckBackend}
                       onChange={(e) => setSelectedCheckBackend(e.target.value)}
-                      className="text-xs p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100">
+                      className="text-xs p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 w-full truncate"
+                      aria-label="Select executor backend">
                       {executorList.length > 0 ? (
                         executorList.map((it) => {
                           const showFilename = nameCounts[it.name] > 1;
@@ -387,23 +432,21 @@ export default function ProxySubmission() {
                       )}
                     </select>
                   </div>
-                  <button
-                    type="button"
-                    className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-blue-600 dark:text-blue-200 bg-blue-50 dark:bg-blue-900 border border-blue-200 dark:border-blue-700 rounded-lg hover:bg-blue-100 dark:hover:bg-blue-800 transition-colors"
-                    title={t('populate_with_sample_proxies')}
-                    onClick={() => {
-                      const sampleProxies = `103.160.204.144:80\n103.160.204.144:80@username:password\nuser:pass@103.160.204.144:80`;
-                      const textareaElement = document.getElementById('proxyTextarea') as HTMLTextAreaElement;
-                      if (textareaElement) {
-                        textareaElement.value = sampleProxies;
-                        setTextarea(sampleProxies);
-                        if (formSaverRef.current) {
-                          formSaverRef.current.saveElementValue(textareaElement);
-                        }
-                      }
-                    }}>
-                    <i className="fa-duotone fa-wand-magic-sparkles"></i> Populate
-                  </button>
+                  <div className="flex-shrink-0">
+                    <label htmlFor="executorLimit" className="sr-only">
+                      Limit
+                    </label>
+                    <input
+                      id="executorLimit"
+                      type="number"
+                      min={1}
+                      value={limit}
+                      onChange={(e) => setLimit(String(Math.max(1, Number(e.target.value || '1'))))}
+                      className="text-xs p-2 rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 w-20"
+                      title="Limit"
+                      aria-label="Executor limit"
+                    />
+                  </div>
                 </div>
               </div>
               <ReactFormSaver
@@ -412,6 +455,46 @@ export default function ProxySubmission() {
                 storagePrefix="proxy-submission"
                 className="mb-4"
                 onSubmit={handleSubmit}>
+                <div className="mb-2 grid grid-cols-1 sm:grid-cols-3 gap-2">
+                  <button
+                    type="button"
+                    disabled={isLoading}
+                    className="col-span-1 w-full inline-flex items-center justify-center gap-1 px-4 py-2 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 active:bg-rose-800 rounded-lg transition-colors"
+                    onClick={handleCheckUntestedHttps}>
+                    <i className="fa-duotone fa-circle-question"></i>
+                    <span className="ml-2">Check Untested</span>
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isLoading || executorList.length === 0 || !selectedCheckBackend}
+                    className="col-span-1 w-full inline-flex items-center justify-center gap-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 active:bg-blue-800 rounded-lg transition-colors">
+                    <i className="fa-duotone fa-paper-plane"></i>
+                    <span className="ml-2">
+                      {(() => {
+                        if (selectedCheckBackend.startsWith('/php_backend/')) {
+                          return selectedCheckBackend.replace('/php_backend/', '');
+                        }
+                        if (selectedCheckBackend.startsWith('/artisan/')) {
+                          const found = executorList.find((it) => it.path === selectedCheckBackend);
+                          if (found) {
+                            const ext = found.path.endsWith('.py') ? '.py' : found.path.endsWith('.php') ? '.php' : '';
+                            return nameCounts[found.name] > 1 ? `${found.name} (${ext})` : found.name;
+                          }
+                          return selectedCheckBackend.replace('/artisan/', '');
+                        }
+                        return 'Run';
+                      })()}
+                    </span>
+                  </button>
+                  <button
+                    type="button"
+                    disabled={isLoading}
+                    className="col-span-1 w-full inline-flex items-center justify-center gap-1 px-4 py-2 text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 active:bg-orange-800 rounded-lg transition-colors"
+                    onClick={handleCheckOldProxy}>
+                    <i className="fa-duotone fa-clock"></i>
+                    <span className="ml-2">Check Old Proxies</span>
+                  </button>
+                </div>
                 <div className="mb-1">
                   <label
                     htmlFor="proxyTextarea"
@@ -428,44 +511,6 @@ export default function ProxySubmission() {
                   value={textarea}
                   onChange={(e) => setTextarea(e.target.value)}
                 />
-                <div className="flex gap-2 flex-wrap">
-                  <button
-                    type="button"
-                    disabled={isLoading}
-                    className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-rose-600 hover:bg-rose-700 disabled:bg-gray-400 active:bg-rose-800 rounded-lg transition-colors"
-                    onClick={handleCheckUntestedHttps}>
-                    <i className="fa-duotone fa-circle-question"></i>
-                    Check Untested
-                  </button>
-                  <button
-                    type="submit"
-                    disabled={isLoading || executorList.length === 0 || !selectedCheckBackend}
-                    className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-blue-600 hover:bg-blue-700 disabled:bg-gray-400 active:bg-blue-800 rounded-lg transition-colors">
-                    <i className="fa-duotone fa-paper-plane"></i>
-                    {(() => {
-                      if (selectedCheckBackend.startsWith('/php_backend/')) {
-                        return selectedCheckBackend.replace('/php_backend/', '');
-                      }
-                      if (selectedCheckBackend.startsWith('/artisan/')) {
-                        const found = executorList.find((it) => it.path === selectedCheckBackend);
-                        if (found) {
-                          const ext = found.path.endsWith('.py') ? '.py' : found.path.endsWith('.php') ? '.php' : '';
-                          return nameCounts[found.name] > 1 ? `${found.name} (${ext})` : found.name;
-                        }
-                        return selectedCheckBackend.replace('/artisan/', '');
-                      }
-                      return 'Run';
-                    })()}
-                  </button>
-                  <button
-                    type="button"
-                    disabled={isLoading}
-                    className="inline-flex items-center gap-1 px-4 py-2 text-sm font-medium text-white bg-orange-600 hover:bg-orange-700 disabled:bg-gray-400 active:bg-orange-800 rounded-lg transition-colors"
-                    onClick={handleCheckOldProxy}>
-                    <i className="fa-duotone fa-clock"></i>
-                    Check Old Proxies
-                  </button>
-                </div>
               </ReactFormSaver>
             </div>
           )}
