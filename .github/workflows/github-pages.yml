@@ -131,8 +131,18 @@ jobs:
       - name: Clean dist and tmp
         run: rm -rf dist/* tmp/*
 
-      - name: Setup github actions
-        run: node setup.js
+      - name: Install Dependencies
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          corepack enable
+          yarn install
+
+      - name: Initialize Github Actions
+        id: php-github-actions-init
+        env:
+          GITHUB_OUTPUT: $GITHUB_OUTPUT
+        run: |
+          node setup.js
 
       - name: Build Project
         run: yarn build
