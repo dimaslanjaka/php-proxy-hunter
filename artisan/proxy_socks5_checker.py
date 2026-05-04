@@ -334,6 +334,12 @@ if __name__ == "__main__":
 
             if not proxies:
                 proxies = to_proxy_rows(
+                    db.get_untested_proxies(limit=args.limit, randomize=True)
+                )
+                source_label = "db"
+
+            if not proxies:
+                proxies = to_proxy_rows(
                     db.get_all_proxies(limit=args.limit, randomize=True)
                 )
                 source_label = "db"
