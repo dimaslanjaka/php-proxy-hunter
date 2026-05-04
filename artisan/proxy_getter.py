@@ -79,10 +79,11 @@ def retrieve_proxies(
 
     if not proxies:
         # prefer untested when possible
-        try:
-            rows = db.get_untested_proxies(limit=limit, randomize=randomize)
-        except Exception:
-            rows = db.get_working_proxies(limit=limit, randomize=randomize)
+        rows = (
+            db.get_untested_proxies(limit=limit, randomize=randomize)
+            or db.get_working_proxies(limit=limit, randomize=randomize)
+            or []
+        )
 
         proxies = to_proxy_rows(rows)
         source_label = "db"
