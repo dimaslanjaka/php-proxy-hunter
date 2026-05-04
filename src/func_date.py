@@ -67,7 +67,7 @@ def is_current_time_more_than_rfc3339(given_datetime_str: str) -> Optional[bool]
         return None
 
 
-def is_date_rfc3339_older_than(date_str: str, hours: int = 1) -> bool:
+def is_date_rfc3339_older_than(date_str: Optional[str], hours: int = 1) -> bool:
     """
     Check if the given RFC 3339 timestamp is older than a specified number of hours.
 
@@ -78,6 +78,9 @@ def is_date_rfc3339_older_than(date_str: str, hours: int = 1) -> bool:
     Returns:
         bool: True if the timestamp is older than the specified number of hours, False otherwise.
     """
+    # If date_str is None or empty, we cannot determine if it's older, so return False
+    if not date_str:
+        return False
     # Get the current UTC time and calculate the time threshold
     now = datetime.now(timezone.utc)
     time_threshold = now - timedelta(hours=hours)
