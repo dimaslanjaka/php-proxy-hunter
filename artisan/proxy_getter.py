@@ -7,7 +7,98 @@ if PROJECT_ROOT not in sys.path:
     sys.path.append(PROJECT_ROOT)
 
 from proxy_hunter import extract_proxies
+from src.ProxyDB import ProxyDB
 from src.utils.parse_args import parse_args, ParseArgs
+from src.func import get_relative_path
+from dataclasses import dataclass
+from typing import Any, Callable, Dict, Optional, Tuple
+
+
+@dataclass
+class ProxyRetrievalResult:
+    proxies: List[Dict[str, Any]]
+    source_label: str
+
+
+def retrieve_proxies(
+    db: ProxyDB,
+    proxy_file_default: str = "proxies.txt",
+    limit: Optional[int] = None,
+    randomize: bool = True,
+    custom_filter: Optional[
+        Callable[[List[Dict[str, Any]]], List[Dict[str, Any]]]
+    ] = None,
+) -> ProxyRetrievalResult:
+    """Retrieve proxies from CLI, a file, or the database.
+
+    The function resolves CLI arguments by calling ``parse_args()`` internally.
+    It attempts to load proxies in this order: CLI input, a proxy file, an
+    untested set from the DB, then all DB proxies. If ``custom_filter`` is
+    provided it is applied to the produced list of proxy rows before the
+    result is returned.
+
+    Args:
+        db (ProxyDB): Database instance exposing the DB access methods used.
+        proxy_file_default (str): Default file path to use when no CLI file is set.
+        limit (Optional[int]): Optional limit passed to DB queries.
+        randomize (bool): Whether to randomize DB results.
+        custom_filter (Optional[Callable[[List[Dict[str, Any]]], List[Dict[str, Any]]]]):
+            Optional callable to post-process/filter retrieved proxy rows.
+
+    Returns:
+        ProxyRetrievalResult: dataclass with ``proxies`` and ``source_label``.
+
+    Notes:
+        - ``source_label`` will be one of: "cli", "file://<path>", or "db".
+        - The caller may provide a ``custom_filter`` to implement marker-based
+          or date-based filtering (the checkers in this repo do this).
+    """
+    args = parse_args()
+    proxy_file = str(
+        getattr(args, "proxy_file", "") or get_relative_path(proxy_file_default)
+    )
+    proxies: List[Dict[str, Any]] = []
+    source_label = "db"
+
+    cli_rows = to_proxy_rows(load_proxies_from_cli())
+    if len(cli_rows) != 0:
+        proxies = cli_rows
+        if getattr(args, "proxy_file", None) and args.proxy_file:
+            proxy_file = (
+                args.proxy_file if os.path.exists(args.proxy_file) else proxy_file
+            )
+            source_label = f"file://{proxy_file}"
+        else:
+            source_label = "cli"
+
+    if not proxies:
+        file_rows = to_proxy_rows(load_proxies_from_file(proxy_file))
+        if file_rows:
+            proxies = file_rows
+            source_label = f"file://{proxy_file}"
+
+    if not proxies:
+        # prefer untested when possible
+        try:
+            rows = db.get_untested_proxies(limit=limit, randomize=randomize)
+        except Exception:
+            rows = db.get_working_proxies(limit=limit, randomize=randomize)
+
+        proxies = to_proxy_rows(rows)
+        source_label = "db"
+
+    if not proxies:
+        proxies = to_proxy_rows(db.get_all_proxies(limit=limit, randomize=randomize))
+        source_label = "db"
+
+    # apply optional caller filter
+    if custom_filter is not None:
+        try:
+            proxies = custom_filter(proxies)
+        except Exception:
+            pass
+
+    return ProxyRetrievalResult(proxies=proxies, source_label=source_label)
 
 
 def normalize_proxy_str(proxy_str: str) -> Optional[Tuple[str, int]]:

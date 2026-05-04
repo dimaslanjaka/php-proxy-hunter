@@ -20,8 +20,11 @@ from artisan.proxy_getter import (
     load_proxies_from_cli,
     to_proxy_rows,
     normalize_proxy_value,
+    retrieve_proxies,
+    ProxyRetrievalResult,
 )
 from src.utils.parse_args import parse_args
+from src.func_date import is_date_rfc3339_older_than
 from src.shared import init_db
 
 current_filename = os.path.basename(__file__)
@@ -129,31 +132,6 @@ def to_socks5_list(items: Iterable[Any]) -> List[str]:
         normalized.append(f"socks5://{normalize_proxy_value(host_port)}")
 
     return normalized
-
-
-def is_last_check_before_today(last_check: Any) -> bool:
-    """Keep proxies checked before today; keep missing/invalid timestamps as fallback."""
-    if last_check is None:
-        return True
-
-    text = str(last_check).strip()
-    if not text:
-        return True
-
-    if text.endswith("Z"):
-        text = f"{text[:-1]}+00:00"
-
-    try:
-        checked_at = datetime.fromisoformat(text)
-    except ValueError:
-        return True
-
-    if checked_at.tzinfo is None:
-        checked_at = checked_at.replace(tzinfo=timezone.utc)
-
-    checked_date_utc = checked_at.astimezone(timezone.utc).date()
-    today_utc = datetime.now(timezone.utc).date()
-    return checked_date_utc < today_utc
 
 
 def filter_test_socks5_proxies(
@@ -307,72 +285,40 @@ if __name__ == "__main__":
         )
 
         try:
-            proxies: List[dict[str, Any]] = []
-            source_label = "db"
+            # Build custom filter that applies last-check + marker filtering
+            def custom_filter(rows: List[dict[str, Any]]) -> List[dict[str, Any]]:
+                # keep only rows with last_check older than 24 hours
+                rows = [
+                    r
+                    for r in rows
+                    if isinstance(r, dict)
+                    and is_date_rfc3339_older_than(r.get("last_check"), hours=24)
+                ]
 
-            cli_rows = to_proxy_rows(load_proxies_from_cli())
-            if len(cli_rows) != 0:
-                proxies = cli_rows
-                # If CLI provided a file via --file, resolve and assign it to
-                # `proxy_file` so later removal uses the same file path.
-                if getattr(args, "proxy_file", None) and args.proxy_file:
-                    proxy_file = (
-                        args.proxy_file
-                        if os.path.exists(args.proxy_file)
-                        else get_relative_path(args.proxy_file)
-                    )
-                    source_label = f"file://{proxy_file}"
-                else:
-                    source_label = "cli"
+                # dedupe and mark unseen via marker
+                proxy_by_key: dict[str, dict[str, Any]] = {}
+                ordered_keys: List[str] = []
+                for proxy in rows:
+                    proxy_value = str(proxy.get("proxy") or "").strip()
+                    if not proxy_value:
+                        continue
+                    marker_key = normalize_proxy_value(proxy_value)
+                    if marker_key in proxy_by_key:
+                        continue
+                    proxy_by_key[marker_key] = proxy
+                    ordered_keys.append(marker_key)
 
-            if not proxies:
-                file_rows = to_proxy_rows(load_proxies_from_file(proxy_file))
-                if file_rows:
-                    proxies = file_rows
-                    # Mark file-loaded sources with the resolved path so cleanup runs
-                    source_label = f"file://{proxy_file}"
+                pending_keys, _ = marker.filter_unseen(ordered_keys)
+                return [proxy_by_key[k] for k in pending_keys]
 
-            if not proxies:
-                proxies = to_proxy_rows(
-                    db.get_untested_proxies(limit=args.limit, randomize=True)
-                )
-                source_label = "db"
-
-            if not proxies:
-                proxies = to_proxy_rows(
-                    db.get_all_proxies(limit=args.limit, randomize=True)
-                )
-                source_label = "db"
-
-            proxies = [
-                proxy
-                for proxy in proxies
-                if isinstance(proxy, dict)
-                and is_last_check_before_today(proxy.get("last_check"))
-            ]
-
-            proxy_by_key: dict[str, dict[str, Any]] = {}
-            ordered_keys: List[str] = []
-            for proxy in proxies:
-                proxy_value = str(proxy.get("proxy") or "").strip()
-                if not proxy_value:
-                    continue
-
-                marker_key = normalize_proxy_value(proxy_value)
-                if marker_key in proxy_by_key:
-                    continue
-
-                proxy_by_key[marker_key] = proxy
-                ordered_keys.append(marker_key)
-
-            pending_keys, already_checked = marker.filter_unseen(ordered_keys)
-            proxies = [proxy_by_key[key] for key in pending_keys]
+            result: ProxyRetrievalResult = retrieve_proxies(
+                db=db, limit=args.limit, custom_filter=custom_filter
+            )
+            proxies = result.proxies
+            source_label = result.source_label
 
             random.shuffle(proxies)
-            print(
-                f"[INFO] Proxy source: {source_label} ({len(proxies)} candidates); "
-                f"already_checked={already_checked}"
-            )
+            print(f"[INFO] Proxy source: {source_label} ({len(proxies)} candidates)")
 
             proxy_row_map = {
                 normalize_proxy_value(str(proxy["proxy"])): proxy
@@ -424,7 +370,11 @@ if __name__ == "__main__":
             for tested_proxy in tested_set:
                 marker.mark(tested_proxy)
 
-            if source_label == "file" and tested_set and os.path.isfile(proxy_file):
+            if (
+                source_label.startswith("file://")
+                and tested_set
+                and os.path.isfile(proxy_file)
+            ):
                 with open(proxy_file, "r", encoding="utf-8") as f:
                     file_lines = f.readlines()
 
