@@ -18,21 +18,14 @@ from src.utils.file.FileLockHelper import FileLockHelper
 from artisan.proxy_getter import (
     load_proxies_from_file,
     load_proxies_from_cli,
+    to_proxy_rows,
+    normalize_proxy_value,
 )
 from src.utils.parse_args import parse_args
 from src.shared import init_db
 
 current_filename = os.path.basename(__file__)
 locker: Optional[FileLockHelper] = None
-
-
-def normalize_proxy_value(value: str) -> str:
-    text = value.strip()
-    if text.startswith("socks5://"):
-        return text.replace("socks5://", "", 1)
-    if "://" in text:
-        return text.split("://", 1)[1]
-    return text
 
 
 def print_status(tag: str, message: str, proxy: Optional[str] = None) -> None:
@@ -136,39 +129,6 @@ def to_socks5_list(items: Iterable[Any]) -> List[str]:
         normalized.append(f"socks5://{normalize_proxy_value(host_port)}")
 
     return normalized
-
-
-def to_proxy_rows(items: Iterable[Any]) -> List[dict[str, Any]]:
-    """Map raw proxy inputs into lightweight rows."""
-    rows: List[dict[str, Any]] = []
-
-    for item in items:
-        proxy_value: Optional[str] = None
-        row: dict[str, Any] = {}
-
-        if isinstance(item, str):
-            proxy_value = item.strip()
-        elif isinstance(item, dict):
-            proxy_value = str(item.get("proxy") or "").strip()
-            row = {
-                "type": item.get("type"),
-                "status": item.get("status"),
-                "https": item.get("https"),
-                "last_check": item.get("last_check"),
-            }
-            if not proxy_value and item.get("ip") and item.get("port"):
-                proxy_value = f"{item['ip']}:{item['port']}"
-        elif isinstance(item, (tuple, list)) and len(item) >= 2:
-            proxy_value = f"{item[0]}:{item[1]}"
-
-        if not proxy_value:
-            continue
-
-        proxy_value = normalize_proxy_value(proxy_value)
-        row["proxy"] = proxy_value
-        rows.append(row)
-
-    return rows
 
 
 def is_last_check_before_today(last_check: Any) -> bool:

@@ -1,6 +1,6 @@
 import os
 import sys
-from typing import List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if PROJECT_ROOT not in sys.path:
@@ -138,3 +138,50 @@ def load_working_proxies_from_db(
         print(f"Skipped {invalid_rows} invalid proxy rows")
 
     return proxies
+
+
+def normalize_proxy_value(value: str) -> str:
+    text = str(value or "").strip()
+    if text.startswith("socks5://"):
+        return text.replace("socks5://", "", 1)
+    if "://" in text:
+        return text.split("://", 1)[1]
+    return text
+
+
+def to_proxy_rows(items: Iterable[Any]) -> List[Dict[str, Any]]:
+    """Map raw proxy inputs into lightweight rows.
+
+    Accepts strings, dicts, and (host, port) tuples/lists and returns a list
+    of dicts with at least the `proxy` key containing the normalized proxy
+    value (no scheme).
+    """
+    rows: List[Dict[str, Any]] = []
+
+    for item in items:
+        proxy_value: Optional[str] = None
+        row: Dict[str, Any] = {}
+
+        if isinstance(item, str):
+            proxy_value = item.strip()
+        elif isinstance(item, dict):
+            proxy_value = str(item.get("proxy") or "").strip()
+            row = {
+                "type": item.get("type"),
+                "status": item.get("status"),
+                "https": item.get("https"),
+                "last_check": item.get("last_check"),
+            }
+            if not proxy_value and item.get("ip") and item.get("port"):
+                proxy_value = f"{item['ip']}:{item['port']}"
+        elif isinstance(item, (tuple, list)) and len(item) >= 2:
+            proxy_value = f"{item[0]}:{item[1]}"
+
+        if not proxy_value:
+            continue
+
+        proxy_value = normalize_proxy_value(proxy_value)
+        row["proxy"] = proxy_value
+        rows.append(row)
+
+    return rows
