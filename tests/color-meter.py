@@ -3,7 +3,7 @@ import sys
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.func_console import color_percent_value_text
+from src.func_console import color_percent_value_text, rainbow
 
 if __name__ == "__main__":
     cwd = os.getcwd()
@@ -15,3 +15,8 @@ if __name__ == "__main__":
     # Print gradient samples from 0% to 100% every 10%
     for i in range(0, 101, 10):
         print(color_percent_value_text(i, f"{i}%"))
+
+    # console = Console()
+
+    text = "SMOOTH RAINBOW USING RICH"
+    print(rainbow(text))

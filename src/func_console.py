@@ -1,3 +1,4 @@
+import colorsys
 import inspect
 import os
 import platform
@@ -7,13 +8,30 @@ import sys
 import threading
 from typing import Any, Dict, Optional, Union
 
-from colorama import init, Fore, Style
+from colorama import Fore, Style, init
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 # Import `is_debug` lazily inside `debug_log()` to avoid import-time side-effects
 # Initialize colorama (always) so Windows streams are wrapped for color handling.
 init(autoreset=True, strip=False, convert=False)
+
+
+def rainbow(text: Optional[str] = "") -> str:
+    text = text or ""
+    if not text:
+        return ""
+
+    out = []
+    n = len(text)
+
+    for i, char in enumerate(text):
+        hue = i / n
+        r, g, b = (int(x * 255) for x in colorsys.hsv_to_rgb(hue, 1, 1))
+        out.append(f"\033[38;2;{r};{g};{b}m{char}")
+
+    out.append("\033[0m")  # reset color
+    return "".join(out)
 
 
 def red(text: str | int | float | None) -> str:
@@ -155,9 +173,9 @@ def log_file(filename: Optional[str] = None, *args: Any, **kwargs: Any) -> None:
             sys.stdout.flush()
 
     if ansi_html:
+        import bs4 as _bs4
         from ansi2html import Ansi2HTMLConverter
         from bs4 import BeautifulSoup
-        import bs4 as _bs4
 
         conv = Ansi2HTMLConverter()
         html_content = conv.convert(message)
@@ -225,8 +243,9 @@ def log_error(*args: Any, **kwargs: Any) -> None:
 
 def debug_log(*args: Any, **kwargs: Any) -> None:
     """Log debugging information to the console and a debug file."""
-    from src.func_platform import is_debug
     from proxy_hunter import write_file
+
+    from src.func_platform import is_debug
 
     if is_debug():
         sep = kwargs.get("sep", " ")
