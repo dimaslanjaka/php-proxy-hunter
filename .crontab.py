@@ -128,7 +128,7 @@ def should_run_job(
     max_cpu_percent: int = 50,
     max_ram_percent: int = 50,
     skip_resource_checking: bool = False,
-    ensure_run_daily: bool = True,
+    ensure_run_daily: bool = False,
 ) -> bool:
     """Return whether a scheduled job should run and update its state timestamp.
 
