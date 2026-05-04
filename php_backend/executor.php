@@ -36,6 +36,7 @@ $executorFiles = [
   'proxy_socks5_checker'      => 'SOCKS5 Proxy Checker',
   'proxy-classifier-lookup'   => 'Proxy Classifier Lookup',
   'geoIp.py'                  => 'GeoIP Lookup',
+  'proxy_private_checker'     => 'Private Proxy Checker',
   // php_backend helpers (filename without extension)
   'check-proxy-type'  => 'Check Proxy Type',
   'check-http-proxy'  => 'Check HTTP Proxy',
@@ -200,8 +201,9 @@ if (!empty($file)) {
 
 if (isset($request['list'])) {
   // Try reading cached list (1 day TTL) using packages/proxy-checker-python helper.
+  $hash      = md5(json_encode($executorFiles));
   $files     = [];
-  $cacheFile = tmp('build', 'executor_files.json');
+  $cacheFile = tmp('build', "executor-{$hash}.json");
   // Instantiate the FileCache directly (no class_exists check).
   $cache  = new \ProxyChecker\FileCache($cacheFile);
   $cached = $cache->readCache();
