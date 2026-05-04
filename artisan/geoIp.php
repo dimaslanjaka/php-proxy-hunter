@@ -20,10 +20,11 @@ if (!empty($options['userId'])) {
   setUserId($options['userId']);
 }
 
+$isAdmin      = is_admin();
 $uid          = getUserId();
 $config       = getConfig($uid);
 $lockFilePath = tmp('locks', "geoIp-$uid.lock");
-$statusFile   = get_project_root('status.txt');
+$statusFile   = get_project_root("tmp/logs/geoIp-$uid-status.txt");
 
 /* DB */
 $connections = refreshDbConnections(true);
@@ -159,6 +160,9 @@ foreach ($extract as $idx => $item) {
   if (empty($item->lang) || empty($item->country) || empty($item->timezone) || empty($item->longitude) || empty($item->latitude)) {
     $protocols = ['http', 'socks4', 'socks5', 'socks4a', 'socks5h'];
     $fetched   = false;
+    // Ensure $result is always defined to satisfy static analysis
+    // and avoid "undefined variable" notices when branches set $fetched.
+    $result = [];
     foreach ($protocols as $protocol) {
       $result = GeoIpHelper::resolveGeoProxy($item->proxy, strtolower($protocol), $proxy_db);
       if (!empty($result) && !empty($result['country'])) {
