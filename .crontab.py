@@ -508,7 +508,11 @@ if should_run_resource_log:
         CRONTAB_LOG_DIR / "resource-usage.log",
         [PYTHON_BIN, str(CWD / "src/utils/process/process_usage.py")],
     )
-    log_command(
-        CWD / "tmp/logs/system-usage.json",
-        [PYTHON_BIN, str(CWD / "src/utils/process/process_usage.py"), "--json"],
-    )
+    output_file = CWD / "tmp/logs/system-usage.json"
+    with open(output_file, "w") as f:
+        subprocess.run(
+            [PYTHON_BIN, str(CWD / "src/utils/process/process_usage.py"), "--json"],
+            stdout=f,
+            stderr=subprocess.STDOUT,
+            text=True,
+        )
