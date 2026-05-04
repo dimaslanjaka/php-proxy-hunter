@@ -33,33 +33,38 @@ if (class_exists('Dotenv\\Dotenv')) {
   }
 }
 
-// Declare a database connection variable
-$dbName = is_debug() ? 'php_proxy_hunter_test' : ($_ENV['MYSQL_DBNAME'] ?? getenv('MYSQL_DBNAME'));
-$dbUser = is_debug_device() ? ($_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER')) : ($_ENV['MYSQL_USER_PRODUCTION'] ?? getenv('MYSQL_USER_PRODUCTION'));
-$dbPass = is_debug_device() ? ($_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS')) : ($_ENV['MYSQL_PASS_PRODUCTION'] ?? getenv('MYSQL_PASS_PRODUCTION'));
-$dbHost = is_debug_device() ? ($_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST')) : ($_ENV['MYSQL_HOST_PRODUCTION'] ?? getenv('MYSQL_HOST_PRODUCTION'));
-$dbFile = is_debug() ? __DIR__ . '/../tmp/database_test.sqlite' : __DIR__ . '/../src/database.sqlite';
-// Github CI uses SQLite for testing to avoid needing a MySQL service
-$dbType = is_github_ci() ? 'sqlite' : 'mysql';
 try {
-  $core_db = new CoreDB(
-    $dbFile,
-    $dbHost,
-    $dbName,
-    $dbUser,
-    $dbPass,
-    false,
-    $dbType
-  );
-  /** @var \PhpProxyHunter\UserDB $user_db */
-  $user_db = $core_db->user_db;
-  /** @var \PhpProxyHunter\ProxyDB $proxy_db */
-  $proxy_db = $core_db->proxy_db;
-  /** @var \PhpProxyHunter\ActivityLog $log_db */
-  $log_db = $core_db->log_db;
+  try {
+    $core_db = init_local_database();
+  } catch (\Throwable $localDbError) {
+    // If local DB initialization fails, attempt to initialize production DB as a fallback.
+    error_log('[shared.php] Local DB initialization failed: ' . $localDbError->getMessage());
+    if (is_cli()) {
+      echo '[shared.php] Local DB initialization failed: ' . $localDbError->getMessage() . PHP_EOL;
+    }
+    $core_db = init_production_database();
+  }
 } catch (\Throwable $th) {
-  //throw $th;
+  // Log the error so it's visible in logs and CLI output instead of silently
+  // swallowing the exception which leads to null DB helpers later.
+  error_log('[shared.php] CoreDB initialization failed: ' . $th->getMessage());
+  if (function_exists('is_cli') && is_cli()) {
+    echo '[shared.php] CoreDB initialization failed: ' . $th->getMessage() . PHP_EOL;
+    // Exit early in CLI scripts to avoid passing a broken/null $core_db
+    exit(1);
+  } else {
+    // In web contexts, we can choose to continue with $core_db as null and
+    // handle it gracefully in the application (e.g., show an error message).
+    $core_db = null;
+  }
 }
+
+/** @var \PhpProxyHunter\UserDB $user_db */
+$user_db = $core_db->user_db ?? null;
+/** @var \PhpProxyHunter\ProxyDB $proxy_db */
+$proxy_db = $core_db->proxy_db ?? null;
+/** @var \PhpProxyHunter\ActivityLog $log_db */
+$log_db = $core_db->log_db ?? null;
 
 /**
  * Get current authenticated user data from the database.
@@ -170,4 +175,60 @@ function refreshDbConnections(bool $useFallbackProduction = false): ?array {
   $log_db = $core_db->log_db;
 
   return ['core_db' => $core_db, 'user_db' => $user_db, 'proxy_db' => $proxy_db, 'log_db' => $log_db];
+}
+
+/**
+ * Initialize a production CoreDB instance using production environment
+ * credentials (falls back to standard env vars when needed).
+ *
+ * This creates and returns a configured `CoreDB` object. Callers should
+ * handle any exceptions thrown during connection initialization.
+ *
+ * @return \PhpProxyHunter\CoreDB
+ */
+function init_production_database(): CoreDB {
+  $dbName = is_debug() ? 'php_proxy_hunter_test' : ($_ENV['MYSQL_DBNAME'] ?? getenv('MYSQL_DBNAME'));
+  $dbUser = $_ENV['MYSQL_USER_PRODUCTION'] ?? getenv('MYSQL_USER_PRODUCTION');
+  $dbPass = $_ENV['MYSQL_PASS_PRODUCTION'] ?? getenv('MYSQL_PASS_PRODUCTION');
+  $dbHost = $_ENV['MYSQL_HOST_PRODUCTION'] ?? getenv('MYSQL_HOST_PRODUCTION');
+  $dbFile = is_debug() ? get_project_root('tmp/database_test.sqlite') : get_project_root('src/database.sqlite');
+  // Github CI uses SQLite for testing to avoid needing a MySQL service
+  $dbType = is_github_ci() ? 'sqlite' : 'mysql';
+  return new CoreDB(
+    $dbFile,
+    $dbHost,
+    $dbName,
+    $dbUser,
+    $dbPass,
+    false,
+    $dbType
+  );
+}
+
+/**
+ * Initialize a local CoreDB instance using local environment credentials.
+ *
+ * This creates and returns a configured `CoreDB` object for local or
+ * development usage. Callers should handle any exceptions thrown during
+ * connection initialization.
+ *
+ * @return \PhpProxyHunter\CoreDB
+ */
+function init_local_database(): CoreDB {
+  $dbName = is_debug() ? 'php_proxy_hunter_test' : ($_ENV['MYSQL_DBNAME'] ?? getenv('MYSQL_DBNAME'));
+  $dbUser = $_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER');
+  $dbPass = $_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS');
+  $dbHost = $_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST');
+  $dbFile = is_debug() ? get_project_root('tmp/database_test.sqlite') : get_project_root('src/database.sqlite');
+  // Github CI uses SQLite for testing to avoid needing a MySQL service
+  $dbType = is_github_ci() ? 'sqlite' : 'mysql';
+  return new CoreDB(
+    $dbFile,
+    $dbHost,
+    $dbName,
+    $dbUser,
+    $dbPass,
+    false,
+    $dbType
+  );
 }
