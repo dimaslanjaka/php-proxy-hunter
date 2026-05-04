@@ -9,9 +9,12 @@ use PhpProxyHunter\GeoIpHelper;
 $str_to_remove = [];
 
 /**
- * @param Proxy[] $proxies
- * @param string|null $custom_endpoint
- * @param string|null $title_should_be
+ * Check proxies in parallel.
+ *
+ * @param Proxy[] $proxies List of Proxy objects to check.
+ * @param string|null $custom_endpoint Custom endpoint URL to test against.
+ * @param bool $print_headers Whether to print headers and config (default true).
+ * @param string|null $custom_title_should_be Expected page title to validate (optional).
  * @return void
  */
 function checkProxyInParallel(array $proxies, $custom_endpoint = null, $print_headers = true, $custom_title_should_be = null) {
@@ -286,6 +289,9 @@ function schedule_remover() {
 function cleanUp() {
   $directory = tmp('runners');
 
+  // Ensure directory path ends with separator
+  $directory = rtrim($directory, DIRECTORY_SEPARATOR) . DIRECTORY_SEPARATOR;
+
   // Get the current time
   $current_time = time();
 
@@ -302,8 +308,18 @@ function cleanUp() {
         if ($entry != '.' && $entry != '..') {
           $full_path = $directory . $entry;
 
+          // Skip if path doesn't exist (it may have been removed concurrently)
+          if (!file_exists($full_path)) {
+            continue;
+          }
+
           // Check the file/folder creation time
           $creation_time = filectime($full_path);
+
+          // If filectime failed for some reason, skip
+          if ($creation_time === false) {
+            continue;
+          }
 
           // Calculate the age of the file/folder
           $age = $current_time - $creation_time;
