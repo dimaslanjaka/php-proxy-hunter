@@ -524,12 +524,19 @@ else:
 gc.collect()
 
 
-# Log resource usage every run (for monitoring and debugging)
-log_command(
-    CRONTAB_LOG_DIR / "resource-usage.log",
-    [PYTHON_BIN, str(CWD / "src/utils/process/process_usage.py")],
+# Log resource usage
+should_run_resource_log = should_run_job(
+    "5-m",
+    file_path=CRONTAB_STATE_DIR / "resource-usage",
+    skip_resource_checking=True,
 )
-log_command(
-    CWD / "tmp/logs/system-usage.json",
-    [PYTHON_BIN, str(CWD / "src/utils/process/process_usage.py"), "--json"],
-)
+if should_run_resource_log:
+    echo_skip_or_run("Resource usage logging", True)
+    log_command(
+        CRONTAB_LOG_DIR / "resource-usage.log",
+        [PYTHON_BIN, str(CWD / "src/utils/process/process_usage.py")],
+    )
+    log_command(
+        CWD / "tmp/logs/system-usage.json",
+        [PYTHON_BIN, str(CWD / "src/utils/process/process_usage.py"), "--json"],
+    )
