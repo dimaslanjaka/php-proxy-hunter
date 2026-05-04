@@ -125,24 +125,22 @@ function getUserId(): string {
 
 // Ensure config directory exists and has proper permissions
 $__pph_root = get_project_root();
-if (!file_exists($__pph_root . '/config')) {
-  mkdir($__pph_root . '/config');
+$configDir  = get_project_root('config');
+if (!file_exists($configDir)) {
+  mkdir($configDir, 0777, true);
 }
-setMultiPermissions($__pph_root . '/config');
+setMultiPermissions($configDir);
 
 function getUserFile(string $user_id): string {
-  $root = get_project_root();
-  return $root . "/config/$user_id.json";
+  return get_project_root('config', $user_id . '.json');
 }
 
 function getUserStatusFile(string $user_id): string {
-  $root = get_project_root();
-  return $root . "/tmp/status/$user_id.txt";
+  return get_project_root('tmp', 'status', $user_id . '.txt');
 }
 
 function getUserLogFile(string $user_id): string {
-  $root = get_project_root();
-  return $root . "/tmp/logs/$user_id.txt";
+  return get_project_root('tmp', 'logs', $user_id . '.txt');
 }
 
 function resetUserLogFile(string $user_id): bool {

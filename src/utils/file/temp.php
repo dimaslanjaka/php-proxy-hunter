@@ -24,10 +24,7 @@
  * - Failed to set permissions (chmod failure).
  */
 function tmp(...$args) {
-  $projectRoot = get_project_root();
-
-  $projectRoot = rtrim((string) $projectRoot, "\/\\");
-  $baseTmp     = $projectRoot . DIRECTORY_SEPARATOR . 'tmp';
+  $baseTmp = rtrim((string) get_project_root('tmp'), "\/\\");
 
   // Normalize and filter args
   $parts = array_values(array_filter(array_map(function ($p) {
