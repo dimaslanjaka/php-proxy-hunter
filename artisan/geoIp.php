@@ -24,7 +24,6 @@ $isAdmin      = is_admin();
 $uid          = getUserId();
 $config       = getConfig($uid);
 $lockFilePath = tmp('locks', "geoIp-$uid.lock");
-$statusFile   = get_project_root("tmp/logs/geoIp-$uid-status.txt");
 
 /* DB */
 $connections = refreshDbConnections(true);
@@ -90,17 +89,15 @@ if (file_exists($lockFilePath) && !$isAdmin) {
   exit();
 } else {
   write_file($lockFilePath, date(DATE_RFC3339));
-  write_file($statusFile, "geolocation $string_data");
 }
 
-\PhpProxyHunter\Scheduler::register(function () use ($lockFilePath, $statusFile) {
+\PhpProxyHunter\Scheduler::register(function () use ($lockFilePath) {
   echo 'releasing lock' . PHP_EOL;
   // clean lock files
   if (file_exists($lockFilePath)) {
     unlink($lockFilePath);
   }
   echo 'update status to IDLE' . PHP_EOL;
-  write_file($statusFile, 'idle');
 }, 'z_onExit' . basename(__FILE__));
 
 $extract = extractProxies($string_data, $proxy_db);
