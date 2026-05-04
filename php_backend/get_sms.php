@@ -2,7 +2,7 @@
 
 require_once __DIR__ . '/../func.php';
 
-global $isAdmin;
+$isAdmin = is_admin();
 
 // Set CORS and response headers for API
 PhpProxyHunter\Server::allowCors();

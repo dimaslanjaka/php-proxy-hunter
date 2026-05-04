@@ -2,11 +2,8 @@
 
 require_once __DIR__ . '/shared.php';
 
-global $isAdmin;
-
-PhpProxyHunter\Server::allowCors();
-
 $isAdmin = is_admin();
+PhpProxyHunter\Server::allowCors();
 $request = parsePostData(true);
 // Allow GET query parameters to override when POST body doesn't provide them
 $page = isset($request['page']) ? (int)$request['page'] : (isset($request['page']) ? (int)$request['page'] : 1);

@@ -5,7 +5,8 @@ require_once __DIR__ . '/../php_backend/shared.php';
 use PhpProxyHunter\CoreDB;
 use PhpProxyHunter\Server;
 
-global $isAdmin, $dbFile, $dbHost, $dbName, $dbUser, $dbPass, $dbType;
+global $dbFile, $dbHost, $dbName, $dbUser, $dbPass, $dbType;
+$isAdmin = is_admin();
 
 // -----------------------------------------------------------------------------
 // Init

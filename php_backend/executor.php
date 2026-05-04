@@ -4,7 +4,7 @@ require_once __DIR__ . '/shared.php';
 
 use PhpProxyHunter\Server;
 
-global $isAdmin, $proxy_db, $isWin;
+global $proxy_db, $isWin;
 
 Server::allowCors(false);
 Server::setCacheHeaders(5 * 60);

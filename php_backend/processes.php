@@ -4,7 +4,8 @@ require_once __DIR__ . '/shared.php';
 
 use PhpProxyHunter\Server;
 
-global $isAdmin, $proxy_db;
+global $proxy_db;
+$isAdmin = is_admin();
 
 $projectRoot = dirname(__DIR__);
 
