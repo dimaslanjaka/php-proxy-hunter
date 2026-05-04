@@ -28,36 +28,27 @@ if ($isProxy) {
   $cmd = 'php ' . escapeshellarg(__FILE__) . ' --str=' . escapeshellarg($extracted[0]->proxy);
 
   // prepare runner and output paths (mirror check-https-proxy logic)
-  $isWin       = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
-  $hash        = md5($extracted[0]->proxy);
-  $runner      = tmp('runners', 'geoIp', $hash . ($isWin ? '.bat' : '.sh'));
-  $output_file = tmp('logs', 'geoIp', $hash . '.txt');
+  $isWin                 = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+  $hash                  = md5($extracted[0]->proxy);
+  $currentScriptFilename = basename(__FILE__, '.php');
+  $hashFilename          = $currentScriptFilename . '/' . $hash;
 
-  // ensure output directory exists
-  if (!is_dir(dirname($output_file))) {
-    @mkdir(dirname($output_file), 0755, true);
-  }
+  $output_file    = tmp('logs', $hashFilename . '.txt');
+  $embedOutputUrl = getFullUrl($output_file);
 
-  // create a small runner wrapper so the detached process can be started reliably
-  if ($isWin) {
-    $runner_content = "@echo off\r\n" . $cmd . ' > ' . escapeshellarg($output_file) . " 2>&1\r\n";
-    write_file($runner, $runner_content);
-  } else {
-    $runner_content = "#!/bin/sh\n" . $cmd . ' > ' . escapeshellarg($output_file) . " 2>&1\n";
-    write_file($runner, $runner_content);
-    @chmod($runner, 0755);
-  }
+  // prepare runner script and ensure permissions similar to check-https-proxy
+  $file = __FILE__;
+  setMultiPermissions([$file, $output_file], true);
 
-  // run in background without waiting
-  if ($isWin) {
-    // Windows: use cmd /C start "" /B to detach process
-    $background = 'cmd /C start "" /B ' . escapeshellarg($runner);
-    @pclose(@popen($background, 'r'));
-  } else {
-    // Unix: execute runner script in background
-    $background = escapeshellarg($runner) . ' > /dev/null 2>&1 &';
-    @exec($background);
-  }
+  // build proper PHP command and redirect output
+  $cmd = getPhpExecutable(true) . ' ' . escapeshellarg($file) . ' --str=' . escapeshellarg($extracted[0]->proxy);
+  $cmd = sprintf('%s > %s 2>&1', $cmd, escapeshellarg($output_file));
+
+  $runner = tmp('runners', $hashFilename . ($isWin ? '.bat' : '.sh'));
+  write_file($runner, $cmd);
+
+  // execute runner in background using shared helper
+  runBashOrBatch($runner);
 }
 
 $geo          = GeoIpHelper::getGeoIpSimple($ip);
