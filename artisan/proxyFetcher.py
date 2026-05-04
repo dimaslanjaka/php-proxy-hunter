@@ -3,7 +3,7 @@ import os
 import sys
 import traceback
 from datetime import datetime as dt
-from typing import List
+from typing import List, Optional
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
@@ -16,8 +16,12 @@ from proxy_hunter import (
     write_file,
 )
 from src.func import get_relative_path
+from src.utils.file.FileLockHelper import FileLockHelper
 from src.requests_cache import get_with_proxy
 from src.blacklist.blacklist import is_blacklist
+
+current_filename = os.path.basename(__file__)
+locker: Optional[FileLockHelper] = None
 
 
 def proxyFetcher():
@@ -77,4 +81,14 @@ def proxyFetcher():
 
 
 if __name__ == "__main__":
-    proxyFetcher()
+    # Acquire a file lock to prevent concurrent runs (mirrors proxy_socks5_checker)
+    locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
+    if not locker.lock():
+        print("Another instance is running. Exiting.")
+        sys.exit(0)
+
+    try:
+        proxyFetcher()
+    finally:
+        if locker:
+            locker.unlock()
