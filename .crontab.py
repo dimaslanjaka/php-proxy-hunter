@@ -371,25 +371,6 @@ if run_3h:
 else:
     echo_skip_or_run("3 hours", False)
 
-
-gc.collect()
-
-run_4h = should_run_job("4-h")
-if run_4h:
-    echo_skip_or_run("4 hours", True)
-else:
-    echo_skip_or_run("4 hours", False)
-
-
-gc.collect()
-
-run_6h = should_run_job("6-h")
-if run_6h:
-    echo_skip_or_run("6 hours", True)
-else:
-    echo_skip_or_run("6 hours", False)
-
-
 gc.collect()
 
 run_12h = should_run_job("12-h")
@@ -499,15 +480,6 @@ if should_run_3d:
     )
 else:
     echo_skip_or_run("72 hours", False)
-
-gc.collect()
-
-# run every week
-should_run_weekly = should_run_job("1-w", max_cpu_percent=90, max_ram_percent=90)
-if should_run_weekly:
-    echo_skip_or_run("1 week", True)
-else:
-    echo_skip_or_run("1 week", False)
 
 gc.collect()
 
