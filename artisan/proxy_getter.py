@@ -79,9 +79,12 @@ def retrieve_proxies(
 
     if not proxies:
         # prefer untested when possible
+        # ensure we fetch a sufficiently large slice from the DB so
+        # caller-side filtering (marker/date) still has candidates
+        db_limit = max(limit or 0, 1000)
         rows = (
-            db.get_untested_proxies(limit=limit, randomize=randomize)
-            or db.get_working_proxies(limit=limit, randomize=randomize)
+            db.get_untested_proxies(limit=db_limit, randomize=randomize)
+            or db.get_working_proxies(limit=db_limit, randomize=randomize)
             or []
         )
 
