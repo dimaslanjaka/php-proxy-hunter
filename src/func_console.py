@@ -344,3 +344,35 @@ def clear_console():
         os.system("cls")
     else:
         os.system("clear")
+
+
+def color_percent_value_text(value: float | int | None, text: str) -> str:
+    """Return `text` colored on a smooth red->green gradient for `value` in 0..100.
+
+    Uses 24-bit ANSI escape sequence for a smooth transition where
+    0 -> red (255,0,0), 100 -> green (0,255,0). If `value` is None,
+    returns the original `text` unchanged.
+    """
+    if value is None:
+        return text
+
+    try:
+        # Normalize and clamp value to 0..100
+        v = float(value)
+    except Exception:
+        return text
+
+    if v < 0:
+        v = 0.0
+    if v > 100:
+        v = 100.0
+
+    t = v / 100.0
+    # Interpolate red->green via simple linear mix: R = 255*(1-t), G = 255*t
+    r = int(255 * (1.0 - t))
+    g = int(255 * t)
+    b = 0
+
+    # Use 24-bit (truecolor) ANSI escape. Keep bright style for consistency.
+    ansi = f"\033[38;2;{r};{g};{b}m"
+    return f"{Style.BRIGHT}{ansi}{text}{Style.RESET_ALL}"

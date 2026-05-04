@@ -1,15 +1,16 @@
-import psutil
-import time
+import json
 import os
 import sys
-import json
+import time
 from datetime import datetime
+
+import psutil
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
+from src.func_console import color_percent_value_text
 from src.utils.parse_args import parse_args
 from src.utils.process.resources_usage import (
-    color_percent_value_text,
     display_system_usage,
 )
 

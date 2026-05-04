@@ -11,17 +11,7 @@ import os, sys, psutil
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../..")))
 
-from src.func_console import red, yellow, green
-
-
-def color_percent_value_text(value: float | int | None, text: str) -> str:
-    if value is None:
-        return text
-    if value >= 70:
-        return red(text)
-    if value >= 30:
-        return yellow(text)
-    return green(text)
+from src.func_console import color_percent_value_text
 
 
 def _read_linux_cpu_percent(sample_seconds: float = 0.5) -> int | None:
