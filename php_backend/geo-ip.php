@@ -5,7 +5,8 @@ require_once __DIR__ . '/shared.php';
 use PhpProxyHunter\GeoIpHelper;
 use PhpProxyHunter\Server;
 
-global $isAdmin, $proxy_db;
+global $proxy_db;
+$isAdmin = is_admin();
 
 Server::allowCors(false);
 Server::setCacheHeaders(5 * 60);
@@ -24,11 +25,20 @@ if (empty($ip)) {
 if ($isProxy) {
   $ip = explode(':', $extracted[0]->proxy)[0];
   // Run proxy geo lookup in background to avoid blocking
-  $cmd          = 'php ' . escapeshellarg(realpath(__DIR__ . '/../geoIp.php')) . ' --str=' . escapeshellarg($extracted[0]->proxy);
-  $scriptRunner = tmp('runners', 'geoIp', md5($extracted[0]->proxy) . '.sh');
+  $cmd = 'php ' . escapeshellarg(__FILE__) . ' --str=' . escapeshellarg($extracted[0]->proxy);
+
+  // prepare runner and output paths (mirror check-https-proxy logic)
+  $isWin       = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
+  $hash        = md5($extracted[0]->proxy);
+  $runner      = tmp('runners', 'geoIp', $hash . ($isWin ? '.bat' : '.sh'));
+  $output_file = tmp('logs', 'geoIp', $hash . '.txt');
+
+  // ensure output directory exists
+  if (!is_dir(dirname($output_file))) {
+    @mkdir(dirname($output_file), 0755, true);
+  }
 
   // create a small runner wrapper so the detached process can be started reliably
-  $isWind = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
   if ($isWin) {
     $runner_content = "@echo off\r\n" . $cmd . ' > ' . escapeshellarg($output_file) . " 2>&1\r\n";
     write_file($runner, $runner_content);
