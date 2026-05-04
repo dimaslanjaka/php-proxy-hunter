@@ -15,7 +15,7 @@ use PhpProxyHunter\AnsiColors;
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\Server;
 
-global $isCli;
+global $isCli, $proxy_db;
 
 $isAdmin = is_debug();
 
