@@ -28,6 +28,7 @@ import SearchDataTable from './pages/examples/tables/SearchDataTable';
 import AdvancedDataTable from './pages/examples/tables/AdvancedDataTable';
 import NotFound from './pages/NotFound';
 import routes from './routes.js';
+import ProxyToolsRouter from './pages/ProxyTools';
 import { checkRecaptchaSessionExpired, verifyRecaptcha } from './utils/recaptcha';
 import AdSense from './components/AdSense';
 import FloatingScrollButton from './components/FloatingScrollButton';
@@ -117,6 +118,7 @@ const MainApp = function () {
         <Route path="/examples/tables/sorting" element={<SortingDataTable />} />
         <Route path="/examples/tables/search" element={<SearchDataTable />} />
         <Route path="/examples/tables/advanced" element={<AdvancedDataTable />} />
+        <Route path="/proxy-tools/*" element={<ProxyToolsRouter />} />
         <Route path="*" element={<NotFound />} />
       </Routes>
       <div className="flex justify-center my-4">

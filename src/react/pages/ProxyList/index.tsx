@@ -3,17 +3,15 @@ import ServerSide from './ServerSide';
 import ApiUsage from './ApiUsage';
 import { useTranslation } from 'react-i18next';
 import RecaptchaV2 from '../../components/RecaptchaV2';
-import ProxySubmission from './ProxySubmission';
-import LogViewer from './LogViewer';
 import AdSense from '../../components/AdSense';
-import ProxyExtractor from './ProxyExtractor';
+import { NavLink } from 'react-router-dom';
 import UniqueIpList from './UniqueIpList';
 import Summary from './Summary';
 
 export default function ProxyList() {
   const { t } = useTranslation();
   const [recaptchaOpen, setRecaptchaOpen] = React.useState(false);
-  const [subTab, setSubTab] = React.useState('submit');
+
   const [listTab, setListTab] = React.useState<'server' | 'unique-ip'>(() => {
     const saved = localStorage.getItem('proxyList_listTab');
     return saved === 'unique-ip' ? 'unique-ip' : 'server';
@@ -105,71 +103,42 @@ export default function ProxyList() {
 
       <div className="my-4">
         <div className="border-b border-gray-200 dark:border-gray-700">
-          <ul
-            className="grid grid-cols-2 w-full divide-x divide-gray-200 dark:divide-gray-700"
-            role="tablist"
-            aria-label="Proxy submission tabs">
+          <ul className="grid grid-cols-2 w-full divide-x divide-gray-200 dark:divide-gray-700" role="tablist">
             <li>
-              <button
-                type="button"
-                id="tab-submit"
-                aria-controls="panel-submit"
-                aria-current={subTab === 'submit' ? 'page' : undefined}
-                role="tab"
-                onClick={() => setSubTab('submit')}
-                className={`w-full inline-flex items-center justify-center p-4 text-sm font-medium ${
-                  subTab === 'submit'
-                    ? 'text-indigo-600 border-b-2 border-indigo-600 dark:text-indigo-400 dark:border-indigo-500'
-                    : 'text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400'
-                }`}>
+              <NavLink
+                to="/proxy-tools/submit"
+                className={({ isActive }) =>
+                  `w-full inline-flex items-center justify-center p-4 text-sm font-medium ${
+                    isActive
+                      ? 'text-indigo-600 border-b-2 border-indigo-600 dark:text-indigo-400 dark:border-indigo-500'
+                      : 'text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400'
+                  }`
+                }>
                 <i
                   className="fa-duotone fa-magnifying-glass mr-2 text-gray-500 dark:text-gray-300"
                   aria-hidden="true"
                 />
                 Proxy checker
-              </button>
+              </NavLink>
             </li>
 
             <li>
-              <button
-                type="button"
-                id="tab-extract"
-                aria-controls="panel-extract"
-                aria-current={subTab === 'extract' ? 'page' : undefined}
-                role="tab"
-                onClick={() => setSubTab('extract')}
-                className={`w-full inline-flex items-center justify-center p-4 text-sm font-medium ${
-                  subTab === 'extract'
-                    ? 'text-indigo-600 border-b-2 border-indigo-600 dark:text-indigo-400 dark:border-indigo-500'
-                    : 'text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400'
-                }`}>
+              <NavLink
+                to="/proxy-tools/extract"
+                className={({ isActive }) =>
+                  `w-full inline-flex items-center justify-center p-4 text-sm font-medium ${
+                    isActive
+                      ? 'text-indigo-600 border-b-2 border-indigo-600 dark:text-indigo-400 dark:border-indigo-500'
+                      : 'text-gray-700 dark:text-gray-200 hover:text-indigo-600 dark:hover:text-indigo-400'
+                  }`
+                }>
                 <i className="fa-duotone fa-solid fa-filter mr-2 text-gray-500 dark:text-gray-300" aria-hidden="true" />
                 Proxy extractor
-              </button>
+              </NavLink>
             </li>
           </ul>
         </div>
-
-        <div>
-          <div
-            id="panel-submit"
-            role="tabpanel"
-            aria-labelledby="tab-submit"
-            className={`${subTab === 'submit' ? '' : 'hidden'} bg-white dark:bg-gray-900`}>
-            <ProxySubmission />
-          </div>
-
-          <div
-            id="panel-extract"
-            role="tabpanel"
-            aria-labelledby="tab-extract"
-            className={`${subTab === 'extract' ? '' : 'hidden'} bg-white dark:bg-gray-900`}>
-            <ProxyExtractor />
-          </div>
-        </div>
       </div>
-
-      <LogViewer />
 
       <ApiUsage />
     </div>
