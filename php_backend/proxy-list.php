@@ -225,6 +225,15 @@ try {
   $stmt->execute($params);
   $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
+  // Add human-readable elapsed time for `last_check` as `timeAgo`.
+  // `last_check` may be an RFC3339 datetime string, empty string, or null.
+  if (!empty($rows)) {
+    foreach ($rows as &$r) {
+      $r['timeAgo'] = timeAgo((string)($r['last_check'] ?? ''));
+    }
+    unset($r);
+  }
+
   $rows = $rows ?: [];
 
   $response = [
