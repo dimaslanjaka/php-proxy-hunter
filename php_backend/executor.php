@@ -1,16 +1,15 @@
 <?php
 
-require_once __DIR__ . '/shared.php';
+require_once __DIR__ . '/../func.php';
 
 use PhpProxyHunter\Server;
-
-global $proxy_db, $isWin;
 
 Server::allowCors(false);
 Server::setCacheHeaders(5 * 60);
 
 $isAdmin = is_admin();
 $request = parseQueryOrPostBody();
+$isWin   = stripos(PHP_OS, 'WIN') === 0;
 
 $file = isset($request['file']) ? trim($request['file']) : '';
 $str  = isset($request['str']) ? trim($request['str']) : '';
