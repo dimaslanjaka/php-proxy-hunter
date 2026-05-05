@@ -112,59 +112,58 @@ function getCurrentUserData() {
  *   if connection setup fails.
  */
 function refreshDbConnections(bool $useFallbackProduction = false): ?array {
-  global $dbFile, $dbHost, $dbName, $dbUser, $dbPass, $dbType, $core_db, $user_db, $proxy_db, $log_db;
-
+  global $dbFile, $dbType, $core_db, $user_db, $proxy_db, $log_db;
   // Clean up existing DB connections to avoid conflicts
   unset($core_db, $user_db, $proxy_db, $log_db);
   gc_collect_cycles();
 
+  // Priority: try local, then (optionally) production, then fallback to sqlite
   try {
-    $core_db = new CoreDB(
-      $dbFile,
-      $dbHost,
-      $dbName,
-      $dbUser,
-      $dbPass,
-      false,
-      $dbType
-    );
-  } catch (\Throwable $th) {
-    $errorMessage        = $th->getMessage();
-    $isConnectionRefused = str_contains($errorMessage, 'SQLSTATE[HY000] [2002]')
-      && str_contains(strtolower($errorMessage), 'actively refused');
-
-    if (!($useFallbackProduction && $isConnectionRefused)) {
-      // Handle connection errors gracefully
-      echo 'Error refreshing DB connections: ' . $errorMessage . PHP_EOL;
-      return null;
-    }
-
-    // Retry with production credentials when explicitly requested.
-    $productionDbName = $_ENV['MYSQL_DBNAME_PRODUCTION'] ?? getenv('MYSQL_DBNAME_PRODUCTION') ?: ($_ENV['MYSQL_DBNAME'] ?? getenv('MYSQL_DBNAME'));
-    $productionDbUser = $_ENV['MYSQL_USER_PRODUCTION']   ?? getenv('MYSQL_USER_PRODUCTION') ?: ($_ENV['MYSQL_USER'] ?? getenv('MYSQL_USER'));
-    $productionDbPass = $_ENV['MYSQL_PASS_PRODUCTION']   ?? getenv('MYSQL_PASS_PRODUCTION') ?: ($_ENV['MYSQL_PASS'] ?? getenv('MYSQL_PASS'));
-    $productionDbHost = $_ENV['MYSQL_HOST_PRODUCTION']   ?? getenv('MYSQL_HOST_PRODUCTION') ?: ($_ENV['MYSQL_HOST'] ?? getenv('MYSQL_HOST'));
-
-    try {
-      $core_db = new CoreDB(
-        $dbFile,
-        $productionDbHost,
-        $productionDbName,
-        $productionDbUser,
-        $productionDbPass,
-        false,
-        'mysql'
-      );
-
-      // Persist fallback credentials for subsequent reconnect attempts.
-      $dbHost = $productionDbHost;
-      $dbName = $productionDbName;
-      $dbUser = $productionDbUser;
-      $dbPass = $productionDbPass;
-      $dbType = 'mysql';
-    } catch (\Throwable $fallbackTh) {
-      echo 'Error refreshing DB connections: ' . $fallbackTh->getMessage() . PHP_EOL;
-      return null;
+    $core_db = init_local_database();
+  } catch (\Throwable $localEx) {
+    // Local DB failed. If requested, try production; otherwise go straight to sqlite.
+    if ($useFallbackProduction) {
+      try {
+        $core_db = init_production_database();
+      } catch (\Throwable $prodEx) {
+        // production failed — attempt sqlite fallback
+        try {
+          $sqliteDbFile = $dbFile ?? get_project_root('src/database.sqlite');
+          $core_db      = new CoreDB(
+            $sqliteDbFile,
+            '',
+            '',
+            '',
+            '',
+            false,
+            'sqlite'
+          );
+          $dbFile = $sqliteDbFile;
+          $dbType = 'sqlite';
+        } catch (\Throwable $sqliteEx) {
+          echo 'Error refreshing DB connections: ' . $sqliteEx->getMessage() . PHP_EOL;
+          return null;
+        }
+      }
+    } else {
+      // Skip production; directly try sqlite fallback
+      try {
+        $sqliteDbFile = $dbFile ?? get_project_root('src/database.sqlite');
+        $core_db      = new CoreDB(
+          $sqliteDbFile,
+          '',
+          '',
+          '',
+          '',
+          false,
+          'sqlite'
+        );
+        $dbFile = $sqliteDbFile;
+        $dbType = 'sqlite';
+      } catch (\Throwable $sqliteEx) {
+        echo 'Error refreshing DB connections: ' . $sqliteEx->getMessage() . PHP_EOL;
+        return null;
+      }
     }
   }
   /** @var \PhpProxyHunter\UserDB $user_db */
@@ -173,6 +172,11 @@ function refreshDbConnections(bool $useFallbackProduction = false): ?array {
   $proxy_db = $core_db->proxy_db;
   /** @var \PhpProxyHunter\ActivityLog $log_db */
   $log_db = $core_db->log_db;
+
+  // Update global dbType if CoreDB exposes a driver property
+  if (isset($core_db->driver) && !empty($core_db->driver)) {
+    $dbType = $core_db->driver;
+  }
 
   return ['core_db' => $core_db, 'user_db' => $user_db, 'proxy_db' => $proxy_db, 'log_db' => $log_db];
 }
