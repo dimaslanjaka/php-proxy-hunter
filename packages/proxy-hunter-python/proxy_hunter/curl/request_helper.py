@@ -15,14 +15,15 @@ from requests.adapters import HTTPAdapter
 from requests.cookies import RequestsCookieJar
 from proxy_hunter.Proxy import Proxy
 from proxy_hunter.utils import read_file, write_file
+from proxy_hunter.curl.certificates import last_merged_certificates_path
 
 # Set the certificate file in environment variables
-os.environ["REQUESTS_CA_BUNDLE"] = certifi.where()
-os.environ["SSL_CERT_FILE"] = certifi.where()
+os.environ["REQUESTS_CA_BUNDLE"] = str(last_merged_certificates_path)
+os.environ["SSL_CERT_FILE"] = str(last_merged_certificates_path)
 
 # Replace create default https context method
 ssl._create_default_https_context = lambda: ssl.create_default_context(
-    cafile=certifi.where()
+    cafile=last_merged_certificates_path
 )
 
 # Suppress InsecureRequestWarning
@@ -98,6 +99,18 @@ def build_request(
         if not proxy_password:
             proxy_password = proxy.password
         proxy = proxy.proxy
+
+    # If proxy_type not provided but proxy string includes a scheme, infer the type
+    if proxy_type is None and proxy is not None and isinstance(proxy, str):
+        m_scheme = re.match(r"^(https?://|socks4://|socks5://)", proxy, re.I)
+        if m_scheme:
+            scheme = m_scheme.group(1).lower()
+            if scheme.startswith("http"):
+                proxy_type = "http"
+            elif scheme.startswith("socks4"):
+                proxy_type = "socks4"
+            elif scheme.startswith("socks5"):
+                proxy_type = "socks5"
 
     if proxy_type is not None and proxy is not None:
         # Helper to insert credentials when provided and when missing from proxy
