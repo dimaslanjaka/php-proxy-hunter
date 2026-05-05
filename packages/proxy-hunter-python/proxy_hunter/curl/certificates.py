@@ -1,4 +1,5 @@
 from pathlib import Path
+import subprocess
 import certifi
 import re
 import warnings
@@ -7,7 +8,6 @@ import requests
 from cryptography import x509
 from cryptography.hazmat.primitives import hashes
 from cryptography.utils import CryptographyDeprecationWarning
-
 
 # ------------------------------------------------------------------------------
 # Configuration
@@ -162,9 +162,73 @@ def initialize_default_bundle(candidate_folders: list[Path]) -> Path:
     )
 
 
+download_folder = Path("tmp/download/certificates")
+download_folder.mkdir(parents=True, exist_ok=True)
+
+
+def create_certificate(domain):
+    with open(f"{download_folder}/{domain}.pem", "w") as pem_file:
+        pem_file.write(f"{domain} Global Root GC CA\n===============================\n")
+        result = subprocess.run(
+            ["openssl", "s_client", "-showcerts", "-connect", f"{domain}:443"],
+            input="",
+            capture_output=True,
+            text=True,
+        )
+        result = subprocess.run(
+            ["openssl", "x509", "-outform", "PEM"],
+            input=result.stdout,
+            capture_output=True,
+            text=True,
+        )
+        pem_file.write(result.stdout)
+
+
 # ------------------------------------------------------------------------------
 # Auto Initialization
 # ------------------------------------------------------------------------------
 
 if not last_merged_certificates_path.exists() or __name__ == "__main__":
-    initialize_default_bundle([Path("certificates"), Path("data")])
+    # Create PEM files for each domain
+    domains = [
+        "www.google.com",
+        "www.instagram.com",
+        "www.facebook.com",
+        "translate.google.co.id",
+        "translate.google.com",
+        "api.facebook.com",
+        "graph.facebook.com",
+        "graph.beta.facebook.com",
+        "developers.facebook.com",
+        "facebook.com",
+        "bing.com",
+        "webmanajemen.com",
+        "dash.cloudflare.com",
+        "www.cloudflare.com",
+        "cloudflare.com",
+        "api.myxl.xlaxiata.co.id",
+        "otp.api.axis.co.id",
+        "nq.api.axis.co.id",
+        "axis.co.id",
+        "aigo.api.axis.co.id",
+        "api.axis.co.id",
+        "m-assets.api.axis.co.id",
+        "profile.api.axis.co.id",
+        "go.axis.co.id",
+        "click.axis.co.id",
+        "trxpayments.api.axis.co.id",
+        "trxpackages.api.axis.co.id",
+        "products.api.axis.co.id",
+        "packages.api.axis.co.id",
+        "order.api.axis.co.id",
+        "games.axis.co.id",
+        "httpbin.org",
+        "www.httpbin.org",
+        "yahoo.com",
+    ]
+    unique_domains = list(set(domains))
+
+    for domain in unique_domains:
+        create_certificate(domain)
+
+    initialize_default_bundle([Path("certificates"), Path("data"), download_folder])
