@@ -41,23 +41,6 @@ fi
 echo "Removing Python __pycache__ folders..."
 find /var/www/html -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null
 
-# --- Reset Python venvs ---
-for dir in venv .venv; do
-  if [ -d "$dir" ]; then
-    echo "Removing virtualenv at $dir..."
-    rm -rf "$dir"
-  fi
-
-  if [ -f requirements.txt ]; then
-    echo "Recreating $dir..."
-    python3 -m venv "$dir"
-    "$dir/bin/pip" install --upgrade pip setuptools wheel
-    # "$dir/bin/pip" install -r requirements.txt
-  else
-    echo "No requirements.txt found, skipping $dir recreation."
-  fi
-done
-
 # --- Clean Composer cache ---
 if command -v composer >/dev/null; then
   echo "Cleaning Composer cache..."
