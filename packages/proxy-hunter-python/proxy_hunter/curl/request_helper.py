@@ -212,7 +212,8 @@ def build_request(
 
     # Extract timeout from kwargs or use default
     timeout = kwargs.pop("timeout", 10)
-
+    # Initialize response to avoid 'possibly unbound' warnings
+    response = None
     method_upper = method.upper()
     if method_upper not in request_methods:
         raise ValueError(f"Unsupported method: {method}")
@@ -247,7 +248,9 @@ def build_request(
         except requests.RequestException:
             if attempt >= retry:
                 raise
-
+    # Ensure we have a response object (static analyzers may not infer the raise above)
+    if response is None:
+        raise requests.RequestException("No response received from send_request()")
     # Save cookies back to file
     if cookie_jar is not None and cookie_header is not None:
         cookies_to_be_saved = [cookie_header]
