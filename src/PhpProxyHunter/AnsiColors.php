@@ -16,8 +16,7 @@ class AnsiColors
    * @param string|array $text   Text to colorize, or an array when args are swapped.
    * @return string
    */
-  public static function colorize($format = [], $text = '')
-  {
+  public static function colorize($format = [], $text = '') {
     $codes = [
       'bold'          => 1,
       'italic'        => 3,
@@ -82,8 +81,7 @@ class AnsiColors
    * @param string $ansiText
    * @return string
    */
-  public static function ansiToHtml($ansiText)
-  {
+  public static function ansiToHtml($ansiText) {
     // Map ANSI codes to CSS styles
     $ansiMap = [
       1  => 'font-weight:bold;',
@@ -124,5 +122,31 @@ class AnsiColors
     // Remove any remaining ANSI codes
     $html = preg_replace('/\033\[[0-9;]*m/', '', $html);
     return $html;
+  }
+
+  /**
+   * Remove ANSI escape sequences from a string.
+   *
+   * @param string $text
+   * @return string
+   */
+  public static function removeAnsi($text) {
+    if (!is_string($text) || $text === '') {
+      return $text;
+    }
+
+    // Remove common SGR sequences (e.g. "\033[31m")
+    $clean = preg_replace('/\033\[[0-9;]*m/', '', $text);
+    if ($clean === null) {
+      return $text;
+    }
+
+    // Remove any other CSI sequences that may remain
+    $clean = preg_replace('/\033\[[0-9;]*[A-Za-z]/', '', $clean);
+    if ($clean === null) {
+      return $text;
+    }
+
+    return $clean;
   }
 }
