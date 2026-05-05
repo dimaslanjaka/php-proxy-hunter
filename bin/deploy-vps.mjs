@@ -245,7 +245,44 @@ export async function remoteExistsBoolean(target, config = {}) {
   return (await remoteExists(target, config)) !== false;
 }
 
-let pullSubmodule = false;
+/**
+ * Pulls the latest changes for the proxy-checker-python submodule on the remote host.
+ */
+export function pullSubmodule() {
+  return withSSH(async (conn) => {
+    // pull or clone packages/proxy-checker-python remote https://github.com/dimaslanjaka/proxy-checker-python.git
+    if (!(await remoteExistsBoolean(`${remotePath}/packages/proxy-checker-python/.git`))) {
+      console.log('Cloning proxy-checker-python submodule on remote host...');
+      await execWithBashrc(
+        conn,
+        `git clone --depth=1 --recurse-submodules https://github.com/dimaslanjaka/proxy-checker-python.git '${remotePath}/packages/proxy-checker-python'`
+      );
+    } else {
+      console.log('Pulling latest changes for proxy-checker-python submodule on remote host...');
+      // check packages/proxy-checker-python/.git is file, remove folder packages/proxy-checker-python and clone again if it is
+      if ((await remoteExists(`${remotePath}/packages/proxy-checker-python/.git`)) === '-') {
+        console.log(
+          'Detected .git file instead of directory for proxy-checker-python. Re-cloning submodule on remote host...'
+        );
+        await deleteRemotePath(`${remotePath}/packages/proxy-checker-python`);
+        await execWithBashrc(
+          conn,
+          `git clone --depth=1 --recurse-submodules https://github.com/dimaslanjaka/proxy-checker-python.git '${remotePath}/packages/proxy-checker-python'`
+        );
+      }
+      await execWithBashrc(
+        conn,
+        `cd '${remotePath}/packages/proxy-checker-python' && git pull --recurse-submodules --no-edit --no-commit`
+      );
+    }
+    // run composer require "dimaslanjaka/proxy-checker-python:dev-master" -W in the project repository on the server
+    console.log('Ensuring proxy-checker-python composer dependency is up to date on remote host...');
+    await execWithBashrc(
+      conn,
+      `cd '${remotePath}' && php bin/composer.phar require "dimaslanjaka/proxy-checker-python:dev-master" -W --no-interaction`
+    );
+  });
+}
 
 /**
  * Perform `git pull` in the project repository on the remote host via SSH.
@@ -253,70 +290,19 @@ let pullSubmodule = false;
  */
 export function gitPull() {
   return withSSH(async (conn) => {
-    console.log('Updating project repository on remote host...');
-    if (!pullSubmodule) {
-      pullSubmodule = true;
-      // pull or clone packages/proxy-checker-python remote https://github.com/dimaslanjaka/proxy-checker-python.git
-      if (!(await remoteExistsBoolean(`${remotePath}/packages/proxy-checker-python/.git`))) {
-        console.log('Cloning proxy-checker-python submodule on remote host...');
-        await execWithBashrc(
-          conn,
-          `git clone --depth=1 --recurse-submodules https://github.com/dimaslanjaka/proxy-checker-python.git ${remotePath}/packages/proxy-checker-python`
-        );
-      } else {
-        console.log('Pulling latest changes for proxy-checker-python submodule on remote host...');
-        // check packages/proxy-checker-python/.git is file, remove folder packages/proxy-checker-python and clone again if it is
-        if ((await remoteExists(`${remotePath}/packages/proxy-checker-python/.git`)) === '-') {
-          console.log(
-            'Detected .git file instead of directory for proxy-checker-python. Re-cloning submodule on remote host...'
-          );
-          await deleteRemotePath(`${remotePath}/packages/proxy-checker-python`);
-          await execWithBashrc(
-            conn,
-            `git clone --depth=1 --recurse-submodules https://github.com/dimaslanjaka/proxy-checker-python.git ${remotePath}/packages/proxy-checker-python`
-          );
-        }
-        await execWithBashrc(
-          conn,
-          `cd ${remotePath}/packages/proxy-checker-python && git pull --recurse-submodules --no-edit --no-commit`
-        );
-      }
-      // run composer require "dimaslanjaka/proxy-checker-python:dev-master" -W in the project repository on the server
-      console.log('Ensuring proxy-checker-python composer dependency is up to date on remote host...');
-      await execWithBashrc(
-        conn,
-        `cd ${remotePath} && php bin/composer.phar require "dimaslanjaka/proxy-checker-python:dev-master" -W --no-interaction`
-      );
+    // If the project path on the remote host isn't a git repository, skip pulling.
+    // This avoids errors like "fatal: not a git repository (or any of the parent directories): .git"
+    if (!(await remoteExistsBoolean(`${remotePath}/.git`))) {
+      console.warn(`No .git directory at ${remotePath}/.git; skipping git pull to avoid repository errors.`);
+      return;
     }
+
     // Update the project repository on the server safely
-    console.log('Updating project repository on remote host...');
+    console.log(`Updating project repository on remote host (${remotePath})...`);
 
-    await execWithBashrc(
-      conn,
-      `
-cd ${remotePath} &&
-
-if [ -n "$(git status --porcelain)" ]; then
-  git stash push -u -m "auto-stash-before-pull"
-  STASHED=1
-else
-  STASHED=0
-fi &&
-
-git pull --rebase --no-edit || {
-  echo "Rebase failed. Aborting...";
-  git rebase --abort || true
-  exit 1
-} &&
-
-if [ "$STASHED" -eq 1 ]; then
-  git stash pop || {
-    echo "Stash apply failed. Resolve manually.";
-    exit 1;
-  }
-fi
-`
-    );
+    const pull = await execWithBashrc(conn, `cd '${remotePath}' && git pull`);
+    const message = '[STDOUT]\n' + pull.stdout.trim() + '\n[STDERR]\n' + pull.stderr.trim();
+    console.log(`Git pull result: ${message}`);
   });
 }
 
@@ -405,6 +391,7 @@ async function main() {
     await writeRemoteFile(`${remotePath}/tmp/locks/.build-lock`, lockContents);
 
     await gitPull();
+    await pullSubmodule();
 
     const { code } = await shell_exec('bash bin/fix-perm', remotePath);
     if (code !== 0) throw new Error('fix-perm failed');
@@ -421,6 +408,7 @@ async function main() {
   await writeRemoteFile(`${remotePath}/tmp/locks/.build-lock`, lockContents);
 
   await gitPull();
+  await pullSubmodule();
 
   console.log('Ensuring python-minimal...');
   const { code: pyCode } = await shell_exec('bash bin/python-minimal', remotePath);
