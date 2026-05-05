@@ -8,6 +8,7 @@ from proxy_hunter import get_device_ip
 from artisan.proxy_getter import (
     load_proxies_from_cli,
     load_proxies_from_file,
+    to_proxy_rows,
 )
 from src.utils.parse_args import parse_args
 from src.func import get_relative_path
@@ -45,7 +46,9 @@ if __name__ == "__main__":
 
         cli_proxies = load_proxies_from_cli()
         if cli_proxies:
-            proxies = [f"{h}:{p}" for (h, p) in cli_proxies]
+            # normalize various proxy item types (Proxy objects, dicts, tuples)
+            rows = to_proxy_rows(cli_proxies)
+            proxies = [str(r.get("proxy")) for r in rows if r.get("proxy")]
             # If CLI provided a file via --file, resolve and assign it to
             # `proxy_file` so later removal uses the same file path.
             if getattr(args, "proxy_file", None) and args.proxy_file:
@@ -61,7 +64,8 @@ if __name__ == "__main__":
         if not proxies:
             file_proxies = load_proxies_from_file(proxy_file)
             if file_proxies:
-                proxies = [f"{h}:{p}" for (h, p) in file_proxies]
+                rows = to_proxy_rows(file_proxies)
+                proxies = [str(r.get("proxy")) for r in rows if r.get("proxy")]
                 source_label = f"file://{proxy_file}"
 
         if not proxies:
