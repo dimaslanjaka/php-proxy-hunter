@@ -1,4 +1,3 @@
-import legacy from '@vitejs/plugin-legacy';
 import react from '@vitejs/plugin-react';
 import browserslist from 'browserslist';
 import { execSync } from 'child_process';
@@ -107,8 +106,6 @@ export const viteConfig = defineConfig({
   },
   // Build configuration
   build: {
-    // Ensure an explicit JS target so the legacy plugin doesn't override it.
-    target: 'es2018',
     outDir: distPath,
     commonjsOptions: {
       transformMixedEsModules: true,
@@ -289,17 +286,5 @@ export const viteConfig = defineConfig({
     }
   }
 });
-
-if (!isGithubCI && viteConfig.plugins) {
-  viteConfig.plugins.push(
-    legacy({
-      // Provide the browserslist query to control which legacy browsers to support.
-      targets: 'defaults, not IE 11',
-      // Disable rendering separate legacy chunks to avoid duplicate
-      // `__vite_legacy_guard` injections when manual chunking occurs.
-      renderLegacyChunks: false
-    })
-  );
-}
 
 export default viteConfig;
