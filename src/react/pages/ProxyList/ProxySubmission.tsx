@@ -27,7 +27,14 @@ export default function ProxySubmission() {
   const [executorList, setExecutorList] = React.useState<Array<{ name: string; path: string }>>([]);
   const STORAGE_KEY = 'proxy-submission.selectedCheckBackend';
   const STORAGE_KEY_LIMIT = 'proxy-submission.selectedCheckBackendLimit';
-  const [limit, setLimit] = React.useState<string>('1');
+  const [limit, setLimit] = React.useState<string>(() => {
+    try {
+      const saved = localStorage.getItem(STORAGE_KEY_LIMIT);
+      return saved || '1';
+    } catch (_e) {
+      return '1';
+    }
+  });
   const nameCounts = React.useMemo(() => {
     const map: Record<string, number> = {};
     executorList.forEach((it) => {
@@ -64,16 +71,6 @@ export default function ProxySubmission() {
       .catch(() => {
         // ignore failures silently
       });
-  }, []);
-
-  // restore saved limit value
-  React.useEffect(() => {
-    try {
-      const saved = localStorage.getItem(STORAGE_KEY_LIMIT);
-      if (saved) setLimit(saved);
-    } catch (_e) {
-      // ignore
-    }
   }, []);
 
   // persist limit selection
