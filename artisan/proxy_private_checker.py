@@ -12,7 +12,6 @@ sys.path.append(PROJECT_ROOT)
 
 from src.func import get_relative_path
 from src.func_console import cyan, red, magenta, yellow
-from src.database.SQLiteMarker import SQLiteMarker
 from src.utils.file.FileLockHelper import FileLockHelper
 from artisan.proxy_getter import (
     normalize_proxy_value,
@@ -181,17 +180,10 @@ if __name__ == "__main__":
     try:
         proxy_file = get_relative_path("proxies.txt")
         db = init_db("mysql")
-        marker = SQLiteMarker(
-            db_filename="proxy_private_checker.sqlite",
-            table_name="checked_proxies",
-            key_column="proxy",
-            base_dir="tmp/database",
-        )
 
         try:
             # Use retrieve_proxies and provide a custom_filter that applies
-            # the "last checked before today" check and marker filtering and
-            # row "private" should not be "true" or "false" (i.e. not previously checked).
+            # the "last checked before today" check and dedupes candidates.
             def custom_filter(rows: List[dict[str, Any]]) -> List[dict[str, Any]]:
                 # Include rows that either have no last_check (e.g. loaded from file)
                 # or whose last_check is older than the configured threshold.
@@ -220,8 +212,8 @@ if __name__ == "__main__":
                     proxy_by_key[marker_key] = proxy
                     ordered_keys.append(marker_key)
 
-                pending_keys, already_checked = marker.filter_unseen(ordered_keys)
-                return [proxy_by_key[key] for key in pending_keys]
+                # Marker functionality removed; return all deduped candidates
+                return [proxy_by_key[key] for key in ordered_keys]
 
             result: ProxyRetrievalResult = retrieve_proxies(
                 db=db, limit=args.limit, custom_filter=custom_filter
@@ -235,11 +227,7 @@ if __name__ == "__main__":
             # Run the async checks and get actually tested proxies
             tested_keys = set(asyncio.run(run_checks(proxies, args, db)))
 
-            # mark tested proxies (only those we actually attempted)
-            for tested_proxy in tested_keys:
-                # Mark proxies as seen for 1 day to avoid permanent exclusion
-                marker.mark(tested_proxy, valid_until=1)
-            print(f"[INFO] marked {len(tested_keys)} tested proxies in marker database")
+            # Marker functionality removed; no persistent marking performed
 
             # If loaded from file, remove tested entries from it
             if (
@@ -272,7 +260,6 @@ if __name__ == "__main__":
                         f"[INFO] Removed {removed_count} tested proxies from {proxy_file}; trimmed {trimmed_trailing_empty} trailing empty lines"
                     )
         finally:
-            marker.close()
             db.close()
     finally:
         if locker:
