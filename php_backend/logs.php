@@ -2,6 +2,8 @@
 
 require_once __DIR__ . '/shared.php';
 
+use PhpProxyHunter\AnsiColors;
+
 $isAdmin = is_admin();
 PhpProxyHunter\Server::allowCors();
 $request = parsePostData(true);
@@ -71,7 +73,14 @@ if (isset($request['executor'])) {
     if ($data === false) {
       respond_text('Failed to read log file', 500);
     }
-    respond_text($data);
+
+    // If the log file contains JSON, return it as JSON; otherwise return plain text
+    $decoded = json_decode(AnsiColors::removeAnsi($data), true);
+    if (json_last_error() === JSON_ERROR_NONE) {
+      respond_json($decoded);
+    } else {
+      respond_text($data);
+    }
   }
 
   if (isset($request['clear'])) {
@@ -100,14 +109,37 @@ if (isset($request['executor'])) {
   respond_json($userLogs);
 }
 
+// Allow unauthenticated access to logs for a specific file
+$file = isset($request['file']) ? basename((string)$request['file']) : '';
+if (!empty($file)) {
+  $allowed = ['system-usage.json', 'php-error.log', 'php-error.txt'];
+  $logPath = tmp('logs', $file);
+  if (in_array($file, $allowed, true) && file_exists($logPath) && is_readable($logPath)) {
+    $data = read_file($logPath);
+
+    if ($data === false) {
+      respond_text('Failed to read log file', 500);
+    }
+
+    // If the log file contains JSON, return it as JSON; otherwise return plain text
+    $decoded = json_decode(AnsiColors::removeAnsi($data), true);
+    if (json_last_error() === JSON_ERROR_NONE) {
+      respond_json($decoded);
+    } else {
+      respond_text($data);
+    }
+  } else {
+    if ($isAdmin || is_debug_device()) {
+      respond_text("Log file not found or not readable: {$file} -> {$logPath}", 404);
+    }
+    respond_text('Log file not found or not readable', 404);
+  }
+}
+
 // Handle unauthenticated access to own logs
 if (empty($_SESSION['authenticated_email'])) {
   respond_json(['authenticated' => false, 'error' => true, 'message' => 'Not authenticated']);
-}
-
-
-
-if (isset($request['me'])) {
+} elseif (isset($request['me'])) {
   if (empty($_SESSION['authenticated_email'])) {
     respond_json(['authenticated' => false, 'error' => true, 'message' => 'Not authenticated']);
   }
@@ -153,9 +185,7 @@ if (isset($request['me'])) {
     'count'         => count($pageLogs),
     'total'         => $total,
   ]);
-}
-
-if ($isAdmin) {
+} elseif ($isAdmin) {
   // crontab logs
   if (isset($request['cron'])) {
     if (isset($request['file'])) {
