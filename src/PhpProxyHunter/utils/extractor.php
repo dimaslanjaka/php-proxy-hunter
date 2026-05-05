@@ -18,7 +18,7 @@ function extractIPs($string) {
   // Use preg_match_all to find all IP addresses in the string
   if (preg_match_all($ipPattern, $string, $matches)) {
     return $matches[0];
-  // Return all matched IP addresses
+    // Return all matched IP addresses
   } else {
     return [];
     // Return empty array if no IP addresses are found
@@ -142,7 +142,9 @@ function extractProxies($string, $db = null, $write_database = false, $limit = 1
   // Add user:pass@ip:port
   foreach ($matches_userpass_ipport as $m) {
     // $m[1]=user, $m[2]=pass, $m[3]=ip:port
-    $matches[] = ['proxy' => $m[3], 'username' => $m[1], 'password' => $m[2]];
+    // sanitize username: strip leading slashes (e.g., from "http://user:pass@host")
+    $username_sanitized = ltrim($m[1], '/');
+    $matches[]          = ['proxy' => $m[3], 'username' => $username_sanitized, 'password' => $m[2]];
   }
   // Add ip:port@user:pass
   foreach ($matches_ipport_userpass as $m) {

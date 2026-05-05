@@ -22,10 +22,10 @@ class ExtractProxiesTest extends TestCase
     $this->assertEquals('user', $result[0]->username);
     $this->assertEquals('pass', $result[0]->password);
 
-    $input  = '92.113.242.158:6742@qtculbqe:iazrxzml7g27';
+    $input  = 'http://qtculbqe:iazrxzml7g27@31.59.20.176:6754';
     $result = extractProxies($input, null, false);
     $this->assertNotEmpty($result);
-    $this->assertEquals('92.113.242.158:6742', $result[0]->proxy);
+    $this->assertEquals('31.59.20.176:6754', $result[0]->proxy);
     $this->assertEquals('qtculbqe', $result[0]->username);
     $this->assertEquals('iazrxzml7g27', $result[0]->password);
   }
