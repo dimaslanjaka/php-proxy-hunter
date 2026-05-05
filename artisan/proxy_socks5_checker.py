@@ -16,9 +16,6 @@ from src.func_console import cyan, red
 from src.database.SQLiteMarker import SQLiteMarker
 from src.utils.file.FileLockHelper import FileLockHelper
 from artisan.proxy_getter import (
-    load_proxies_from_file,
-    load_proxies_from_cli,
-    to_proxy_rows,
     normalize_proxy_value,
     retrieve_proxies,
     ProxyRetrievalResult,
@@ -266,7 +263,7 @@ def filter_test_socks5_proxies_parallel(
 
 
 if __name__ == "__main__":
-    args = parse_args()
+    args = parse_args(default_limit=1)
 
     # Create and acquire file lock
     locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
@@ -287,12 +284,16 @@ if __name__ == "__main__":
         try:
             # Build custom filter that applies last-check + marker filtering
             def custom_filter(rows: List[dict[str, Any]]) -> List[dict[str, Any]]:
-                # keep only rows with last_check older than 24 hours
+                # Include rows that either have no last_check (e.g. loaded from file)
+                # or whose last_check is older than the configured threshold.
                 rows = [
                     r
                     for r in rows
                     if isinstance(r, dict)
-                    and is_date_rfc3339_older_than(r.get("last_check"), hours=24)
+                    and (
+                        not r.get("last_check")
+                        or is_date_rfc3339_older_than(r.get("last_check"), hours=24)
+                    )
                 ]
 
                 # dedupe and mark unseen via marker
@@ -366,13 +367,31 @@ if __name__ == "__main__":
                 f"[INFO] Tested {len(proxy_candidates)} proxies, passed {len(proxy_working)}"
             )
 
-            tested_set = {normalize_proxy_value(proxy) for proxy in proxy_candidates}
-            for tested_proxy in tested_set:
-                marker.mark(tested_proxy)
+            # Build normalized set of proxies we actually attempted (from retrieved rows)
+            tested_keys: set[str] = set()
+            for p in proxies[: args.limit]:
+                if isinstance(p, dict) and p.get("proxy"):
+                    raw = str(p.get("proxy") or "").strip()
+                elif isinstance(p, str):
+                    raw = p.strip()
+                else:
+                    continue
+
+                if not raw:
+                    continue
+
+                try:
+                    tested_keys.add(normalize_proxy_value(raw))
+                except Exception:
+                    tested_keys.add(raw)
+
+            for tested_proxy in tested_keys:
+                marker.mark(tested_proxy, valid_until=1)
+            print(f"[INFO] Marked {len(tested_keys)} tested proxies in marker database")
 
             if (
                 source_label.startswith("file://")
-                and tested_set
+                and tested_keys
                 and os.path.isfile(proxy_file)
             ):
                 with open(proxy_file, "r", encoding="utf-8") as f:
@@ -383,7 +402,7 @@ if __name__ == "__main__":
                 for line in file_lines:
                     raw = line.strip()
                     normalized = normalize_proxy_value(raw)
-                    if normalized in tested_set:
+                    if normalized in tested_keys:
                         removed_count += 1
                         continue
                     kept_lines.append(line)
