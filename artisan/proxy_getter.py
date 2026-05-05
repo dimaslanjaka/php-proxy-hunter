@@ -124,7 +124,7 @@ def normalize_proxy_str(proxy_str: str) -> Optional[Tuple[str, int]]:
     return host, port
 
 
-def load_proxies_from_cli() -> List[Tuple[str, int]]:
+def load_proxies_from_cli() -> List[Any]:
     args = parse_args()
     # If a proxy file was provided, prefer loading from file.
     proxy_file = str(getattr(args, "proxy_file", "") or "").strip()
@@ -142,9 +142,8 @@ def load_proxies_from_cli() -> List[Tuple[str, int]]:
 
     if not raw_proxy_text:
         return []
-
     parsed = extract_proxies(raw_proxy_text)
-    proxies: List[Tuple[str, int]] = []
+    proxies: List[object] = []
     invalid_rows = 0
 
     for item in parsed:
@@ -153,7 +152,8 @@ def load_proxies_from_cli() -> List[Tuple[str, int]]:
         if not normalized:
             invalid_rows += 1
             continue
-        proxies.append(normalized)
+        # preserve the original parsed object (may contain username/password)
+        proxies.append(item)
 
     print(f"Loaded {len(proxies)} proxies from CLI input")
     if invalid_rows:
@@ -162,7 +162,7 @@ def load_proxies_from_cli() -> List[Tuple[str, int]]:
     return proxies
 
 
-def load_proxies_from_file(file_path: str) -> List[Tuple[str, int]]:
+def load_proxies_from_file(file_path: str) -> List[Any]:
     """Load proxies from a text file and normalize them into (host, port)."""
     path = str(file_path or "").strip()
     if not path:
@@ -185,7 +185,7 @@ def load_proxies_from_file(file_path: str) -> List[Tuple[str, int]]:
         return []
 
     parsed = extract_proxies(raw_proxy_text)
-    proxies: List[Tuple[str, int]] = []
+    proxies: List[object] = []
     invalid_rows = 0
 
     for item in parsed:
@@ -194,7 +194,8 @@ def load_proxies_from_file(file_path: str) -> List[Tuple[str, int]]:
         if not normalized:
             invalid_rows += 1
             continue
-        proxies.append(normalized)
+        # preserve parsed object so username/password survive
+        proxies.append(item)
 
     print(f"Loaded {len(proxies)} proxies from file: {path}")
     if invalid_rows:
@@ -258,6 +259,16 @@ def to_proxy_rows(items: Iterable[Any]) -> List[Dict[str, Any]]:
     for item in items:
         proxy_value: Optional[str] = None
         row: Dict[str, Any] = {}
+        # Support Proxy objects (or any object with .proxy/.username/.password)
+        if not isinstance(item, (str, dict, tuple, list)) and hasattr(item, "proxy"):
+            proxy_value = str(getattr(item, "proxy") or "").strip()
+            # include credentials if present
+            username = getattr(item, "username", None)
+            password = getattr(item, "password", None)
+            if username:
+                row["username"] = username
+            if password:
+                row["password"] = password
 
         if isinstance(item, str):
             proxy_value = item.strip()
@@ -269,6 +280,11 @@ def to_proxy_rows(items: Iterable[Any]) -> List[Dict[str, Any]]:
                 "https": item.get("https"),
                 "last_check": item.get("last_check"),
             }
+            # preserve username/password from dict if provided
+            if item.get("username"):
+                row["username"] = item.get("username")
+            if item.get("password"):
+                row["password"] = item.get("password")
             if not proxy_value and item.get("ip") and item.get("port"):
                 proxy_value = f"{item['ip']}:{item['port']}"
         elif isinstance(item, (tuple, list)) and len(item) >= 2:

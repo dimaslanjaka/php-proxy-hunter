@@ -1,29 +1,30 @@
-import os
 import asyncio
-import sys
+import os
 import random
-from typing import Any, List, Optional, Dict, cast
+import sys
+from typing import Any, Dict, List, Optional, cast
 
-from gevent import timeout
 from proxy_hunter import build_request
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
-from src.func import get_relative_path
-from src.func_console import cyan, red, magenta, yellow
-from src.utils.file.FileLockHelper import FileLockHelper
+from dataclasses import dataclass
+
+from bs4 import BeautifulSoup
+
 from artisan.proxy_getter import (
+    ProxyRetrievalResult,
     normalize_proxy_value,
     retrieve_proxies,
-    ProxyRetrievalResult,
 )
-from src.utils.parse_args import parse_args, ParseArgs
-from src.ProxyDB import ProxyDB
+from src.func import get_relative_path
+from src.func_console import cyan, magenta, red, yellow
 from src.func_date import is_date_rfc3339_older_than
+from src.ProxyDB import ProxyDB
 from src.shared import init_db
-from bs4 import BeautifulSoup
-from dataclasses import dataclass
+from src.utils.file.FileLockHelper import FileLockHelper
+from src.utils.parse_args import ParseArgs, parse_args
 
 
 # --- Data model ---
@@ -133,7 +134,7 @@ async def run_checks(
         proxy: str = cast(str, proxy_value)
         if p.get("username") and p.get("password"):
             proxy = f"{p['username']}:{p['password']}@{proxy}"
-        print(f"Testing proxy: {magenta(p['proxy'])}")
+        print(f"Testing proxy: {magenta(proxy)}")
 
         # Test this proxy against each configured endpoint
         for cfg_name, cfg in config.items():
@@ -154,7 +155,22 @@ async def run_checks(
                     print(
                         f"{yellow(f'[{result.proxy_type}]')} {magenta(result.proxy)} -> {result.title}"
                     )
-                    db.update_data(proxy=result.proxy, data={"private": "false"})
+                    # If this proxy succeeded and the original row contains
+                    # credentials, treat it as a private proxy. Otherwise
+                    # mark as not-private.
+                    proxy_key = p.get("proxy") or result.proxy
+                    if p.get("username") and p.get("password"):
+                        db.update_data(
+                            proxy=proxy_key,
+                            data={
+                                "private": "true",
+                                "username": p["username"],
+                                "password": p["password"],
+                            },
+                            update_time=True,
+                        )
+                    else:
+                        db.update_data(proxy=proxy_key, data={"private": "false"})
                     # Found a working proxy for at least one config -> stop checking proxies
                     return list(tested_keys)
                 else:
