@@ -288,9 +288,30 @@ export function gitPull() {
         `cd ${remotePath} && php bin/composer.phar require "dimaslanjaka/proxy-checker-python:dev-master" -W --no-interaction`
       );
     }
-    // update the project repository on the server
-    console.log('Pulling latest changes for main project repository on remote host...');
-    await execWithBashrc(conn, `cd ${remotePath} && git pull`);
+    // Update the project repository on the server safely
+    console.log('Updating project repository on remote host...');
+
+    await execWithBashrc(
+      conn,
+      `
+  cd ${remotePath} &&
+
+  # Only stash if there are local changes
+  if ! git diff --quiet || ! git diff --cached --quiet; then
+    git stash push -m "auto-stash-before-pull"
+    STASHED=1
+  else
+    STASHED=0
+  fi &&
+
+  git pull --rebase &&
+
+  # Restore stash if we created one
+  if [ "$STASHED" -eq 1 ]; then
+    git stash pop
+  fi
+`
+    );
   });
 }
 
