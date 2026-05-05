@@ -296,20 +296,19 @@ export function gitPull() {
       `
   cd ${remotePath} &&
 
-  # Only stash if there are local changes
-  if ! git diff --quiet || ! git diff --cached --quiet; then
-    git stash push -m "auto-stash-before-pull"
-    STASHED=1
-  else
-    STASHED=0
-  fi &&
+# Detect ANY change (tracked + untracked)
+if [ -n "$(git status --porcelain)" ]; then
+  git stash push -u -m "auto-stash-before-pull"
+  STASHED=1
+else
+  STASHED=0
+fi &&
 
-  git pull --rebase &&
+git pull --rebase &&
 
-  # Restore stash if we created one
-  if [ "$STASHED" -eq 1 ]; then
-    git stash pop
-  fi
+if [ "$STASHED" -eq 1 ]; then
+  git stash pop
+fi
 `
     );
   });
