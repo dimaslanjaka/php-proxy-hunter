@@ -4,8 +4,15 @@ import { useEffect, useRef, useState } from 'react';
 
 const Home = () => {
   const allRoutes = routes as any[];
+  const EXCLUDED_PATHS = new Set(['/admin', '/dashboard', '/outbound', '/login', '/logout', '/settings']);
+
+  const filteredRoutes = allRoutes.filter((r) => {
+    const path = r && r.path;
+    const paths = Array.isArray(path) ? path : [path];
+    return !paths.some((p) => typeof p === 'string' && (EXCLUDED_PATHS.has(p) || p.startsWith('/oauth')));
+  });
   const pageSize = 12;
-  const [visibleCount, setVisibleCount] = useState(Math.min(pageSize, allRoutes.length));
+  const [visibleCount, setVisibleCount] = useState(Math.min(pageSize, filteredRoutes.length));
   const containerRef = useRef<HTMLDivElement | null>(null);
   const tickingRef = useRef(false);
 
@@ -23,8 +30,8 @@ const Home = () => {
         }
         const { scrollTop, clientHeight, scrollHeight } = containerRef.current;
         const nearBottom = scrollTop + clientHeight >= scrollHeight - 200;
-        if (nearBottom && visibleCount < allRoutes.length) {
-          setVisibleCount((v) => Math.min(allRoutes.length, v + pageSize));
+        if (nearBottom && visibleCount < filteredRoutes.length) {
+          setVisibleCount((v) => Math.min(filteredRoutes.length, v + pageSize));
         }
         tickingRef.current = false;
       });
@@ -32,7 +39,7 @@ const Home = () => {
 
     el.addEventListener('scroll', onScroll, { passive: true });
     return () => el.removeEventListener('scroll', onScroll);
-  }, [visibleCount, allRoutes.length]);
+  }, [visibleCount, filteredRoutes.length]);
 
   return (
     <>
@@ -156,7 +163,7 @@ const Home = () => {
                 className="h-96 md:h-[600px] overflow-auto border rounded-lg p-4 bg-gray-50 dark:bg-gray-800"
                 aria-label="Posts list">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                  {allRoutes.slice(0, visibleCount).map((r, idx) => (
+                  {filteredRoutes.slice(0, visibleCount).map((r, idx) => (
                     <div
                       key={(r && (Array.isArray(r.path) ? r.path.join('|') : r.path)) || idx}
                       className="p-4 border rounded bg-white dark:bg-gray-900">
@@ -185,9 +192,9 @@ const Home = () => {
               </div>
 
               <div className="mt-3 text-center text-sm text-gray-600 dark:text-gray-400">
-                {visibleCount < allRoutes.length
-                  ? `Showing ${visibleCount} of ${allRoutes.length} — scroll to load more`
-                  : `Showing all ${allRoutes.length} items`}
+                {visibleCount < filteredRoutes.length
+                  ? `Showing ${visibleCount} of ${filteredRoutes.length} — scroll to load more`
+                  : `Showing all ${filteredRoutes.length} items`}
               </div>
             </div>
           </div>
