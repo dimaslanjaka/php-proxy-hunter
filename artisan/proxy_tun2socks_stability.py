@@ -5,7 +5,7 @@ import socks
 import os
 import sys
 import re
-from typing import Any, Callable, Optional, TypedDict
+from typing import Any, Callable, Optional, TypedDict, List
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
@@ -13,13 +13,13 @@ sys.path.append(PROJECT_ROOT)
 from src.func_console import cyan, green, red
 from src.shared import init_db
 from src.func import get_relative_path
-from src.database.SQLiteMarker import SQLiteMarker
 from src.utils.file.FileLockHelper import FileLockHelper
 from artisan.proxy_getter import (
-    load_proxies_from_cli,
-    load_proxies_from_file,
     normalize_proxy_str,
+    retrieve_proxies,
+    ProxyRetrievalResult,
 )
+from src.func_date import is_date_rfc3339_older_than
 from src.utils.parse_args import parse_args
 from src.geoPlugin import get_geo_ip
 
@@ -32,7 +32,6 @@ TARGET_SCORE = 70
 
 current_filename = os.path.basename(__file__)
 locker: Optional[FileLockHelper] = None
-# Use ConsoleColor from src.func_console to ensure consistent ANSI handling
 
 
 class ProxyScoreResult(TypedDict):
@@ -461,66 +460,44 @@ if __name__ == "__main__":
 
     try:
         proxy_file = get_relative_path("proxies.txt")
-        marker = SQLiteMarker(
-            db_filename="proxy_tun2socks_stability.sqlite",
-            table_name="tested_proxies",
-            key_column="proxy",
-            base_dir="tmp/database",
-        )
 
         try:
-            proxies = []
-            source_label = "DB"
-
-            cli_proxies = load_proxies_from_cli()
-            if len(cli_proxies) != 0:
-                proxies = cli_proxies
-                # If CLI provided a file via --file, resolve and assign it to
-                # `proxy_file` so later removal uses the same file path.
-                if getattr(args, "proxy_file", None) and args.proxy_file:
-                    proxy_file = (
-                        args.proxy_file
-                        if os.path.exists(args.proxy_file)
-                        else get_relative_path(args.proxy_file)
+            # Retrieve proxies via central retriever (DB/file/CLI handled there)
+            def custom_filter(rows: List[dict[str, Any]]) -> List[dict[str, Any]]:
+                # Include rows that either have no last_check (e.g. loaded from file)
+                # or whose last_check is older than the configured threshold.
+                filtered = [
+                    r
+                    for r in rows
+                    if isinstance(r, dict)
+                    and (
+                        not r.get("last_check")
+                        or is_date_rfc3339_older_than(r.get("last_check"), hours=24)
                     )
-                    source_label = f"file://{proxy_file}"
-                else:
-                    source_label = "CLI input"
+                ]
+                return filtered
+
+            db_local = init_db("mysql")
+            try:
+                result = retrieve_proxies(
+                    db=db_local, limit=args.limit, custom_filter=custom_filter
+                )
+                proxies = result.proxies
+                source_label = result.source_label
                 print(f"{source_label} {len(proxies)} proxies loaded")
 
-            if len(proxies) == 0:
-                proxies = load_proxies_from_file(proxy_file)
-                if proxies:
-                    # If CLI provided a file via --file, resolve and assign it to
-                    # `proxy_file` so later removal uses the same file path.
-                    if getattr(args, "proxy_file", None) and args.proxy_file:
-                        proxy_file = (
-                            args.proxy_file
-                            if os.path.exists(args.proxy_file)
-                            else get_relative_path(args.proxy_file)
-                        )
-                        source_label = f"file://{proxy_file}"
-                    else:
-                        # Proxies were loaded from a file (default or explicit); mark
-                        # the source as the file so processed proxies will be removed.
-                        source_label = f"file://{proxy_file}"
-                    print(f"{source_label} {len(proxies)} proxies loaded")
-
-            if len(proxies) == 0:
-                source_label = "DB"
-                db = init_db("mysql")
-                try:
-                    proxies = db.get_working_proxies(
-                        auto_fix=False,
-                        randomize=True,
-                        limit=args.limit,
-                        proxy_type="socks5",
-                        ssl=None,
-                        tun2socks=False,
-                    )
-                    print(f"{source_label} {len(proxies)} proxies loaded")
-                finally:
-                    db.close()
+                # If proxies were loaded from a file (source_label like "file://..."),
+                # prefer removing tested entries from that original file instead of
+                # always using the default proxies.txt path.
+                if "file" in source_label:
+                    candidate = source_label.split("file://", 1)[1]
+                    # Windows paths may be like file:///C:/... or file://C:/... — strip
+                    # leading slashes to get a usable filesystem path.
+                    candidate = candidate.lstrip("/")
+                    if os.path.isfile(candidate):
+                        proxy_file = candidate
+            finally:
+                db_local.close()
 
             if not proxies:
                 print(f"No working SOCKS5 proxies found from {source_label}")
@@ -535,8 +512,9 @@ if __name__ == "__main__":
                 proxy_by_key[marker_key] = proxy
                 ordered_keys.append(marker_key)
 
-            pending_keys, already_checked = marker.filter_unseen(ordered_keys)
+            pending_keys = ordered_keys
             proxies = [proxy_by_key[key] for key in pending_keys]
+            already_checked = 0
             print(
                 f"[MARKER] pending={len(proxies)}, already_checked={already_checked}, "
                 f"total_unique={len(ordered_keys)}"
@@ -613,9 +591,7 @@ if __name__ == "__main__":
             finally:
                 db.close()
 
-            if tested_set:
-                for tested_proxy in tested_set:
-                    marker.mark(tested_proxy)
+            # Marker functionality removed; no persistent marking performed
 
             if "file" in source_label and tested_set and os.path.isfile(proxy_file):
                 with open(proxy_file, "r", encoding="utf-8") as f:
@@ -649,7 +625,7 @@ if __name__ == "__main__":
             else:
                 print("No compatible tun2socks proxy found")
         finally:
-            marker.close()
+            pass
     finally:
         if locker:
             locker.unlock()
