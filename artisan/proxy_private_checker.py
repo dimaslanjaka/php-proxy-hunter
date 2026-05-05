@@ -3,6 +3,8 @@ import asyncio
 import sys
 import random
 from typing import Any, List, Optional, Dict, cast
+
+from gevent import timeout
 from proxy_hunter import build_request
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -56,6 +58,7 @@ async def fetch_with_proxy(endpoint: str, proxy: str) -> FetchResult:
                 proxy=proxy,
                 proxy_type=ptype,
                 no_cache=True,
+                timeout=5,
             )
         except Exception as e:
             print(f"{yellow(f'[{ptype}]')} Failed {magenta(proxy)}: {e}")
@@ -98,7 +101,7 @@ async def run_checks(
     proxies: List[Dict[str, Any]],
     args: ParseArgs,
     db: ProxyDB,
-) -> None:
+) -> List[str]:
     # Configs to check for each proxy
     config = {
         "httpOnly": {
@@ -112,12 +115,23 @@ async def run_checks(
     }
 
     # Iterate proxies first, then test each proxy against all configured endpoints.
-    # If a proxy matches an endpoint's expected title, stop checking further proxies.
+    # Collect the set of proxies we actually attempted to test and return it.
+    tested_keys: set[str] = set()
     for p in proxies[: args.limit]:
         if not p.get("proxy"):
             continue
 
-        proxy: str = cast(str, p["proxy"])
+        proxy_value: str = str(p.get("proxy") or "").strip()
+        if not proxy_value:
+            continue
+
+        # record normalized key for marker/cleanup
+        try:
+            tested_keys.add(normalize_proxy_value(proxy_value))
+        except Exception:
+            tested_keys.add(proxy_value)
+
+        proxy: str = cast(str, proxy_value)
         if p.get("username") and p.get("password"):
             proxy = f"{p['username']}:{p['password']}@{proxy}"
         print(f"Testing proxy: {magenta(p['proxy'])}")
@@ -143,7 +157,7 @@ async def run_checks(
                     )
                     db.update_data(proxy=result.proxy, data={"private": "false"})
                     # Found a working proxy for at least one config -> stop checking proxies
-                    return
+                    return list(tested_keys)
                 else:
                     print(
                         f"{red('[MISMATCH]')} {magenta(result.proxy)} -> {result.title} (expected '{red(expected_title)}')"
@@ -151,6 +165,9 @@ async def run_checks(
                     db.update_data(proxy=result.proxy, data={"private": "true"})
             else:
                 print(f"{red('[FAIL]')} {magenta(result.proxy)}")
+
+    # After checking all configured endpoints for all proxies, return tested set
+    return list(tested_keys)
 
 
 if __name__ == "__main__":
@@ -215,21 +232,19 @@ if __name__ == "__main__":
             random.shuffle(proxies)
             print(f"[INFO] Proxy source: {source_label} ({len(proxies)} candidates)")
 
-            # Run the async checks
-            asyncio.run(run_checks(proxies, args, db))
+            # Run the async checks and get actually tested proxies
+            tested_keys = set(asyncio.run(run_checks(proxies, args, db)))
 
-            # mark tested proxies
-            tested_set = {
-                normalize_proxy_value(proxy.get("proxy") or "") for proxy in proxies
-            }
-            for tested_proxy in tested_set:
+            # mark tested proxies (only those we actually attempted)
+            for tested_proxy in tested_keys:
                 # Mark proxies as seen for 1 day to avoid permanent exclusion
                 marker.mark(tested_proxy, valid_until=1)
+            print(f"[INFO] marked {len(tested_keys)} tested proxies in marker database")
 
             # If loaded from file, remove tested entries from it
             if (
                 source_label.startswith("file://")
-                and tested_set
+                and tested_keys
                 and os.path.isfile(proxy_file)
             ):
                 with open(proxy_file, "r", encoding="utf-8") as f:
@@ -240,7 +255,7 @@ if __name__ == "__main__":
                 for line in file_lines:
                     raw = line.strip()
                     normalized = normalize_proxy_value(raw)
-                    if normalized in tested_set:
+                    if normalized in tested_keys:
                         removed_count += 1
                         continue
                     kept_lines.append(line)
