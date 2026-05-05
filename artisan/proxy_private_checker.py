@@ -2,23 +2,17 @@ import os
 import asyncio
 import sys
 import random
-import re
-from datetime import datetime, timezone
-from typing import Any, Callable, Iterable, List, Optional, Dict, cast
-from urllib.parse import urlsplit
-from proxy_hunter import build_request, extract_proxies
+from typing import Any, List, Optional, Dict, cast
+from proxy_hunter import build_request
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
 from src.func import get_relative_path
-from src.func_console import cyan, green, red, magenta, yellow
+from src.func_console import cyan, red, magenta, yellow
 from src.database.SQLiteMarker import SQLiteMarker
 from src.utils.file.FileLockHelper import FileLockHelper
 from artisan.proxy_getter import (
-    load_proxies_from_file,
-    load_proxies_from_cli,
-    to_proxy_rows,
     normalize_proxy_value,
     retrieve_proxies,
     ProxyRetrievalResult,
@@ -27,7 +21,6 @@ from src.utils.parse_args import parse_args, ParseArgs
 from src.ProxyDB import ProxyDB
 from src.func_date import is_date_rfc3339_older_than
 from src.shared import init_db
-import httpx
 from bs4 import BeautifulSoup
 from dataclasses import dataclass
 
@@ -183,11 +176,16 @@ if __name__ == "__main__":
             # the "last checked before today" check and marker filtering and
             # row "private" should not be "true" or "false" (i.e. not previously checked).
             def custom_filter(rows: List[dict[str, Any]]) -> List[dict[str, Any]]:
+                # Include rows that either have no last_check (e.g. loaded from file)
+                # or whose last_check is older than the configured threshold.
                 rows = [
                     r
                     for r in rows
                     if isinstance(r, dict)
-                    and is_date_rfc3339_older_than(r.get("last_check"), hours=24)
+                    and (
+                        not r.get("last_check")
+                        or is_date_rfc3339_older_than(r.get("last_check"), hours=24)
+                    )
                     and r.get("private") not in ("true", "false")
                 ]
 
