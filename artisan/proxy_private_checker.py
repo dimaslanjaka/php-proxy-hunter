@@ -223,7 +223,8 @@ if __name__ == "__main__":
                 normalize_proxy_value(proxy.get("proxy") or "") for proxy in proxies
             }
             for tested_proxy in tested_set:
-                marker.mark(tested_proxy)
+                # Mark proxies as seen for 1 day to avoid permanent exclusion
+                marker.mark(tested_proxy, valid_until=1)
 
             # If loaded from file, remove tested entries from it
             if (
