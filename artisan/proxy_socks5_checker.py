@@ -2,17 +2,15 @@ import os
 import asyncio
 import sys
 import random
-import re
-from datetime import datetime, timezone
 from typing import Any, Callable, Iterable, List, Optional
 from urllib.parse import urlsplit
-from proxy_hunter import build_request
+from proxy_hunter import build_request, extract_proxies
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
 from src.func import get_relative_path
-from src.func_console import cyan, red
+from src.func_console import cyan, red, magenta, green
 from src.utils.file.FileLockHelper import FileLockHelper
 from artisan.proxy_getter import (
     normalize_proxy_value,
@@ -28,27 +26,35 @@ locker: Optional[FileLockHelper] = None
 
 
 def print_status(tag: str, message: str, proxy: Optional[str] = None) -> None:
-    display_tag = tag
-    if tag == "SOCKS5 FAIL":
-        display_tag = "FAIL"
-    elif tag == "SOCKS5 OK":
-        display_tag = "OK"
+    display_tag = {"SOCKS5 FAIL": "FAIL", "SOCKS5 OK": "OK"}.get(tag, tag)
 
-    def colorize_fail_word(text: str) -> str:
-        return re.sub(r"\bfail\b", lambda m: red(m.group(0)), text, flags=re.IGNORECASE)
+    def colorize_proxy_endpoint(text: Optional[str]) -> str:
+        if not text:
+            return str(text or "")
+        value = text
+        # Prefer extracting a clean host:port via extract_proxies when possible.
+        parsed = extract_proxies(value)
+        if parsed:
+            proxy_val = str(getattr(parsed[0], "proxy", "") or "")
+            if proxy_val:
+                return magenta(proxy_val)
 
-    def colorize_proxy_endpoint(text: str) -> str:
-        value = text.strip()
-        if not value:
-            return value
-        if "://" in value:
-            _scheme, endpoint = value.split("://", 1)
-            return cyan(endpoint)
-        return cyan(value)
+        # Fallback: color the raw value when parsing doesn't yield a clean proxy
+        return magenta(value)
 
-    formatted_message = colorize_fail_word(message)
+    formatted_message = message
     proxy_text = f" {colorize_proxy_endpoint(proxy)}" if proxy else ""
-    print(f"[{display_tag}]{proxy_text} {formatted_message}".rstrip())
+    # Color the display tag brackets: OK green, FAIL red
+    if display_tag == "OK":
+        colored_tag = green(display_tag)
+    elif display_tag == "FAIL":
+        colored_tag = red(display_tag)
+    elif display_tag == "INFO":
+        colored_tag = cyan(display_tag)
+    else:
+        colored_tag = display_tag
+
+    print(f"[{colored_tag}]{proxy_text} {formatted_message}".rstrip())
 
 
 def test_socks5_proxy(proxy_host, proxy_port, username=None, password=None, timeout=5):
@@ -96,36 +102,40 @@ def parse_socks5_proxy(
         parsed = urlsplit(proxy_url)
         if parsed.scheme != "socks5" or not parsed.hostname or not parsed.port:
             return None
-
-        return parsed.hostname, int(parsed.port), parsed.username, parsed.password
+        return parsed.hostname, parsed.port, parsed.username, parsed.password
     except Exception:
         return None
 
 
 def to_socks5_list(items: Iterable[Any]) -> List[str]:
     normalized: List[str] = []
+    append = normalized.append
 
     for item in items:
-        host_port: Optional[str] = None
+        host_port = None
 
         if isinstance(item, str):
             host_port = item.strip()
         elif isinstance(item, dict):
-            if item.get("proxy"):
-                host_port = str(item["proxy"]).strip()
-            elif item.get("ip") and item.get("port"):
-                host_port = f"{item['ip']}:{item['port']}"
+            host_port = item.get("proxy") or (
+                f"{item.get('ip')}:{item.get('port')}"
+                if item.get("ip") and item.get("port")
+                else None
+            )
         elif isinstance(item, (tuple, list)) and len(item) >= 2:
             host_port = f"{item[0]}:{item[1]}"
 
         if not host_port:
             continue
 
-        if host_port.startswith("socks5://"):
-            normalized.append(host_port)
+        host_port = str(host_port).strip()
+        if not host_port:
             continue
 
-        normalized.append(f"socks5://{normalize_proxy_value(host_port)}")
+        if host_port.startswith("socks5://"):
+            append(host_port)
+        else:
+            append(f"socks5://{normalize_proxy_value(host_port)}")
 
     return normalized
 
@@ -146,28 +156,31 @@ def filter_test_socks5_proxies(
             continue
 
         host, port, username, password = parsed
-        result = test_socks5_proxy(host, port, username, password, timeout=timeout)
+        result = test_socks5_proxy(host, port, username, password, timeout)
 
         if result["success"]:
             passed.append(proxy)
             print_status("SOCKS5 OK", "pass", proxy)
-            if on_success is not None:
+
+            if on_success:
                 try:
                     on_success(proxy, result)
                 except Exception as e:
                     print_status("WARN", f"on_success callback failed: {e}", proxy)
+
             if return_early_first_working:
-                print("[INFO] Returning early on first working SOCKS5 proxy")
+                print_status("INFO", "Returning early on first working SOCKS5 proxy")
                 return passed
         else:
-            print_status("SOCKS5 FAIL", f"fail -> {result['error']}", proxy)
-            if on_failed is not None:
+            print_status("SOCKS5 FAIL", f"-> {result['error']}", proxy)
+
+            if on_failed:
                 try:
                     on_failed(proxy, result)
                 except Exception as e:
                     print_status("WARN", f"on_failed callback failed: {e}", proxy)
 
-    print(f"[INFO] SOCKS5 pre-check passed: {len(passed)}/{len(proxies)}")
+    print_status("INFO", f"SOCKS5 pre-check passed: {len(passed)}/{len(proxies)}")
     return passed
 
 
@@ -183,82 +196,65 @@ async def filter_test_socks5_proxies_async(
     passed: List[str] = []
     semaphore = asyncio.Semaphore(max(1, concurrency))
 
-    async def check_one(proxy: str) -> Optional[tuple[str, bool]]:
+    async def check_one(proxy: str):
         parsed = parse_socks5_proxy(proxy)
         if not parsed:
             print_status("SKIP", "Invalid socks5 proxy format", proxy)
             return None
 
         host, port, username, password = parsed
+
         async with semaphore:
             result = await asyncio.to_thread(
-                test_socks5_proxy,
-                host,
-                port,
-                username,
-                password,
-                timeout,
+                test_socks5_proxy, host, port, username, password, timeout
             )
 
         if result["success"]:
             print_status("SOCKS5 OK", "pass", proxy)
-            if on_success is not None:
+            if on_success:
                 try:
                     on_success(proxy, result)
                 except Exception as e:
                     print_status("WARN", f"on_success callback failed: {e}", proxy)
             return proxy, True
 
-        print_status("SOCKS5 FAIL", f"fail -> {result['error']}", proxy)
-        if on_failed is not None:
+        print_status("SOCKS5 FAIL", f"-> {result['error']}", proxy)
+        if on_failed:
             try:
                 on_failed(proxy, result)
             except Exception as e:
                 print_status("WARN", f"on_failed callback failed: {e}", proxy)
         return proxy, False
 
-    tasks = [asyncio.create_task(check_one(proxy)) for proxy in proxies]
+    tasks = [asyncio.create_task(check_one(p)) for p in proxies]
+
     try:
-        for done in asyncio.as_completed(tasks):
-            outcome = await done
+        for fut in asyncio.as_completed(tasks):
+            outcome = await fut
             if not outcome:
                 continue
 
             proxy, success = outcome
             if success:
                 passed.append(proxy)
+
                 if return_early_first_working:
-                    print("[INFO] Returning early on first working SOCKS5 proxy")
-                    for task in tasks:
-                        if not task.done():
-                            task.cancel()
+                    print_status(
+                        "INFO", "Returning early on first working SOCKS5 proxy"
+                    )
+                    for t in tasks:
+                        t.cancel()
                     break
     finally:
         await asyncio.gather(*tasks, return_exceptions=True)
 
-    print(f"[INFO] SOCKS5 pre-check passed: {len(passed)}/{len(proxies)}")
+    print_status("INFO", f"SOCKS5 pre-check passed: {len(passed)}/{len(proxies)}")
     return passed
 
 
-def filter_test_socks5_proxies_parallel(
-    proxies: List[str],
-    timeout: int = 5,
-    on_success: Optional[Callable[[str, dict[str, Any]], None]] = None,
-    on_failed: Optional[Callable[[str, dict[str, Any]], None]] = None,
-    return_early_first_working: bool = False,
-    concurrency: int = 3,
-) -> List[str]:
+def filter_test_socks5_proxies_parallel(**kwargs) -> List[str]:
     """Sync wrapper around the async parallel SOCKS5 checker."""
-    return asyncio.run(
-        filter_test_socks5_proxies_async(
-            proxies=proxies,
-            timeout=timeout,
-            on_success=on_success,
-            on_failed=on_failed,
-            return_early_first_working=return_early_first_working,
-            concurrency=concurrency,
-        )
-    )
+    return asyncio.run(filter_test_socks5_proxies_async(**kwargs))
 
 
 if __name__ == "__main__":
@@ -277,8 +273,6 @@ if __name__ == "__main__":
         try:
             # Build custom filter that applies last-check + dedupe
             def custom_filter(rows: List[dict[str, Any]]) -> List[dict[str, Any]]:
-                # Include rows that either have no last_check (e.g. loaded from file)
-                # or whose last_check is older than the configured threshold.
                 rows = [
                     r
                     for r in rows
@@ -289,33 +283,32 @@ if __name__ == "__main__":
                     )
                 ]
 
-                proxy_by_key: dict[str, dict[str, Any]] = {}
-                ordered_keys: List[str] = []
+                proxy_by_key = {}
                 for proxy in rows:
-                    proxy_value = str(proxy.get("proxy") or "").strip()
-                    if not proxy_value:
+                    value = str(proxy.get("proxy") or "").strip()
+                    if not value:
                         continue
-                    marker_key = normalize_proxy_value(proxy_value)
-                    if marker_key in proxy_by_key:
-                        continue
-                    proxy_by_key[marker_key] = proxy
-                    ordered_keys.append(marker_key)
+                    key = normalize_proxy_value(value)
+                    proxy_by_key.setdefault(key, proxy)
 
-                return [proxy_by_key[k] for k in ordered_keys]
+                return list(proxy_by_key.values())
 
             result: ProxyRetrievalResult = retrieve_proxies(
                 db=db, limit=args.limit, custom_filter=custom_filter
             )
+
             proxies = result.proxies
             source_label = result.source_label
 
             random.shuffle(proxies)
-            print(f"[INFO] Proxy source: {source_label} ({len(proxies)} candidates)")
+            print_status(
+                "INFO", f"Proxy source: {source_label} ({len(proxies)} candidates)"
+            )
 
             proxy_row_map = {
-                normalize_proxy_value(str(proxy["proxy"])): proxy
-                for proxy in proxies
-                if isinstance(proxy, dict) and proxy.get("proxy")
+                normalize_proxy_value(str(p["proxy"])): p
+                for p in proxies
+                if isinstance(p, dict) and p.get("proxy")
             }
 
             def on_success(proxy, _):
@@ -327,87 +320,93 @@ if __name__ == "__main__":
                 row = proxy_row_map.get(normalize_proxy_value(proxy))
                 if not isinstance(row, dict):
                     rows = db.select(proxy)
-                    if not rows:
-                        return
-
-                    row = rows[0] if isinstance(rows, list) else rows
+                    row = rows[0] if isinstance(rows, list) and rows else rows
                     if not isinstance(row, dict):
                         return
 
                 current_type = row.get("type")
-                if current_type is None:
+                if not current_type:
                     return
 
-                type_parts = [
-                    part
-                    for part in str(current_type).split("-")
-                    if part and part != "socks5"
-                ]
-                db.update_data(proxy, {"type": "-".join(type_parts)}, update_time=False)
+                new_type = "-".join(
+                    part for part in str(current_type).split("-") if part != "socks5"
+                )
+                db.update_data(proxy, {"type": new_type}, update_time=False)
 
             proxy_candidates = to_socks5_list(proxies[: args.limit])
+
             proxy_working = filter_test_socks5_proxies_parallel(
-                proxy_candidates,
+                proxies=proxy_candidates,
                 timeout=60,
                 on_success=on_success,
                 on_failed=on_failed,
                 return_early_first_working=False,
                 concurrency=3,
             )
-            print(
-                f"[INFO] Tested {len(proxy_candidates)} proxies, passed {len(proxy_working)}"
+
+            print_status(
+                "INFO",
+                f"Tested {len(proxy_candidates)} proxies, passed {len(proxy_working)}",
             )
 
-            # Build normalized set of proxies we actually attempted (from retrieved rows)
-            tested_keys: set[str] = set()
-            for p in proxies[: args.limit]:
-                if isinstance(p, dict) and p.get("proxy"):
-                    raw = str(p.get("proxy") or "").strip()
-                elif isinstance(p, str):
-                    raw = p.strip()
-                else:
-                    continue
-
-                if not raw:
-                    continue
-
-                try:
-                    tested_keys.add(normalize_proxy_value(raw))
-                except Exception:
-                    tested_keys.add(raw)
+            tested_keys = {
+                normalize_proxy_value(str(p.get("proxy") or "").strip())
+                for p in proxies[: args.limit]
+                if isinstance(p, dict) and p.get("proxy")
+            }
 
             # Marker functionality removed; no persistent marking performed
 
             if (
-                source_label.startswith("file://")
+                isinstance(source_label, str)
+                and source_label.startswith("file://")
                 and tested_keys
-                and os.path.isfile(proxy_file)
             ):
-                with open(proxy_file, "r", encoding="utf-8") as f:
-                    file_lines = f.readlines()
+                candidate = source_label.split("file://", 1)[1].lstrip("/")
+                target_file = candidate if os.path.isfile(candidate) else proxy_file
 
-                kept_lines: List[str] = []
-                removed_count = 0
-                for line in file_lines:
-                    raw = line.strip()
-                    normalized = normalize_proxy_value(raw)
-                    if normalized in tested_keys:
-                        removed_count += 1
-                        continue
-                    kept_lines.append(line)
+                if os.path.isfile(target_file):
+                    with open(target_file, "r", encoding="utf-8") as f:
+                        file_lines = f.readlines()
 
-                trimmed_trailing_empty = 0
-                while kept_lines and not kept_lines[-1].strip():
-                    kept_lines.pop()
-                    trimmed_trailing_empty += 1
+                    kept_lines = []
+                    removed_count = 0
 
-                if removed_count or trimmed_trailing_empty:
-                    with open(proxy_file, "w", encoding="utf-8") as f:
-                        f.writelines(kept_lines)
-                    print(
-                        f"[INFO] Removed {removed_count} tested proxies from {proxy_file}; "
-                        f"trimmed {trimmed_trailing_empty} trailing empty lines"
-                    )
+                    for line in file_lines:
+                        raw = line.strip()
+
+                        try:
+                            parsed = list(extract_proxies(raw))
+                        except Exception:
+                            parsed = []
+
+                        should_remove = any(
+                            str(getattr(item, "proxy", "")).strip() in tested_keys
+                            for item in parsed
+                        )
+
+                        if not should_remove:
+                            should_remove = any(k in raw for k in tested_keys if k)
+
+                        if should_remove:
+                            removed_count += 1
+                            continue
+
+                        kept_lines.append(line)
+
+                    while kept_lines and not kept_lines[-1].strip():
+                        kept_lines.pop()
+
+                    if removed_count:
+                        with open(target_file, "w", encoding="utf-8") as f:
+                            f.writelines(kept_lines)
+
+                        print_status(
+                            "INFO",
+                            f"Removed {removed_count} tested proxies from {target_file}",
+                        )
+                else:
+                    print_status("INFO", f"Source file not found: {target_file}")
         finally:
             db.close()
     finally:
