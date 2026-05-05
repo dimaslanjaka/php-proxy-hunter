@@ -294,9 +294,8 @@ export function gitPull() {
     await execWithBashrc(
       conn,
       `
-  cd ${remotePath} &&
+cd ${remotePath} &&
 
-# Detect ANY change (tracked + untracked)
 if [ -n "$(git status --porcelain)" ]; then
   git stash push -u -m "auto-stash-before-pull"
   STASHED=1
@@ -304,10 +303,17 @@ else
   STASHED=0
 fi &&
 
-git pull --rebase &&
+git pull --rebase --no-edit || {
+  echo "Rebase failed. Aborting...";
+  git rebase --abort || true
+  exit 1
+} &&
 
 if [ "$STASHED" -eq 1 ]; then
-  git stash pop
+  git stash pop || {
+    echo "Stash apply failed. Resolve manually.";
+    exit 1;
+  }
 fi
 `
     );
