@@ -160,13 +160,13 @@ const Home = () => {
             <div className="mt-8">
               <div
                 ref={containerRef}
-                className="h-96 md:h-[600px] overflow-auto border rounded-lg p-4 bg-gray-50 dark:bg-gray-800"
+                className="h-96 md:h-[600px] overflow-auto rounded-lg p-4 bg-gray-50 dark:bg-gray-800"
                 aria-label="Posts list">
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                   {filteredRoutes.slice(0, visibleCount).map((r, idx) => (
                     <div
                       key={(r && (Array.isArray(r.path) ? r.path.join('|') : r.path)) || idx}
-                      className="p-4 border rounded bg-white dark:bg-gray-900">
+                      className="p-4 rounded bg-white dark:bg-gray-900 shadow-sm hover:shadow-md transition-shadow">
                       {r.thumbnail && (
                         <div className="mb-3">
                           <img
