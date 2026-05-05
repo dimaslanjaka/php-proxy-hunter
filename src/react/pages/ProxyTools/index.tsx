@@ -19,7 +19,7 @@ export default function ProxyToolsRouter() {
               }`
             }>
             <i className="fa-duotone fa-magnifying-glass mr-2" aria-hidden="true" />
-            Proxy checker
+            Proxy Checker
           </NavLink>
 
           <NavLink
@@ -32,7 +32,7 @@ export default function ProxyToolsRouter() {
               }`
             }>
             <i className="fa-duotone fa-network-wired mr-2" aria-hidden="true" />
-            Proxy extractor
+            Proxy Extractor
           </NavLink>
 
           <NavLink
@@ -58,7 +58,7 @@ export default function ProxyToolsRouter() {
               }`
             }>
             <i className="fa-duotone fa-table-list mr-2" aria-hidden="true" />
-            Proxy list
+            Proxy List
           </NavLink>
         </div>
       </div>
