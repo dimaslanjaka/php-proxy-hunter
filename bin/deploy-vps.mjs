@@ -301,8 +301,27 @@ export function gitPull() {
     console.log(`Updating project repository on remote host (${remotePath})...`);
 
     const pull = await execWithBashrc(conn, `cd '${remotePath}' && git pull`);
-    const message = '[STDOUT]\n' + pull.stdout.trim() + '\n[STDERR]\n' + pull.stderr.trim();
+    const message = '[STDOUT]\n' + pull.stdout.trim() + '\n[STDERR]\n' + pull.stderr.trim() + '\n[END]';
     console.log(`Git pull result: ${message}`);
+
+    // Detect a variety of git messages that indicate local changes must be stashed/committed
+    const stashNeededPatterns = [
+      /Please,?\s*commit your changes or stash them before you (?:can )?(?:merge|rebase|pull|apply)/iu,
+      /Your local changes to the following files would be overwritten by (?:merge|checkout|pull)/iu,
+      /(uncommitted|unstaged).*(changes|files)|cannot (?:merge|pull|rebase).*uncommitted/iu,
+      /please.*(commit|stash).*before.*(merge|rebase|pull|checkout|apply)/iu
+    ];
+
+    const isNeedStash = stashNeededPatterns.some((re) => re.test(message));
+    if (isNeedStash) {
+      console.warn('Local changes detected on remote host. Stashing changes, pulling again, and applying stash...');
+      await execWithBashrc(conn, `cd '${remotePath}' && git stash`);
+      const pullAfterStash = await execWithBashrc(conn, `cd '${remotePath}' && git pull`);
+      console.log(
+        `Git pull after stash: [STDOUT]\n${pullAfterStash.stdout.trim()}\n[STDERR]\n${pullAfterStash.stderr.trim()}\n[END]`
+      );
+      await execWithBashrc(conn, `cd '${remotePath}' && git stash pop`);
+    }
   });
 }
 
