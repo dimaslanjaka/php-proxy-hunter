@@ -81,7 +81,8 @@ fi
 if command -v yarn >/dev/null; then
   echo "Cleaning Yarn cache..."
   yarn cache clean
-  rm -rf ~/.cache/yarn
+  rm -rf ~/.cache/yarn 2>/dev/null
+  rm -rf .yarn/caches 2>/dev/null
 fi
 
 if [ -d "$HOME/.nvm/.cache" ]; then
