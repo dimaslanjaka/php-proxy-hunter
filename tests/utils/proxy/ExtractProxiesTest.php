@@ -2,12 +2,11 @@
 
 use PHPUnit\Framework\TestCase;
 
-require_once __DIR__ . '/../../../src/utils/proxy/extractor.php';
+require_once __DIR__ . '/../../../src/PhpProxyHunter/utils/extractor.php';
 
 class ExtractProxiesTest extends TestCase
 {
-  public function testExtractProxiesJsonString()
-  {
+  public function testExtractProxiesJsonString() {
     $input  = '{"ip":"192.168.1.1","port":"8080"}';
     $result = extractProxies($input, null, false);
     $this->assertEquals('192.168.1.1:8080', $result[0]->proxy);
@@ -15,18 +14,23 @@ class ExtractProxiesTest extends TestCase
     $this->assertEmpty($result[0]->password ?? '');
   }
 
-  public function testExtractProxiesUserPassAtIpPort()
-  {
+  public function testExtractProxiesUserPassAtIpPort() {
     $input  = 'user:pass@89.32.45.23:8080';
     $result = extractProxies($input, null, false);
     $this->assertNotEmpty($result);
     $this->assertEquals('89.32.45.23:8080', $result[0]->proxy);
     $this->assertEquals('user', $result[0]->username);
     $this->assertEquals('pass', $result[0]->password);
+
+    $input  = '92.113.242.158:6742@qtculbqe:iazrxzml7g27';
+    $result = extractProxies($input, null, false);
+    $this->assertNotEmpty($result);
+    $this->assertEquals('92.113.242.158:6742', $result[0]->proxy);
+    $this->assertEquals('qtculbqe', $result[0]->username);
+    $this->assertEquals('iazrxzml7g27', $result[0]->password);
   }
 
-  public function testExtractProxiesIpPortAtUserPass()
-  {
+  public function testExtractProxiesIpPortAtUserPass() {
     $input  = '78.43.25.89:8000@user:pass';
     $result = extractProxies($input, null, false);
     $this->assertNotEmpty($result);
@@ -35,8 +39,7 @@ class ExtractProxiesTest extends TestCase
     $this->assertEquals('pass', $result[0]->password);
   }
 
-  public function testExtractProxiesPlainIpPort()
-  {
+  public function testExtractProxiesPlainIpPort() {
     $input  = '90.0.0.1:1080';
     $result = extractProxies($input, null, false);
     $this->assertNotEmpty($result);
@@ -45,8 +48,7 @@ class ExtractProxiesTest extends TestCase
     $this->assertEmpty($result[0]->password ?? '');
   }
 
-  public function testExtractProxiesFromLongText()
-  {
+  public function testExtractProxiesFromLongText() {
     $input  = 'Lorem ipsum dolor sit amet, user:pass@89.32.45.23:8080 consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.';
     $result = extractProxies($input, null, false);
     $this->assertNotEmpty($result);
