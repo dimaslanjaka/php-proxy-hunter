@@ -1,5 +1,6 @@
 import os
 import sys
+import re
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -237,10 +238,11 @@ def load_working_proxies_from_db(
 
 def normalize_proxy_value(value: str) -> str:
     text = str(value or "").strip()
-    if text.startswith("socks5://"):
-        return text.replace("socks5://", "", 1)
-    if "://" in text:
-        return text.split("://", 1)[1]
+    # remove leading scheme such as socks5://, socks4://, http://, https://
+    # or any single '<scheme>://' occurrence
+    text = re.sub(
+        r"^(?:socks5|socks4|https?|[^/:]+)://", "", text, count=1, flags=re.IGNORECASE
+    )
     return text
 
 
