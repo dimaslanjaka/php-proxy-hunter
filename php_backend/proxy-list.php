@@ -17,7 +17,7 @@ if (empty($_SESSION['captcha'])) {
   exit;
 }
 
-$refresh = refreshDbConnections();
+$refresh = refreshDbConnections(true);
 /** @var \PhpProxyHunter\CoreDB $core_db */
 $core_db = $refresh['core_db'];
 /** @var \PhpProxyHunter\ProxyDB $proxy_db */
@@ -207,10 +207,22 @@ try {
     $orderSql = 'ORDER BY ' . $orderBy;
   } else {
     // Default ordering when client didn't request one:
-    // - Prefer rows with a valid last_check (non-empty and not '-')
-    // - Then sort by last_check descending so most-recent checks appear first
-    // Note: this assumes last_check is stored as an RFC3339/ISO datetime string
-    $orderSql = "ORDER BY (CASE WHEN last_check IS NULL OR last_check = '' OR last_check = '-' THEN 0 ELSE 1 END) DESC, last_check DESC";
+    // Order by a numeric timestamp where possible so RFC3339 datetimes
+    // sort correctly across DB drivers. Rows with missing/invalid
+    // `last_check` are treated as epoch 0 and therefore appear last
+    // when sorting DESC (most-recent first).
+    $drv = strtolower((string)$driver);
+    if (strpos($drv, 'sqlite') !== false) {
+      // SQLite: use strftime to get unix epoch seconds from ISO datetime
+      $orderSql = "ORDER BY (CASE WHEN last_check IS NULL OR last_check = '' OR last_check = '-' THEN 0 ELSE COALESCE(strftime('%s', last_check), 0) END) DESC";
+    } elseif (strpos($drv, 'mysql') !== false) {
+      // MySQL: use UNIX_TIMESTAMP which accepts standard datetime formats
+      $orderSql = "ORDER BY (CASE WHEN last_check IS NULL OR last_check = '' OR last_check = '-' THEN 0 ELSE COALESCE(UNIX_TIMESTAMP(last_check), 0) END) DESC";
+    } else {
+      // Fallback: prefer rows with a non-empty last_check, then sort by
+      // the raw value. This may be less accurate for non-lexical drivers.
+      $orderSql = "ORDER BY (CASE WHEN last_check IS NULL OR last_check = '' OR last_check = '-' THEN 0 ELSE 1 END) DESC, last_check DESC";
+    }
   }
 
   $limitSql = '';
