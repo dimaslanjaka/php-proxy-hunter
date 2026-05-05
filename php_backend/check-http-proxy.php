@@ -15,7 +15,7 @@ use PhpProxyHunter\AnsiColors;
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\Server;
 
-global $isCli;
+global $isCli, $proxy_db;
 
 $isAdmin = is_debug();
 
@@ -258,7 +258,8 @@ function check($proxy) {
 
     // Skip recently checked active non-SSL proxies
     if ($item->status == 'active' && $item->https == 'false' && !$expired) {
-      $proxyPart = AnsiColors::colorize(['cyan'], $item->proxy);
+      $proxyPart = format_proxy_display($item);
+      $proxyPart = AnsiColors::colorize(['cyan'], $proxyPart);
       _log_shared($hashFilename ?? 'CLI', "[$no] Skipped " . $proxyPart . ' (checked recently)');
       continue;
     }
@@ -319,8 +320,9 @@ function check($proxy) {
 
     // Build friendly per-proxy log line
     $statusSymbol = $result->isWorking ? '[' . AnsiColors::colorize(['green', 'bold'], 'OK') . ']' : '[--]';
-    $proxyPart    = AnsiColors::colorize(['cyan'], $item->proxy);
-    $protocols    = !empty($result->workingTypes) ? implode(',', $result->workingTypes) : '';
+    $proxyPartRaw = format_proxy_display($item);
+    $proxyPart    = AnsiColors::colorize(['cyan'], $proxyPartRaw);
+    $protocolsArr = !empty($result->workingTypes) ? $result->workingTypes : [];
     $latencyStr   = !empty($result->latency) ? (round($result->latency, 2) . 's') : '';
     // Determine retest logging value: either set above when retest ran or 'not-performed'
     if ($retestStatus === null) {
@@ -331,8 +333,12 @@ function check($proxy) {
     $retestStatusColored = ($retestStatus === 'alive') ? AnsiColors::colorize(['green', 'bold'], $retestStatus) : ($retestStatus === 'dead' ? AnsiColors::colorize(['red', 'bold'], $retestStatus) : $retestStatus);
 
     $lineParts = ["[$no]", $statusSymbol, $proxyPart];
-    if ($protocols !== '') {
-      $lineParts[] = 'protocols=' . $protocols;
+    if (!empty($protocolsArr)) {
+      $protoUrls = [];
+      foreach ($protocolsArr as $p) {
+        $protoUrls[] = format_proxy_display($item, $p);
+      }
+      $lineParts[] = 'protocols=' . implode(',', $protoUrls);
     }
     if ($latencyStr !== '') {
       $lineParts[] = 'latency=' . $latencyStr;

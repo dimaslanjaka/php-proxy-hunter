@@ -16,7 +16,7 @@ use PhpProxyHunter\AnsiColors;
 use PhpProxyHunter\Scheduler;
 use PhpProxyHunter\Server;
 
-global $isCli;
+global $isCli, $proxy_db;
 
 $isAdmin = is_debug();
 
@@ -276,7 +276,8 @@ function check($proxy) {
 
     // Build friendly per-proxy log line
     $statusSymbol = $isWorking ? '[' . AnsiColors::colorize(['green', 'bold'], 'OK') . ']' : '[' . AnsiColors::colorize(['red', 'bold'], 'FAIL') . ']';
-    $proxyPart    = AnsiColors::colorize(['cyan'], $item->proxy);
+    $proxyPartRaw = format_proxy_display($item);
+    $proxyPart    = AnsiColors::colorize(['cyan'], $proxyPartRaw);
 
     $lineParts = ["[$no]", $statusSymbol, $proxyPart];
 

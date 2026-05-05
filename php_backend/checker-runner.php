@@ -131,3 +131,25 @@ function reTestProxy(\PhpProxyHunter\Proxy $checkerOptions, $timeout = 5) {
 
   return $results;
 }
+
+/**
+ * Format a proxy for display in logs, including optional protocol and credentials.
+ * Examples:
+ *  - http://user:pass@1.2.3.4:8080
+ *  - 1.2.3.4:8080 (when no creds or protocol)
+ *
+ * @param object|string $item Proxy item object with `proxy`, `username`, `password` properties or raw proxy string
+ * @param string|null $protocol Optional protocol (e.g. 'http', 'socks5')
+ * @return string
+ */
+function format_proxy_display($item, $protocol = null) {
+  $host = is_object($item) && property_exists($item, 'proxy') ? $item->proxy : (string)$item;
+  $auth = '';
+  if (is_object($item) && !empty($item->username)) {
+    $user = rawurlencode($item->username);
+    $pass = isset($item->password) ? rawurlencode($item->password) : '';
+    $auth = $user . ($pass !== '' ? ':' . $pass : '') . '@';
+  }
+  $pref = $protocol ? $protocol . '://' : '';
+  return $pref . $auth . $host;
+}

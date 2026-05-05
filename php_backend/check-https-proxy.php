@@ -226,10 +226,6 @@ if ($fileLock->lock()) {
   $runAllowed = false;
 }
 
-// FileLockHelper will clean up the lock file on unlock/destruct
-
-// Logging and helper functions are provided by checker-runner.php
-
 /**
  * Check if the proxy is working (HTTPS only)
  * @param string $proxy proxy string or JSON array
@@ -271,7 +267,8 @@ function check($proxy) {
 
     // Skip recently checked active SSL proxies
     if ($item->status == 'active' && $item->https == 'true' && !$expired) {
-      $proxyPart = AnsiColors::colorize(['cyan'], $item->proxy);
+      $proxyPart = format_proxy_display($item);
+      $proxyPart = AnsiColors::colorize(['cyan'], $proxyPart);
       _log_shared($hashFilename ?? 'CLI', "[$no] Skipped " . $proxyPart . ' (checked recently)');
       continue;
     }
@@ -333,8 +330,9 @@ function check($proxy) {
 
     // Build friendly per-proxy log line
     $statusSymbol = $result->isWorking ? '[' . AnsiColors::colorize(['green', 'bold'], 'OK') . ']' : '[--]';
-    $proxyPart    = AnsiColors::colorize(['cyan'], $item->proxy);
-    $protocols    = !empty($result->workingTypes) ? implode(',', $result->workingTypes) : '';
+    $proxyPartRaw = format_proxy_display($item);
+    $proxyPart    = AnsiColors::colorize(['cyan'], $proxyPartRaw);
+    $protocols    = !empty($result->workingTypes) ? $result->workingTypes : [];
     $latencyStr   = !empty($result->latency) ? (round($result->latency, 2) . 's') : '';
     // Determine retest logging value: either set above when retest ran or 'not-performed'
     if ($retestStatus === null) {
@@ -345,8 +343,12 @@ function check($proxy) {
     $retestStatusColored = ($retestStatus === 'alive') ? AnsiColors::colorize(['green', 'bold'], $retestStatus) : ($retestStatus === 'dead' ? AnsiColors::colorize(['red', 'bold'], $retestStatus) : $retestStatus);
 
     $lineParts = ["[$no]", $statusSymbol, $proxyPart];
-    if ($protocols !== '') {
-      $lineParts[] = 'protocols=' . $protocols;
+    if (!empty($protocols)) {
+      $protoUrls = [];
+      foreach ($protocols as $p) {
+        $protoUrls[] = format_proxy_display($item, $p);
+      }
+      $lineParts[] = 'protocols=' . implode(',', $protoUrls);
     }
     if ($latencyStr !== '') {
       $lineParts[] = 'latency=' . $latencyStr;
