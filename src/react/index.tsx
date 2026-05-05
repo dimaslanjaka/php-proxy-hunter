@@ -30,6 +30,7 @@ import NotFound from './pages/NotFound';
 import routes from './routes.js';
 import { checkRecaptchaSessionExpired, verifyRecaptcha } from './utils/recaptcha';
 import AdSense from './components/AdSense';
+import FloatingScrollButton from './components/FloatingScrollButton';
 
 const root = ReactDOM.createRoot(document.getElementById('root')!);
 
@@ -128,6 +129,7 @@ const MainApp = function () {
         />
       </div>
       <Footer />
+      <FloatingScrollButton threshold={300} />
       <ReCAPTCHA
         ref={recaptchaRef}
         size="invisible"
