@@ -484,18 +484,24 @@ if __name__ == "__main__":
                 )
                 proxies = result.proxies
                 source_label = result.source_label
+                source_file = getattr(result, "source_file", None)
                 print(f"{source_label} {len(proxies)} proxies loaded")
 
                 # If proxies were loaded from a file (source_label like "file://..."),
                 # prefer removing tested entries from that original file instead of
-                # always using the default proxies.txt path.
-                if "file" in source_label:
+                # always using the default proxies.txt path. Prefer the explicit
+                # `source_file` when available.
+                candidate = None
+                if source_file:
+                    candidate = source_file
+                elif "file" in source_label:
                     candidate = source_label.split("file://", 1)[1]
                     # Windows paths may be like file:///C:/... or file://C:/... — strip
                     # leading slashes to get a usable filesystem path.
                     candidate = candidate.lstrip("/")
-                    if os.path.isfile(candidate):
-                        proxy_file = candidate
+
+                if candidate and os.path.isfile(candidate):
+                    proxy_file = candidate
             finally:
                 db_local.close()
 
@@ -593,9 +599,21 @@ if __name__ == "__main__":
 
             # Marker functionality removed; no persistent marking performed
 
-            if "file" in source_label and tested_set and os.path.isfile(proxy_file):
-                with open(proxy_file, "r", encoding="utf-8") as f:
-                    file_lines = f.readlines()
+            # Prefer using explicit source_file when available; otherwise fall
+            # back to checking `source_label` and the resolved `proxy_file`.
+            source_file = getattr(result, "source_file", None)
+            candidate = None
+            if source_file:
+                candidate = source_file
+            elif "file" in source_label:
+                candidate = source_label.split("file://", 1)[1].lstrip("/")
+
+            if candidate and tested_set:
+                target_file = candidate if os.path.isfile(candidate) else proxy_file
+                file_lines: List[str] = []
+                if os.path.isfile(target_file):
+                    with open(target_file, "r", encoding="utf-8") as f:
+                        file_lines = f.readlines()
 
                 kept_lines = []
                 removed_count = 0
@@ -612,10 +630,10 @@ if __name__ == "__main__":
                     trimmed_trailing_empty += 1
 
                 if removed_count or trimmed_trailing_empty:
-                    with open(proxy_file, "w", encoding="utf-8") as f:
+                    with open(target_file, "w", encoding="utf-8") as f:
                         f.writelines(kept_lines)
                     print(
-                        f"[INFO] Removed {removed_count} tested proxies from {proxy_file}; "
+                        f"[INFO] Removed {removed_count} tested proxies from {target_file}; "
                         f"trimmed {trimmed_trailing_empty} trailing empty lines"
                     )
 

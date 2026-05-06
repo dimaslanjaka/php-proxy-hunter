@@ -19,6 +19,7 @@ from typing import Any, Callable, Dict, Optional, Tuple
 class ProxyRetrievalResult:
     proxies: List[Dict[str, Any]]
     source_label: str
+    source_file: Optional[str] = None
 
 
 def retrieve_proxies(
@@ -47,7 +48,8 @@ def retrieve_proxies(
             Optional callable to post-process/filter retrieved proxy rows.
 
     Returns:
-        ProxyRetrievalResult: dataclass with ``proxies`` and ``source_label``.
+        ProxyRetrievalResult: dataclass with ``proxies``, ``source_label`` and
+        optional ``source_file`` (filesystem path when applicable).
 
     Notes:
         - ``source_label`` will be one of: "cli", "file://<path>", or "db".
@@ -60,6 +62,7 @@ def retrieve_proxies(
     )
     proxies: List[Dict[str, Any]] = []
     source_label = "db"
+    source_file: Optional[str] = None
 
     cli_rows = to_proxy_rows(load_proxies_from_cli())
     if len(cli_rows) != 0:
@@ -69,6 +72,7 @@ def retrieve_proxies(
                 args.proxy_file if os.path.exists(args.proxy_file) else proxy_file
             )
             source_label = f"file://{proxy_file}"
+            source_file = proxy_file
         else:
             source_label = "cli"
 
@@ -77,6 +81,7 @@ def retrieve_proxies(
         if file_rows:
             proxies = file_rows
             source_label = f"file://{proxy_file}"
+            source_file = proxy_file
 
     if not proxies:
         # prefer untested when possible
@@ -91,10 +96,12 @@ def retrieve_proxies(
 
         proxies = to_proxy_rows(rows)
         source_label = "db"
+        source_file = None
 
     if not proxies:
         proxies = to_proxy_rows(db.get_all_proxies(limit=limit, randomize=randomize))
         source_label = "db"
+        source_file = None
 
     # apply optional caller filter
     if custom_filter is not None:
@@ -103,7 +110,9 @@ def retrieve_proxies(
         except Exception:
             pass
 
-    return ProxyRetrievalResult(proxies=proxies, source_label=source_label)
+    return ProxyRetrievalResult(
+        proxies=proxies, source_label=source_label, source_file=source_file
+    )
 
 
 def normalize_proxy_str(proxy_str: str) -> Optional[Tuple[str, int]]:

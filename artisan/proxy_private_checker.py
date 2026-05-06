@@ -236,6 +236,7 @@ if __name__ == "__main__":
             )
             proxies = result.proxies
             source_label = result.source_label
+            source_file = getattr(result, "source_file", None)
 
             random.shuffle(proxies)
             print(f"[INFO] Proxy source: {source_label} ({len(proxies)} candidates)")
@@ -245,14 +246,21 @@ if __name__ == "__main__":
 
             # Marker functionality removed; no persistent marking performed
 
-            # If loaded from file, remove tested entries from it
-            if (
-                source_label.startswith("file://")
-                and tested_keys
-                and os.path.isfile(proxy_file)
-            ):
-                with open(proxy_file, "r", encoding="utf-8") as f:
-                    file_lines = f.readlines()
+            # If loaded from file, remove tested entries from it. Prefer
+            # the explicit `source_file` returned by `retrieve_proxies`.
+            candidate = None
+            if source_file:
+                candidate = source_file
+            elif isinstance(source_label, str) and source_label.startswith("file://"):
+                candidate = source_label.split("file://", 1)[1].lstrip("/")
+
+            if candidate and tested_keys:
+                target_file = candidate if os.path.isfile(candidate) else proxy_file
+
+                file_lines: List[str] = []
+                if os.path.isfile(target_file):
+                    with open(target_file, "r", encoding="utf-8") as f:
+                        file_lines = f.readlines()
 
                 kept_lines: List[str] = []
                 removed_count = 0
@@ -270,10 +278,10 @@ if __name__ == "__main__":
                     trimmed_trailing_empty += 1
 
                 if removed_count or trimmed_trailing_empty:
-                    with open(proxy_file, "w", encoding="utf-8") as f:
+                    with open(target_file, "w", encoding="utf-8") as f:
                         f.writelines(kept_lines)
                     print(
-                        f"[INFO] Removed {removed_count} tested proxies from {proxy_file}; trimmed {trimmed_trailing_empty} trailing empty lines"
+                        f"[INFO] Removed {removed_count} tested proxies from {target_file}; trimmed {trimmed_trailing_empty} trailing empty lines"
                     )
         finally:
             db.close()

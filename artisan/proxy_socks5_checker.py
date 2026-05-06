@@ -357,12 +357,16 @@ if __name__ == "__main__":
 
             # Marker functionality removed; no persistent marking performed
 
-            if (
-                isinstance(source_label, str)
-                and source_label.startswith("file://")
-                and tested_keys
-            ):
+            # Prefer using the explicit `source_file` returned by `retrieve_proxies`.
+            source_file = getattr(result, "source_file", None)
+
+            candidate = None
+            if source_file:
+                candidate = source_file
+            elif isinstance(source_label, str) and source_label.startswith("file://"):
                 candidate = source_label.split("file://", 1)[1].lstrip("/")
+
+            if candidate and tested_keys:
                 target_file = candidate if os.path.isfile(candidate) else proxy_file
 
                 if os.path.isfile(target_file):
