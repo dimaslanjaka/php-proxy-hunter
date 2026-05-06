@@ -5,20 +5,6 @@ header('Access-Control-Allow-Origin: *');
 header('Access-Control-Allow-Headers: *');
 header('Access-Control-Allow-Methods: *');
 
-// Lightweight request timing: logs slow requests and adds X-Response-Time header
-$__req_start = microtime(true);
-register_shutdown_function(function () use ($__req_start) {
-  $dur = (microtime(true) - $__req_start) * 1000; // ms
-  if ($dur > 500) {
-    $msg         = sprintf('SLOWREQ %.2fms %s %s', $dur, $_SERVER['REQUEST_METHOD'] ?? '-', $_SERVER['REQUEST_URI'] ?? '-');
-    $output_file = __DIR__ . '/tmp/logs/slow_requests.log';
-    error_log($msg, 3, $output_file);
-  }
-  if (!headers_sent()) {
-    header('X-Response-Time: ' . round($dur, 2) . 'ms');
-  }
-});
-
 $localhosts = ['localhost', '127.0.0.1', 'dev.webmanajemen.com', 'php.webmanajemen.com'];
 
 if (in_array($_SERVER['HTTP_HOST'], $localhosts)) {

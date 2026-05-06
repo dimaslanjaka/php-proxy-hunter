@@ -369,92 +369,6 @@ function curlGetWithProxy(string $url, $proxy = null, $proxyType = 'http', $cach
 }
 
 /**
- * Function to extract IP:PORT combinations from a text file and rewrite the file with only IP:PORT combinations.
- *
- * @param string $filename The path to the text file.
- * @return bool True on success, false on failure.
- */
-function rewriteIpPortFile(string $filename): bool {
-  if (!file_exists($filename) || !is_readable($filename) || !is_writable($filename)) {
-    echo "File '$filename' is not readable or writable" . PHP_EOL;
-    return false;
-  }
-
-  // Open the file for reading
-  $file = @fopen($filename, 'r');
-  if (!$file) {
-    echo "Error opening $filename for reading" . PHP_EOL;
-    return false;
-  }
-
-  // Open a temporary file for writing
-  $tempFilename = tempnam(__DIR__ . '/tmp', 'rewriteIpPortFile');
-  $tempFile     = @fopen($tempFilename, 'w');
-  if (!$tempFile) {
-    fclose($file);
-    // Close the original file
-    echo "Error opening temporary ($tempFilename) file for writing";
-    return false;
-  }
-
-  // Read each line from the file and extract IP:PORT combinations
-  while (($line = fgets($file)) !== false) {
-    // Match IP:PORT pattern using regular expression
-    preg_match_all('/(\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:\d+)/', $line, $matches);
-
-    // Write matched IP:PORT combinations to the temporary file
-    foreach ($matches[0] as $match) {
-      if (!empty(trim($match))) {
-        fwrite($tempFile, $match . "\n");
-      }
-    }
-  }
-
-  // Close both files
-  fclose($file);
-  fclose($tempFile);
-
-  // Replace the original file with the temporary file
-  if (!rename($tempFilename, $filename)) {
-    echo 'Error replacing original file with temporary file';
-    return false;
-  }
-
-  return true;
-}
-
-/**
- * Reads a file line by line and returns its content as an array.
- *
- * @param string $filename The path to the file to be read.
- * @return array|false An array containing the lines of the file on success, false on failure.
- */
-function readFileLinesToArray(string $filename) {
-  // Check if the file exists and is readable
-  if (!is_readable($filename)) {
-    return false;
-  }
-
-  $lines = [];
-
-  // Open the file for reading
-  $file = @fopen($filename, 'r');
-
-  // Read each line until the end of the file
-  while (!feof($file)) {
-    // Read the line
-    $line = fgets($file);
-    // Add the line to the array
-    $lines[] = $line;
-  }
-
-  // Close the file
-  fclose($file);
-
-  return $lines;
-}
-
-/**
  * Get all files with a specific extension in a folder.
  *
  * @param string $folder The folder path to search for files.
@@ -520,48 +434,6 @@ function mergeArrays(array $arr1, array $arr2): array {
     }
   }
   return $arr1;
-}
-
-/**
- * Set Cache-Control and Expires headers for HTTP caching.
- *
- * @param int|float $max_age_minutes The maximum age of the cache in minutes.
- * @param bool $cors Whether to include CORS headers. Default is true.
- * @return void
- */
-function setCacheHeaders($max_age_minutes, bool $cors = true): void {
-  if ($cors) {
-    // Allow from any origin
-    header('Access-Control-Allow-Origin: *');
-    header('Access-Control-Allow-Headers: *');
-    header('Access-Control-Allow-Methods: *');
-  }
-
-  // Set the Cache-Control header to specify the maximum age in minutes and must-revalidate
-  $max_age_seconds = $max_age_minutes * 60;
-  header('Cache-Control: max-age=' . $max_age_seconds . ', must-revalidate');
-
-  // Set the Expires header to the calculated expiration time
-  $expiration_time = time() + $max_age_seconds;
-  header('Expires: ' . gmdate('D, d M Y H:i:s', $expiration_time) . ' GMT');
-}
-
-/**
- * Prompts the user for confirmation with a message.
- *
- * @param string $message The confirmation message.
- * @return bool True if user confirms (y/yes), false otherwise (n/no).
- */
-function confirmAction(string $message = 'Are you sure? (y/n): '): bool {
-  $validResponses = ['y', 'yes', 'n', 'no'];
-  $response       = '';
-
-  while (!in_array($response, $validResponses)) {
-    echo $message;
-    $response = strtolower(trim(fgets(STDIN)));
-  }
-
-  return in_array($response, ['y', 'yes']);
 }
 
 /**
@@ -660,59 +532,6 @@ function isCygwinInstalled() {
 
   return false;
   // None of the Cygwin executables found
-}
-
-function runPythonInBackground($scriptPath, $commandArgs = [], $identifier = null) {
-  global $isWin;
-
-  // Convert arguments to command line string
-  $commandArgsString = '';
-  foreach ($commandArgs as $key => $value) {
-    $escapedValue = escapeshellarg($value);
-    $commandArgsString .= "--$key=$escapedValue ";
-  }
-  $commandArgsString = trim($commandArgsString);
-
-  // Determine paths and commands
-  $cwd         = __DIR__;
-  $filename    = !empty($identifier) ? sanitizeFilename($identifier) : sanitizeFilename(unixPath("$scriptPath/$commandArgsString"));
-  $runner      = unixPath(tmp('runners', $filename . ($isWin ? '.bat' : '.sh')));
-  $output_file = unixPath(tmp('logs', $filename . '.txt'));
-  $pid_file    = unixPath(tmp('runners', $filename . '.pid'));
-
-  // Truncate output file
-  truncateFile($output_file);
-
-  // Construct the command
-  $venv     = !$isWin ? realpath("$cwd/venv/bin/activate") : realpath("$cwd/venv/Scripts/activate");
-  $venvCall = $isWin ? "call $venv" : "source $venv";
-
-  $cmd = "$venvCall && python $scriptPath $commandArgsString > $output_file 2>&1 & echo $! > $pid_file";
-  $cmd = trim($cmd);
-
-  // Write command to runner script
-  $write = write_file($runner, $cmd);
-  if (!$write) {
-    return ['error' => 'Failed writing shell script ' . $runner];
-  }
-
-  // Change current working directory
-  chdir($cwd);
-
-  // Execute the runner script
-  if ($isWin) {
-    $runner_win = 'start /B "window_name" ' . escapeshellarg(unixPath($runner));
-    pclose(popen($runner_win, 'r'));
-  } else {
-    exec('bash ' . escapeshellarg($runner) . ' > /dev/null 2>&1 &');
-  }
-
-  return [
-    'output'   => unixPath($output_file),
-    'cwd'      => unixPath($cwd),
-    'relative' => str_replace(unixPath($cwd), '', unixPath($output_file)),
-    'runner'   => $runner,
-  ];
 }
 
 function runShellCommandLive($command) {
