@@ -3,11 +3,11 @@ import browserslist from 'browserslist';
 import { execSync } from 'child_process';
 import dotenv from 'dotenv';
 import { browserslistToTargets } from 'lightningcss';
+import moment from 'moment-timezone';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { defineConfig } from 'vite';
 import mkcert from 'vite-plugin-mkcert';
-import { node_modules_folders, sanitizeFilename } from './vite-chunks.js';
 import {
   copyFontsPlugin,
   customStaticAssetsPlugin,
@@ -158,61 +158,41 @@ export const viteConfig = defineConfig({
       maxParallelFileOps: 2,
       output: {
         manualChunks: (id, _manualChunkMeta) => {
-          // Put all node_modules into smaller, per-package vendor chunks
           if (id.includes('node_modules')) {
+            let uniqueId = moment().format('YYYYMMDD-HHmmss');
             // Extract the package name (handles scoped packages)
             const pkgMatch = id.match(new RegExp('node_modules/(?:@[^/]+/[^/]+|[^/]+)'));
             const pkgPath = pkgMatch ? pkgMatch[0].replace('node_modules/', '') : null;
             if (pkgPath) {
               const pkgName = pkgPath.replace('@', '').replace('/', '-');
 
-              // Prefer explicit groups for known large libraries
-              const groups = [
-                'react',
-                'react-dom',
-                'react-router',
-                'react-router-dom',
-                'use-sync-external-store',
-                '@mui',
-                'lodash',
-                'moment',
-                'chart.js',
-                'codemirror',
-                'highlight.js',
-                'prismjs',
-                'tailwindcss',
-                'flowbite',
-                'bootstrap',
-                'popper.js'
-              ];
+              // Core React packages - always in 'react' chunk
+              if (pkgName.startsWith('react-dom') || pkgName === 'react' || pkgName === 'use-sync-external-store') {
+                return 'react';
+              }
 
-              // Map certain packages into a shared chunk to avoid circular imports
-              for (const g of groups) {
-                const key = g.replace('/', '-');
-                if (pkgName.includes(key)) {
-                  // Group React-related libs into the single 'react' chunk
-                  if (g === 'react' || g === 'react-dom' || g === 'use-sync-external-store') {
-                    return 'react';
-                  }
-                  // Group react-router libs together
-                  if (g === 'react-router' || g === 'react-router-dom') {
-                    return 'react-router';
-                  }
-                  return sanitizeFilename(g.replace('/', '-'), { replaceWith: '-' });
+              // Large, independent utility libraries (these don't depend on React)
+              const independentLargePackages = {
+                lodash: 'lodash',
+                moment: 'moment',
+                'chart.js': 'chart.js',
+                'highlight.js': 'highlight.js',
+                prismjs: 'prismjs',
+                codemirror: 'codemirror'
+              };
+
+              uniqueId = moment().format('YYYYMMDD-HHmmss');
+
+              for (const [pkgKey, chunkName] of Object.entries(independentLargePackages)) {
+                if (pkgName.includes(pkgKey)) {
+                  return uniqueId + '-' + chunkName + '-' + pkgName;
                 }
               }
 
-              // If package is in our node_modules_folders list, keep that name
-              for (const pkg of node_modules_folders) {
-                if (id.includes(path.join('node_modules', pkg))) {
-                  return sanitizeFilename(pkg, { replaceWith: '-' });
-                }
-              }
-
-              // Fallback: create a vendor chunk per top-level package
-              return `vendor-${sanitizeFilename(pkgName, { replaceWith: '-' })}`;
+              // Everything else (React ecosystem + small packages) in vendor
+              return uniqueId + '-' + 'vendor' + '-' + pkgName.replace('@', '').replace('/', '-');
             }
-            return 'vendor';
+            return uniqueId + '-' + 'vendor' + '-' + id.split(new RegExp('node_modules/'))[1].split(/\W/).join('-');
           }
           // Let Rollup handle application code chunks
         },
