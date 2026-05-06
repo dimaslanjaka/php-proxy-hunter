@@ -1,5 +1,5 @@
 import Link from '../components/Link';
-import routes from '../routes.json';
+import routes from '../routes.json' with { type: 'json' };
 import { useEffect, useRef, useState } from 'react';
 
 const Home = () => {
