@@ -1,5 +1,13 @@
 [
   {
+    "hash": "b9dba258c0e10610f9a74235c14db81d32ed890f",
+    "date": "2026-05-06T13:05:41+07:00",
+    "message": "feat(devcontainer): ensure `python` and `pip` are available in Dockerfile\n\nRegister python3.11 as system `python`/`python3` via update-alternatives,\ninstall pip (via get-pip.py) and upgrade pip/setuptools/wheel.\nAlso normalize Dockerfile apt-get formatting.",
+    "files": [
+      ".devcontainer/Dockerfile"
+    ]
+  },
+  {
     "hash": "197fc34d4465c7288a0c924f512a2d810d8f443f",
     "date": "2026-05-06T12:55:25+07:00",
     "message": "fix(vite): adjust manual chunk naming to avoid circular vendor/react chunks",
@@ -8810,14 +8818,6 @@
     "message": "refactor(cs-fixer): rename GlobalOneLineFixer namespace to PhpCsFixerCustom\n\n- Change namespace from `CustomFixer` to `PhpCsFixerCustom` in `GlobalOneLineFixer.php`.\n- Update formatting in `applyFix` (loop headers reflowed across multiple lines).",
     "files": [
       "src/dev/php-cs-fixer/GlobalOneLineFixer.php"
-    ]
-  },
-  {
-    "hash": "fa1f1e5e9f8ebce4f9e068cd3f64d4b83bbda8d8",
-    "date": "2025-11-20T06:33:20+07:00",
-    "message": "feat(autoload): add autoload file to require custom fixer files",
-    "files": [
-      "src/dev/php-cs-fixer/autoload.php"
     ]
   }
 ]
