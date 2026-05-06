@@ -420,5 +420,10 @@
   "evenBetterToml.formatter.columnWidth": 88,
   "evenBetterToml.formatter.allowedBlankLines": 2,
   "python.languageServer": "Pylance",
-  "python.terminal.useEnvFile": true
+  "python.terminal.useEnvFile": true,
+  "github.copilot.chat.agent.autoFix": true,
+  "github.copilot.chat.rateLimitAutoSwitchToAuto": true,
+  "github.copilot.chat.codesearch.enabled": true,
+  "github.copilot.chat.copilotMemory.enabled": true,
+  "github.copilot.chat.alternateGeminiModelFPrompt.enabled": true
 }
