@@ -33,6 +33,7 @@ if (!$isAdmin) {
 $executorFiles = [
   'proxy_tun2socks_stability' => 'Tun2Socks Stability Test',
   'proxy_socks5_checker'      => 'SOCKS5 Proxy Checker',
+  'proxy_https_checker'       => 'HTTPS Proxy Checker',
   'proxy-classifier-lookup'   => 'Proxy Classifier Lookup',
   'geoIp.py'                  => 'GeoIP Lookup',
   'proxy_private_checker'     => 'Private Proxy Checker',
