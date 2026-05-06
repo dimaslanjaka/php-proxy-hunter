@@ -418,5 +418,7 @@
   "evenBetterToml.formatter.trailingNewline": true,
   "evenBetterToml.formatter.crlf": false,
   "evenBetterToml.formatter.columnWidth": 88,
-  "evenBetterToml.formatter.allowedBlankLines": 2
+  "evenBetterToml.formatter.allowedBlankLines": 2,
+  "python.languageServer": "Pylance",
+  "python.terminal.useEnvFile": true
 }
