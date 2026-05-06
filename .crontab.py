@@ -307,12 +307,12 @@ else:
 gc.collect()
 
 should_run_proxy_collectors = should_run_job(
-    "4-h",
+    "1-h",
     file_path=CRONTAB_STATE_DIR / "proxy-collectors",
     skip_resource_checking=True,
 )
 if should_run_proxy_collectors:
-    echo_skip_or_run("4 hours", True)
+    echo_skip_or_run("Proxy Collectors", True)
     log_command(
         CRONTAB_LOG_DIR / "proxyCollector2.log",
         [PYTHON_BIN, "artisan/proxyCollector2.py", "--batch-size=500", "--shuffle"],
@@ -321,8 +321,6 @@ if should_run_proxy_collectors:
         CRONTAB_LOG_DIR / "proxyCollector.log",
         [PYTHON_BIN, "artisan/proxyCollector.py", "--batch-size=500", "--shuffle"],
     )
-else:
-    echo_skip_or_run("4 hours", False)
 
 
 gc.collect()
@@ -351,25 +349,23 @@ if run_1h:
             "--include-untested",
         ],
     )
-    log_command(
-        CRONTAB_LOG_DIR / "proxy-socks5-checker.log",
-        [PYTHON_BIN, str(CWD / "artisan/proxy_socks5_checker.py"), "--limit=100"],
-    )
     echo_skip_or_run("1 hour", True)
 else:
     echo_skip_or_run("1 hour", False)
 
 gc.collect()
 
-run_3h = should_run_job("3-h", skip_resource_checking=True)
-if run_3h:
-    echo_skip_or_run("3 hours", True)
+should_run_proxy_checker = should_run_job("1-h", ensure_run_daily=True)
+if should_run_proxy_checker:
+    echo_skip_or_run("1 hour", True)
     log_command(
-        CRONTAB_LOG_DIR / "proxy_checker_httpx.log",
-        [PYTHON_BIN, str(CWD / "artisan/proxy_checker_httpx.py"), "--limit=100"],
+        CRONTAB_LOG_DIR / "proxy_https_checker.log",
+        [PYTHON_BIN, str(CWD / "artisan/proxy_https_checker.py"), "--limit=100"],
     )
-else:
-    echo_skip_or_run("3 hours", False)
+    log_command(
+        CRONTAB_LOG_DIR / "proxy-socks5-checker.log",
+        [PYTHON_BIN, str(CWD / "artisan/proxy_socks5_checker.py"), "--limit=100"],
+    )
 
 gc.collect()
 
