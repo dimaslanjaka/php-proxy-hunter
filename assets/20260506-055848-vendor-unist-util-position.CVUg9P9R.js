@@ -1,0 +1,1 @@
+const n=t("end"),o=t("start");function t(n){return function(o){const t=o&&o.position&&o.position[n]||{};if("number"==typeof t.line&&t.line>0&&"number"==typeof t.column&&t.column>0)return{line:t.line,column:t.column,offset:"number"==typeof t.offset&&t.offset>-1?t.offset:void 0}}}function e(t){const e=o(t),f=n(t);if(e&&f)return{start:e,end:f}}export{n as a,e as b,o as p};

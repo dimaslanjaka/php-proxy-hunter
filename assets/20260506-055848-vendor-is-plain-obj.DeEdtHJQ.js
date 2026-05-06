@@ -1,0 +1,1 @@
+function t(t){if("object"!=typeof t||null===t)return!1;const o=Object.getPrototypeOf(t);return!(null!==o&&o!==Object.prototype&&null!==Object.getPrototypeOf(o)||Symbol.toStringTag in t||Symbol.iterator in t)}export{t as i};

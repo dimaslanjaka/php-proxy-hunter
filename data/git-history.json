@@ -1,5 +1,982 @@
 [
   {
+    "hash": "197fc34d4465c7288a0c924f512a2d810d8f443f",
+    "date": "2026-05-06T12:55:25+07:00",
+    "message": "fix(vite): adjust manual chunk naming to avoid circular vendor/react chunks",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "8bac0eccdf8b0b9e875e3d141654147071e80304",
+    "date": "2026-05-06T12:21:28+07:00",
+    "message": "Merge pull request #84 from dimaslanjaka/dependabot/npm_and_yarn/prettier-plugin-sql-0.20.0\n\nchore(deps-dev): bump prettier-plugin-sql from 0.19.2 to 0.20.0",
+    "files": []
+  },
+  {
+    "hash": "5fcc7571bc37b71f32c19b045fa6b16e164e7a43",
+    "date": "2026-05-06T12:21:12+07:00",
+    "message": "Merge pull request #86 from dimaslanjaka/dependabot/npm_and_yarn/vite-plugin-mkcert-2.0.0\n\nchore(deps-dev): bump vite-plugin-mkcert from 1.17.12 to 2.0.0",
+    "files": []
+  },
+  {
+    "hash": "83292cd0ff6100450a790310eab72045d5d625f1",
+    "date": "2026-05-06T12:14:03+07:00",
+    "message": "build(vite): improve chunking and enable CI-only font plugin\n\n- Register `fontsResolverPlugin` only on GitHub Actions to avoid serving local fonts in other environments.\n- Add `chunkSizeWarningLimit: 700` to reduce noisy bundle-size warnings during build.\n- Replace single vendor bundle with per-package vendor chunks (creates `vendor-<pkg>` fallbacks).\n- Group React-related packages (`react`, `react-dom`, `use-sync-external-store`) into a single `react` chunk.\n- Group `react-router`/`react-router-dom` into a `react-router` chunk to avoid circular chunking.\n- Preserve existing `node_modules_folders` mapping when applicable.",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "8e05df09210bbd1bea3c221414dbaf3262f81b04",
+    "date": "2026-05-06T12:12:11+07:00",
+    "message": "feat(executor): add python HTTPS Proxy Checker to allowed executor scripts",
+    "files": [
+      "php_backend/executor.php"
+    ]
+  },
+  {
+    "hash": "fb2c98e528637fdd41c98292f7f79bfdfb783b8c",
+    "date": "2026-05-06T11:52:03+07:00",
+    "message": "refactor(core): remove unused utility functions, dead test script, and request-timing code\n\n- Remove unused helper functions from func.php:\n  - rewriteIpPortFile\n  - readFileLinesToArray\n  - setCacheHeaders\n  - confirmAction\n  - runPythonInBackground\n- Remove lightweight request-timing / slow-request logging and the `X-Response-Time` header from index.php\n- Use `require_once` in tests/runCommandTest.php to avoid double-includes\n- Delete tests/runScriptInbackground.php (removed unused test helper)",
+    "files": [
+      "func.php",
+      "index.php",
+      "tests/runCommandTest.php",
+      "tests/runScriptInbackground.php"
+    ]
+  },
+  {
+    "hash": "c59fb8a0736bf4ae1a4f3f40b4fd95d33e308303",
+    "date": "2026-05-06T11:43:21+07:00",
+    "message": "feat(ProxySubmission): implement caching for executor scripts in localStorage",
+    "files": [
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
+    "hash": "a78312845e5d60f001576bae6c85f104bb499628",
+    "date": "2026-05-06T11:37:30+07:00",
+    "message": "feat(settings): enable GitHub Copilot chat features in VSCode settings",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "94ce012eab611f6df1356d86c5e0bee8d8fcd9ad",
+    "date": "2026-05-06T11:36:41+07:00",
+    "message": "feat(artisan): add async HTTPS proxy checker `proxy_https_checker.py`\n\n- Add `artisan/proxy_https_checker.py` to perform asynchronous HTTPS checks\n  against candidate proxies.\n- Uses `build_request` + `BeautifulSoup` to validate page titles and multiple\n  IP echo endpoints to verify whether a proxy is actually applied.\n- Updates proxy status in the database (`https`, `status`, `type`) on success,\n  and removes tested proxies from source files when applicable.\n- Configurable concurrency, retries multiple protocols (socks5/socks4/http),\n  and graceful fallback to readonly DB when necessary.\n\nThis introduces a dedicated HTTPS proxy validation worker to improve proxy\nquality detection and classification.",
+    "files": [
+      "artisan/proxy_https_checker.py"
+    ]
+  },
+  {
+    "hash": "f41b8a8ba57092f17f6197ab5574857fd73e47e6",
+    "date": "2026-05-06T11:32:10+07:00",
+    "message": "feat(Home): import routes.json with explicit type declaration",
+    "files": [
+      "src/react/pages/Home.tsx"
+    ]
+  },
+  {
+    "hash": "9f9c562227286b3366c6c97f72f8c3d5504c084c",
+    "date": "2026-05-06T11:31:26+07:00",
+    "message": "chore(crontab): run proxy collectors/checkers hourly and update logs\n\n- Change proxy collectors schedule from \"4-h\" to \"1-h\" and update display label to \"Proxy Collectors\".\n- Remove redundant skip echo for collectors.\n- Consolidate proxy checker scheduling using `should_run_proxy_checker = should_run_job(\"1-h\", ensure_run_daily=True)`.\n- Replace `proxy_checker_httpx` with `proxy_https_checker` and add separate `proxy_socks5_checker` logging.\n- Clean up old 3-hour branch and adjust related log filenames.",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
+    "hash": "cf73bf083c777cf9d54f72551ea03b744611fba2",
+    "date": "2026-05-06T11:18:16+07:00",
+    "message": "feat(utils/file): add `clear_trailing_empty_lines` option to `remove_string_from_file`\n\nAdd an optional parameter `clear_trailing_empty_lines: bool = False` to\n`remove_string_from_file` that, when enabled, trims trailing empty or\nwhitespace-only lines after string removal. Update the function\ndocstring and implement logic to pop trailing blank lines and ensure a\nsingle trailing newline if content remains. No behavior change when the\noption is disabled.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/utils/file/remove_string_from_file.py"
+    ]
+  },
+  {
+    "hash": "44b303d7cd307de7ac50dc174de6ce040af15685",
+    "date": "2026-05-06T11:08:35+07:00",
+    "message": "feat(file-utils): support Set in remove_string_from_file and simplify proxy cleanup\n\nAdd support for `Set[str]` to `remove_string_from_file` and switch proxy\nchecker scripts to use it for removing tested proxies from source files.\nPrefer the explicit `source_file` returned by `retrieve_proxies` when resolving\nwhich file to clean. This removes manual line-by-line removal and trimming\nlogic in the checkers and centralizes removal behavior.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxy_private_checker.py",
+      "artisan/proxy_socks5_checker.py",
+      "artisan/proxy_tun2socks_stability.py",
+      "src/utils/file/remove_string_from_file.py"
+    ]
+  },
+  {
+    "hash": "2be00a26d589ed149fb618d146767fca442d0861",
+    "date": "2026-05-06T10:57:13+07:00",
+    "message": "feat(artisan): add `source_file` to ProxyRetrievalResult and prefer it for cleanup\n\nAdd an optional `source_file: Optional[str]` field to `ProxyRetrievalResult`\nand return it from `retrieve_proxies`. `retrieve_proxies` now sets\n`source_file` when proxies are loaded from a file and leaves it `None` for DB\nsources.\n\nUpdate checker scripts to prefer `result.source_file` when removing tested\nproxies from the original source file, falling back to parsing `source_label`\n(e.g. `file://...`) when `source_file` is not provided. Removal logic now\nresolves a concrete `target_file` and writes changes back to that path.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxy_getter.py",
+      "artisan/proxy_private_checker.py",
+      "artisan/proxy_socks5_checker.py",
+      "artisan/proxy_tun2socks_stability.py"
+    ]
+  },
+  {
+    "hash": "5bf924657a60c9fa6ee23c8ace7619188f888e0b",
+    "date": "2026-05-06T10:46:41+07:00",
+    "message": "refactor(src/utils/file): split flat file.py into file package and extract helpers\n\n- Remove legacy `src/utils/file.py`.\n- Introduce `src/utils/file/` package and re-export helpers from `src/utils/file/__init__.py`.\n- Add standalone modules:\n  - `get_binary_path.py` (includes small CLI)\n  - `get_python_path.py` (with CLI)\n  - `get_system_python_path.py`\n  - `remove_string_from_file.py` (supports str | List[str])\n- Preserve previous public API via `__init__.py` so `from src.utils.file import ...` continues to work.\n- Small cleanup and modularization to improve testability and maintainability.\n\nBREAKING CHANGE: The flat `src/utils/file.py` file was removed. Code that imported internals directly from that file path should import from the new package modules or from `src.utils.file` (re-exports).\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/utils/file.py",
+      "src/utils/file/__init__.py",
+      "src/utils/file/get_binary_path.py",
+      "src/utils/file/get_python_path.py",
+      "src/utils/file/get_system_python_path.py",
+      "src/utils/file/remove_string_from_file.py"
+    ]
+  },
+  {
+    "hash": "cc69a73941d1260195a3d9d9e7e8b622b04744af",
+    "date": "2026-05-06T10:01:04+07:00",
+    "message": "feat(artisan/proxy_getter): accept dict proxy inputs in normalize_proxy_value\n\n- Update typing to include `Union` and change `normalize_proxy_value` signature\n  to accept `Union[str, Dict[str, Any]]`.\n- If a dict with `username`, `password`, and `proxy` is provided, build a\n  `username:password@proxy` string; otherwise fall back to the `proxy` key or\n  an empty string.\n- Preserve previous string handling and trimming logic.\n\nThis enables callers to pass proxy entries as dicts (with credentials) or strings.",
+    "files": [
+      "artisan/proxy_getter.py"
+    ]
+  },
+  {
+    "hash": "96eadab4f4677f8fb2da3b3f6d35607331c834d5",
+    "date": "2026-05-06T09:56:36+07:00",
+    "message": "chore(vscode): refine Python test discovery; enable Pylance & terminal envFile\n\n- Update `python.testing.autoTestDiscoverOnSavePattern` to `tests/**/*test*.py` to limit test discovery to the project's tests folder.\n- Add `python.languageServer: \"Pylance\"`.\n- Enable `python.terminal.useEnvFile: true` so the integrated terminal loads `.env`.\n- Minor JSON formatting tweak (trailing comma).",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "3d2c95d56346acbb1508856e502455d5f4a66be5",
+    "date": "2026-05-06T09:55:18+07:00",
+    "message": "fix(extractor): normalize proxy input and fully-qualify Proxy types\n\n- Add `normalize_proxy_input()` to convert literal escape sequences and\n  common URL-encoded newline tokens into real newlines, trim and collapse\n  extra blank lines for reliable parsing.\n- Apply normalization to `extractIPs()`, `extractPorts()` and\n  `extractProxies()` so inputs with literal `\\n`, `\\r\\n` or encoded tokens\n  (e.g. `%5Cn`, `%0A`) are parsed correctly.\n- Remove the unused `use PhpProxyHunter\\Proxy;` import and update runtime\n  constructions and docblocks to use fully-qualified `\\PhpProxyHunter\\Proxy`\n  and `\\PhpProxyHunter\\ProxyDB` types for clarity and to avoid resolution issues.\n\nThis fixes parsing bugs when proxy lists are provided with escaped or\nURL-encoded newlines and improves type qualification in `extractor.php`.",
+    "files": [
+      "src/PhpProxyHunter/utils/extractor.php"
+    ]
+  },
+  {
+    "hash": "423ee1878e4c64a2c1c30e2f16217e684322ebd0",
+    "date": "2026-05-06T09:52:23+07:00",
+    "message": "feat(console): add reverse gradient option and usage wrappers\n\n- Add `reverse: bool` parameter to `color_percent_value_text` in `src/func_console.py`\n  to allow inverting the red<->green gradient (0→green, 100→red) while preserving\n  the default behavior (`reverse=False`).\n- Update callers in `src/utils/process/process_usage.py` and\n  `src/utils/process/resources_usage.py` to pass `reverse=True` where inverted\n  coloring is desired for CPU/RAM/Storage output.\n- Add cross-platform wrapper scripts `bin/usage` (bash) and `bin/usage.cmd` (Windows)\n  to run `src/utils/process/process_usage.py`.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "bin/usage",
+      "bin/usage.cmd",
+      "src/func_console.py",
+      "src/utils/process/process_usage.py",
+      "src/utils/process/resources_usage.py"
+    ]
+  },
+  {
+    "hash": "c29066843b0d78f8f35d4e72a814f5950dc95df5",
+    "date": "2026-05-05T23:24:59+07:00",
+    "message": "refactor(executor): replace shared include with func and initialize $isWin\n\n- Replace `require_once __DIR__ . '/shared.php'` with `require_once __DIR__ . '/../func.php'`.\n- Remove `global $proxy_db, $isWin`; initialize `$isWin` locally using `stripos(PHP_OS, 'WIN') === 0`.\n- Reduce reliance on globals in `executor.php`.",
+    "files": [
+      "php_backend/executor.php"
+    ]
+  },
+  {
+    "hash": "5d78ff8bc93270d492e1cb5ecafd5f79a38184b9",
+    "date": "2026-05-05T23:23:52+07:00",
+    "message": "style(home): enhance post list styling with shadow effects\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/react/pages/Home.tsx"
+    ]
+  },
+  {
+    "hash": "6768d3326c69b75a7bb9d834328038a6f2ccfc40",
+    "date": "2026-05-05T23:22:18+07:00",
+    "message": "feat(home): exclude internal routes and use filteredRoutes for infinite-scroll list\n\n- Add `EXCLUDED_PATHS` and filter `routes` to exclude internal paths (/admin, /dashboard, /outbound, /login, /logout, /settings) and any `/oauth*` handlers.\n- Use `filteredRoutes` (instead of `allRoutes`) for slicing, counts and incremental loading (pageSize = 12).\n- Update scroll handler and effect deps to use `filteredRoutes.length`.\n- Render `filteredRoutes` in the fixed-height, scrollable posts list.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/react/pages/Home.tsx"
+    ]
+  },
+  {
+    "hash": "1a4f05b0c8d11c679d4f87974e64e296ed020c3d",
+    "date": "2026-05-05T23:15:38+07:00",
+    "message": "feat(home): refactor Home to hooks and add infinite-scroll posts list\n\n- Convert `Home` from a plain JSX export to a React function component using hooks.\n- Import `src/react/routes.json` and render posts/routers with thumbnails.\n- Add fixed-height, scrollable post list (`h-96` / `md:h-[600px]`) with incremental loading (pageSize = 12).\n- Implement rAF-based scroll handler to load more items when near bottom (supports large lists).\n- Handle array `path` values for links and add `aria-label=\"Posts list\"` for accessibility.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/react/pages/Home.tsx"
+    ]
+  },
+  {
+    "hash": "e242a4741f54e0766b8d6f451c4585b1554fed45",
+    "date": "2026-05-05T23:01:41+07:00",
+    "message": "feat(routes): add proxy-tools routes and example placeholders\n\n- Add placeholder metadata for `/proxy-tools` and subpaths (`/proxy-tools/submit`, `/proxy-tools/extract`, `/proxy-tools/logs`) to `src/react/routes.json`.\n- Add placeholder metadata for example pages under `/examples/*` referenced by the app.\n- Update UI labels in `src/react/pages/ProxyTools/index.tsx` to use title-cased labels: \"Proxy Checker\", \"Proxy Extractor\", \"Proxy List\".\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/react/pages/ProxyTools/index.tsx",
+      "src/react/routes.json"
+    ]
+  },
+  {
+    "hash": "431440ff8ddb9d5074d8a64db0829aebee91b5e0",
+    "date": "2026-05-05T22:59:06+07:00",
+    "message": "refactor(proxy-tools): extract proxy submission, extractor and logs into dedicated router\n\n- Add `src/react/pages/ProxyTools/index.tsx` with routes: /proxy-tools/submit, /proxy-tools/extract, /proxy-tools/logs\n- Register `ProxyToolsRouter` in `src/react/index.tsx`\n- Update `src/react/pages/ProxyList/index.tsx` to use `NavLink` pointing to the new router (remove in-page submission/extractor panels and LogViewer)\n- Add placeholder metadata entries for `/proxy-tools` and subpaths to `src/react/routes.json`\n- Remove unused `src/react/pages/ProxyTools/ProxyFetcher.tsx`\n- Apply lint/format fixes to affected files\n\nNotes:\n- Routes for proxy submission/extraction/logs are now under `/proxy-tools/*`; update any external links or bookmarks accordingly.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/react/index.tsx",
+      "src/react/pages/ProxyList/index.tsx",
+      "src/react/pages/ProxyTools/index.tsx",
+      "src/react/routes.json"
+    ]
+  },
+  {
+    "hash": "3684e650bd81af1c71c7c6ab75f7ad0bd4959058",
+    "date": "2026-05-05T17:56:01+07:00",
+    "message": "fix(deploy): improve stash-needed detection in gitPull\n\nAdd multiple, robust regex patterns to detect various Git messages that require\nstashing or committing local changes before pulling/merging. Also append a\nclear '[END]' marker to the combined stdout/stderr message. If a stash is\nneeded the deploy script now automatically stashes, pulls again, logs the\nresult, and attempts to pop the stash.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "b0974481818dbabf956cf397f2ee4746a88c9aae",
+    "date": "2026-05-05T17:46:06+07:00",
+    "message": "fix(deploy): harden remote git pull and extract submodule pull\n\n- Extract submodule handling into `pullSubmodule()` to clone/pull\n  `packages/proxy-checker-python` and ensure its composer/git state.\n- Simplify and harden `gitPull()`: check for `.git`, run `git pull`\n  on the remote path and log stdout/stderr instead of the previous\n  complex stash/rebase flow.\n- Use quoted remote paths and add improved diagnostics/fallbacks to\n  avoid failures like \"fatal: no path specified\" when upstream/remote\n  info is missing.\n- Call `pullSubmodule()` from `main()` after `gitPull()` to ensure\n  submodule dependencies are handled during deploy.\n\nRationale: improves robustness of remote deployment steps and avoids\nremote git errors caused by missing/upstream configuration or fragile\ninline shell quoting.",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "03ef9e05e35ded3738575801816d444999185e24",
+    "date": "2026-05-05T16:48:57+07:00",
+    "message": "fix(deploy): abort rebase on failure and fail if stash apply fails\n\nUse `git pull --rebase --no-edit` with explicit error handling: on rebase failure echo a message,\nattempt `git rebase --abort`, and exit non-zero to avoid leaving the repo in a bad state.\nEnsure we stash untracked files with `git stash push -u` when changes exist, and if `git stash pop`\nfails print \"Stash apply failed. Resolve manually.\" and exit so failures are visible and handled.\nAlso normalize `cd ${remotePath}` indentation. Affects `bin/deploy-vps.mjs`.",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "127fbb68460807d44123c4ed2a0d90daf8cd39a0",
+    "date": "2026-05-05T16:45:53+07:00",
+    "message": "fix(deploy): stash untracked changes before git pull\n\nUse `git status --porcelain` to detect any local changes (tracked + untracked)\nand `git stash push -u` to include untracked files before running\n`git pull --rebase`. Simplifies stash detection/logic and preserves popping\nthe stash after the pull. Affects `bin/deploy-vps.mjs`.",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "1e9a0ee9e50a2a72f770186b2ab2c4a0896d45d1",
+    "date": "2026-05-05T16:39:58+07:00",
+    "message": "refactor(deploy): improve git pull process with safe stash and rebase\n\n- Replace direct `git pull` with safer workflow using conditional stash\n- Only stash changes when working directory is dirty\n- Use `git pull --rebase` to maintain cleaner commit history\n- Restore stashed changes only when applicable\n- Update log message for clarity\n\nThis reduces redundant operations and prevents potential merge conflicts during deployment.",
+    "files": [
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "6e280c779b44eb07345f5b9aca793ffc5c7e2465",
+    "date": "2026-05-05T16:32:39+07:00",
+    "message": "chore(vite): remove legacy plugin and explicit JS target\n\n- Remove `@vitejs/plugin-legacy` from `package.json`.\n- Remove import and runtime injection of `legacy()` from `vite.config.js`.\n- Remove explicit `build.target` (was `es2018`) to simplify build config.\n- Avoid generating legacy chunks/polyfills via Vite plugin; rely on modern build pipeline.",
+    "files": [
+      "package.json",
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "d83885bf09afec7f3cb62332fc2050e0377b771e",
+    "date": "2026-05-05T14:28:29+07:00",
+    "message": "feat(dependabot): add support for git submodules and docker images\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      ".github/dependabot.yml",
+      "packages/proxy-checker-python"
+    ]
+  },
+  {
+    "hash": "e46c0f90631bc4327a593255e6d161e45e1515f1",
+    "date": "2026-05-05T14:20:37+07:00",
+    "message": "test(PhpProxyHunter): add buildCurlDirect.php to validate proxy application\n\nAdd a new PHP test at tests/PhpProxyHunter/buildCurlDirect.php that extracts\nproxy credentials from a string, sends requests to multiple public IP\nendpoints via `executeCurl()`, prints status/content, extracts the returned IP,\nand validates whether the proxy was applied by comparing the response IP to\nthe local device IP. Mirrors the behavior of the Python test\npackages/proxy-hunter-python/tests/build_request_direct.py.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "tests/PhpProxyHunter/buildCurlDirect.php"
+    ]
+  },
+  {
+    "hash": "310f787de4b5cccc4465a5e51e5fbaaf838cc831",
+    "date": "2026-05-05T14:16:02+07:00",
+    "message": "feat(utils): add getDeviceIp helper\n\nAdd `getDeviceIp()` at `src/PhpProxyHunter/utils/getDeviceIp.php`. The helper queries multiple public IP services (api.ipify, ifconfig.me, httpbin, ipinfo) using the existing `executeCurl()` from `buildCurl.php`, tolerantly parses JSON or plain-text responses, validates IPv4/IPv6 with `FILTER_VALIDATE_IP`, and returns the first valid IP or `null`. Improves ability to determine the host's public IP without introducing breaking changes.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/PhpProxyHunter/utils/getDeviceIp.php"
+    ]
+  },
+  {
+    "hash": "b74549ff982d7b52c3ed7c9e050e64ba08a75deb",
+    "date": "2026-05-05T14:10:24+07:00",
+    "message": "fix(extractor): strip leading slashes from captured usernames\n\nWhen parsing `user:pass@ip:port` occurrences coming from URL-style inputs\n(e.g. `http://user:pass@host`), the captured username could include\nleading slashes (`//user`) which produced incorrect credential values.\nNormalize the captured username with `ltrim(..., '/')` to remove leading\nslashes.\n\nAlso update the test case in `tests/utils/proxy/ExtractProxiesTest.php`\nto use a URL-style input and assert the corrected proxy/credentials.",
+    "files": [
+      "src/PhpProxyHunter/utils/extractor.php",
+      "tests/utils/proxy/ExtractProxiesTest.php"
+    ]
+  },
+  {
+    "hash": "fd436fa8959826bb2d3cc9b2a89bb08271c2e6ff",
+    "date": "2026-05-05T14:01:10+07:00",
+    "message": "feat(proxy-logging): show proxy credentials and protocol in checker logs\n\nAdd a centralized `format_proxy_display()` helper in `php_backend/checker-runner.php`\nand update the checker scripts to use it. Logs now show proxies in the form\n`protocol://user:pass@ip:port` (when credentials/protocol are available) and the\n`protocols=` field emits protocol-specific URLs instead of bare protocol names.\n\nChanges:\n- Add `format_proxy_display()` helper (php_backend/checker-runner.php)\n- Update `check-http-proxy.php`, `check-https-proxy.php`,\n  `check-latency-proxy.php`, `check-proxy-type.php` to:\n  - Use `format_proxy_display($item[, $protocol])` for log output\n  - Colorize the formatted proxy string consistently\n  - Emit protocol-specific URLs in `protocols=` output\n  - Add `global $proxy_db` where needed\n- Remove duplicate helper from `check-https-proxy.php` (consolidated)\n\nNo behavior changes to proxy checking logic itself — only improved log output\nformatting to include auth/protocol for easier debugging and inspection.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php",
+      "php_backend/check-latency-proxy.php",
+      "php_backend/check-proxy-type.php",
+      "php_backend/checker-runner.php"
+    ]
+  },
+  {
+    "hash": "cf884d69a229fc3b973814ced3da36c517a3a584",
+    "date": "2026-05-05T13:59:59+07:00",
+    "message": "test(proxy): fix extractor require path and add ip:port@user:pass case\n\n- Update require path in tests/utils/proxy/ExtractProxiesTest.php to src/PhpProxyHunter/utils/extractor.php.\n- Add assertion for input \"92.113.242.158:6742@qtculbqe:iazrxzml7g27\" verifying proxy, username, and password.",
+    "files": [
+      "tests/utils/proxy/ExtractProxiesTest.php"
+    ]
+  },
+  {
+    "hash": "84b2f694dfdbb978e4879edb8f096b41b298f9a5",
+    "date": "2026-05-05T13:39:39+07:00",
+    "message": "fix(clear-caches): correct path to composer.phar in cache cleanup script",
+    "files": [
+      "bin/clear-caches"
+    ]
+  },
+  {
+    "hash": "06f8ef4f8fa6a82082747382b0b9dc2e0ea992b2",
+    "date": "2026-05-05T13:38:40+07:00",
+    "message": "fix(clear-caches): remove Python virtual environment reset and recreation logic",
+    "files": [
+      "bin/clear-caches"
+    ]
+  },
+  {
+    "hash": "678ce2d328697eacad2551b36ae5b9701d158c6a",
+    "date": "2026-05-05T13:38:00+07:00",
+    "message": "feat(index.php): add lightweight request timing and slow-request logging\n\nAdd a microtime-based timing wrapper to `index.php` that measures request\nduration and records slow requests. Requests over 500ms are logged to\n`tmp/logs/slow_requests.log` with a `SLOWREQ {ms} METHOD URI` message, and\nevery response includes an `X-Response-Time` header with the duration.\nImplemented via `register_shutdown_function` for a non-invasive, low-overhead\ninstrumentation. Note: ensure `tmp/logs` is writable on the server.",
+    "files": [
+      "index.php"
+    ]
+  },
+  {
+    "hash": "f0a376c178f1cc68367fbab2164dfaec196a4355",
+    "date": "2026-05-05T13:34:03+07:00",
+    "message": "fix(clear-caches): improve Yarn cache cleanup with error suppression",
+    "files": [
+      "bin/clear-caches"
+    ]
+  },
+  {
+    "hash": "c2276efa025d1c3bd48fa2099cc52a118f51b082",
+    "date": "2026-05-05T12:32:42+07:00",
+    "message": "fix(artisan/geoIp): normalize CLI/file proxy inputs to strings\n\nUse `to_proxy_rows` to normalize Proxy objects, dicts and tuples from CLI\nand file inputs, and convert proxy values to `str` in the comprehensions so\n`proxies` is a `list[str]`. This prevents a TypeError when trying to\nunpack non-iterable Proxy objects and resolves typing mismatches in\n`artisan/geoIp.py`.",
+    "files": [
+      "artisan/geoIp.py"
+    ]
+  },
+  {
+    "hash": "0dc90fbc69257276d61ef5999e556c4e7eac33f6",
+    "date": "2026-05-05T12:26:23+07:00",
+    "message": "fix(proxy-list): sort proxies by parsed `last_check` and enable production fallback\n\n- Pass `true` to `refreshDbConnections()` to allow production-fallback when needed.\n- Order `last_check` by numeric unix timestamp per driver:\n  - SQLite: use `strftime('%s', last_check)`\n  - MySQL: use `UNIX_TIMESTAMP(last_check)`\n  - Fallback: original lexical ordering when driver unknown\n- Treat empty/null/'-' `last_check` as epoch 0 so most-recent checks sort first\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "php_backend/proxy-list.php"
+    ]
+  },
+  {
+    "hash": "1eb461c046e931b3145c459c6ceb19dca1e55452",
+    "date": "2026-05-05T12:25:05+07:00",
+    "message": "refactor(db): prefer local DB, optional production fallback, then sqlite\n\n- Try `init_local_database()` first.\n- If `$useFallbackProduction` is true, attempt `init_production_database()` on local failure.\n- Otherwise (or if production fails) fall back to constructing a sqlite `CoreDB`.\n- Remove direct CoreDB construction from globals and update global `$dbType` from `CoreDB->driver` when available.\n- Add clarifying comments and surface errors for debugging.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "php_backend/shared.php"
+    ]
+  },
+  {
+    "hash": "bbf5bb28893ab08ec727e89e7d18a0d75cd411e0",
+    "date": "2026-05-05T12:12:33+07:00",
+    "message": "feat(proxy-list): add human-readable elapsed time for last_check\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "php_backend/proxy-list.php"
+    ]
+  },
+  {
+    "hash": "0a8d26354a7843c261ee230322ef341100be3ac9",
+    "date": "2026-05-05T12:01:12+07:00",
+    "message": "chore(certs): refresh CA bundles (data/cacert.pem, data/curlhaxx_cacert.pem)\n\n- Refresh bundled Mozilla CA data and update metadata (last-updated: 2026-02-11).\n- Bump mk-ca-bundle conversion version to 1.32 and update bundle SHA256.\n- Add multiple new root/intermediate certificates (including e-Szigno TLS Root CA 2023 and other updated entries).\n- Remove/replace outdated or duplicate cert entries and normalize PEM formatting/headings.\n- Tidy `data/curlhaxx_cacert.pem` headers and bundle comments.",
+    "files": [
+      "data/cacert.pem",
+      "data/curlhaxx_cacert.pem"
+    ]
+  },
+  {
+    "hash": "8a3d85177743fdb6b9c91e949c1c3f79c99384c3",
+    "date": "2026-05-05T12:00:02+07:00",
+    "message": "refactor(artisan/proxy_socks5_checker): use extract_proxies, improve logging, and harden file removal\n\n- Use `proxy_hunter.extract_proxies` for parsing proxy strings (CLI, file lines, and logging),\n  replacing ad-hoc normalization and fragile string checks.\n- Harden file-source removal: parse each file line and remove entries whose parsed\n  `proxy` (host:port) matches tested keys; fallback to raw substring match for resilience.\n- Improve console output:\n  - Color IP:PORT endpoints in magenta.\n  - Color `[OK]` in green, `[FAIL]` in red, and `[INFO]` in cyan.\n  - Simplify `print_status()` and remove previous \"fail\" word highlighting.\n- Remove unused imports (`re`, `datetime`, `timezone`) and other small cleanups.\n- Simplify and modernize code paths:\n  - Use local `append` alias for lists where helpful.\n  - Normalize variable names and inline small helpers.\n  - Fix indentation and async loop early-return / task cancellation logic.\n- Replace the explicit `filter_test_socks5_proxies_parallel(...)` signature with a\n  wrapper that calls `asyncio.run(filter_test_socks5_proxies_async(**kwargs))`\n  for a simpler call pattern.\n\nBREAKING CHANGE: `filter_test_socks5_proxies_parallel` signature changed to accept `**kwargs`\ninstead of explicit parameters; update any direct callers accordingly.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxy_socks5_checker.py"
+    ]
+  },
+  {
+    "hash": "5dd968955db77335d30033f669da7f31bcebc18f",
+    "date": "2026-05-05T11:25:49+07:00",
+    "message": "feat(artisan): preserve proxy credentials and mark private proxies\n\n- Preserve username/password from `extract_proxies` by returning parsed Proxy\n  objects from `load_proxies_from_cli` and `load_proxies_from_file`.\n- Make `to_proxy_rows` accept Proxy-like objects and carry `username`/`password`\n  into the row dict so checkers receive credentials.\n- Update type hints for CLI/file loaders to `List[Any]` to reflect parsed objects.\n- `proxy_private_checker.py`: when a proxy check succeeds and the original\n  row contains credentials, mark the proxy as `private: \"true\"` and persist\n  `username`/`password` to the DB (otherwise mark as not-private).\n- Minor logging tweak: print the full `username:password@host:port` when testing.\n- Remove unused imports and reorder imports for clarity.\n\nNo behavioral changes for DB-less flows; this enables proper handling of\nauthenticated (private) proxies discovered via CLI/file input.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxy_getter.py",
+      "artisan/proxy_private_checker.py"
+    ]
+  },
+  {
+    "hash": "2eb6b1dfc811f374d93ee2e299418dd8081e34cd",
+    "date": "2026-05-05T11:16:05+07:00",
+    "message": "refactor(proxy_tun2socks): centralize proxy retrieval and remove SQLiteMarker\n\n- Replace ad-hoc CLI/file/DB loading with centralized `retrieve_proxies`\n  (returns `ProxyRetrievalResult`) and prefer the original source file when\n  removing tested entries.\n- Add `custom_filter` using `is_date_rfc3339_older_than` to select stale or\n  unverified proxies (24h threshold).\n- Use `init_db(\"mysql\")` as a local DB handle and ensure it's closed.\n- Remove `SQLiteMarker` import and all marker-based filtering/marking logic;\n  simplify pending/checked accounting.\n- Clean up imports (`List`, `ProxyRetrievalResult`, `is_date_rfc3339_older_than`)\n  and minor control-flow simplifications.\n\nBREAKING CHANGE: persistent marker tracking via `SQLiteMarker` was removed.\nTested proxies are no longer recorded to the local SQLite marker table — update\nany tooling or workflows that depended on marker state.",
+    "files": [
+      "artisan/proxy_tun2socks_stability.py"
+    ]
+  },
+  {
+    "hash": "9054d2b1c3f7ffc925324eec73adf6706b3025f8",
+    "date": "2026-05-05T11:10:48+07:00",
+    "message": "refactor(proxy_getter): use regex to strip proxy schemes\n\n- import `re` and replace manual `startswith`/`split` logic in `artisan/proxy_getter.py`\n- use a case-insensitive `re.sub` to remove leading schemes (e.g. `socks5://`, `socks4://`, `http://`, `https://` or any `<scheme>://`) removing only the first occurrence\n- preserves existing behavior for inputs without a scheme; improves normalization robustness",
+    "files": [
+      "artisan/proxy_getter.py"
+    ]
+  },
+  {
+    "hash": "abd4338d6104d79dfab793f46b96df360acb1e5e",
+    "date": "2026-05-05T11:09:52+07:00",
+    "message": "fix(curl): infer proxy type from proxy URL and use merged cert bundle\n\n- Infer `proxy_type` when omitted by detecting URL schemes (`http`, `socks4`, `socks5`)\n  in the supplied `proxy` string so proxy URLs with embedded credentials are applied.\n- Replace `certifi.where()` usage with `last_merged_certificates_path` for\n  `REQUESTS_CA_BUNDLE`, `SSL_CERT_FILE`, and the default SSL context to use the\n  project's combined certificate bundle.\n- Add test script `packages/proxy-hunter-python/tests/build_request_direct.py`\n  to exercise `build_request` with an authenticated proxy and verify IP/behavior.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/request_helper.py",
+      "packages/proxy-hunter-python/tests/build_request_direct.py"
+    ]
+  },
+  {
+    "hash": "4c3aec480a9a28e623af567c35a72d7c77bff318",
+    "date": "2026-05-05T10:59:37+07:00",
+    "message": "test(build_request): update tests to include proxy authentication and verify response",
+    "files": [
+      "tests/build_request.py"
+    ]
+  },
+  {
+    "hash": "2646f62fea95a04abd5ff9389feef29751259343",
+    "date": "2026-05-05T10:57:28+07:00",
+    "message": "feat(curl): add certificate generation & expose merged bundle path\n\n- export `last_merged_certificates_path` and `merge_certificates` from `proxy_hunter.curl`\n- add `ProxyCheckResult` import and tidy import order (move `DebugSession` up)\n- introduce automated PEM creation using `openssl` via `subprocess`\n- create `tmp/download/certificates` and generate per-domain PEM files\n- include downloaded certificates when building the merged CA bundle\n\nThis enables the package to auto-generate and merge additional CA certificates (downloaded and per-domain) into the bundled PEM used by requests, improving TLS verification in environments with custom or missing CA bundles.",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/curl/certificates.py"
+    ]
+  },
+  {
+    "hash": "0a1dd3ce4205018acd8ecae4aa51b2a671d9caef",
+    "date": "2026-05-05T10:24:57+07:00",
+    "message": "fix(proxy_checker): remove marker functionality and deduplicate proxy candidates\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxy_private_checker.py",
+      "artisan/proxy_socks5_checker.py"
+    ]
+  },
+  {
+    "hash": "f07e316e8a4b7d6a7b064184eb015c3e22754a8f",
+    "date": "2026-05-05T10:09:32+07:00",
+    "message": "fix(proxy_socks5_checker): mark/remove only actually tested proxies\n\n- Remove unused imports: `load_proxies_from_file`, `load_proxies_from_cli`, `to_proxy_rows`.\n- Set `parse_args(default_limit=1)` for convenient single-proxy runs.\n- Update `custom_filter` to include rows with no `last_check` or with `last_check` older than 24h.\n- Build normalized `tested_keys` from `proxies[: args.limit]` and use it for `marker.mark` and file trimming (instead of marking all candidates).\n- Use `marker.mark(..., valid_until=1)` and print info about how many proxies were marked.\n\nAligns `proxy_socks5_checker.py` behavior with `proxy_private_checker.py` and fixes over-marking/removal when only a small number of proxies are tested.",
+    "files": [
+      "artisan/proxy_socks5_checker.py"
+    ]
+  },
+  {
+    "hash": "764f59387a81630073198e204f4eb886453bb297",
+    "date": "2026-05-05T10:02:19+07:00",
+    "message": "fix(proxy_private_checker): only mark/remove proxies actually tested\n\n- Change `run_checks` return type to `List[str]` and collect `tested_keys`\n  of normalized proxy values that were actually attempted.\n- Skip empty proxy entries and normalize keys before testing (avoid over-marking).\n- Return early with `tested_keys` when a working proxy is found, otherwise\n  return after finishing all checks.\n- Use returned `tested_keys` in main flow to mark seen proxies and to remove\n  only those entries from the source file (instead of the entire candidate list).\n- Add `timeout=5` to `build_request` and import `gevent.timeout`.\n- Add an info log showing how many proxies were marked in the marker DB.\n\nFixes bug where running with a small `--limit` (e.g. 1) could mark/remove\nthe whole loaded proxy list instead of only the tested entries.",
+    "files": [
+      "artisan/proxy_private_checker.py"
+    ]
+  },
+  {
+    "hash": "3b6b150705ed91c7cd5b0c94e5016d3e18a89be3",
+    "date": "2026-05-05T09:54:19+07:00",
+    "message": "fix(curl): initialize `response` and add post-loop check\n\nInitialize `response = None` before the retry loop and raise a\n`requests.RequestException` if no response is obtained after retries.\nPrevents \"possibly unbound 'response'\" warnings and avoids referencing\nan uninitialized variable in request_helper.py.",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/request_helper.py"
+    ]
+  },
+  {
+    "hash": "72efcc9fdac4be6afaee129b6510d7d5f2784220",
+    "date": "2026-05-05T09:44:32+07:00",
+    "message": "fix(artisan/proxy_private_checker): mark proxies as seen for 1 day to avoid permanent exclusion",
+    "files": [
+      "artisan/proxy_private_checker.py"
+    ]
+  },
+  {
+    "hash": "055b4ed45d34ecf615070e02b669f1c71e3dad78",
+    "date": "2026-05-05T09:29:26+07:00",
+    "message": "fix(react/pages/ProxyList): persist executor limit across reloads\n\nInitialize `limit` state from localStorage and remove the separate\nrestore effect that could overwrite it on mount. Ensures the executor\nlimit selection is restored after returning or reloading the page.",
+    "files": [
+      "src/react/pages/ProxyList/ProxySubmission.tsx"
+    ]
+  },
+  {
+    "hash": "f9fb9a513ba732c23d9cae5beda737cf636888dd",
+    "date": "2026-05-05T09:25:02+07:00",
+    "message": "feat(react): add FloatingScrollButton component and render in MainApp\n\n- Add new component `src/react/components/FloatingScrollButton.tsx`\n  - Floating action button that shows a caret-down near top and caret-up after scrolling past threshold\n  - Smoothly scrolls to bottom (down) or top (up) on click\n  - Exposes `threshold?: number` prop (default 250)\n  - Uses Tailwind utility classes (transparent/opacity shorthand) and Font Awesome Pro caret icons\n  - Smaller size, subtle shadow, and backdrop blur so underlying content remains visible\n- Import and render the component in `src/react/index.tsx` with `threshold={300}`",
+    "files": [
+      "src/react/components/FloatingScrollButton.tsx",
+      "src/react/index.tsx"
+    ]
+  },
+  {
+    "hash": "69661c123ad8d622fe84913ce3887dc9ffae4cc2",
+    "date": "2026-05-05T09:01:34+07:00",
+    "message": "fix(artisan/proxy_private_checker): include file-loaded proxies missing last_check\n\nPreviously the custom filter required a RFC3339 `last_check` older than 24h,\nwhich caused proxies loaded from files (that lack `last_check`) to be\nfiltered out and produced zero candidates. Treat missing `last_check` as\neligible (or accept rows whose `last_check` is older than 24h) so file-sourced\nproxies are checked.\n\nAlso remove several unused imports and perform minor cleanup in\n`artisan/proxy_private_checker.py`.",
+    "files": [
+      "artisan/proxy_private_checker.py"
+    ]
+  },
+  {
+    "hash": "6dfe94b6d73cc0ce52c207ab4be64c55449b8f6b",
+    "date": "2026-05-05T07:15:06+07:00",
+    "message": "feat(logs): respond with JSON for JSON log files (strip ANSI)\n\n- Import `PhpProxyHunter\\AnsiColors` and use `AnsiColors::removeAnsi()` before `json_decode`\n- If a log's content decodes as JSON respond with `respond_json($decoded)`, otherwise fall back to `respond_text()`\n- Applied JSON-detection + ANSI-stripping for executor logs and allowed public log files (e.g. `system-usage.json`, `php-error.*`)\n- Refactor unauthenticated/admin/`me` request branching for clearer control flow\n\nThis makes the logs endpoint return structured JSON when available while preserving plain-text behavior for non-JSON logs.",
+    "files": [
+      "php_backend/logs.php"
+    ]
+  },
+  {
+    "hash": "f90bc9fd773aac9f03304931d2a68dfb702c8c48",
+    "date": "2026-05-05T07:07:16+07:00",
+    "message": "feat(AnsiColors): add removeAnsi method to strip ANSI escape sequences from strings",
+    "files": [
+      "src/PhpProxyHunter/AnsiColors.php"
+    ]
+  },
+  {
+    "hash": "784c7f5165b54af938560ce3867668f586d9a032",
+    "date": "2026-05-05T06:58:48+07:00",
+    "message": "feat(crontab): capture system usage JSON output via subprocess with stdout/stderr redirection\n\nReplace log_command call with direct subprocess.run invocation to write JSON output\nto file. Both stdout and stderr are redirected to ensure all output is captured.",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
+    "hash": "6579b4e04ab2b7d8bd196e905e927b94addf57e2",
+    "date": "2026-05-05T06:55:27+07:00",
+    "message": "refactor(crontab): remove empty no-op schedule blocks (4h, 6h, 1-w)\n\nRemove redundant `run_4h` and `run_6h` checks and simplify the weekly `1-w` block in .crontab.py to eliminate echo-only branches and duplicate `gc.collect()` calls.",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
+    "hash": "21b9740c5685c561cf6b666ee1a18a6afb2e0974",
+    "date": "2026-05-05T06:52:09+07:00",
+    "message": "fix(crontab): change default ensure_run_daily to False in should_run_job",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
+    "hash": "25af40c9fa8b24880005ff84ce9ac1c23d56f446",
+    "date": "2026-05-05T06:20:15+07:00",
+    "message": "feat(proxy): add artisan/proxy_private_checker.py to detect private proxies\n\n- Add `artisan/proxy_private_checker.py`: asynchronous proxy privacy checker using `asyncio`.\n- Tests proxies against configured endpoints (HTTP and HTTPS) via `fetch_with_proxy` and `build_request`.\n- Uses `FileLockHelper` to prevent concurrent runs and `SQLiteMarker` to avoid re-checking recent proxies.\n- Marks proxies in DB as `private: \"true\"`/`\"false\"` based on HTTP status (e.g. 407) or page title matching.\n- Removes tested entries from source file when loaded from file and records checked proxies in marker DB.\n- Improves reliability and automation for identifying private/authenticated proxies.",
+    "files": [
+      "artisan/proxy_private_checker.py"
+    ]
+  },
+  {
+    "hash": "4251a73bca06af595ca1d58b78a42bb50b89ed66",
+    "date": "2026-05-05T06:18:42+07:00",
+    "message": "feat(executor): add private checker and use hashed executor cache filename\n\n- Add `proxy_private_checker` to `$executorFiles` in `php_backend/executor.php`.\n- Replace static cache file with a hashed name using `$hash = md5(json_encode($executorFiles))` and store as `tmp('build', \"executor-{$hash}.json\")`.\n- Ensures cache uniqueness per executor set and reduces stale collisions.",
+    "files": [
+      "php_backend/executor.php"
+    ]
+  },
+  {
+    "hash": "d289dd7181949129d3d110ab84e1baf583daaf15",
+    "date": "2026-05-05T05:58:55+07:00",
+    "message": "feat(console): add ANSI rainbow text helper using colorsys\n\n- introduce `rainbow()` to generate smooth RGB gradient text using ANSI escape codes\n- add `colorsys` import for HSV → RGB conversion\n- update test to demonstrate rainbow output\n- reorder imports for consistency\n- minor import cleanup in logging functions",
+    "files": [
+      "src/func_console.py",
+      "tests/color-meter.py"
+    ]
+  },
+  {
+    "hash": "3357a6b8b890824940e469924dd68c7817f0676b",
+    "date": "2026-05-05T05:39:31+07:00",
+    "message": "fix(artisan/proxy_getter): ensure DB fetch returns enough candidates for filtering\n\n- introduce `db_limit = max(limit or 0, 1000)` to request at least 1000 rows\n- use `db_limit` for `get_untested_proxies` / `get_working_proxies` fallback\n- prevents over-filtering when caller applies marker/date filters",
+    "files": [
+      "artisan/proxy_getter.py"
+    ]
+  },
+  {
+    "hash": "9acaa72c91aa384896ca9c9c053ca571661793df",
+    "date": "2026-05-05T05:34:03+07:00",
+    "message": "refactor(artisan/proxy_getter): simplify DB fallback when retrieving untested proxies\n\n- replace try/except with concise or-chaining:\n  `rows = db.get_untested_proxies(...) or db.get_working_proxies(...) or []`\n- removes broad exception handling and makes fallback behavior explicit",
+    "files": [
+      "artisan/proxy_getter.py"
+    ]
+  },
+  {
+    "hash": "ca4aba9ad01cc034ac4ee0f26026955fee34712a",
+    "date": "2026-05-05T05:32:54+07:00",
+    "message": "feat(artisan/proxy_getter): add reusable `retrieve_proxies` and `ProxyRetrievalResult`\n\n- Add `ProxyRetrievalResult` dataclass and `retrieve_proxies()` helper in `artisan/proxy_getter.py`\n  - loads proxies from CLI, file, or DB\n  - accepts `custom_filter` for caller-specific filtering (marker/date logic)\n  - documents args/return and `source_label` semantics\n\nrefactor(artisan/proxy_socks5_checker): use retriever and date util\n\n- Replace inline proxy-loading logic with `retrieve_proxies(...)` and `ProxyRetrievalResult`\n- Remove local `is_last_check_before_today` implementation\n- Use `src.func_date.is_date_rfc3339_older_than(..., hours=24)` in custom filter\n- Dedupe + marker filtering moved into the custom_filter provided to retriever\n- Normalize file-source handling to use `file://` prefix and `startswith` check\n- Minor log/message simplification\n\nReason: extract and centralize proxy retrieval so checkers can reuse consistent loading/filtering semantics and delegate marker/date-specific rules via a callback.",
+    "files": [
+      "artisan/proxy_getter.py",
+      "artisan/proxy_socks5_checker.py"
+    ]
+  },
+  {
+    "hash": "232d4343a8be91b087cb863bd5d473b2d140b2f0",
+    "date": "2026-05-05T05:30:41+07:00",
+    "message": "fix(func_date): handle missing/empty timestamp in is_date_rfc3339_older_than\n\n- change signature to accept `Optional[str]` instead of `str`\n- add early guard: return False for None/empty `date_str`\n- avoids parsing errors and makes behavior explicit when timestamp is missing",
+    "files": [
+      "src/func_date.py"
+    ]
+  },
+  {
+    "hash": "73b8725adc74f8669a4d05011fca11cffea92524",
+    "date": "2026-05-05T03:21:12+07:00",
+    "message": "fix(proxySocks5Checker): load untested proxies from the database if no proxies are provided",
+    "files": [
+      "artisan/proxy_socks5_checker.py"
+    ]
+  },
+  {
+    "hash": "0a380a69edf59c05c332f386ccecc9222512daed",
+    "date": "2026-05-05T03:17:52+07:00",
+    "message": "fix(proxyCheckerParallel): avoid filectime stat warnings and normalize tmp runners path\n\n- Improve `checkProxyInParallel` docblock: clarify parameters and behavior.\n- In `cleanUp()` (in `proxyCheckerParallel-func.php`):\n  - Ensure `tmp('runners')` path ends with `DIRECTORY_SEPARATOR` to avoid malformed paths.\n  - Skip entries that no longer exist before calling `filectime()`.\n  - Guard against `filectime()` returning `false` and continue safely.\n- Prevents PHP warnings like \"filectime(): stat failed ...\" when runner files are missing or removed concurrently.",
+    "files": [
+      "proxyCheckerParallel-func.php"
+    ]
+  },
+  {
+    "hash": "096924efbf34196b3dccb91cc1bf6a40aea5a103",
+    "date": "2026-05-05T02:49:42+07:00",
+    "message": "refactor(artisan): move to_proxy_rows and normalize_proxy_value to proxy_getter.py\n\n- Extract duplicated helper functions `to_proxy_rows` and `normalize_proxy_value`\n  from `artisan/proxy_socks5_checker.py` into `artisan/proxy_getter.py`.\n- Add typings and small input normalization improvements in `proxy_getter.py`.\n- Update `artisan/proxy_socks5_checker.py` to import the shared helpers and\n  remove the local duplicate implementations.\n- No intended behavioral change; centralizes shared logic to reduce duplication.",
+    "files": [
+      "artisan/proxy_getter.py",
+      "artisan/proxy_socks5_checker.py"
+    ]
+  },
+  {
+    "hash": "1ba52dace15bc13cb8002b7672c9d47492868228",
+    "date": "2026-05-05T01:33:44+07:00",
+    "message": "feat(geo-ip): refactor IP handling, add caching, and improve CLI/background execution flow\n\n- replace extractProxies with extractIps and simplify IP parsing\n- add CLI detection to separate web and CLI execution paths\n- introduce file-based caching with validation (city, country, ip match)\n- avoid redundant runner execution when valid cached result exists\n- restructure runner logic and unify command building with sprintf\n- add runnerResult metadata (logs, status, ip_queried) to responses\n- improve validation using null coalescing and strict empty checks\n- persist CLI lookup results to cache file for reuse\n- clean up response handling and ensure consistent JSON output structure",
+    "files": [
+      "php_backend/geo-ip.php"
+    ]
+  },
+  {
+    "hash": "9bbd2deea6d4700fc950925f91cb848803162904",
+    "date": "2026-05-05T00:59:08+07:00",
+    "message": "fix(geo-plugin): rename locate_recursive to locateRecursive",
+    "files": [
+      "src/PhpProxyHunter/GeoIpHelper.php",
+      "src/PhpProxyHunter/GeoPlugin.php"
+    ]
+  },
+  {
+    "hash": "278bf2bbadcd0c2958024b07bb550c2eba9311f6",
+    "date": "2026-05-05T00:56:03+07:00",
+    "message": "fix(geo-ip): normalize runner and log handling to match check-https-proxy\n\nUse a consistent hashFilename and tmp('logs', ...) for output files, add embedOutputUrl,\nand enforce permissions with setMultiPermissions. Build the PHP command with\ngetPhpExecutable(true), write a runner into tmp('runners', ...), and execute it via\nrunBashOrBatch() instead of ad-hoc popen/exec. This makes background geo-IP lookups\ncross-platform and consistent with check-https-proxy behavior.",
+    "files": [
+      "php_backend/geo-ip.php"
+    ]
+  },
+  {
+    "hash": "73bfd7a8d691fb7f9a6a3d1521c1f7e71162eece",
+    "date": "2026-05-05T00:51:58+07:00",
+    "message": "refactor(php): replace global $isAdmin with is_admin() assignments\n\nReplace fragile `global $isAdmin` usage with explicit `$isAdmin = is_admin();`\ninitialization to ensure the admin flag is consistently set and avoid relying\non implicit globals.",
+    "files": [
+      "artisan/proxyWorking.php",
+      "php_backend/executor.php",
+      "php_backend/get_sms.php",
+      "php_backend/logs.php",
+      "php_backend/processes.php"
+    ]
+  },
+  {
+    "hash": "3bf1d13532131b59c1cd1e27e137fdfa77548d2d",
+    "date": "2026-05-05T00:48:35+07:00",
+    "message": "fix(geo-ip): initialize $isAdmin and create runner/log output for background geo lookup\n\n- Initialize `$isAdmin` instead of relying on a previously undefined global.\n- Use `__FILE__` for the background command and generate a stable hash-based runner name.\n- Create `$runner` and `$output_file` under `tmp('runners')` and `tmp('logs')`, and ensure the output directory exists.\n- Mirror `check-https-proxy.php` runner/log pattern to reliably spawn detached background processes on Windows and Unix, preventing undefined variable errors.",
+    "files": [
+      "php_backend/geo-ip.php"
+    ]
+  },
+  {
+    "hash": "dd225836e0226223312773bfe4b5553c01d4ce15",
+    "date": "2026-05-05T00:47:23+07:00",
+    "message": "fix(check-https-proxy): include $proxy_db in global scope for proper access",
+    "files": [
+      "php_backend/check-https-proxy.php"
+    ]
+  },
+  {
+    "hash": "e2af7a64c46b28b25d845bfad7681e25a4c0f5fe",
+    "date": "2026-05-04T19:52:29+07:00",
+    "message": "fix(artisan): add file locking to proxyFetcher to prevent concurrent runs\n\n- import `FileLockHelper` and add `current_filename` + `locker: Optional[...]`\n- acquire a lock at `tmp/locks/{current_filename}.lock` in `__main__`, exit if already locked\n- ensure lock is released in a `finally` block\n- add `Optional` to typing imports",
+    "files": [
+      "artisan/proxyFetcher.py"
+    ]
+  },
+  {
+    "hash": "4f486a19b42f2a94726ea7e9d768332ffd9fcf64",
+    "date": "2026-05-04T19:48:59+07:00",
+    "message": "refactor(get_project_root): use variadic args for path building\n\n- Replace manual string concatenation with `get_project_root(...)` varargs in:\n  - `src/database/user_session.php` (config, tmp/status, tmp/logs)\n- Ensure config directory is created recursively with explicit permissions (`mkdir(..., 0777, true)`)\n- Use `get_project_root('tmp')` as the base in `src/utils/file/temp.php`",
+    "files": [
+      "src/database/user_session.php",
+      "src/utils/file/temp.php"
+    ]
+  },
+  {
+    "hash": "226ed0f1a259b5e622dc21fec256d7b4e270425d",
+    "date": "2026-05-04T19:42:58+07:00",
+    "message": "refactor(geoIp): remove unused status file handling and simplify scheduler registration",
+    "files": [
+      "artisan/geoIp.php"
+    ]
+  },
+  {
+    "hash": "7581cbf573958d759bbf6b028d7b9281c81173a4",
+    "date": "2026-05-04T19:40:36+07:00",
+    "message": "fix(geoIp): define $isAdmin, relocate status file, and initialize $result\n\n- Add `$isAdmin = is_admin()` to ensure the admin flag is defined.\n- Change status file path to `tmp/logs/geoIp-$uid-status.txt` for per-run logging.\n- Initialize `$result = []` before protocol resolution to avoid undefined variable notices and satisfy static analysis.",
+    "files": [
+      "artisan/geoIp.php"
+    ]
+  },
+  {
+    "hash": "a68de8ccd8ebd889b118c06f8a46ae854ef284e4",
+    "date": "2026-05-04T19:36:48+07:00",
+    "message": "refactor(shared): unify DB init with local/production helpers and improve error handling\n\n- Replace direct `CoreDB` construction with `init_local_database()` and fallback to `init_production_database()` on local init failure.\n- Add `init_local_database()` and `init_production_database()` helpers to encapsulate environment-specific DB setup.\n- Log initialization errors and print messages in CLI; exit early on fatal CLI failures to avoid using a broken DB.\n- Expose `$user_db`, `$proxy_db`, and `$log_db` safely using null coalescing from `$core_db`.\n- Improves resilience and diagnosability of DB initialization across CLI and web contexts.",
+    "files": [
+      "php_backend/shared.php"
+    ]
+  },
+  {
+    "hash": "e4958ce0a41721bc8942bcbcf73a2b16b8824de2",
+    "date": "2026-05-04T19:12:55+07:00",
+    "message": "feat(console): add smooth red→green ANSI gradient for percent coloring\n\n- Implement `color_percent_value_text` using 24-bit (truecolor) ANSI in `src/func_console.py`.\n- Replace bucketed coloring in `src/utils/process/resources_usage.py` to reuse the shared helper.\n- Tidy and reorder imports, and import the new helper in `src/utils/process/process_usage.py`.\n- Add `tests/color-meter.py` to print gradient samples from 0% to 100% for verification.",
+    "files": [
+      "src/func_console.py",
+      "src/utils/process/process_usage.py",
+      "src/utils/process/resources_usage.py",
+      "tests/color-meter.py"
+    ]
+  },
+  {
+    "hash": "fd68710346f2e88466c2456bd5b586b29fb76355",
+    "date": "2026-05-04T19:10:04+07:00",
+    "message": "feat(crontab): implement conditional resource usage logging every 5 minutes",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
+    "hash": "f1f78a402ad66b5d8730dd9327bdd731586a164c",
+    "date": "2026-05-01T18:26:57Z",
+    "message": "chore(deps-dev): bump vite-plugin-mkcert from 1.17.12 to 2.0.0\n\nBumps [vite-plugin-mkcert](https://github.com/liuweiGL/vite-plugin-mkcert) from 1.17.12 to 2.0.0.\n- [Release notes](https://github.com/liuweiGL/vite-plugin-mkcert/releases)\n- [Changelog](https://github.com/liuweiGL/vite-plugin-mkcert/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/liuweiGL/vite-plugin-mkcert/compare/v1.17.12...v2.0.0)\n\n---\nupdated-dependencies:\n- dependency-name: vite-plugin-mkcert\n  dependency-version: 2.0.0\n  dependency-type: direct:development\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "3cbd709d210106a6035087a110d55b138d276790",
+    "date": "2026-05-01T18:26:45Z",
+    "message": "chore(deps-dev): bump prettier-plugin-sql from 0.19.2 to 0.20.0\n\nBumps [prettier-plugin-sql](https://github.com/un-ts/prettier) from 0.19.2 to 0.20.0.\n- [Release notes](https://github.com/un-ts/prettier/releases)\n- [Changelog](https://github.com/un-ts/prettier/blob/master/CHANGELOG.md)\n- [Commits](https://github.com/un-ts/prettier/compare/prettier-plugin-sql@0.19.2...prettier-plugin-sql@0.20.0)\n\n---\nupdated-dependencies:\n- dependency-name: prettier-plugin-sql\n  dependency-version: 0.20.0\n  dependency-type: direct:development\n  update-type: version-update:semver-minor\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "5abef7fc90f2c0b64f13f153933f335e4e81bf2b",
+    "date": "2026-05-01T16:28:42+07:00",
+    "message": "feat(geoPlugin): add HTTP fallback geolocation providers (ip-api, ipwhois) and test\n\n- Add `query_ip_api`, `query_ipwhois`, and `try_external_geo` helpers to `src/geoPlugin.py`.\n- Integrate `try_external_geo(ip)` into `get_geo_ip` to run when GeoLite2 and existing fallbacks don't yield country info.\n- Add `tests/get_geo_ip.py` to exercise the fallback path (example IP: 104.16.10.200).\n- Implementation is best-effort: no API keys required for the added providers; note that `ip-api` is rate-limited (free tier) and Cloudflare anycast IPs may still return coarse/neutral results.",
+    "files": [
+      "src/geoPlugin.py",
+      "tests/get_geo_ip.py"
+    ]
+  },
+  {
+    "hash": "8310ebf6ee9a1e052b709dacc88c2eb460effb20",
+    "date": "2026-05-01T16:18:48+07:00",
+    "message": "refactor(react): route GeoIP ajax calls through php_backend executor to run geoIp.py\n\n- Update GeoIP background AJAX endpoints in `ServerSide.tsx`, `UniqueIpList.tsx`, and `WorkingJson.tsx` to use `/php_backend/executor.php?file=/artisan/geoIp.py` instead of `/artisan/geoIpBackground.php`.\n- Centralizes background GeoIP processing via the PHP executor invoking the Python `geoIp.py` script.\n- Improves consistency with backend execution model and supports the new Python-based GeoIP runner.",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx",
+      "src/react/pages/ProxyList/UniqueIpList.tsx",
+      "src/react/pages/ProxyList/WorkingJson.tsx"
+    ]
+  },
+  {
+    "hash": "c4e1020c7fa0b900ad49ffb2217182fd0494ab86",
+    "date": "2026-05-01T16:03:05+07:00",
+    "message": "feat(artisan/proxy_tun2socks): record latency (ms) and geo info; colorize FOUND\n\n- Convert `score_result[\"latency\"]` (seconds) → milliseconds and store as `\"latency\"` in DB updates for both success and failure handlers.\n- Perform geo lookup using `get_geo_ip` (via `asyncio.to_thread`) and store `city` and `country` when available.\n- Include geo fields in the `data` passed to `db.update_data`.\n- Colorize `FOUND` CLI output using `color_value_text(score)`.\n- Fix indentation/async flow in `on_success` / `on_failure` callbacks.",
+    "files": [
+      "artisan/proxy_tun2socks_stability.py"
+    ]
+  },
+  {
+    "hash": "d8490bc3f745a9848ce802c6a4406d6099d9028c",
+    "date": "2026-05-01T15:58:54+07:00",
+    "message": "feat(artisan/proxy_tun2socks): record latency (ms) and colorize found score\n\n- Convert `score_result[\"latency\"]` (seconds) → milliseconds and store as\n  `\"latency\"` in DB updates for both success and failure handlers.\n- Add latency value to the data passed to `db.update_data`.\n- Colorize the `FOUND` output using `color_value_text(score)` for clearer CLI\n  visibility.\n- Fix indentation in `on_success` / `on_failure` handlers to ensure proper async DB update flow.",
+    "files": [
+      "artisan/proxy_tun2socks_stability.py"
+    ]
+  },
+  {
+    "hash": "e9d41fcff99089c06c4abeedbabcdce0deb0b0e7",
+    "date": "2026-05-01T15:45:03+07:00",
+    "message": "refactor(cleaner): parameterize directory cleanup and use time helpers\n\n- Import `day_to_seconds` from `src.func_date` in `artisan/cleaner.py`.\n- Remove `ONE_DAY_SECONDS` constant and compute default expiry using `day_to_seconds(7)` (general default changed from 1 day → 7 days).\n- Change `clean_directory` signature to `clean_directory(base_path: str, expire_seconds: int = 0) -> None`, compute `now` internally, and use `expire_seconds` for file expiration and recursive calls.\n- Update callers to use the new signature (no longer passing `now`) and add a specific daily cleanup for `assets/proxies` via `clean_directory(get_relative_path(\"assets/proxies\"), day_to_seconds(1))`.\n- Improves configurability and clarity of cleanup timing while preserving an explicit daily purge for proxy assets.",
+    "files": [
+      "artisan/cleaner.py"
+    ]
+  },
+  {
+    "hash": "0f2617df11ae058d59626172ba7751f7532ceb29",
+    "date": "2026-05-01T15:42:43+07:00",
+    "message": "feat(time): add day/hour/minute to seconds helpers in `src/func_date.py`\n\n- Add `day_to_seconds(days)`, `hour_to_seconds(hours)`, and `minute_to_seconds(minutes)` helpers.\n- Provide simple, well-documented conversions and return integer seconds.\n- Improves clarity and reuse for time-based calculations across the codebase.",
+    "files": [
+      "src/func_date.py"
+    ]
+  },
+  {
+    "hash": "8486cf8e892a03bf905b1f20557ef253e762178c",
+    "date": "2026-05-01T15:41:33+07:00",
+    "message": "feat(src): export additional helper and DB modules from package root\n\n- Re-export `func`, `func_date`, `func_console`, `ProxyDB`, `shared`, `func_certificate`, and `func_platform` in `src/__init__.py`.\n- Allows importing these utilities directly from the `src` package (e.g., `from src import ProxyDB`), simplifying import sites.\n- No functional changes; improves package ergonomics and discoverability of core helpers.",
+    "files": [
+      "src/__init__.py"
+    ]
+  },
+  {
+    "hash": "cbef10cd5bdbdcba60a6aacb7b200c4e8bc00236",
+    "date": "2026-05-01T15:34:00+07:00",
+    "message": "fix(cron): add limit parameter to proxy_checker_httpx.py command",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
+    "hash": "868a23640d4b2bdab88553efe2cacc5314db72f6",
+    "date": "2026-05-01T15:30:09+07:00",
+    "message": "chore(config): add TOML formatter and Black settings, update pyproject & VSCode\n\n- Add `tamasfe.even-better-toml` to `.vscode/extensions.json` and enable TOML formatter options in `.vscode/settings.json`.\n- Simplify `pyproject.toml` `include` list; add extra excludes (`**/.*`, `.venv`) and normalize lists (`testpaths`, `python_files`, `extraPaths`).\n- Add `[tool.black]` configuration (line-length 88, py311 target, include/exclude rules and formatting behavior).\n- Minor workspace/editor formatting and tooling updates — no runtime code changes.",
+    "files": [
+      ".vscode/extensions.json",
+      ".vscode/settings.json",
+      "pyproject.toml",
+      "src/MySQLHelper.py",
+      "src/database/SQLiteMarker.py",
+      "src/scheduler.py",
+      "src/utils/process/executables.py"
+    ]
+  },
+  {
+    "hash": "4bc61ea121a5cd4d6b3b1f6e0943f8e96c714e5d",
+    "date": "2026-05-01T15:23:36+07:00",
+    "message": "feat(monitoring): add JSON system/process output and update crontab logging\n\n- Add `--json` flag to `src/utils/process/process_usage.py` (via `src/utils/parse_args.py`)\n  to emit a machine-readable payload (timestamp, top processes, system summary).\n- Extend `display_system_usage(...)` in `src/utils/process/resources_usage.py` with a\n  `json` parameter; when `json=True` it returns a dict with numeric fields\n  (`cpu_usage`, `ram_percent`, `ram_used_bytes`, `ram_total_bytes`,\n  `storage_percent`, `storage_used_bytes`, `storage_total_bytes`) and a plain\n  `human` summary string.\n- Update `.crontab.py`:\n  - `log_command()` now accepts `str | Path` (coerces to `Path` internally).\n  - Move/adjust resource logging and add a JSON log invocation for\n    `tmp/logs/system-usage.json` that runs `process_usage.py --json`.\n\nBREAKING CHANGE: `display_system_usage()` signature changed (added `json` arg)\nand may return a dict when `json=True`. Update callers accordingly.",
+    "files": [
+      ".crontab.py",
+      "src/utils/process/process_usage.py",
+      "src/utils/process/resources_usage.py"
+    ]
+  },
+  {
+    "hash": "983e12343825b431bc34a8390d2b0c4a1bae6ec2",
+    "date": "2026-05-01T15:12:19+07:00",
+    "message": "refactor(cron): streamline resource logging by removing redundant job check",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
+    "hash": "6d28f8b460f8e7752771769f71fa784a0a83b879",
+    "date": "2026-05-01T15:03:08+07:00",
+    "message": "chore(deps): replace nexe with node-gyp in package.json\n\n- Remove `nexe` entry and add `node-gyp@^12.3.0` in `package.json`.\n- Updates dev tooling dependencies; no functional code changes.",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "5c8c5541e5ac34fdeb60425e3ed6d364803f5307",
+    "date": "2026-05-01T14:59:17+07:00",
+    "message": "fix(deploy-vps): ignore git restore failures and avoid redundant submodule pulls\n\n- bin/deploy-vps.cmd: add handling for unstaged `.husky/hash.txt` and redirect stderr (`2>nul || rem`) so `git restore` failures don't stop the script.\n- bin/deploy-vps.mjs: introduce `pullSubmodule` flag to ensure `packages/proxy-checker-python` clone/pull logic runs only once, re-clone if `.git` is a file, and run the composer `require` command once on the remote host. Streamlines remote update flow and avoids duplicate operations.",
+    "files": [
+      "bin/deploy-vps.cmd",
+      "bin/deploy-vps.mjs"
+    ]
+  },
+  {
+    "hash": "ee8c477cbee8236a2687040aefe700f0bdae251a",
+    "date": "2026-05-01T14:25:19+07:00",
+    "message": "feat(vite): add vite-chunks helper and adjust legacy plugin to avoid duplicate guard\n\n- Add `vite-chunks.js` exporting `listTopLevelFolders`, `node_modules_folders`, and `sanitizeFilename`\n  to generate safe manual chunk names from `node_modules`.\n- Update `vite.config.js` to:\n  - use `node_modules_folders` in `manualChunks` for deterministic chunk names,\n  - set `build.target = 'es2018'`,\n  - pass `targets: 'defaults, not IE 11'` and `renderLegacyChunks: false` to `@vitejs/plugin-legacy`\n    to prevent duplicate `__vite_legacy_guard` injections.\n- Minor import ordering / plugin config cleanup.",
+    "files": [
+      "vite-chunks.js",
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "7f1708b80a7abb3ba525747f5c7aee6110293f5a",
+    "date": "2026-05-01T14:23:27+07:00",
+    "message": "fix(env): add PUPPETEER_SKIP_DOWNLOAD environment variable to workflows",
+    "files": [
+      ".github/workflows/checker-php.yml",
+      ".github/workflows/checker-python.yml",
+      ".github/workflows/clean-caches.yml",
+      ".github/workflows/clean-logs.yml",
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "2dc644d51818c452caeadf92e9af0993d3dde307",
+    "date": "2026-05-01T13:51:34+07:00",
+    "message": "perf(dev): write git-history to tmp and skip unchanged files\n\n- replace `sbg-utility` `writefile` with `fs-extra` for robust file ops\n- write JSON to `tmp/build/...` first, compare with destination, and only\n  overwrite when content differs to avoid unnecessary disk writes\n- ensure destination directories exist and move tmp file atomically\n- reduces noisy rebuilds/watch triggers (e.g. Vite) by avoiding identical writes",
+    "files": [
+      "src/dev/git-history.builder.ts"
+    ]
+  },
+  {
+    "hash": "a13e79209c96b7e7c27de0c095dab59d4dc3c4b4",
+    "date": "2026-05-01T13:47:56+07:00",
+    "message": "fix(build): prevent endless Vite build by separating runner\n\nExport `buildForGithubPages` from `vite-gh-pages.js` and add a dedicated\n`vite-gh-pages.runner.js` to execute it. Update `package.json` and\n`.github/workflows/github-pages.yml` to use the new runner (`yarn build:gh-pages`).\nRemove automatic execution on import to avoid circular-import recursion that\ncaused the Vite build to run endlessly.",
+    "files": [
+      ".github/workflows/github-pages.yml",
+      "package.json",
+      "vite-gh-pages.js",
+      "vite-gh-pages.runner.js"
+    ]
+  },
+  {
+    "hash": "5205c3b868c88b7c945d1044be71d50be4de23b3",
+    "date": "2026-05-01T13:36:30+07:00",
+    "message": "ci(github-pages): add yarn/cache paths to cache and remove pre-clean step\n\n- Add `**/.yarn`, `**/.cache`, and `public/` to the cache paths in `.github/workflows/github-pages.yml`.\n- Remove the `Clean dist and tmp` step to avoid unnecessary deletion before dependency install.\n- Improves cache effectiveness and speeds up workflow runs on cache hits.",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "2f5d90c0a7913fada718881e6822f23086c85358",
+    "date": "2026-05-01T13:33:34+07:00",
+    "message": "fix(build): add copy-fonts Vite plugin and ignore generated fonts\n\nAdd `copyFontsPlugin()` to `vite-plugin.js` and register it in `vite.config.js`.\nThe plugin copies `assets/fonts` to `public/assets/fonts` and ensures\n`dist/react/assets/fonts` exists at build start to prevent Rollup/Vite ENOENT\nerrors when emitting fingerprinted font assets.\n\nAlso add `/public/assets/fonts` to `.gitignore` to avoid committing generated\nfont files.",
+    "files": [
+      ".gitignore",
+      "vite-plugin.js",
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "9d9199ba4d3007e9b7f8db28fc4faf09e2a8ca27",
+    "date": "2026-05-01T13:18:30+07:00",
+    "message": "refactor(github-actions-init): simplify temp directories handling\n\n- Remove `temp_dirs` variable and its deletion loop.\n- Keep `dist` in the `dirs` list and avoid duplicating temp entries.",
+    "files": [
+      "github-actions-init.py"
+    ]
+  },
+  {
+    "hash": "9d76d2b4330934d0110291c14ab052bcb111aca6",
+    "date": "2026-05-01T13:17:26+07:00",
+    "message": "refactor: reduce redundancy and simplify command handling in init script\n\n- simplify run_command by using text=True and returning stdout directly\n- remove redundant None check in git repo validation\n- refactor delete_path with early return to reduce nesting\n- rename variables for clarity (current_directory → base_dir, dir_path → d)\n- extract repeated pip install calls into run_pip_install helper\n- simplify package list extension using += and default branch argument\n- remove duplicate directory entry and use iterable unpacking for temp_dirs\n- minor formatting and structure improvements for readability",
+    "files": [
+      "github-actions-init.py"
+    ]
+  },
+  {
+    "hash": "8cb0d6ef61c11dc33e2309bbd6778a291a2997a9",
+    "date": "2026-05-01T13:16:16+07:00",
+    "message": "ci(github-actions): install additional requirement files in init script\n\n- When `missing_packages` is true, also install `requirements-base.txt` and `requirements-minimal.txt`.\n- Preserve existing install of `requirements.txt`.",
+    "files": [
+      "github-actions-init.py"
+    ]
+  },
+  {
+    "hash": "a79e51aeea28a283db309ca68528772ff7d7f48b",
+    "date": "2026-05-01T13:13:29+07:00",
+    "message": "fix(vite-plugin): make copyIndexHtml resilient to undefined __dirname and missing source\n\n- Use a safe `baseDir` fallback to `process.cwd()` when `__dirname` is undefined (bundled ESM/Vite).\n- Check for existence of `index.dev.html` before copying; log and skip if missing.\n- Wrap copy operation in try/catch and emit success/error logs with relative paths.\n- Add `/** @type {string[]} */` annotation for `filesToCopy` to aid type-checking/linting.",
+    "files": [
+      "vite-plugin.js"
+    ]
+  },
+  {
     "hash": "65e7dd901f271e615351bd213cef363c64ebf365",
     "date": "2026-05-01T13:07:47+07:00",
     "message": "ci(github-actions): conditionally install deps and initialize actions step\n\n- Add `Install Dependencies` step to enable `corepack` and run `yarn install` when cache miss occurs.\n- Replace original single `Setup github actions` run with `Initialize Github Actions` step that sets `GITHUB_OUTPUT` and runs `node setup.js`.\n- Improves workflow reliability and avoids unnecessary installs when cache is available.",
@@ -7841,1077 +8818,6 @@
     "message": "feat(autoload): add autoload file to require custom fixer files",
     "files": [
       "src/dev/php-cs-fixer/autoload.php"
-    ]
-  },
-  {
-    "hash": "14ce41b6e61251ca37eb1270801eda4d5f59e6cf",
-    "date": "2025-11-20T05:49:15+07:00",
-    "message": "style(shared.php): format database connection variable declarations for consistency",
-    "files": [
-      "php_backend/shared.php"
-    ]
-  },
-  {
-    "hash": "b754908a9ae9a7f0e6e6fcc9af5acc9b60233edb",
-    "date": "2025-11-20T05:45:26+07:00",
-    "message": "feat(cs-fixer): add GlobalOneLineFixer and enable rule\n\nAdd a new custom PHP-CS-Fixer (`Custom/global_one_line`) to convert\nmulti-line `global` statements into a single-line form.\n\n- Add `src/dev/php-cs-fixer/GlobalOneLineFixer.php` implementing token-based\n  conversion.\n- Require and register the fixer in `.php-cs-fixer.dist.php`.\n- Refactor config to build `$rules` and enable `'Custom/global_one_line' => true`.",
-    "files": [
-      ".php-cs-fixer.dist.php",
-      "src/dev/php-cs-fixer/GlobalOneLineFixer.php"
-    ]
-  },
-  {
-    "hash": "78754bc5a9833387d1fedd3410f92891d2fd75bf",
-    "date": "2025-11-20T05:22:16+07:00",
-    "message": "fix(check-http-proxy): remove unnecessary SSL data from response",
-    "files": [
-      "php_backend/check-http-proxy.php"
-    ]
-  },
-  {
-    "hash": "b00e1334a1370e6ffb53ca35ef6e5c19c939bc6a",
-    "date": "2025-11-20T03:58:59+07:00",
-    "message": "fix(geo): prevent concurrent GeoMMDB downloads in GeoPlugin2\n\n- add private static `$downloadingMap` to track active downloads\n- guard `downloadFile()` to skip if the target path is already being downloaded\n- mark path in `$downloadingMap` and register shutdown handler to clear it\n\nThis prevents duplicate concurrent downloads for the same GeoIP file.",
-    "files": [
-      "src/PhpProxyHunter/GeoPlugin2.php"
-    ]
-  },
-  {
-    "hash": "e9eb60243c2401236b08429b8e94bf5ed7fa9afd",
-    "date": "2025-11-20T03:49:14+07:00",
-    "message": "feat(scripts): add geoip-installer and update download logic\n\n- add `scripts/geoip-installer.js` to fetch GeoLite2 MMDB files:\n  - follows redirects for HEAD/GET, reads Content-Length\n  - downloads only when remote size is larger than local (or when local missing)\n  - writes to `tmp/download` then copies to `src/`\n  - robust error handling, cleans partial files and ensures process exits when done\n- include `geoip-installer.js` in `scripts/postinstall.js` to run after install\n- change download behavior in `src/PhpProxyHunter/GeoPlugin2.php` to only download when\n  remote size is greater than local (`$remoteFileSize > $localFileSize`)\n\nThis adds automatic GeoIP MMDB management and tightens update conditions to avoid unnecessary downloads.",
-    "files": [
-      "scripts/geoip-installer.js",
-      "scripts/postinstall.js",
-      "src/PhpProxyHunter/GeoPlugin2.php"
-    ]
-  },
-  {
-    "hash": "ce5eaf3ebc3a2e962c2007b9293d280c6bc8e9f3",
-    "date": "2025-11-19T21:10:20+07:00",
-    "message": "feat(timeago): add `simple` and `unitOnly` options; use compact output in ProxyList\n\nAdd optional parameters to `timeAgo(dateString, simple = false, unitOnly = false)`:\n- `simple=true` shortens output: when days > 0 show days and hours (hide minutes & seconds); when hours > 0 (and days === 0) hide seconds only.\n- Minutes-as-top-unit still include seconds (e.g. \"2 minutes 10 seconds\"), seconds-only unchanged.\n- `unitOnly=true` uses short unit labels (d/h/m/s), e.g. \"1d 3h ago\".\n\nUpdate `src/react/pages/ProxyList/index.tsx` to call `timeAgo(proxy.last_check, true, true)` so last-check times render in the compact form.\n\nNo breaking changes (defaults remain `false`).",
-    "files": [
-      "src/react/pages/ProxyList/index.tsx",
-      "src/utils/date.js"
-    ]
-  },
-  {
-    "hash": "50080b4ce7c67110bfb36a31e24059986b140c84",
-    "date": "2025-11-19T17:54:50+07:00",
-    "message": "fix(php): make codebase PHP 7.0 compatible and tidy function signatures\n\n- Remove PHP 7.1+/8.0-only type syntax (nullable `?type` and some return `: void`) so code runs on PHP 7.0.\n- Replace `str_starts_with` usage with `strpos(... ) === 0` for compatibility.\n- Remove `setCacheHeaders(5)` call in `artisan/proxyWorkingBackground.php` and normalize `exitProcess()` formatting.\n- Normalize function signatures and minor cleanup in:\n  - `func.php`\n  - `proxyCheckerParallel-func.php`\n  - `src/PhpProxyHunter/utils/validator.php`\n  - `src/utils/file/sanitizer.php`\n  - `src/utils/string/index.php`\n- Ensure no duplicate/malformed declarations remain; verified syntax with `php -l`.\n\nBREAKING CHANGE: Several function signatures had type hints removed (parameters/return types). Callers that relied on strict type enforcement should be reviewed.",
-    "files": [
-      "artisan/proxyWorkingBackground.php",
-      "func.php",
-      "proxyCheckerParallel-func.php",
-      "src/PhpProxyHunter/utils/validator.php",
-      "src/utils/file/sanitizer.php",
-      "src/utils/string/index.php"
-    ]
-  },
-  {
-    "hash": "b7f786b514d36558a894436f32ed0cc0ef46d24c",
-    "date": "2025-11-19T17:30:58+07:00",
-    "message": "refactor(file): move createParentFolders() to mkdir utils module\n\n- Remove createParentFolders() from func.php\n- Add createParentFolders() to src/utils/file/mkdir.php\n- No functional changes; improve file organization and modularity",
-    "files": [
-      "func.php",
-      "src/utils/file/mkdir.php"
-    ]
-  },
-  {
-    "hash": "99b4061e38ed6edd2e23a1af02140c412e29935d",
-    "date": "2025-11-19T17:26:15+07:00",
-    "message": "refactor(file): move permission helper functions to dedicated utils module\n\n- Remove setMultiPermissions() and setPermissions() from func.php\n- Add new file src/utils/file/permissions.php containing the extracted functions\n- No functional changes; code is reorganized for better structure and maintainability",
-    "files": [
-      "func.php",
-      "src/utils/file/permissions.php"
-    ]
-  },
-  {
-    "hash": "adb4370b65f4ea5368e0d84ee03ae3f9bd9e56f8",
-    "date": "2025-11-19T17:24:54+07:00",
-    "message": "fix: suppress warnings on file permission changes and file writes",
-    "files": [
-      "func.php",
-      "src/utils/file/crud.php"
-    ]
-  },
-  {
-    "hash": "b2938a936279776b656ae2a38920380596f634a6",
-    "date": "2025-11-19T17:24:01+07:00",
-    "message": "fix(proxy-checker): organize runner and PID files into dedicated directories",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "3bfcb5d640bccf5732681db7c8659603b17e6a36",
-    "date": "2025-11-19T17:23:32+07:00",
-    "message": "fix(runBashOrBatch): organize runner and log file paths into dedicated directories",
-    "files": [
-      "src/utils/process/runBashOrBatch.php"
-    ]
-  },
-  {
-    "hash": "49fac5d65511292472e647fde448429586559157",
-    "date": "2025-11-19T17:04:33+07:00",
-    "message": "fix(bin): prefer venv over .venv when selecting/creating virtual environment\n\nPrefer `venv` by default and fall back to `.venv` in `bin/py` and `bin/py.cmd`.\nRetains existing venv creation, python3 shim, activation, and OS-specific behavior.\nFiles changed: bin/py, bin/py.cmd",
-    "files": [
-      "bin/py",
-      "bin/py.cmd"
-    ]
-  },
-  {
-    "hash": "ba8d26be609941611fd4d030827948c0fd101850",
-    "date": "2025-11-19T16:13:43+07:00",
-    "message": "fix(proxy-list): preserve cache on embed.php JSON parse failure\n\nOnly update the in-memory and localStorage caches when the fetched result is a valid, non-empty array.\nIf fetch or JSON parsing fails (or the response is empty/invalid), fall back to the existing module cache or localStorage\nso the UI doesn't get cleared when `embed.php` returns invalid JSON.",
-    "files": [
-      "src/react/pages/ProxyList/index.tsx"
-    ]
-  },
-  {
-    "hash": "01a74e0e56bae4034d8aabc2af8a42197cb80fb3",
-    "date": "2025-11-19T16:01:42+07:00",
-    "message": "chore: restore old proxy list using static file",
-    "files": [
-      "php_backend/proxy-working.php",
-      "src/react/pages/ProxyList/index.tsx"
-    ]
-  },
-  {
-    "hash": "19e92e65ee197961155e2c9e1f648de37f637d99",
-    "date": "2025-11-19T15:59:12+07:00",
-    "message": "feat(ProxyDB): add findProxy method for flexible proxy searching with pagination",
-    "files": [
-      "src/PhpProxyHunter/ProxyDB.php"
-    ]
-  },
-  {
-    "hash": "d1713077d170acff7d05f67c5d88affc90174b58",
-    "date": "2025-11-19T15:50:00+07:00",
-    "message": "fix(proxy-add): correct tmp() usage for lock file path",
-    "files": [
-      "php_backend/proxy-add.php"
-    ]
-  },
-  {
-    "hash": "f98b9eafbdf8de40533060dd167b5149fd1560f5",
-    "date": "2025-11-19T15:49:32+07:00",
-    "message": "refactor(utils/file): extract tmp() into dedicated temp.php\n\n- Move `tmp(...)` helper out of `src/utils/file/index.php` into new\n  `src/utils/file/temp.php`.\n- Keeps `index.php` focused on general file utilities and isolates temp\n  directory creation/permission logic in a single file.\n- No behavioral changes to `tmp(...)` (logic preserved).",
-    "files": [
-      "src/utils/file/index.php",
-      "src/utils/file/temp.php"
-    ]
-  },
-  {
-    "hash": "9b4792455a2a83d2cfd510f032800004577efe08",
-    "date": "2025-11-19T15:47:43+07:00",
-    "message": "fix(tmp): append filenames to tmp() result instead of passing them into tmp()\n\n- Avoid passing filename-like args into `tmp()` (it creates directories named like the file).\n- Use `tmp()` to obtain the directory and append the filename instead.\n\nReason: calling `tmp('locks/whatever.lock')` created a folder named `whatever.lock`, breaking lock-file behavior; this change ensures real lock files are used.",
-    "files": [
-      "artisan/filterPortsDuplicate.php",
-      "src/PhpProxyHunter/Checker/ProxyChecker-test.php"
-    ]
-  },
-  {
-    "hash": "3b0bfb797733e8b8e30505badccbe6569de9c6f3",
-    "date": "2025-11-19T15:39:58+07:00",
-    "message": "fix(FileLockHelper): delete the lock file gracefully upon unlocking",
-    "files": [
-      "src/PhpProxyHunter/FileLockHelper.php"
-    ]
-  },
-  {
-    "hash": "67f5f13344c4a619663abcfb989d92b286f18d48",
-    "date": "2025-11-19T15:34:23+07:00",
-    "message": "fix(proxy-add): add early exit if the lock is already acquired to prevent concurrent proxy additions",
-    "files": [
-      "php_backend/proxy-add.php"
-    ]
-  },
-  {
-    "hash": "5434a4e3d4f4afb4c94dee736809016e6e1ff438",
-    "date": "2025-11-19T15:33:35+07:00",
-    "message": "refactor(PhpProxyHunter/FileLockHelper): centralize lock-file handling and unify lock checks\n\n- Add private `openLockHandle()` to ensure lock directory, check writability\n  and open the lock file (suppressing fopen warnings).\n- Refactor `lock()` to reuse the new helper and properly close handles on failure.\n- Replace `isLockedByAnotherProcess()` with a single `isLocked()` implementation\n  that attempts an exclusive non-blocking `flock` to detect active locks and\n  falls back to `file_exists()` when the file can't be opened.\n- Update CLI demo to call `isLocked()` and update unit tests to use the new API.\n- Improve error handling around directory creation/opening to avoid noisy PHP warnings.",
-    "files": [
-      "src/PhpProxyHunter/FileLockHelper.php",
-      "tests/PhpProxyHunter/FileLockHelperTest.php"
-    ]
-  },
-  {
-    "hash": "f822bf0741f00ea73d6fdee551bc15aed0b95eb1",
-    "date": "2025-11-19T15:21:49+07:00",
-    "message": "fix(FileLockHelper): improve directory creation and locking logic to handle errors gracefully",
-    "files": [
-      "src/PhpProxyHunter/FileLockHelper.php"
-    ]
-  },
-  {
-    "hash": "a55511707a08150e38ea06f9749e5ce551535dea",
-    "date": "2025-11-19T15:18:15+07:00",
-    "message": "refactor(proxyAdd): simplify proxy addition logic by including proxy-add.php directly",
-    "files": [
-      "proxyAdd.php"
-    ]
-  },
-  {
-    "hash": "882a79d8446b68c81f96407df132e45d5fd4c63e",
-    "date": "2025-11-19T13:49:41+07:00",
-    "message": "refactor(react): move ProxyList into its own folder and update imports\n\n- rename: src/react/pages/ProxyList.tsx -> src/react/pages/ProxyList/index.tsx\n- Adjust relative import paths to reflect new location (types, utils, components).\n- Update route import in `src/react/routes.js` to `./pages/ProxyList/index.tsx`.\n- Internal component imports updated to use local filenames (ApiUsage, LogViewer, ModifyCurl, ProxySubmission).\n- No functional or behavior changes intended; purely file structure / import path cleanup.",
-    "files": [
-      "src/react/pages/ProxyList/index.tsx",
-      "src/react/routes.js"
-    ]
-  },
-  {
-    "hash": "3e1679cce50171e7c41ecfe2a49a6b6ca18092b4",
-    "date": "2025-11-19T13:32:17+07:00",
-    "message": "feat(deploy): add UI-only deploy flag and pass-through args for Windows script\n\n- Add passthrough of command-line arguments to `bin/deploy-vps.cmd` so forwarded args are available to the Node script.\n- Implement `--ui` / `--ui-only` handling in `bin/deploy-vps.mjs`:\n  - Build local React UI (`yarn build:react`) and upload `dist/react` + `index.html`.\n  - Remove remote `dist/react` and `index.html` (best-effort) before upload.\n  - Create and remove a lightweight build lock at `tmp/locks/.build-lock` to signal maintenance.\n  - Run remote permission fix (`bash bin/fix-perm`) and error on failure.\n  - Skip full deploy when UI-only flow completes.",
-    "files": [
-      "bin/deploy-vps.cmd",
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "e5ae2b8dfaa8ceb7447278291d4dd58d815e3bfb",
-    "date": "2025-11-19T12:57:31+07:00",
-    "message": "feat(codeblock): add Vite-safe on-demand highlight.js language loaders and demo\n\n- Add explicit Vite-compatible `languageLoaders` map and `loadLanguage` helper to dynamically import/register highlight.js languages (with common aliases).\n- Update `CodeBlock` to lazy-load only the requested language, use SSR guard and an `active` flag, avoid bulk preloads, and simplify DOM update logic; small classname tweak.\n- Add `src/react/pages/examples/HighlightJS.tsx` – example page rendering multiple `CodeBlock` samples (JS, TS, Python, Bash, PowerShell, Ruby, JSON, CSS, SCSS, HTML/XML, YAML, Markdown, DOS).\n- Include aliases such as sh/shell/zsh, tsx/mts/cts, ps/ps1, rb/gemspec/podspec/thor/irb, dos/bat/cmd.",
-    "files": [
-      "src/react/components/CodeBlock.tsx",
-      "src/react/pages/examples/HighlightJS.tsx"
-    ]
-  },
-  {
-    "hash": "a84f48c134400a26903deefafbd65d309e5b3ae0",
-    "date": "2025-11-19T10:13:35+07:00",
-    "message": "style(buttons): remove shadow utilities from button classNames\n\nRemove Tailwind `shadow` and `dark:shadow-white` utilities from button and link\n`className` attributes to disable drop shadows while keeping other styles intact.",
-    "files": [
-      "src/react/pages/NotFound.tsx",
-      "src/react/pages/ProxyList.tsx",
-      "src/react/pages/admin/LogsSection.tsx",
-      "src/react/pages/dashboard/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "219eec7aa4f6a61cd286d648373e1b04fbd513b6",
-    "date": "2025-11-19T10:11:41+07:00",
-    "message": "fix(codeblock): replace react-syntax-highlighter with runtime highlight.js to fix prod build errors\n\n- remove `react-syntax-highlighter` and its types from `package.json`\n- replace static `react-syntax-highlighter` usage in `src/react/components/CodeBlock.tsx`\n  with a runtime/dynamic import of `highlight.js/lib/core` and language packs\n- register languages at runtime and set `code` element `textContent`, then call\n  `hljs.highlightElement` (avoids innerHTML/unescaped HTML and build-time lexical init issues)\n- switch markup back to a simple <pre><code ref=...> wrapper and import GitHub dark CSS\n- purpose: fix production bundling error (\"can't access lexical declaration ... before initialization\")\n  and prevent white/blank page on build\n\nBREAKING CHANGE: removed `react-syntax-highlighter` dependency — CI/devs should run installs and verify builds.",
-    "files": [
-      "package.json",
-      "src/react/components/CodeBlock.tsx"
-    ]
-  },
-  {
-    "hash": "99d373a622f72beaa1a2faff98f8dd3ff4de10da",
-    "date": "2025-11-19T09:03:54+07:00",
-    "message": "feat(codeblock): replace manual highlight.js with react-syntax-highlighter\n\nReplace the previous manual hljs usage in `CodeBlock` with the\n`react-syntax-highlighter` Light build and `atomOneDark` HLJS theme.\nRegister multiple languages (javascript, jsx, html/xml, css, scss,\njava, python, typescript) and render code via <SyntaxHighlighter>\n(showLineNumbers, wrapLongLines). Remove the useRef/useEffect hljs\nhighlightElement flow and update markup from <pre><code> to the new\nSyntaxHighlighter wrapper.\n\nAdds dependencies:\n- react-syntax-highlighter@^16.1.0\n- @types/react-syntax-highlighter@^15.5.13\n\nNo breaking API changes expected.",
-    "files": [
-      "package.json",
-      "src/react/components/CodeBlock.tsx"
-    ]
-  },
-  {
-    "hash": "aad5f4dd0c9a5790850dcd5d6ea8449f8120164d",
-    "date": "2025-11-19T08:23:21+07:00",
-    "message": "feat(react): add Highlight.js example page and route\n\nAdd a new example page `src/react/pages/examples/HighlightJS.tsx` that demonstrates the existing\n`CodeBlock` with highlight.js and dark/light-friendly styling. Register and import the new\ncomponent in `src/react/index.tsx` and add a route for `/examples/highlightjs`.",
-    "files": [
-      "src/react/index.tsx",
-      "src/react/pages/examples/HighlightJS.tsx"
-    ]
-  },
-  {
-    "hash": "2a4acfeea24448881e7da6aca06074044ab61520",
-    "date": "2025-11-19T08:07:11+07:00",
-    "message": "feat(recaptcha): check session expiry before executing recaptcha\n\n- Import `checkRecaptchaSessionExpired` and use it to verify whether the\n  recaptcha session has expired before calling `recaptchaRef.current?.executeAsync()`.\n- Prevent unnecessary recaptcha executions by only calling `verifyRecaptcha`\n  when the session is expired.\n\nThis reduces redundant recaptcha calls and centralizes session-expiry logic.",
-    "files": [
-      "src/react/index.tsx"
-    ]
-  },
-  {
-    "hash": "225ed33432c3a4d74fd85c5a17f6028cbbd22984",
-    "date": "2025-11-19T08:06:11+07:00",
-    "message": "fix(security): strictly validate captcha and block unauthorized access\n\n- Treat a false captcha session as unresolved in `embed.php` by changing the check\n  from `empty($_SESSION['captcha'])` to `empty($_SESSION['captcha']) || !$_SESSION['captcha']`.\n- Add an early server-side guard in `php_backend/proxy-working.php` that returns\n  a JSON error (\"Access denied\") when the captcha session is missing or falsy.\n\nThis prevents access bypass when `$_SESSION['captcha']` is present but false\nand enforces captcha validation for proxy-related endpoints.",
-    "files": [
-      "embed.php",
-      "php_backend/proxy-working.php"
-    ]
-  },
-  {
-    "hash": "b91d2de3358523a9819f241ddf36dc3861b0db05",
-    "date": "2025-11-19T08:00:43+07:00",
-    "message": "fix(router): use useLocation for SPA titles & analytics\n\nMove BrowserRouter to root so React Router hooks run inside a Router.\nImport and use useLocation in MainApp and make the pageview/title effect\ndepend on location.pathname. Support routes with array paths when resolving\ntitles, send GA pageviews with the SPA path, and simplify reCAPTCHA\ninvocation to call verifyRecaptcha directly. Remove the redundant hardcoded\n`document.title` in `src/react/pages/Login.tsx`.",
-    "files": [
-      "src/react/index.tsx",
-      "src/react/pages/Login.tsx"
-    ]
-  },
-  {
-    "hash": "4e3e9127028498f10f720f27b1a8856c3da0d2f8",
-    "date": "2025-11-19T07:52:48+07:00",
-    "message": "fix(recaptcha): make token parameter optional in verifyRecaptcha function",
-    "files": [
-      "src/react/utils/recaptcha.ts"
-    ]
-  },
-  {
-    "hash": "34c850a41a21d0029d4d314bbd2966e69e15a773",
-    "date": "2025-11-19T07:07:51+07:00",
-    "message": "style(ui): add dark-mode shadows (dark:shadow-white) to components\n\nAdd `dark:shadow-white` alongside existing Tailwind `shadow*` utilities so UI shadows remain visible in dark mode.\nThis is a cosmetic styling change only — no runtime or API behavior modified.\n\nNotes:\n- Purpose: improve shadow contrast in dark theme for better visual clarity.\n- Verification: run the dev server and visually inspect key pages in dark mode.",
-    "files": [
-      "src/react/components/LanguageSwitcher.tsx",
-      "src/react/components/Modal.tsx",
-      "src/react/components/Navbar.tsx",
-      "src/react/pages/About.tsx",
-      "src/react/pages/Contact.tsx",
-      "src/react/pages/NotFound.tsx",
-      "src/react/pages/OauthHandler.tsx",
-      "src/react/pages/Outbound.tsx",
-      "src/react/pages/ProxyList.tsx",
-      "src/react/pages/ProxyList/ApiUsage.tsx",
-      "src/react/pages/ProxyList/LogViewer.tsx",
-      "src/react/pages/ProxyList/ModifyCurl.tsx",
-      "src/react/pages/ProxyList/ProxySubmission.tsx",
-      "src/react/pages/Settings.tsx",
-      "src/react/pages/dashboard/DashboardContent.tsx",
-      "src/react/pages/dashboard/UserPaymentLogs.tsx"
-    ]
-  },
-  {
-    "hash": "233a66385b9171d0098167f80557b54260677b62",
-    "date": "2025-11-19T06:56:31+07:00",
-    "message": "feat(matcher): add case-insensitive string equality check function",
-    "files": [
-      "src/utils/string/matcher.ts"
-    ]
-  },
-  {
-    "hash": "02f66e653b4429597bbac6ff9a05e731696e3f2c",
-    "date": "2025-11-19T06:56:05+07:00",
-    "message": "feat(server): add unified response helpers for JSON, text, and HTML outputs\n\nIntroduced respond.php with utility functions:\n- respond_json() for JSON responses with proper headers\n- respond_text() for plain text responses\n- respond_html() for HTML responses\n\nEach function ensures correct Content-Type handling and terminates execution after output.",
-    "files": [
-      "src/utils/server/respond.php"
-    ]
-  },
-  {
-    "hash": "d86dd037363c5245cfef72af2fbe8188a4194c47",
-    "date": "2025-11-19T06:55:06+07:00",
-    "message": "feat(user-payment-logs): add explicit filtering logic for package and payment action types\n\nAdded a secondary filter to ensure only entries with valid `action_type` values are displayed.\nNow allows:\n- `payment.action_type === 'PAYMENT'`\n- `package_buy.action_type === 'PACKAGE_BUY'`\n\nAlso included commented debug variables for future inspection.",
-    "files": [
-      "src/react/pages/dashboard/UserPaymentLogs.tsx"
-    ]
-  },
-  {
-    "hash": "232cb122b7b7d2fccecba124c4a6b2684fe02e6c",
-    "date": "2025-11-19T05:25:20+07:00",
-    "message": "fix(FileLockHelper): change filePath visibility to public and improve lock acquisition message",
-    "files": [
-      "src/PhpProxyHunter/FileLockHelper.php"
-    ]
-  },
-  {
-    "hash": "fe2a1f47a283bc4c10f9920176507ea29bf9f978",
-    "date": "2025-11-18T20:29:57+07:00",
-    "message": "refactor(file): extract path and mkdir helpers; make ensure_dir variadic and add ensure_dirs\n\n- move `unixPath` into `src/utils/file/path.php`\n- move `ensure_dir` and new `ensure_dirs` helpers into `src/utils/file/mkdir.php`\n- remove the duplicated helper implementations from `src/utils/file/index.php`\n- `ensure_dir` now accepts variadic path segments, normalizes/join paths, preserves absolute roots,\n  creates directories recursively and returns the created path or false\n- `ensure_dirs` provides bulk creation, accepting strings or arrays of segments and returning an indexed map of results\n\nThis reorganizes utility functions for clearer separation of concerns and adds improved path handling and multi-directory creation.",
-    "files": [
-      "src/utils/file/index.php",
-      "src/utils/file/mkdir.php",
-      "src/utils/file/path.php"
-    ]
-  },
-  {
-    "hash": "89967fe2e4d938ac584054a22026533930963393",
-    "date": "2025-11-18T20:27:51+07:00",
-    "message": "feat(file): make ensure_dir accept variadic path segments and add ensure_dirs helper\n\n- update `ensure_dir` to accept variadic segments (`...$segments`), normalize and join\n  path segments, collapse duplicate separators, handle Windows/Unix roots, create the\n  directory recursively, and return the resulting path or false on failure.\n- add new `ensure_dirs(...$dirs)` helper to create multiple directories in one call.\n  Each argument may be a string path or an array of segments; returns an indexed map\n  of results (created path or false).\n\nThis improves path handling and convenience for creating one or many directories.",
-    "files": [
-      "src/utils/file/index.php"
-    ]
-  },
-  {
-    "hash": "d5c8288532cc8936ce41be903ef4caa96bc110da",
-    "date": "2025-11-18T18:27:43+07:00",
-    "message": "fix(proxy-checker): use project tmp, ensure output dir and fix Windows runner\n\n- use `tmp()` for runner/pid paths (avoid `__DIR__/tmp`)\n- ensure output directory exists before redirecting (`ensure_dir(dirname($output_file))`)\n- write platform-specific runner command (use `start \"\" /B` on Windows, background+`echo $!` on Unix)\n- normalize runner identifier to `proxy-checker` for `runBashOrBatch`\n- prefer `venv/Scripts/activate.bat` on Windows in `runBashOrBatch` to correctly locate venv activation",
-    "files": [
-      "php_backend/proxy-checker.php",
-      "src/utils/process/runBashOrBatch.php"
-    ]
-  },
-  {
-    "hash": "920dbee0be87b6572617c0c9b616f0fa581aae53",
-    "date": "2025-11-18T17:59:49+07:00",
-    "message": "fix(proxy): limit large proxy result sets to prevent memory exhaustion\n\nLimit the number of rows fetched from the proxies table to avoid loading\nvery large result sets into PHP memory. Use a conservative sample size:\n- `getUntestedProxies(1000)` in `php_backend/proxy-checker.php`\n- `getWorkingProxies(5000)` in `func-proxy.php`\n\nThis prevents \"Allowed memory size exhausted\" errors on large databases\nwhile remaining a low-risk, backward-compatible change. Sizes are tunable\nif different sampling is desired.",
-    "files": [
-      "func-proxy.php",
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "8e94716d160921d996b6cfde7d83acf958a0d75d",
-    "date": "2025-11-18T07:46:42+07:00",
-    "message": "fix(proxy-list): conditionally start background checker based on processes.php output\n\n- Replace unconditional `processes.php` fetch with a text response check.\n- Only call `artisan/proxyCheckerStarter.php` when the response indicates \"no running\".\n- Preserve the 5-minute throttle using `lastProxyCheckStart` in localStorage.\n- Add error handling via `.catch(noop)` to keep behavior resilient.\n\nThis prevents unnecessary starter calls when the background checker is already running.",
-    "files": [
-      "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "f4e786261b65135a2f71760ec4c98bfd418f9ca4",
-    "date": "2025-11-18T07:43:34+07:00",
-    "message": "feat(proxy-list): switch to server-side pagination and return meta from getWorkingProxies\n\n- Add serverTotal and serverTotalPages state to track server-side totals.\n- Update fetchAndSetProxies to accept (page, per) and consume `{ data, meta }` from the backend; persist only the data in localStorage.\n- Change getWorkingProxies signature to return `{ data: any[], meta: any | null }` and handle page/perPage, meta, and 403/error cases.\n- Use server-provided totalPages for pagination (totalPages = serverTotalPages) and display serverTotal in the UI.\n- Replace client-side slice pagination with server-driven paging and add an effect to refetch when page or rowsPerPage change.\n- Refactor pagination UI into a responsive three-column layout: total (left), page controls (center), rows-per-page (right).\n\nNotes:\n- Preserves previous sorting (last_check desc) when randomize is false; prepared to accept backend `meta.total` and `meta.totalPages`.\n- Local caching now stores only the `data` array to avoid storing meta alongside results.",
-    "files": [
-      "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "4fcd273e95a8cb4fd2781918372fb2f2a45bd9ae",
-    "date": "2025-11-17T22:46:00+07:00",
-    "message": "feat(proxy): add paginated proxy-working API and client parsing\n\n- Add `php_backend/proxy-working.php` endpoint that returns `{ data, meta }`\n  and supports pagination (page, perPage/limit), randomize flag, and safe\n  defaults/caps (DEFAULT_PER_PAGE=100, MAX_PER_PAGE=1000).\n- Extend `ProxyDB::getWorkingProxies()` to accept `randomize`, `page`, `perPage`\n  and to order by `last_check DESC` when `randomize=false`; preserves legacy\n  single-argument `$limit` behavior for backward compatibility.\n- Update React `ProxyList` to call `/php_backend/proxy-working.php` with\n  page/perPage/randomize parameters, parse the `{data,meta}` response, and\n  retain existing client-side transformations and caching.\n\nNotes: server enforces per-page caps and safe defaults to prevent large payloads.",
-    "files": [
-      "packages/proxy-checker-python",
-      "php_backend/proxy-working.php",
-      "src/PhpProxyHunter/ProxyDB.php",
-      "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "76bded297e4783fd8d5f72e3d5eb0c00ca4447dc",
-    "date": "2025-11-17T22:43:23+07:00",
-    "message": "feat(proxy-add): change response handling to process text instead of JSON",
-    "files": [
-      "src/react/pages/ProxyList/ProxySubmission.tsx"
-    ]
-  },
-  {
-    "hash": "c186c070c41dd39209cc3ec8f17b6753a9b2fdf7",
-    "date": "2025-11-17T11:14:09+07:00",
-    "message": "feat(proxy-check): notify server on proxy check",
-    "files": [
-      "python_app/proxyCheckerGui.py"
-    ]
-  },
-  {
-    "hash": "9a669e1619b8f268b561d4286d3d077349e498f2",
-    "date": "2025-11-17T10:57:30+07:00",
-    "message": "feat(proxy-add): add robust locking, JSON errors and optional merge to proxies.txt\n\n- unify and refactor proxy add logic in `php_backend/proxy-add.php` and `proxyAdd.php`\n- return early with 400 + JSON when request body is empty\n- acquire `FileLockHelper` earlier and fail fast if lock can't be obtained\n- persist per-user `assets/proxies/added-<user>.txt`, append new proxies, then remove empty/duplicate lines\n- when `proxyChecker.lock` exists, also append new proxies into `proxies.txt` (merge/backup)\n- switch to consistent JSON responses and small code cleanup (shared include, clearer flow)",
-    "files": [
-      "php_backend/proxy-add.php",
-      "proxyAdd.php"
-    ]
-  },
-  {
-    "hash": "919237cd057c74b9483d5adbdef260d3144df29a",
-    "date": "2025-11-17T10:46:12+07:00",
-    "message": "feat(proxy-add): add file locking, parse and normalize added proxies, return JSON responses\n\n- Add `FileLockHelper` usage and per-user lock file to prevent concurrent writes.\n- Return JSON responses and set `Content-Type: application/json` for API consistency.\n- Normalize incoming data by extracting valid proxies, converting `Proxy` objects to text\n  (using their string representation), appending them to per-user added file, and\n  cleaning the file by removing empty and duplicate lines.\n- Improve error handling: respond with informative JSON messages when no valid proxies\n  are found or when another process holds the lock.\n- Minor style/formatting: compact function declaration `function get_ports() {`.\n\nWhy:\n- Prevent race conditions when multiple requests add proxies simultaneously.\n- Ensure stored proxies are normalized and deduplicated.\n- Make API behavior clearer for clients with JSON responses.",
-    "files": [
-      "php_backend/proxy-add.php"
-    ]
-  },
-  {
-    "hash": "f04ba79181c1244b17e0b7768bb7b6c9ae970df2",
-    "date": "2025-11-17T10:42:28+07:00",
-    "message": "feat(proxy): add __toString to Proxy and enhance test output\n\n- Add magic __toString() to `src/PhpProxyHunter/Proxy.php` to return a compact\n  textual representation in the form `proxy@user:pass`. Omits empty username/\n  password parts (returns just `proxy` if username missing, empty string if all\n  fields empty).\n- Keep `toJson()` unchanged; __toString is safe and returns a string even on\n  failure.\n- Update `tests/extractProxy.php` to print additional debug/info output:\n  - Total extracted proxies count.\n  - Example JSON transformation via `toJson(true, true)`.\n  - Example text transformation via `(string) $extract[0]`.\n- Adjust function formatting in `tests/extractProxy.php` (`function get_ports() {`).\n\nWhy:\n- Improve developer ergonomics when casting `Proxy` objects to string or\n  concatenating them in logs/tests, and provide richer test output for manual\n  verification.\n\nNotes:\n- Behavior: (string)$proxy now yields one of:\n  - \"\" (if proxy, username, password all empty)\n  - \"proxy\" (if username missing)\n  - \"proxy@user\" (if password missing)\n  - \"proxy@user:pass\" (if both present)\n- No breaking changes to existing serialization (`toJson()`).",
-    "files": [
-      "src/PhpProxyHunter/Proxy.php",
-      "tests/extractProxy.php"
-    ]
-  },
-  {
-    "hash": "4ad55da1fec6b0f3da83e4136be282c3224bcbd1",
-    "date": "2025-11-17T10:32:58+07:00",
-    "message": "feat(proxyAdd): enable CORS support by using Server::allowCors method",
-    "files": [
-      "proxyAdd.php"
-    ]
-  },
-  {
-    "hash": "24d49c89d1c552b60e3fe9702573c4c1e22c6685",
-    "date": "2025-11-17T10:30:13+07:00",
-    "message": "feat(file-lock): add release() convenience method to FileLockHelper\n\nAdd a public `release(): void` method to `FileLockHelper` that delegates to\n`unlock()`. This provides a clearer, intention-revealing API for releasing\nlocks and improves readability for callers.",
-    "files": [
-      "src/PhpProxyHunter/FileLockHelper.php"
-    ]
-  },
-  {
-    "hash": "c4c64118d6b5f11f2908569056a50a5e259a1b22",
-    "date": "2025-11-17T10:28:52+07:00",
-    "message": "refactor(checkPorts): remove helper and use direct output buffering check\n\nRemove the `is_output_buffering_active()` helper from `func.php` and update\n`cidr-information/checkPorts.php` to call `ob_get_length() !== false`\ndirectly when deciding to flush output buffers. Also normalize function\nbrace formatting for `checkIp` and `exitProcess`.\n\nThis reduces indirection and slightly cleans up style without changing logic.",
-    "files": [
-      "cidr-information/checkPorts.php",
-      "func.php"
-    ]
-  },
-  {
-    "hash": "3a23a86b163ca03db7893152c15a87ac8086a164",
-    "date": "2025-11-17T10:26:23+07:00",
-    "message": "refactor(utils): move isDateRFC3339OlderThanHours from func.php to utils\n\nExtracted the isDateRFC3339OlderThanHours helper from `func.php` into a new\nutility file `src/PhpProxyHunter/utils/date_rfc_3339.php`.\n\nThis keeps core functions organized under `src/PhpProxyHunter/utils` and\nprepares the codebase for easier reuse and testing of date-related helpers.\n\nNo functional changes to the implementation were made.",
-    "files": [
-      "func.php",
-      "src/PhpProxyHunter/utils/date_rfc_3339.php"
-    ]
-  },
-  {
-    "hash": "481d2d6c510ede19488f27f2d4eae9eb4369964d",
-    "date": "2025-11-17T10:22:40+07:00",
-    "message": "fix(php-cs-fixer): avoid CLI-path override warning by setting Finder conditionally\n\nOnly set the PHP-CS-Fixer Finder from the configuration when no explicit\n(non-option) path arguments are provided on the command line. This prevents\nthe \"Paths from configuration file have been overridden by paths provided as\ncommand arguments.\" warning when running `php-cs-fixer fix <path>`.\n\n- detect non-option CLI args and skip $config->setFinder($finder) when present\n- keep existing rules and parallel-config guard unchanged",
-    "files": [
-      ".php-cs-fixer.dist.php"
-    ]
-  },
-  {
-    "hash": "951f59eebc7f3cc6141d58e24af2f251c9dd4174",
-    "date": "2025-11-16T13:37:20+07:00",
-    "message": "feat(utils,curl): add realpath helper and enhance DebugSession logging\n\n- add file/path.py with realpath(path) -> Optional[str] and export it from utils.file and utils\n- enhance curl/DebugSession:\n  - add ZoneInfo (Asia/Jakarta) with fallback timezone\n  - prefix logs with RFC3339 timestamps\n  - add _write_output to print and persist logs via proxy_hunter.utils.file.writer.write_file\n  - cache DebugSession instances by normalized output_file to reuse sessions\n  - update example usage to demonstrate file+stdout logging\n- update utils exports to include realpath\n- tidy imports related to the above changes",
-    "files": [
-      "packages/proxy-hunter-python/proxy_hunter/__init__.py",
-      "packages/proxy-hunter-python/proxy_hunter/curl/DebugSession.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/__init__.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/file/__init__.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/file/path.py"
-    ]
-  },
-  {
-    "hash": "c8d5d8e906b1d1449b463f7e6664019353c5626d",
-    "date": "2025-11-15T23:51:59+07:00",
-    "message": "feat(proxy-checker): implement ProxyChecker UI",
-    "files": [
-      "python_app/proxyCheckerGui.py"
-    ]
-  },
-  {
-    "hash": "3ce06f24bc41300029c95d93054c3fb914d17549",
-    "date": "2025-11-15T21:46:49+07:00",
-    "message": "fix(sqlitehelper): use per-operation cursors and normalize execute params\n\n- Remove shared `self.cursor`; create and close a local cursor for each DB\n  operation (create_table, insert, select, count, update, delete,\n  execute_query, truncate_table, dump_database_truncate).\n- Normalize parameters passed to `cursor.execute()` (convert lists to tuples)\n  to avoid sqlite3.InterfaceError / \"bad parameter or other API misuse\".\n- Add debug logging in `select` to print SQL and parameter shapes when an\n  InterfaceError occurs (helps diagnose bad param usage from callers).\n- Fix `dump_database_truncate` nesting/indentation and ensure cursor is\n  closed in a finally block.\n- Avoid creating/closing a cursor in `close()`; close the connection directly.\n\nNo functional change to SQL semantics; this hardens SQLiteHelper for\nmultithreaded use and prevents recursive cursor reuse errors.",
-    "files": [
-      "src/SQLiteHelper.py"
-    ]
-  },
-  {
-    "hash": "e3d7bf733d5c0b932009e9767a8452ef6cd1e642",
-    "date": "2025-11-15T19:03:47+07:00",
-    "message": "feat(settings): add save_text and load_text functions for QSettings management",
-    "files": [
-      "src/pyside6/utils/settings.py"
-    ]
-  },
-  {
-    "hash": "71d35d694441a55de603ab6e91342f145eb72a69",
-    "date": "2025-11-15T18:20:26+07:00",
-    "message": "feat(script): add python-pyside.cmd to fix PySide6 installation in existing venv",
-    "files": [
-      "bin/python-pyside.cmd"
-    ]
-  },
-  {
-    "hash": "dff39056bab5b7fdae9570e004dcd04091d56994",
-    "date": "2025-11-15T17:43:15+07:00",
-    "message": "chore(scripts): add repo-root py.cmd wrapper to forward to bin\\py.cmd\n\nAdds `py.cmd` at the repository root which forwards execution to `bin\\py.cmd`.\nThis ensures running `py` from the project root uses the project's virtual environment\non Windows (forwards all arguments to the project venv launcher).",
-    "files": [
-      "py.cmd"
-    ]
-  },
-  {
-    "hash": "0afda856ccab67d908987c1f5648bc4d32b08834",
-    "date": "2025-11-15T16:39:03+07:00",
-    "message": "refactor(file): extract size utilities to file/size.py and clean exports\n\n- Move `count_lines_in_file`, `size_of_list_in_mb`, and `is_file_larger_than_kb`\n  from `packages/proxy-hunter-python/proxy_hunter/utils/file/others.py` to a new\n  module `packages/proxy-hunter-python/proxy_hunter/utils/file/size.py`.\n- Update `packages/proxy-hunter-python/proxy_hunter/utils/file/__init__.py` to\n  import these helpers from `.size` instead of `.others`.\n- Remove unused imports (e.g. `sys`) and duplicate `shutil` import from\n  `others.py`; tidy up remaining imports.\n- Internal refactor only — no behavior changes or breaking API changes.",
-    "files": [
-      "packages/proxy-hunter-python/proxy_hunter/utils/file/__init__.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/file/others.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/file/size.py"
-    ]
-  },
-  {
-    "hash": "9c7c69c787e0269a8c3d7d0d3eb4b6f5dbea9534",
-    "date": "2025-11-15T16:33:14+07:00",
-    "message": "refactor(utils): move `remove_non_ascii` to ansi module and update imports\n\n- Add `remove_non_ascii` implementation to `utils/ansi.py`\n- Remove duplicate implementations from `utils/file/others.py`\n- Update exports in `utils/__init__.py` and `utils/file/__init__.py`\n- Adjust imports to reference the new location\n- Clean up redundant definitions and comments",
-    "files": [
-      "packages/proxy-hunter-python/proxy_hunter/utils/__init__.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/ansi.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/file/__init__.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/file/others.py"
-    ]
-  },
-  {
-    "hash": "21683c5bbf9f9dae16f6948f73f1a6f21a9be631",
-    "date": "2025-11-15T08:38:33+07:00",
-    "message": "refactor(utils): reorganize file utilities into submodules\n\n- Split `proxy_hunter/utils/file` into a package with clear submodules:\n  - Added `file/__init__.py` (clean exports)\n  - Added `file/copy.py`, `file/delete.py`, `file/folder.py`, `file/permissions.py`, `file/read.py`, `file/writer.py`\n  - Renamed legacy `file.py` → `file/others.py` and kept non-moved helpers there\n- Extracted MD5 helper to `proxy_hunter/utils/md5.py` and updated top-level `utils` exports to import it\n- Moved JSON/file writer helpers to `file/writer.py`\n- Moved permission helpers to `file/permissions.py` and folder helpers to `file/folder.py`\n- Updated `proxy_hunter/utils/__init__.py` and `proxy_hunter/utils/file/__init__.py` to reflect new exports\n- Updated `.gitignore` to allow packaging of `__init__.py` files and preserve `proxy_hunter/ip_ranges_US.txt`\n- Added unit tests: `packages/proxy-hunter-python/tests/delete_path.py`\n\nReason: improve modularity, readability and testability of file-related utilities by splitting a large module into focused, importable submodules. No intended breaking changes (exports adjusted to remain available).",
-    "files": [
-      "packages/proxy-hunter-python/.gitignore",
-      "packages/proxy-hunter-python/proxy_hunter/utils/__init__.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/file/__init__.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/file/copy.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/file/delete.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/file/folder.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/file/others.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/file/permissions.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/file/read.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/file/writer.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/md5.py",
-      "packages/proxy-hunter-python/tests/delete_path.py"
-    ]
-  },
-  {
-    "hash": "5085c079418bafd1d32465a20a4e5e33e8b5ede7",
-    "date": "2025-11-15T05:56:06+07:00",
-    "message": "refactor(proxyWorking): improve structure, locking, and background execution handling\n\n- add CoreDB initialization and remove unused globals\n- reorganize script into clear init, CLI, locking, and execution sections\n- replace custom OS detection with PHP_OS_FAMILY\n- improve background command generation using sprintf\n- ensure lock directories exist and centralize lock paths\n- replace global shutdown cleanup with closure-based handler\n- clean up working proxies printing logic\n- unify file permission handling using consistent paths",
-    "files": [
-      "artisan/proxyWorking.php",
-      "php_backend/shared.php"
-    ]
-  },
-  {
-    "hash": "d098e36a079ba431fa59c9a1ae831a9b027d66aa",
-    "date": "2025-11-14T17:31:31+07:00",
-    "message": "feat(proxylist): update badge key and format text to uppercase for better visibility",
-    "files": [
-      "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "ac4ac0c77c046f35f2d00107d0ea9e130baf1ffb",
-    "date": "2025-11-14T17:15:13+07:00",
-    "message": "feat(func_date): add convert_rfc3339_to_datetime function for parsing RFC 3339 timestamps",
-    "files": [
-      "src/func_date.py"
-    ]
-  },
-  {
-    "hash": "241f783dae077316114e9e6ec254a66a629a5a84",
-    "date": "2025-11-14T16:56:16+07:00",
-    "message": "feat(proxydb): enhance get_working_proxies to support limit and randomization options",
-    "files": [
-      "src/ProxyDB.py"
-    ]
-  },
-  {
-    "hash": "91d9b87c2023446f6306f042634bb7bd2b4c496d",
-    "date": "2025-11-14T16:49:29+07:00",
-    "message": "feat(proxydb): add debug option to extract_proxies for enhanced logging",
-    "files": [
-      "src/ProxyDB.py"
-    ]
-  },
-  {
-    "hash": "427ed85411f88719c1d163e3d544ee74add6e934",
-    "date": "2025-11-14T16:45:33+07:00",
-    "message": "feat(config): add explicit sqlite/mysql connection parameters to ConfigDB constructor\n\n- Add explicit constructor parameters: `db_path`, `host`, `user`, `password`, `database` and wire them into sqlite/mysql connection logic.\n- Expand constructor docstring with parameter descriptions and usage examples.\n- Make dataclass encoding safer (only call `asdict` for instances) and make `_decode` tolerant of `bytes` and non-string DB values.\n- Make `get()` tolerant of both `sqlite3.Row` and mysql dict row shapes when reading `value`.\n\nPreserves backward compatibility: the existing `driver` kwarg is still supported (no breaking change).",
-    "files": [
-      "packages/proxy-hunter-python/proxy_hunter/utils/config.py"
-    ]
-  },
-  {
-    "hash": "80bd60a4eaea52a9e00b556fdb373517f0a758b2",
-    "date": "2025-11-14T16:09:15+07:00",
-    "message": "feat(proxydb): enhance get_untested_proxies to support randomization option",
-    "files": [
-      "src/ProxyDB.py"
-    ]
-  },
-  {
-    "hash": "c365f79d308b6bbe85bcea0cb0c6401befbc2020",
-    "date": "2025-11-14T16:05:26+07:00",
-    "message": "feat(proxydb): add MySQL backend support and MySQL-only tests\n\n- Add MySQL support to `ProxyDB` via `MySQLHelper` and allow selecting backend with\n  new constructor args: `db_type`, `mysql_host`, `mysql_dbname`, `mysql_user`, `mysql_password`.\n- Accept helper instances directly (SQLiteHelper | MySQLHelper) and defer sqlite path\n  when using MySQL.\n- Initialize backend in `start_connection()`; load MySQL schema if `assets/mysql-schema.sql` exists.\n- Make SQL placeholder and random-function backend-aware:\n  use `%s` / `RAND()` for MySQL and `?` / `RANDOM()` for SQLite across methods\n  (meta/select/add/remove/update/get_untested/get_dead/get_private/get_working, etc.).\n- Add `is_already_added`, `mark_as_added`, `get_random_function`, `normalize_proxy`.\n- Extend `get_all_proxies()` to support `limit`, `randomize`, and pagination (`page`, `per_page`)\n  while remaining backwards-compatible for simple `limit` usage.\n- Minor typing fixes (use `cast` for sqlite path) to satisfy type checkers.\n- Add `tests/ProxyDB_MySQL_Test.py` (MySQL-only tests) and load `.env` in `tests/ProxyDB_Test.py`.\n\nBREAKING CHANGE:\n- `ProxyDB.__init__` signature changed (new positional/keyword params). Callers using positional arguments\n  should switch to keyword args for `db_type` and the MySQL connection params.\n- `get_all_proxies()` signature changed (now accepts `limit`, `randomize`, `page`, `per_page`);\n  update any callers that relied on the old `rand` positional parameter.",
-    "files": [
-      "src/ProxyDB.py",
-      "tests/ProxyDB_MySQL_Test.py",
-      "tests/ProxyDB_Test.py"
-    ]
-  },
-  {
-    "hash": "0165c340d59e42f66560ba388e6b7cd16e284b23",
-    "date": "2025-11-14T15:41:00+07:00",
-    "message": "feat(build): add --force flag to override checksum checks and force rebuild\n\n- Integrate `minimist` to parse CLI arguments.\n- Add `--force` option to bypass cached checksums.\n- Always run yarn install/build and rewrite checksum files when forced.\n- Refactor checksum loading logic to respect force mode.\n- Improve logging for forced and normal execution paths.",
-    "files": [
-      "bin/build-project.mjs"
-    ]
-  },
-  {
-    "hash": "04e5e1689f745f86604ddf3dff6d2c11c29efc2a",
-    "date": "2025-11-14T13:28:49+07:00",
-    "message": "feat(dashboard): replace UserActivityCard with new UserPaymentLogs component\n\n- Add new `UserPaymentLogs` component with merged transaction view, collapsible sections, and multi-page log fetching\n- Render payment logs in Dashboard's activity tab and comment out deprecated `UserActivityCard`\n- Implement transaction grouping by tx ID, status extraction, and improved log display UI\n- Extend `LogEntry` type to support generic `details` instead of string-only",
-    "files": [
-      "src/react/pages/Dashboard.tsx",
-      "src/react/pages/dashboard/UserPaymentLogs.tsx",
-      "types/php_backend/logs.d.ts"
-    ]
-  },
-  {
-    "hash": "dd9c40ec893670f9a8fe0c73e4bc4c2d07e94f7c",
-    "date": "2025-11-14T13:28:05+07:00",
-    "message": "feat(logs): add GET-based pagination overrides and structured pagination metadata\n\n- Allow GET parameters (`page`, `per_page`) to override POST values when missing\n- Add offset calculation and apply pagination to \"me\" user logs\n- Decode JSON `details` field per log entry before returning paginated results\n- Return detailed pagination metadata (`page`, `per_page`, `offset`, `count`, `total`)\n- Update admin logs endpoint to support GET overrides and unified pagination response structure",
-    "files": [
-      "php_backend/logs.php"
-    ]
-  },
-  {
-    "hash": "a7e5b2f57165fb31b28587075dd0dc8c5067ec5d",
-    "date": "2025-11-14T10:10:37+07:00",
-    "message": "feat(utils): add isEmpty helper and improve isNotEmpty docs\n\n- Introduce `isEmpty(data)` to standardize emptiness checks across types:\n  - treats null/undefined, empty or whitespace-only strings, empty arrays,\n    and plain objects with no own enumerable keys as empty.\n  - notes caveat for non-plain object types (Map, Set, Date, etc).\n- Update `isNotEmpty` to delegate to `isEmpty` (returns the negation).\n- Expand and clarify JSDoc comments and examples for both functions.\n\nThis improves reuse and consistency when checking for empty values.",
-    "files": [
-      "src/utils/string.js"
-    ]
-  },
-  {
-    "hash": "5b1b10ef1ef5fd4d5cca444d01b9da6c4beb1324",
-    "date": "2025-11-14T10:08:59+07:00",
-    "message": "feat(data): add hideArrayData helper to recursively mask array values\n\n- Add `src/utils/data/hideArrayData.php`: a recursive utility to hide/mask values in nested arrays based on a user-provided callback.\n- Supports callbacks with 2 or 3 args (key, value[, parentKey]); uses reflection to detect and preserve backward compatibility.\n- Provides a default mask callback (stars for strings, \"[HIDDEN]\" otherwise).\n- Preserves parent context for object properties inside numeric lists (for sensible parentKey propagation).\n- Includes a CLI example demonstrating common sensitive-field masks and how to restore results.\n- No breaking changes; purely additive utility and examples.",
-    "files": [
-      "src/utils/data/hideArrayData.php"
-    ]
-  },
-  {
-    "hash": "b3ea41f7441867b6a89c8be426ac4a559a10895e",
-    "date": "2025-11-14T10:07:14+07:00",
-    "message": "feat(utils): add runtime type detection helpers\n\n- Add new file `src/utils/data/detection.ts` providing small, documented type-guard helpers:\n  `isObject`, `isArray`, `isString`, `isNumber`, `isBoolean`, `isFunction`.\n- Functions include JSDoc and use narrow type predicates to help runtime checks and TypeScript inference.\n\nNo behavioral changes; utility functions for safer type checks and clearer code.feat(utils): add runtime type detection helpers\n\n- Add new file `src/utils/data/detection.ts` providing small, documented type-guard helpers:\n  `isObject`, `isArray`, `isString`, `isNumber`, `isBoolean`, `isFunction`.\n- Functions include JSDoc and use narrow type predicates to help runtime checks and TypeScript inference.\n\nNo behavioral changes; utility functions for safer type checks and clearer code.",
-    "files": [
-      "src/utils/data/detection.ts"
-    ]
-  },
-  {
-    "hash": "b4953343b849dc44aaec4e3b9c3dcf9312ab274c",
-    "date": "2025-11-14T10:06:31+07:00",
-    "message": "chore(deps): bump many dev/prod dependencies and update resolutions\n\n- Bump multiple dependencies to newer patch/minor versions (notable: axios, chromedriver, jquery-form-saver, puppeteer, which, vite, vitest, rollup, sass, tailwindcss, terser).\n- Update dev tooling and types: @types/node, @typescript-eslint/*, @vitejs/plugin-react, autoprefixer, browserslist, etc.\n- Upgrade several frontend libs (react-i18next, react-router-dom, flowbite) and dev helpers (nodemon, i18next).\n- Refresh yarn resolutions for internal hosted packages (binary-collections, git-command-helper, markdown-it, sbg-utility) to new release digests.\n- packageManager remains yarn@4.10.3.\n\nNo application logic changes; only dependency/version updates and resolution pins.",
-    "files": [
-      "package.json"
-    ]
-  },
-  {
-    "hash": "1905f5b6910bb7be537d0e904080350121fbb9cc",
-    "date": "2025-11-14T10:04:14+07:00",
-    "message": "fix: php-cs-fixer",
-    "files": [
-      "func-proxy.php",
-      "src/FileSessionHandler.php",
-      "src/PhpProxyHunter/ActivityLog.php",
-      "src/PhpProxyHunter/ActivityLogMigration.php",
-      "src/PhpProxyHunter/AnsiColors.php",
-      "src/PhpProxyHunter/FileLockHelper.php",
-      "src/PhpProxyHunter/GeoIpHelper.php",
-      "src/PhpProxyHunter/GeoPlugin.php",
-      "src/PhpProxyHunter/GeoPlugin2.php",
-      "src/PhpProxyHunter/Meta.php",
-      "src/PhpProxyHunter/Session.php",
-      "src/PhpProxyHunter/UserDB.php",
-      "src/PhpProxyHunter/shim.php",
-      "src/PhpProxyHunter/utils/cidr.php",
-      "src/PhpProxyHunter/utils/path.php",
-      "src/PhpProxyHunter/utils/ports.php",
-      "src/PhpProxyHunter/utils/validator.php",
-      "src/database/env.php",
-      "src/hashers/CustomPasswordHasher.php",
-      "src/simplehtmldom/Debug.php",
-      "src/simplehtmldom/HtmlDocument.php",
-      "src/simplehtmldom/HtmlNode.php",
-      "src/simplehtmldom/HtmlWeb.php",
-      "src/simplehtmldom/example/example_callback.php",
-      "src/simplehtmldom/helper.php",
-      "src/simplehtmldom/simple_html_dom.php",
-      "src/utils/file/crud.php",
-      "src/utils/file/reader.php",
-      "src/utils/file/sanitizer.php",
-      "src/utils/file/stats.php",
-      "src/utils/shim/string.php",
-      "src/utils/string/index.php",
-      "src/utils/string/useragent.php",
-      "src/utils/utils.php"
-    ]
-  },
-  {
-    "hash": "4d255340d70d06acc2fd62129842ee4f6f6c2a3d",
-    "date": "2025-11-14T09:56:32+07:00",
-    "message": "test(tests): standardize test DB to `phpunit_test_db` and normalize test formatting\n\n- Replace various test-specific MySQL database names with `phpunit_test_db` across multiple test files.\n- Normalize PHPUnit test formatting/style (brace placement, spacing) for consistency.\n- Clean up test setup/teardown helpers and minor refactors to DB provider usage.\n\nFiles touched (selection): ActivityLogPopulate, ActivityLogTest, CoreDBTest, LogRepositoryMigrationsDebug, MySQLHelperTest, ProxyDBTest, UserDBSaldoArithmeticTest, UserDBTest, and related helpers.\n\nNo behavioral changes to production code; only test configuration and formatting updates.",
-    "files": [
-      "tests/PhpProxyHunter/ActivityLogPopulate.php",
-      "tests/PhpProxyHunter/ActivityLogTest.php",
-      "tests/PhpProxyHunter/CoreDBTest.php",
-      "tests/PhpProxyHunter/LogRepositoryMigrationsDebug.php",
-      "tests/PhpProxyHunter/MySQLHelperTest.php",
-      "tests/PhpProxyHunter/ProxyDBTest.php",
-      "tests/PhpProxyHunter/UserDBSaldoArithmeticTest.php",
-      "tests/PhpProxyHunter/UserDBTest.php"
-    ]
-  },
-  {
-    "hash": "d6f0b492d23c24b85fee582bae0280298bc38b4f",
-    "date": "2025-11-14T09:53:27+07:00",
-    "message": "feat(types): add DeepPartial and DeepRequired utility types",
-    "files": [
-      "types/type.d.ts"
-    ]
-  },
-  {
-    "hash": "2207ece0df655d1401a5520fb10a2db0fb1c63af",
-    "date": "2025-11-14T09:52:23+07:00",
-    "message": "fix(deploy-vps): invalid yarn task",
-    "files": [
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "8838167b1c15aabca6bed558defa90c97c0f3732",
-    "date": "2025-11-14T09:51:46+07:00",
-    "message": "fix(python-minimal): add pycryptodome to pip install command",
-    "files": [
-      "bin/python-minimal.cmd"
-    ]
-  },
-  {
-    "hash": "ab1621a3a8a5d33caa1db005b4af475060590046",
-    "date": "2025-11-14T09:51:18+07:00",
-    "message": "chore(pyproject): add 'bas' to include and expand exclude paths\n\n- Add \"bas\" to the package include list.\n- Expand `exclude` to ignore additional folders: \"xl\", \"src\", \"data\", \"django_backend\".\n- Normalize trailing commas in include/exclude arrays for consistency.\n\nReason: keep IDE/type-checker paths and packaging includes/excludes aligned to avoid scanning unintended source directories.",
-    "files": [
-      "pyproject.toml"
-    ]
-  },
-  {
-    "hash": "cec057290f9e929b9d9def20209f9e3341fff0eb",
-    "date": "2025-11-14T09:50:07+07:00",
-    "message": "fix(yarn): update yarn to version 4.11.0",
-    "files": [
-      ".yarn/releases/yarn-4.11.0.cjs",
-      ".yarnrc.yml"
-    ]
-  },
-  {
-    "hash": "8a3b80c3beb12cae3ae3d82d22548500e7ae796e",
-    "date": "2025-11-14T09:48:51+07:00",
-    "message": "feat(requirements): add isort to development dependencies",
-    "files": [
-      "requirements-dev.txt"
-    ]
-  },
-  {
-    "hash": "8dd452137d6c74ef30b9c9cd7f4de8c67d77167e",
-    "date": "2025-11-14T09:45:51+07:00",
-    "message": "feat(proxy-hunter-python): export ConfigDB from utils to package API\n\n- Add `ConfigDB` to `packages/proxy-hunter-python/proxy_hunter/utils/__init__.py`.\n- Re-export `ConfigDB` from the package root `packages/proxy-hunter-python/proxy_hunter/__init__.py`.\n\nThis makes `ConfigDB` available as part of the library's public API. No breaking changes.",
-    "files": [
-      "packages/proxy-hunter-python/proxy_hunter/__init__.py",
-      "packages/proxy-hunter-python/proxy_hunter/utils/__init__.py"
-    ]
-  },
-  {
-    "hash": "00348d23924f29318d2a71570f2f5b661e54950e",
-    "date": "2025-11-14T09:28:41+07:00",
-    "message": "feat(types): add DEV and BASE_URL properties to ImportMetaEnv interface",
-    "files": [
-      "types/vite-env.d.ts"
-    ]
-  },
-  {
-    "hash": "248c06e02449621659efda6746e602fd817add5d",
-    "date": "2025-11-14T09:27:36+07:00",
-    "message": "chore(settings): update VSCode settings for improved editor behavior",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "2667f69b75904202413e02e22ee2c1b5a2998948",
-    "date": "2025-11-14T06:55:07+07:00",
-    "message": "fix(include): remove legacy require and use require_once for shared include\n\n- artisan/filterPortsDuplicate.php: remove obsolete `require __DIR__ . '/../func-proxy.php'`\n- proxyCheckerParallel-func.php: replace `require` with `require_once` for `php_backend/shared.php` to avoid double-includes\n\nRationale: cleans up an unused include and makes the shared bootstrap idempotent to reduce risk of re-declaration/side-effects.",
-    "files": [
-      "artisan/filterPortsDuplicate.php",
-      "proxyCheckerParallel-func.php"
-    ]
-  },
-  {
-    "hash": "6d7d1b634d5358af999422ff8553648b644273d8",
-    "date": "2025-11-14T06:49:49+07:00",
-    "message": "refactor: replace include with require_once for shared.php in multiple files",
-    "files": [
-      "artisan/filterPorts.php",
-      "artisan/filterPortsDuplicate.php",
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php",
-      "php_backend/google-oauth.php",
-      "php_backend/list-user.php",
-      "php_backend/login.php",
-      "php_backend/logs.php",
-      "php_backend/processes.php",
-      "php_backend/proxy-add.php",
-      "php_backend/proxy-checker.php",
-      "php_backend/refill-saldo.php",
-      "php_backend/user-info.php",
-      "proxyCheckerParallel-func.php"
-    ]
-  },
-  {
-    "hash": "f7d735e843cd0c8e3e30de118eaf3b751949299c",
-    "date": "2025-11-14T06:25:49+07:00",
-    "message": "chore(deploy): restore local Vite setup after remote build\n\nRun `yarn prepare:vite` locally at the end of `bin/deploy-vps.mjs` to restore the local Vite setup after the remote build completes (uses spawnAsync with stdio inherited and shell enabled). Adds a console log to indicate the restore step.",
-    "files": [
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "5cf2510d785587b6a795066fc36a1460238946a8",
-    "date": "2025-11-11T22:59:38+07:00",
-    "message": "refactor(Admin): remove unused components from the Admin page",
-    "files": [
-      "src/react/pages/Admin.tsx"
-    ]
-  },
-  {
-    "hash": "e17265d8a1962698a85812bd23dcd97c58af7046",
-    "date": "2025-11-11T22:55:14+07:00",
-    "message": "chore(config): enforce single space around concatenation in .php-cs-fixer.dist.php\n\nAdd the 'concat_space' => ['spacing' => 'one'] rule to the PHP-CS-Fixer config to require a single space around the string concatenation operator ('.').",
-    "files": [
-      ".php-cs-fixer.dist.php"
-    ]
-  },
-  {
-    "hash": "5353ceadd1132a0bba0a240bed403aa6fdbaa277",
-    "date": "2025-11-11T16:48:17+07:00",
-    "message": "feat(submodule): add jquery-form-saver submodule configuration",
-    "files": [
-      ".gitmodules"
-    ]
-  },
-  {
-    "hash": "80923935866d82265d2da4bd551941028b8d7e9a",
-    "date": "2025-11-11T16:47:29+07:00",
-    "message": "style(css): add global styles to disable elements with .disabled class or disabled attribute",
-    "files": [
-      "tailwind.input.css"
-    ]
-  },
-  {
-    "hash": "c2021dbd882531a3394e991ea7cef7a208753e8d",
-    "date": "2025-11-11T16:46:58+07:00",
-    "message": "fix: incompatible master branch content",
-    "files": [
-      "src/react/pages/Dashboard.tsx"
-    ]
-  },
-  {
-    "hash": "419fce678e5079a4c494506522567e2dc06ce56c",
-    "date": "2025-11-11T16:45:57+07:00",
-    "message": "fix(embed, proxy-list): handle forbidden response with error flag and prevent invalid proxy fetch",
-    "files": [
-      "embed.php",
-      "src/react/pages/ProxyList.tsx"
-    ]
-  },
-  {
-    "hash": "02078dd31a36f3296bf24618d32092ed52fa3125",
-    "date": "2025-11-10T05:31:26+07:00",
-    "message": "feat(i18n): localize UI strings and add missing translations/hooks\n\n- Add `useTranslation` imports and `const { t } = useTranslation()` where needed across multiple components (Navbar, Changelog, Login, OauthHandler, ProxyList, ProxySubmission, ModifyCurl, DashboardContent, UserActivityCard, etc.).\n- Replace hard-coded UI text, title and aria-label attributes, alert/error messages, and t(...) fallbacks/defaultValue usages with `t('...')` calls.\n- Add many new locale keys to `src/react/locales/en.json` and `src/react/locales/id.json` (e.g. home, proxy_manager, user_menu, social_media, recheck_proxy, copy_proxy, populate_with_sample_proxies, google_login_unavailable, no_oauth_code, oauth_failed, unknown_error, refresh, refresh_logs_now, ip_address, user_agent, set_timeout, failed_parse_git_history, failed_update_git_history, failed_send_request, etc.).\n- Wire new admin dashboard components into `Admin` and include `RepositoryStats`, `PackagesManager`, and `VoucherManager` in the admin page layout.\n- Render dashboard tabs and include `PackageList` and `SimCardLoginWrapper` in the main `Dashboard` layout.\n- Ensure UI strings in `DashboardContent` and `UserActivityCard` use localized labels.\n\nNo behavior changes except replacing inline strings with translation keys and adding localization hooks; should be safe but recommend running TypeScript build and a runtime smoke test to confirm no missing keys or render issues.",
-    "files": [
-      "src/react/components/Navbar.tsx",
-      "src/react/locales/en.json",
-      "src/react/locales/id.json",
-      "src/react/pages/Admin.tsx",
-      "src/react/pages/Changelog.tsx",
-      "src/react/pages/Dashboard.tsx",
-      "src/react/pages/Login.tsx",
-      "src/react/pages/OauthHandler.tsx",
-      "src/react/pages/ProxyList.tsx",
-      "src/react/pages/ProxyList/ModifyCurl.tsx",
-      "src/react/pages/ProxyList/ProxySubmission.tsx",
-      "src/react/pages/dashboard/DashboardContent.tsx",
-      "src/react/pages/dashboard/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "18253ddb9b57759eded03f2b1d57441950677c70",
-    "date": "2025-11-09T15:40:19+07:00",
-    "message": "fix(ui): contain wide logs & activity tables in scroll wrappers\n\nWrap admin `LogsSection` and dashboard `UserActivityCard` tables in block-level `max-w-full` containers with `overflow-x-auto` (and `-webkit-overflow-scrolling: touch`) and switch tables to `inline-table` so they scroll inside their cards instead of expanding the page width on mobile (fixes Chrome mobile horizontal overflow).",
-    "files": [
-      "src/react/pages/admin/LogsSection.tsx",
-      "src/react/pages/dashboard/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "d49beaac5fe6eeb59d9d22ae5a37bf09201068be",
-    "date": "2025-11-09T15:00:28+07:00",
-    "message": "fix(logs): align sticky header and preserve horizontal scrolling\n\nReplace wrapper's `overflow-x-auto` with `overflow-auto` so the sticky thead is confined to the scrollable container.\nUse `min-w-max` on the table and add `box-border` to stabilize column widths. Adjust `th`/`td` padding and set `td` max width to `80ch` with `break-words` to keep columns wide and scrollable while preventing body overflow on mobile.",
-    "files": [
-      "src/react/pages/admin/LogsSection.tsx"
-    ]
-  },
-  {
-    "hash": "6aedab7d7d68f90621b88b9a170c2bf16ce620e6",
-    "date": "2025-11-09T14:57:25+07:00",
-    "message": "style(tables): improve responsiveness and word wrapping\n\n- LogsSection: added `min-w-0` to container and table, enabled word wrapping for long table cells, removed unnecessary whitespace-nowrap from headers.\n- UserActivityCard: updated container and table classes for better responsiveness on small screens, added `min-w-0` and `break-words` for long content, adjusted padding and spacing for mobile-friendly layout.\n- Overall: ensures tables shrink properly on smaller screens and long text wraps instead of overflowing.",
-    "files": [
-      "src/react/pages/admin/LogsSection.tsx",
-      "src/react/pages/dashboard/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "be09d2b1aba5cef022f23c7a4a01c78862ea6bf1",
-    "date": "2025-11-09T14:50:55+07:00",
-    "message": "fix(logs): add index signature to LogsResponse and LogEntry interfaces",
-    "files": [
-      "types/php_backend/logs.d.ts"
-    ]
-  },
-  {
-    "hash": "56118f5a967f48ce5972cd4ab4425773435dbba7",
-    "date": "2025-11-09T14:49:33+07:00",
-    "message": "feat(auth): protect Settings page with auth guard and loading state\n\n- Add `isAuthenticated` and `isLoading` state to `Settings` component.\n- Replace previous `getUserInfo` promise usage with an async effect that:\n  - checks authentication,\n  - redirects to `/login` on unauthenticated or error cases,\n  - guards against updates on unmounted components.\n- Show a centered loading spinner while auth is being verified.\n- Prevent rendering the Settings UI when the user is not authenticated.\n\nThis brings `Settings` in line with `Dashboard`'s access control and improves security/UX.",
-    "files": [
-      "src/react/pages/Settings.tsx"
-    ]
-  },
-  {
-    "hash": "2f8878f911701b18cbc90527958a883935ab1e41",
-    "date": "2025-11-09T14:44:20+07:00",
-    "message": "fix(url): update origin construction to use dynamic protocol for backend hostname",
-    "files": [
-      "src/react/utils/url.ts"
-    ]
-  },
-  {
-    "hash": "0114f3b50f2d9765528690793cc3052fbd23ec30",
-    "date": "2025-11-09T14:43:43+07:00",
-    "message": "chore(cloudflared): add ingress rule for Laragon PHP backend\n\n- Added a specific ingress rule for `php.webmanajemen.com` to route requests to the local Laragon server at `http://127.0.0.1:80`.\n- Ensures fallback `http_status:404` remains at the end to handle unmatched requests.",
-    "files": [
-      "cloudflared.config.yaml"
-    ]
-  },
-  {
-    "hash": "01f204a4b3810a5f115411be0fcac6ddd5d27708",
-    "date": "2025-11-09T14:28:25+07:00",
-    "message": "chore(devops): add cloudflared tunnel config for Vite dev server and documentation\n\n- Add `cloudflared.config.yaml` to route custom domain `tunnel.webmanajemen.com` to local Vite HTTPS server\n  - Skips TLS verification for local development\n  - Provides 404 fallback for all other requests\n- Add `cloudflared` dependency to `package.json`\n- Update `readme-nodejs.md` with instructions on accessing Vite dev server via LAN\n  - Includes commands for quick tunnel, custom domain setup, and tunnel management",
-    "files": [
-      "cloudflared.config.yaml",
-      "package.json",
-      "readme-nodejs.md"
-    ]
-  },
-  {
-    "hash": "2d17d1a0349e4ba2f1991334549cd360f30f6c1c",
-    "date": "2025-11-09T12:21:54+07:00",
-    "message": "refactor(check-http-proxy): delegate HTTP checks to ProxyCheckerHttpOnly\n\n- Replace manual cURL/protocol loop and HTML title parsing with a call to\n  \\PhpProxyHunter\\Checker\\ProxyCheckerHttpOnly::check()\n- Build and pass a `CheckerOptions` instance (verbose, timeout, protocols, proxy,\n  and optional username/password)\n- Use `CheckerResult` fields (isWorking, isSSL, workingTypes, latency) to update DB\n- Normalize stored proxy type to lowercase\n- Minor whitespace/brace style tidy in the file",
-    "files": [
-      "php_backend/check-http-proxy.php"
-    ]
-  },
-  {
-    "hash": "3b6133c7d40d50ba9d54be1d20bd1eecb4ac411f",
-    "date": "2025-11-09T11:59:31+07:00",
-    "message": "feat(checker): add Google checker and normalize workingTypes to lowercase\n\n- add `ProxyCheckerGoogle` to validate Google homepage title across protocols\n- include `ProxyCheckerGoogle` in `ProxyChecker-test.php` and aggregate/format working types for DB\n- normalize HTML title matching (collapse whitespace, decode entities, case-insensitive) and record latency\n- switch `ProxyCheckerHttpOnly` to use shared `buildCurl()` helper and realistic User-Agent\n- store protocol names as lowercase in `workingTypes` for `ProxyChecker1`, `ProxyCheckerHttpOnly`, and `ProxyCheckerGoogle`\n- add docblock for `log()` in `ProxyChecker1`",
-    "files": [
-      "src/PhpProxyHunter/Checker/ProxyChecker-test.php",
-      "src/PhpProxyHunter/Checker/ProxyChecker1.php",
-      "src/PhpProxyHunter/Checker/ProxyCheckerGoogle.php",
-      "src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php"
-    ]
-  },
-  {
-    "hash": "30821218df4e118f9d999001006595e513d2a6f2",
-    "date": "2025-11-08T18:11:51+07:00",
-    "message": "feat(core): add Symfony Mbstring polyfill and apply code style cleanup\n\n- Added `symfony/polyfill-mbstring` to composer dependencies for improved compatibility on systems without the mbstring extension.\n- Required the polyfill bootstrap in `func.php` for automatic multibyte string support.\n- Reformatted multiple function definitions to use single-line braces for consistent code style and readability.",
-    "files": [
-      "composer.json",
-      "func.php"
-    ]
-  },
-  {
-    "hash": "8aca92e7e883b1a8c447ab272fdd66a8eeec42ff",
-    "date": "2025-11-08T18:01:51+07:00",
-    "message": "feat(checker): add HTTP-only checker and support socks4a/socks5h\n\n- Add `src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php`: new HTTP-only checker that tests multiple protocols (http, https, socks4, socks5, socks4a, socks5h), validates page title (HTTP Forever), records latency and reports working types.\n- Extend `CheckerOptions::$protocols` to include `socks4a` and `socks5h`.\n- Add `src/PhpProxyHunter/Checker/ProxyChecker-test.php` test harness to run `ProxyChecker1` and `ProxyCheckerHttpOnly`, output results and update DB/file state.\n- Remove obsolete `src/PhpProxyHunter/Checker/ProxyChecker1-test.php`.\n\nNo breaking changes.",
-    "files": [
-      "src/PhpProxyHunter/Checker/CheckerOptions.php",
-      "src/PhpProxyHunter/Checker/ProxyChecker-test.php",
-      "src/PhpProxyHunter/Checker/ProxyChecker1-test.php",
-      "src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php"
     ]
   }
 ]

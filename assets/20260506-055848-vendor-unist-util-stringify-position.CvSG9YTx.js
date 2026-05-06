@@ -1,0 +1,1 @@
+function n(n){return n&&"object"==typeof n?"position"in n||"type"in n?i(n.position):"start"in n||"end"in n?i(n):"line"in n||"column"in n?t(n):"":""}function t(n){return e(n&&n.line)+":"+e(n&&n.column)}function i(n){return t(n&&n.start)+"-"+t(n&&n.end)}function e(n){return n&&"number"==typeof n?n:1}export{n as s};
