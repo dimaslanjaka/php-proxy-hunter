@@ -1,7 +1,5 @@
 <?php
 
-use PhpProxyHunter\Proxy;
-
 /**
  * Extracts all IPv4 addresses from the given string.
  *
@@ -14,6 +12,7 @@ use PhpProxyHunter\Proxy;
 function extractIPs($string) {
   // Regular expression to match an IP address
   $ipPattern = '/\b(?:\d{1,3}\.){3}\d{1,3}\b/';
+  $string    = normalize_proxy_input($string);
 
   // Use preg_match_all to find all IP addresses in the string
   if (preg_match_all($ipPattern, $string, $matches)) {
@@ -35,7 +34,8 @@ function extractIPs($string) {
  * @return string[] An array of unique port numbers as strings.
  */
 function extractPorts($inputString) {
-  $result = [];
+  $result      = [];
+  $inputString = normalize_proxy_input($inputString);
 
   // Define the regular expression pattern to match IP:PORT format
   $pattern = '/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}:(\d{1,5})\b/';
@@ -67,15 +67,38 @@ function extractPorts($inputString) {
 }
 
 /**
+ * Normalize a raw proxy input string so that literal escape sequences and
+ * common URL-encoded newline tokens become actual newlines for parsing.
+ *
+ * @param string|null $s
+ * @return string|null
+ */
+function normalize_proxy_input($s) {
+  if (!is_string($s) || $s === '') {
+    return $s;
+  }
+
+  // Replace literal backslash-n (\\n), Windows CRLF literal, and common
+  // URL-encoded newline tokens with the platform newline so extractors
+  // that split on newlines will work correctly.
+  $tokens = ['\\r\\n', '\\n', '%5Cn', '%5cn', '%0A', '%0a', '%0D', '%0d'];
+  $s      = str_replace($tokens, PHP_EOL, $s);
+
+  // Also normalize any multiple consecutive newlines and trim
+  $s = preg_replace('/\\r?\\n{2,}/', PHP_EOL, $s);
+  return trim($s);
+}
+
+/**
  * Extracts IP:PORT pairs from a string, along with optional username and password.
  *
  * @param string|null $string The input string containing IP:PORT pairs.
- * @param ProxyDB|null $db An optional ProxyDB instance for database operations.
+ * @param \PhpProxyHunter\ProxyDB|null $db An optional ProxyDB instance for database operations.
  * @param bool|null $write_database An optional flag to determine if the results should be written to the database.
  * @param int $limit The maximum number of results to return.
  * @param bool $ignore_validation When true, skip calls to isValidProxy() and isValidIp() so the function
  *        will return proxies/entries even if they would normally be considered invalid. Default: false.
- * @return Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
+ * @return \PhpProxyHunter\Proxy[] An array containing the extracted IP:PORT pairs along with username and password if present.
  */
 function extractProxies($string, $db = null, $write_database = false, $limit = 100, $ignore_validation = false) {
   if (!$string) {
@@ -84,6 +107,7 @@ function extractProxies($string, $db = null, $write_database = false, $limit = 1
   if (empty(trim($string))) {
     return [];
   }
+  $string = normalize_proxy_input($string);
 
   $results = [];
 
@@ -175,7 +199,7 @@ function extractProxies($string, $db = null, $write_database = false, $limit = 1
       $username = $match['username'] ?? null;
       $password = $match['password'] ?? null;
       if ($ignore_validation || isValidProxy($proxy)) {
-        $result = new Proxy($proxy);
+        $result = new \PhpProxyHunter\Proxy($proxy);
         if (!empty($username) && !empty($password)) {
           $result->username = $username;
           $result->password = $password;
@@ -195,7 +219,7 @@ function extractProxies($string, $db = null, $write_database = false, $limit = 1
         continue;
       }
       $proxy  = $match[1] . ':' . $match[2];
-      $result = new Proxy($proxy);
+      $result = new \PhpProxyHunter\Proxy($proxy);
       if ($ignore_validation || isValidProxy($proxy)) {
         if (count($results) < $limit) {
           $results[] = $result;
@@ -208,7 +232,7 @@ function extractProxies($string, $db = null, $write_database = false, $limit = 1
       $port = $match[2];
       if ($ignore_validation || isValidIp($ip)) {
         $proxy  = $ip . ':' . $port;
-        $result = new Proxy($proxy);
+        $result = new \PhpProxyHunter\Proxy($proxy);
         if ($ignore_validation || isValidProxy($proxy)) {
           if (count($results) < $limit) {
             $results[] = $result;
@@ -277,7 +301,7 @@ function extractProxies($string, $db = null, $write_database = false, $limit = 1
     return $results;
   }
 
-  return array_map(function (Proxy $item) use ($db) {
+  return array_map(function (\PhpProxyHunter\Proxy $item) use ($db) {
     $select = $db->select($item->proxy);
     if (!empty($select)) {
       foreach ($select[0] as $key => $value) {
