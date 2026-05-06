@@ -365,12 +365,19 @@ def clear_console():
         os.system("clear")
 
 
-def color_percent_value_text(value: float | int | None, text: str) -> str:
+def color_percent_value_text(
+    value: float | int | None, text: str, reverse: bool = False
+) -> str:
     """Return `text` colored on a smooth red->green gradient for `value` in 0..100.
 
     Uses 24-bit ANSI escape sequence for a smooth transition where
     0 -> red (255,0,0), 100 -> green (0,255,0). If `value` is None,
     returns the original `text` unchanged.
+
+    Args:
+        value (float|int|None): Percentage value in range 0..100.
+        text (str): Text to colorize.
+        reverse (bool): If True, reverse the gradient so 0 -> green and 100 -> red.
     """
     if value is None:
         return text
@@ -387,9 +394,15 @@ def color_percent_value_text(value: float | int | None, text: str) -> str:
         v = 100.0
 
     t = v / 100.0
-    # Interpolate red->green via simple linear mix: R = 255*(1-t), G = 255*t
-    r = int(255 * (1.0 - t))
-    g = int(255 * t)
+    # Interpolate red->green via simple linear mix.
+    # Default: 0 -> red, 100 -> green (R = 255*(1-t), G = 255*t)
+    # If reverse is True: 0 -> green, 100 -> red (R = 255*t, G = 255*(1-t))
+    if reverse:
+        r = int(255 * t)
+        g = int(255 * (1.0 - t))
+    else:
+        r = int(255 * (1.0 - t))
+        g = int(255 * t)
     b = 0
 
     # Use 24-bit (truecolor) ANSI escape. Keep bright style for consistency.

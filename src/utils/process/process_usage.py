@@ -125,8 +125,8 @@ def main():
         print(f"\n=== {datetime.now().strftime('%Y-%m-%d %H:%M:%S')} ===")
 
         for cpu, mem_mb, mem_percent, cmd in results[:10]:
-            cpu_s = color_percent_value_text(cpu, f"{cpu:.2f}%")
-            ram_s = color_percent_value_text(mem_percent, f"{mem_percent:.2f}%")
+            cpu_s = color_percent_value_text(cpu, f"{cpu:.2f}%", True)
+            ram_s = color_percent_value_text(mem_percent, f"{mem_percent:.2f}%", True)
 
             print(f"{cmd} | " f"CPU {cpu_s} | " f"RAM {mem_mb:.2f}MB ({ram_s})")
 

@@ -1,0 +1,9 @@
+#!/bin/bash
+
+set -e  # Exit on any error
+set -u  # Treat unset variables as an error
+set -o pipefail  # Catch errors in piped commands
+
+cwd=$(dirname "$(dirname "$(realpath "$0")")")
+
+"$cwd/bin/py" "$cwd/src/utils/process/process_usage.py"

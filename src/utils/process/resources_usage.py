@@ -282,7 +282,9 @@ def display_system_usage(
     human_parts: list[str] = []
     # CPU
     if cpu_usage is not None:
-        parts.append(f"CPU={color_percent_value_text(cpu_usage, f'{cpu_usage}%')}")
+        parts.append(
+            f"CPU={color_percent_value_text(cpu_usage, f'{cpu_usage}%', True)}"
+        )
         human_parts.append(f"CPU={cpu_usage}%")
     else:
         parts.append("CPU=?")
@@ -295,14 +297,16 @@ def display_system_usage(
         and ram_used_bytes is not None
     ):
         parts.append(
-            f"RAM={color_percent_value_text(ram_percent, f'{ram_percent}%')} ({_fmt_bytes(ram_used_bytes)}/{_fmt_bytes(ram_total_bytes)})"
+            f"RAM={color_percent_value_text(ram_percent, f'{ram_percent}%', True)} ({_fmt_bytes(ram_used_bytes)}/{_fmt_bytes(ram_total_bytes)})"
         )
         human_parts.append(
             f"RAM={ram_percent}% ({_fmt_bytes(ram_used_bytes)}/{_fmt_bytes(ram_total_bytes)})"
         )
     else:
         if ram_usage is not None:
-            parts.append(f"RAM={color_percent_value_text(ram_usage, f'{ram_usage}%')}")
+            parts.append(
+                f"RAM={color_percent_value_text(ram_usage, f'{ram_usage}%', True)}"
+            )
             human_parts.append(f"RAM={ram_usage}%")
         else:
             parts.append("RAM=?")
@@ -315,7 +319,7 @@ def display_system_usage(
         and storage_used_bytes is not None
     ):
         parts.append(
-            f"Storage={color_percent_value_text(storage_percent, f'{storage_percent}%')} ({_fmt_bytes(storage_used_bytes)}/{_fmt_bytes(storage_total_bytes)})"
+            f"Storage={color_percent_value_text(storage_percent, f'{storage_percent}%', True)} ({_fmt_bytes(storage_used_bytes)}/{_fmt_bytes(storage_total_bytes)})"
         )
         human_parts.append(
             f"Storage={storage_percent}% ({_fmt_bytes(storage_used_bytes)}/{_fmt_bytes(storage_total_bytes)})"
@@ -323,7 +327,7 @@ def display_system_usage(
     else:
         if storage_usage is not None:
             parts.append(
-                f"Storage={color_percent_value_text(storage_usage, f'{storage_usage}%')}"
+                f"Storage={color_percent_value_text(storage_usage, f'{storage_usage}%', True)}"
             )
             human_parts.append(f"Storage={storage_usage}%")
         else:
