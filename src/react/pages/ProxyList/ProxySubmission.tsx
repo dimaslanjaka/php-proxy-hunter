@@ -13,7 +13,6 @@ export default function ProxySubmission() {
   const defaultProxyUrls = [
     'https://raw.githubusercontent.com/proxifly/free-proxy-list/refs/heads/main/proxies/protocols/socks5/data.txt',
     'https://raw.githubusercontent.com/proxifly/free-proxy-list/refs/heads/main/proxies/protocols/socks4/data.txt',
-
     'https://raw.githubusercontent.com/proxifly/free-proxy-list/refs/heads/main/proxies/protocols/http/data.txt'
   ];
 
@@ -44,7 +43,34 @@ export default function ProxySubmission() {
   }, [executorList]);
 
   React.useEffect(() => {
-    // fetch available executor scripts
+    // Try to load cached executor scripts from localStorage first to speed up UI.
+    const CACHE_KEY = 'proxy-submission.executorList';
+    try {
+      const raw = localStorage.getItem(CACHE_KEY);
+      if (raw) {
+        const parsed = JSON.parse(raw);
+        if (Array.isArray(parsed)) {
+          setExecutorList(parsed as Array<{ name: string; path: string }>);
+          // set default selected backend when cached list is available and none selected
+          if (parsed.length > 0 && !selectedCheckBackend) {
+            try {
+              const saved = localStorage.getItem(STORAGE_KEY);
+              if (saved && parsed.some((it: any) => it.path === saved)) {
+                setSelectedCheckBackend(saved);
+              } else {
+                setSelectedCheckBackend(parsed[0].path);
+              }
+            } catch (_e) {
+              setSelectedCheckBackend(parsed[0].path);
+            }
+          }
+        }
+      }
+    } catch (_e) {
+      // ignore corrupt cache
+    }
+
+    // Always refresh in background and update cache when response arrives.
     get(createUrl('/php_backend/executor.php', { list: 1 }))
       .then((json) => {
         if (Array.isArray(json)) {
@@ -53,6 +79,11 @@ export default function ProxySubmission() {
             (v) => v && typeof v === 'object' && typeof v.path === 'string' && typeof v.name === 'string'
           );
           setExecutorList(list as Array<{ name: string; path: string }>);
+          try {
+            localStorage.setItem(CACHE_KEY, JSON.stringify(list));
+          } catch (_e) {
+            // ignore storage errors
+          }
           // set default selected backend when list is available and none selected
           if (list.length > 0 && !selectedCheckBackend) {
             try {
