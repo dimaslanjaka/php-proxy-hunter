@@ -12,6 +12,7 @@ sys.path.append(PROJECT_ROOT)
 from src.func import get_relative_path
 from src.func_console import cyan, red, magenta, green
 from src.utils.file.FileLockHelper import FileLockHelper
+from src.utils.file import remove_string_from_file
 from artisan.proxy_getter import (
     normalize_proxy_value,
     retrieve_proxies,
@@ -370,45 +371,16 @@ if __name__ == "__main__":
                 target_file = candidate if os.path.isfile(candidate) else proxy_file
 
                 if os.path.isfile(target_file):
-                    with open(target_file, "r", encoding="utf-8") as f:
-                        file_lines = f.readlines()
+                    # Remove occurrences using helper once for the full set
+                    try:
+                        remove_string_from_file(target_file, tested_keys)
+                    except Exception as e:
+                        print_status("WARN", f"Failed removing keys from file: {e}")
 
-                    kept_lines = []
-                    removed_count = 0
-
-                    for line in file_lines:
-                        raw = line.strip()
-
-                        try:
-                            parsed = list(extract_proxies(raw))
-                        except Exception:
-                            parsed = []
-
-                        should_remove = any(
-                            str(getattr(item, "proxy", "")).strip() in tested_keys
-                            for item in parsed
-                        )
-
-                        if not should_remove:
-                            should_remove = any(k in raw for k in tested_keys if k)
-
-                        if should_remove:
-                            removed_count += 1
-                            continue
-
-                        kept_lines.append(line)
-
-                    while kept_lines and not kept_lines[-1].strip():
-                        kept_lines.pop()
-
-                    if removed_count:
-                        with open(target_file, "w", encoding="utf-8") as f:
-                            f.writelines(kept_lines)
-
-                        print_status(
-                            "INFO",
-                            f"Removed {removed_count} tested proxies from {target_file}",
-                        )
+                    print_status(
+                        "INFO",
+                        f"Attempted removal of tested proxies from {target_file}",
+                    )
                 else:
                     print_status("INFO", f"Source file not found: {target_file}")
         finally:

@@ -1,9 +1,9 @@
 from pathlib import Path
-from typing import List, Union
+from typing import List, Union, Set
 
 
 def remove_string_from_file(
-    file_path: Union[str, Path], data: Union[str, List[str]]
+    file_path: Union[str, Path], data: Union[str, List[str], Set[str]]
 ) -> bool:
     """
     Remove all occurrences of a specific string from a file.
@@ -21,9 +21,9 @@ def remove_string_from_file(
         with file_path.open("r", encoding="utf-8") as f:
             content = f.read()
 
-        # Support removing a single string or multiple strings
+        # Support removing a single string or multiple strings (list/tuple/set)
         new_content = content
-        if isinstance(data, (list, tuple)):
+        if isinstance(data, (list, tuple, set)):
             for item in data:
                 if not item:
                     continue

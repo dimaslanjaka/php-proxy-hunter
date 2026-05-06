@@ -24,6 +24,7 @@ from src.func_date import is_date_rfc3339_older_than
 from src.ProxyDB import ProxyDB
 from src.shared import init_db
 from src.utils.file.FileLockHelper import FileLockHelper
+from src.utils.file import remove_string_from_file
 from src.utils.parse_args import ParseArgs, parse_args
 
 
@@ -257,31 +258,15 @@ if __name__ == "__main__":
             if candidate and tested_keys:
                 target_file = candidate if os.path.isfile(candidate) else proxy_file
 
-                file_lines: List[str] = []
                 if os.path.isfile(target_file):
-                    with open(target_file, "r", encoding="utf-8") as f:
-                        file_lines = f.readlines()
+                    # Remove occurrences using helper once for the full set
+                    try:
+                        remove_string_from_file(target_file, tested_keys)
+                    except Exception as e:
+                        print(f"[WARN] Failed removing keys from file: {e}")
 
-                kept_lines: List[str] = []
-                removed_count = 0
-                for line in file_lines:
-                    raw = line.strip()
-                    normalized = normalize_proxy_value(raw)
-                    if normalized in tested_keys:
-                        removed_count += 1
-                        continue
-                    kept_lines.append(line)
-
-                trimmed_trailing_empty = 0
-                while kept_lines and not kept_lines[-1].strip():
-                    kept_lines.pop()
-                    trimmed_trailing_empty += 1
-
-                if removed_count or trimmed_trailing_empty:
-                    with open(target_file, "w", encoding="utf-8") as f:
-                        f.writelines(kept_lines)
                     print(
-                        f"[INFO] Removed {removed_count} tested proxies from {target_file}; trimmed {trimmed_trailing_empty} trailing empty lines"
+                        f"[INFO] Attempted removal of tested proxies from {target_file}"
                     )
         finally:
             db.close()

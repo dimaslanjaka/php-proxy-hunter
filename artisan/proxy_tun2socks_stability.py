@@ -14,6 +14,7 @@ from src.func_console import cyan, green, red
 from src.shared import init_db
 from src.func import get_relative_path
 from src.utils.file.FileLockHelper import FileLockHelper
+from src.utils.file import remove_string_from_file
 from artisan.proxy_getter import (
     normalize_proxy_str,
     retrieve_proxies,
@@ -610,31 +611,16 @@ if __name__ == "__main__":
 
             if candidate and tested_set:
                 target_file = candidate if os.path.isfile(candidate) else proxy_file
-                file_lines: List[str] = []
+
                 if os.path.isfile(target_file):
-                    with open(target_file, "r", encoding="utf-8") as f:
-                        file_lines = f.readlines()
+                    # Remove occurrences using helper once for the full set
+                    try:
+                        remove_string_from_file(target_file, tested_set)
+                    except Exception as e:
+                        print(f"[WARN] Failed removing keys from file: {e}")
 
-                kept_lines = []
-                removed_count = 0
-                for line in file_lines:
-                    normalized = normalize_proxy_line_for_match(line)
-                    if normalized in tested_set:
-                        removed_count += 1
-                        continue
-                    kept_lines.append(line)
-
-                trimmed_trailing_empty = 0
-                while kept_lines and not kept_lines[-1].strip():
-                    kept_lines.pop()
-                    trimmed_trailing_empty += 1
-
-                if removed_count or trimmed_trailing_empty:
-                    with open(target_file, "w", encoding="utf-8") as f:
-                        f.writelines(kept_lines)
                     print(
-                        f"[INFO] Removed {removed_count} tested proxies from {target_file}; "
-                        f"trimmed {trimmed_trailing_empty} trailing empty lines"
+                        f"[INFO] Attempted removal of tested proxies from {target_file}"
                     )
 
             if result:
