@@ -79,7 +79,9 @@ export const viteConfig = defineConfig({
     manualHmrPlugin(),
     indexHtmlReplacementPlugin(),
     copyFontsPlugin(),
-    fontsResolverPlugin(),
+    // Register fontsResolverPlugin only on GitHub Actions CI to avoid
+    // serving local font assets in other environments.
+    ...(isGithubCI ? [fontsResolverPlugin()] : []),
     TailwindCSSBuildPlugin(),
     react(),
     mkcert(),
@@ -149,61 +151,70 @@ export const viteConfig = defineConfig({
     },
     cssMinify: 'lightningcss', // ensure CSS is minified
     cssCodeSplit: true,
+    chunkSizeWarningLimit: 700,
     // For full CSS comment removal, use cssnano via PostCSS if needed
     rollupOptions: {
       // https://rollupjs.org/configuration-options/
       maxParallelFileOps: 2,
       output: {
         manualChunks: (id, _manualChunkMeta) => {
+          // Put all node_modules into smaller, per-package vendor chunks
           if (id.includes('node_modules')) {
-            for (const pkg of node_modules_folders) {
-              if (id.includes(path.join('node_modules', pkg))) {
-                return sanitizeFilename(pkg, { replaceWith: '-' });
-              }
-            }
+            // Extract the package name (handles scoped packages)
+            const pkgMatch = id.match(new RegExp('node_modules/(?:@[^/]+/[^/]+|[^/]+)'));
+            const pkgPath = pkgMatch ? pkgMatch[0].replace('node_modules/', '') : null;
+            if (pkgPath) {
+              const pkgName = pkgPath.replace('@', '').replace('/', '-');
 
-            if (id.startsWith('react')) {
-              if (id.includes('router')) {
-                return 'react-router';
+              // Prefer explicit groups for known large libraries
+              const groups = [
+                'react',
+                'react-dom',
+                'react-router',
+                'react-router-dom',
+                'use-sync-external-store',
+                '@mui',
+                'lodash',
+                'moment',
+                'chart.js',
+                'codemirror',
+                'highlight.js',
+                'prismjs',
+                'tailwindcss',
+                'flowbite',
+                'bootstrap',
+                'popper.js'
+              ];
+
+              // Map certain packages into a shared chunk to avoid circular imports
+              for (const g of groups) {
+                const key = g.replace('/', '-');
+                if (pkgName.includes(key)) {
+                  // Group React-related libs into the single 'react' chunk
+                  if (g === 'react' || g === 'react-dom' || g === 'use-sync-external-store') {
+                    return 'react';
+                  }
+                  // Group react-router libs together
+                  if (g === 'react-router' || g === 'react-router-dom') {
+                    return 'react-router';
+                  }
+                  return sanitizeFilename(g.replace('/', '-'), { replaceWith: '-' });
+                }
               }
-              return 'react';
+
+              // If package is in our node_modules_folders list, keep that name
+              for (const pkg of node_modules_folders) {
+                if (id.includes(path.join('node_modules', pkg))) {
+                  return sanitizeFilename(pkg, { replaceWith: '-' });
+                }
+              }
+
+              // Fallback: create a vendor chunk per top-level package
+              return `vendor-${sanitizeFilename(pkgName, { replaceWith: '-' })}`;
             }
-            if (id.startsWith('@mui/')) {
-              return 'mui';
-            }
-            if (id.includes('moment')) {
-              return 'moment';
-            }
-            if (id.startsWith('nik')) {
-              return 'nik';
-            }
-            if (/tailwind|flowbite/.test(id)) {
-              return 'ui-lib-tailwind';
-            }
-            if (/bootstrap|popperjs/.test(id)) {
-              return 'ui-lib-bootstrap';
-            }
-            if (/highlight|prism/.test(id)) {
-              return 'syntax-highlighter';
-            }
-            if (/proxy|proxies/.test(id)) {
-              return 'proxy';
-            }
-            if (/lodash/.test(id)) {
-              return 'lodash';
-            }
-            if (/chartjs|chart\.js/.test(id)) {
-              return 'chartjs';
-            }
-            if (/codemirror/.test(id)) {
-              return 'codemirror';
-            }
-            // Other vendor libraries
             return 'vendor';
           }
-          // Avoid manually chunking application code (components/pages/utils)
-          // letting Rollup decide to prevent circular chunk references.
-          // Let Rollup handle other modules automatically by returning undefined
+          // Let Rollup handle application code chunks
         },
         entryFileNames: `assets/[name].[hash].js`,
         chunkFileNames: `assets/[name].[hash].js`,
