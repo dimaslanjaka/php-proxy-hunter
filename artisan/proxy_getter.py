@@ -1,7 +1,7 @@
 import os
 import sys
 import re
-from typing import Any, Dict, Iterable, List, Optional, Tuple
+from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if PROJECT_ROOT not in sys.path:
@@ -237,7 +237,12 @@ def load_working_proxies_from_db(
     return proxies
 
 
-def normalize_proxy_value(value: str) -> str:
+def normalize_proxy_value(value: Union[str, Dict[str, Any]]) -> str:
+    if isinstance(value, dict):
+        if value.get("username") and value.get("password") and value.get("proxy"):
+            value = f"{value['username']}:{value['password']}@{value['proxy']}"
+        else:
+            value = value.get("proxy", "")
     text = str(value or "").strip()
     # remove leading scheme such as socks5://, socks4://, http://, https://
     # or any single '<scheme>://' occurrence
