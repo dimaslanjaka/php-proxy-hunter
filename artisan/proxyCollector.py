@@ -233,6 +233,11 @@ def collect():
                         )
                 except Exception as e:
                     print(f"Error removing processed proxies from file: {e}")
+            # If no new proxies were added from this file, continue to next file
+            # instead of stopping the collector run.
+            if added_count == 0:
+                print("No new proxies added from this file; continuing to next file.")
+                continue
             # After successfully processing and if parameter single is set, break the loop to only process one file per run
             if args.single:
                 break
