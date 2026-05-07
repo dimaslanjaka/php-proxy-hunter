@@ -315,7 +315,7 @@ if should_run_proxy_collectors:
     echo_skip_or_run("Proxy Collectors", True)
     log_command(
         CRONTAB_LOG_DIR / "proxyCollector.log",
-        [PYTHON_BIN, "artisan/proxyCollector.py", "--batch-size=500", "--shuffle"],
+        [PYTHON_BIN, "artisan/proxyCollector.py", "--limit=10"],
     )
 
 
