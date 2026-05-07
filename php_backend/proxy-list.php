@@ -10,8 +10,10 @@ use PhpProxyHunter\Server;
 // Allow CORS
 Server::allowCors(true);
 
+$isCli = is_cli();
+
 // Only allow if captcha passed
-if (empty($_SESSION['captcha'])) {
+if (empty($_SESSION['captcha']) && !$isCli) {
   http_response_code(403);
   echo json_encode(['error' => true, 'message' => 'Captcha not verified']);
   exit;
@@ -26,7 +28,9 @@ $proxy_db = $refresh['proxy_db'];
 // helper to parse incoming payload if needed
 $request = parseQueryOrPostBody();
 
-header('Content-Type: application/json; charset=utf-8');
+if (!$isCli) {
+  header('Content-Type: application/json; charset=utf-8');
+}
 
 try {
   // DataTables draw param
@@ -232,7 +236,28 @@ try {
     $limitSql = 'LIMIT ' . (int)$perPage . ' OFFSET ' . (int)$offset;
   }
 
-  $sql  = 'SELECT * FROM proxies ' . $where . ' ' . $orderSql . ' ' . $limitSql;
+  $sql         = 'SELECT * FROM proxies ' . $where . ' ' . $orderSql . ' ' . $limitSql;
+  $sqlChecksum = md5($sql . json_encode($params) . $driver);
+  $cacheFile   = get_project_root("tmp/proxies/{$sqlChecksum}.json");
+  $response    = [
+    'error'           => false,
+    'draw'            => $draw,
+    'recordsTotal'    => $recordsTotal,
+    'recordsFiltered' => $recordsFiltered,
+    'driver'          => $driver,
+    'page'            => $page,
+    'perPage'         => $perPage,
+  ];
+
+  $cacheTTL = 300; // Cache time-to-live in seconds (5 minutes)
+  if (file_exists($cacheFile) && time() - filemtime($cacheFile) < $cacheTTL) {
+    // Return cached response if query is the same and cache is less than cacheTTL seconds old
+    $cachedResponse = json_decode(file_get_contents($cacheFile), true);
+    if ($cachedResponse && !empty($cachedResponse['data'])) {
+      respond_json(array_merge($response, $cachedResponse, ['cached' => true]));
+    }
+  }
+
   $stmt = $pdo->prepare($sql);
   $stmt->execute($params);
   $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -246,21 +271,13 @@ try {
     unset($r);
   }
 
-  $rows = $rows ?: [];
+  $rows             = $rows ?: [];
+  $response['data'] = array_values($rows);
 
-  $response = [
-    'error'           => false,
-    'draw'            => $draw,
-    'recordsTotal'    => $recordsTotal,
-    'recordsFiltered' => $recordsFiltered,
-    'data'            => array_values($rows),
-    'driver'          => $driver,
-    'page'            => $page,
-    'perPage'         => $perPage,
-  ];
+  // Save the response to the cache file
+  write_file($cacheFile, json_encode($response));
 
-  echo json_encode($response, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE);
+  respond_json($response);
 } catch (Throwable $e) {
-  http_response_code(500);
-  echo json_encode(['error' => $e->getMessage()]);
+  respond_json(['error' => true, 'message' => $e->getMessage()]);
 }
