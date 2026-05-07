@@ -117,7 +117,6 @@ if __name__ == "__main__":
         "tmp/requests_cache",
         "tmp/caches",
         "tmp/runners",
-        "tmp/proxies",
         "tmp/sms",
         "tmp/mirror",
         "tmp/status",
@@ -128,4 +127,4 @@ if __name__ == "__main__":
     for d in dirs:
         clean_directory(get_relative_path(d))
 
-    clean_directory(get_relative_path("assets/proxies"), day_to_seconds(1))
+    clean_directory(get_relative_path("tmp/proxies"), day_to_seconds(1))
