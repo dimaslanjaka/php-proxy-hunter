@@ -205,9 +205,9 @@ def parse_args(
         else (raw_max if raw_max is not None else default_limit)
     )
 
-    # Determine single mode: explicit flag or when explicit --limit/--max equals 1
+    # Determine single mode: explicit flag or when resolved final_limit equals 1
     explicit_single = getattr(ns, "single", False)
-    single_flag = explicit_single or (raw_limit == 1 or raw_max == 1)
+    single_flag = explicit_single or (final_limit == 1)
 
     result = ParseArgs(
         proxy_string=getattr(ns, "proxy_string", None),
