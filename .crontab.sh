@@ -157,7 +157,6 @@ if should_run_job "$CRONTAB_STATE_DIR/30-m" 0.5; then
   # log_command "$CRONTAB_LOG_DIR/check-old-proxy.log" php php_backend/check-old-proxy.php
   # Run geoIp script to resolve missing geo information for proxies
   log_command "$CRONTAB_LOG_DIR/geoip.log" php artisan/geoIp.php
-  log_command "$CRONTAB_LOG_DIR/proxyCollector2.log" "$PYTHON_BIN" artisan/proxyCollector2.py --batch-size=500 --shuffle
   log_command "$CRONTAB_LOG_DIR/proxyCollector.log" "$PYTHON_BIN" artisan/proxyCollector.py --batch-size=500 --shuffle
   log_command "$CRONTAB_LOG_DIR/tun2socks-stability-check.log" "$PYTHON_BIN" "$CWD/artisan/proxy_tun2socks_stability.py" --limit=1000
 else

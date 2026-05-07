@@ -1,45 +1,26 @@
-#!/usr/bin/env python3
-"""
-Proxy Collector and Indexer
-"""
-
 import os
-import sys
-import signal
-import argparse
 import random
+import signal
+import sys
 from pathlib import Path
+from typing import List, Tuple
 
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+from proxy_hunter import extract_proxies
+from src.func import get_relative_path
 from src.ProxyDB import ProxyDB
 from src.shared import init_db
-from src.func import get_relative_path
-from proxy_hunter import extract_proxies
 from src.utils.file.FileLockHelper import FileLockHelper
-from src.utils.process.count_running_files import count_running_files
 from src.utils.file.remove_string_from_file import remove_string_from_file
-
-# Global constants
-LOCK_FILE_PATH = get_relative_path("tmp/locks/proxyCollector.lock")
-ASSETS_PROXIES_DIR = get_relative_path("assets/proxies")
-LOCKS_DIR = get_relative_path("tmp/locks")
+from src.utils.parse_args import parse_args
 
 # Global lock reference for signal handler
 _global_file_lock = None
-
-
-def cleanup_and_exit(signum=None, frame=None):
-    """Clean up and release lock on exit"""
-    global _global_file_lock
-    if _global_file_lock:
-        try:
-            _global_file_lock.release()
-            print(f"\nLock released: {_global_file_lock.file_path}")
-        except Exception as e:
-            print(f"\nError releasing lock: {e}")
-    sys.exit(0)
+LOCKS_DIR = get_relative_path("tmp/locks")
+LOCK_FILE_PATH = get_relative_path(LOCKS_DIR + "/proxyCollector.lock")
+ASSETS_PROXIES_DIR = get_relative_path("assets/proxies")
 
 
 def get_added_proxy_files():
@@ -74,280 +55,195 @@ def get_added_proxy_files():
     return unique_paths
 
 
-def process_file(file_path, proxy_db, batch_size=10):
-    """
-    Process a single proxy file in batches.
-
-    Args:
-        file_path (str): Path to the proxy file
-        proxy_db: ProxyDB instance
-        batch_size (int): Number of lines to process per batch
-    """
-    try:
-        if not os.path.exists(file_path):
-            print(f"File not found: {file_path}")
-            return
-
-        file_size = os.path.getsize(file_path)
-        print(
-            f"Processing {os.path.basename(file_path)}: {file_size / 1024:.2f} KB (batch size: {batch_size})"
-        )
-
-        line_count = 0
-        lines_to_keep = []
-        current_batch = []
-        batch_num = 0
-        lines_processed_in_batch = 0
-
-        with open(file_path, "r", encoding="utf-8") as f:
-            for line_num, line in enumerate(f, 1):
-                line = line.strip()
-
-                if not line:
-                    continue
-
-                line_count += 1
-                current_batch.append((line, line_num))
-                lines_processed_in_batch += 1
-
-                # Process batch when it reaches batch_size
-                if len(current_batch) >= batch_size:
-                    batch_num += 1
-                    print(f"  Processing batch {batch_num}...")
-
-                    processed_in_batch = []
-                    for batch_line, batch_line_num in current_batch:
-                        success = process_line(batch_line, proxy_db, batch_line_num)
-                        if not success:
-                            lines_to_keep.append(batch_line)
-                        else:
-                            processed_in_batch.append(batch_line)
-
-                    current_batch = []
-
-                    # If we processed any lines in this batch, remove them from the
-                    # source file using `remove_string_from_file` so duplicates are
-                    # removed wherever they appear. Lines that failed processing
-                    # remain in `lines_to_keep` and will be left in the file.
-                    if processed_in_batch:
-                        try:
-                            removed = remove_string_from_file(
-                                file_path,
-                                processed_in_batch,
-                                clear_trailing_empty_lines=True,
-                            )
-                            if removed:
-                                print(
-                                    f"  Removed {len(processed_in_batch)} processed lines from file"
-                                )
-                            else:
-                                print(f"  Failed to remove processed lines from file")
-                        except Exception:
-                            print(f"  Error removing processed lines from file")
-
-                    print(f"  Total lines attempted: {lines_processed_in_batch}")
-
-                    # Stop after processing this batch - don't continue to next file
-                    print(
-                        f"  Processed {lines_processed_in_batch} lines. Stopping for this run."
-                    )
-                    break
-
-    except Exception as e:
-        print(f"Error processing {file_path}: {e}")
-
-
-def process_line(line: str, proxy_db: ProxyDB, line_num: int = 0):
-    """
-    Process a single line from proxy file.
-
-    Returns True if successfully processed, False otherwise.
-
-    Args:
-        line (str): Line content
-        proxy_db (ProxyDB): ProxyDB instance
-        line_num (int): Line number in the file
-    """
-    try:
-        proxies = extract_proxies(line)
-        print(f"[{line_num}]: Total proxies extracted: {len(proxies)}")
-
-        for proxy in proxies:
-            data = {"proxy": proxy.proxy}
-
-            # Only add username if it's a valid string and not empty or "-"
-            if (
-                isinstance(proxy.username, str)
-                and proxy.username.strip()
-                and proxy.username != "-"
-            ):
-                data["username"] = proxy.username
-
-            # Only add password if it's a valid string and not empty or "-"
-            if (
-                isinstance(proxy.password, str)
-                and proxy.password.strip()
-                and proxy.password != "-"
-            ):
-                data["password"] = proxy.password
-
-            proxy_db.update_data(proxy.proxy, data)
-
-        return True  # Line processed successfully
-    except Exception as e:
-        print(f"Error processing line {line_num}: {e}")
-        return False  # Failed to process, keep the line
-
-
-def main():
-    """Main entry point"""
-    # Parse CLI arguments
-    parser = argparse.ArgumentParser(description="Proxy Collector and Indexer")
-    parser.add_argument(
-        "--single",
-        action="store_true",
-        help="Pick a single random file instead of processing all files",
-    )
-    parser.add_argument(
-        "--no-merge",
-        action="store_true",
-        help="Skip merging small added-*.txt files before processing",
-    )
-    parser.add_argument(
-        "--shuffle",
-        action="store_true",
-        help="Shuffle discovered added-*.txt files before processing",
-    )
-    parser.add_argument(
-        "--batch-size",
-        type=int,
-        default=10,
-        help="Number of lines to process per file run (default: 10)",
-    )
-    parser.add_argument(
-        "--max-instances",
-        type=int,
-        default=3,
-        help="Max concurrent proxyCollector processes allowed (exit early when reached)",
-    )
-    parser.add_argument(
-        "--fileLock",
-        dest="file_lock",
-        type=str,
-        help="Override per-file lock path (useful for testing)",
-    )
-    # Allow unknown args so external wrappers can pass extra flags
-    args = parser.parse_known_args()[0]
-
-    # Use a single global declaration for the per-file lock variable
+def cleanup_and_exit(signum=None, frame=None):
     global _global_file_lock
-
-    # Set up signal handlers for graceful cleanup
-    signal.signal(signal.SIGINT, cleanup_and_exit)  # CTRL+C
-    signal.signal(signal.SIGTERM, cleanup_and_exit)  # Termination signal
-
-    # Optionally run merge script for small added-*.txt files before processing
-    if not getattr(args, "no_merge", False):
+    if _global_file_lock:
         try:
-            from artisan.merge_proxies import main as merge_main  # type: ignore
+            _global_file_lock.release()
+            print(f"\nLock released: {_global_file_lock.file_path}")
+        except Exception as e:
+            print(f"\nError releasing lock: {e}")
+    sys.exit(0)
+
+
+def collect():
+    # Register signal handlers so locks are released on interrupt/terminate
+    signal.signal(signal.SIGINT, cleanup_and_exit)
+    signal.signal(signal.SIGTERM, cleanup_and_exit)
+
+    files = get_added_proxy_files()
+    if not files:
+        print("No added proxy files found.")
+        return
+
+    # Filter files by size (only files smaller than 800 KB) and cache sizes to
+    # avoid repeated os.path.getsize calls. Remove zero-length files when safe.
+    max_size = 800 * 1024
+    small_file_tuples: List[Tuple[str, int]] = []  # list of (path, size)
+    for fp in files:
+        try:
+            stat = os.stat(fp)
+            sz = stat.st_size
+            if sz == 0:
+                try:
+                    os.remove(fp)
+                    print(f"Removed empty file: {fp}")
+                except Exception:
+                    print(f"Skipping empty file (cannot remove): {fp}")
+                continue
+            if sz < max_size:
+                small_file_tuples.append((fp, sz))
+        except Exception:
+            # skip files we can't stat
+            continue
+
+    if not small_file_tuples:
+        print(f"No added proxy files under {max_size // 1024} KB found.")
+        return
+
+    # Process available small files in a loop so that deleting an empty/unused
+    # file will allow the collector to continue with the next file.
+    args = parse_args(default_limit=1)
+    file_lock_arg = getattr(args, "file_lock", None)
+
+    while small_file_tuples:
+        try:
+            selected_file = min(small_file_tuples, key=lambda t: t[1])[0]
+        except Exception:
+            selected_file = random.choice([t[0] for t in small_file_tuples])
+
+        # remove this candidate from the list so we don't retry it repeatedly
+        small_file_tuples = [t for t in small_file_tuples if t[0] != selected_file]
+        print(f"Selected file: {selected_file}")
+
+        lock_name = os.path.basename(selected_file) + ".lock"
+        if file_lock_arg:
+            per_lock_path = file_lock_arg
+        else:
+            per_lock_path = os.path.join(LOCKS_DIR, lock_name)
+
+        per_lock = FileLockHelper(per_lock_path)
+
+        global _global_file_lock
+        _global_file_lock = per_lock
+
+        if not per_lock.lock():
+            print(f"Skipping {selected_file}: locked by another process")
+            _global_file_lock = None
+            continue
+
+        try:
+            db = init_db("mysql")
+            # Minimal diagnostics: ensure file exists before processing
+            if not os.path.exists(selected_file):
+                print(f"Selected file no longer exists: {selected_file}")
+                db.close()
+                continue
+
+            added_count = 0
+            skipped_count = 0
+            proxies_extracted_total = 0
+            sample_extracted = []
+            processed_strings = []
+
+            # Read entire file and extract proxies from full content
+            try:
+                with open(selected_file, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+            except Exception as e:
+                print(f"Failed to read file {selected_file}: {e}")
+                content = ""
+
+            if not content or not content.strip():
+                print("File content empty after reading")
+                # No content to extract from — delete the file to avoid reprocessing
+                try:
+                    os.remove(selected_file)
+                    print(f"Deleted empty file: {selected_file}")
+                except Exception as e:
+                    print(f"Failed to delete file {selected_file}: {e}")
+                db.close()
+                continue
 
             try:
-                merge_main()
+                extracted_proxies = extract_proxies(content)
             except Exception as e:
-                print(f"merge_proxies failed: {e}")
-        except Exception:
-            print("artisan.merge_proxies not importable; skipping merge step")
+                print(f"extract_proxies failed: {e}")
+                extracted_proxies = []
 
-    # Process files using per-file locks (avoid a single global lock)
-    try:
-        proxy_db = init_db(db_type="mysql")
-
-        # Get added proxy files
-        added_files = get_added_proxy_files()
-        print(f"Found {len(added_files)} added proxy files")
-
-        # Early exit if there are already too many running instances
-        # Count only instances running from the project venv using absolute script path
-        existing = count_running_files(os.path.abspath(__file__), venv_only=True)
-        if existing > args.max_instances:
-            print(
-                f"Too many instances running ({existing}), exiting (max {args.max_instances})."
-            )
-            return
-
-        # Optionally shuffle file processing order to reduce contention
-        if getattr(args, "shuffle", False):
-            random.shuffle(added_files)
-            print("Shuffled processing order for added proxy files")
-
-        if not added_files:
-            print("No proxy files to process")
-            return
-
-        # Process files based on CLI args
-        if args.single:
-            # Pick a single random file
-            file_path = random.choice(added_files)
-            print(f"Attempting to process random file: {file_path}")
-
-            lock_name = os.path.basename(file_path) + ".lock"
-            file_lock_arg = getattr(args, "file_lock", None)
-            if file_lock_arg:
-                per_lock_path = file_lock_arg
-            else:
-                per_lock_path = os.path.join(LOCKS_DIR, lock_name)
-            per_lock = FileLockHelper(per_lock_path)
-            _global_file_lock = per_lock
-
-            if not per_lock.lock():
-                print(f"Skipping {file_path}: locked by another process")
-                _global_file_lock = None
-            else:
+            proxies_extracted_total = len(extracted_proxies)
+            # If extraction yielded nothing, delete the source file and continue
+            if proxies_extracted_total == 0:
                 try:
-                    print(f"Processing locked file: {file_path}")
-                    process_file(file_path, proxy_db, args.batch_size)
-                finally:
-                    try:
-                        per_lock.release()
-                        print(f"Lock released: {per_lock.file_path}")
-                    except Exception as e:
-                        print(f"Error releasing lock for {file_path}: {e}")
-                    _global_file_lock = None
-        else:
-            # Process all files, skipping those locked by other processes
-            print(f"Processing all {len(added_files)} files:")
-            for file_path in added_files:
-                print(f"  - {file_path}")
+                    os.remove(selected_file)
+                    print(f"Deleted file with no extracted proxies: {selected_file}")
+                except Exception as e:
+                    print(f"Failed to delete file {selected_file}: {e}")
+                db.close()
+                continue
 
-                lock_name = os.path.basename(file_path) + ".lock"
-                file_lock_arg = getattr(args, "file_lock", None)
-                if file_lock_arg:
-                    per_lock_path = file_lock_arg
+            for p in extracted_proxies:
+                if p.username and p.password:
+                    proxy_str = f"{p.proxy}@{p.username}:{p.password}"
                 else:
-                    per_lock_path = os.path.join(LOCKS_DIR, lock_name)
-                per_lock = FileLockHelper(per_lock_path)
-                _global_file_lock = per_lock
+                    proxy_str = p.proxy
 
-                if not per_lock.lock():
-                    print(f"    Skipping (locked by another process)")
-                    _global_file_lock = None
-                    continue
+                if len(sample_extracted) < 10:
+                    sample_extracted.append(proxy_str)
 
                 try:
-                    print(f"    Processing locked file")
-                    process_file(file_path, proxy_db, args.batch_size)
-                finally:
-                    try:
-                        per_lock.release()
-                        print(f"    Lock released: {per_lock.file_path}")
-                    except Exception as e:
-                        print(f"    Error releasing lock for {file_path}: {e}")
-                    _global_file_lock = None
+                    sel = db.select(proxy_str)
+                    exists = bool(sel)
+                except Exception as e:
+                    print(f"DB select failed for {proxy_str}: {e}")
+                    exists = False
 
-    finally:
-        # Nothing global to release here; per-file locks are released after each file.
-        pass
+                if exists:
+                    skipped_count += 1
+                    processed_strings.append(proxy_str)
+                else:
+                    try:
+                        db.add(proxy_str)
+                        added_count += 1
+                        processed_strings.append(proxy_str)
+                    except Exception as e:
+                        print(f"Failed to add proxy {proxy_str}: {e}")
+
+            db.close()
+
+            print(f"Extracted proxies: {proxies_extracted_total}")
+            print(f"Skipped (already present): {skipped_count}")
+            if sample_extracted:
+                print(f"Sample extracted proxies: {sample_extracted}")
+            print(f"Added {added_count} proxies to database")
+
+            # Remove processed proxy lines/occurrences from the file instead of deleting it
+            if processed_strings:
+                try:
+                    removed = remove_string_from_file(
+                        selected_file,
+                        processed_strings,
+                        clear_trailing_empty_lines=True,
+                    )
+                    if removed:
+                        print(f"Removed processed proxies from file: {selected_file}")
+                    else:
+                        print(
+                            f"Failed to remove processed proxies from file: {selected_file}"
+                        )
+                except Exception as e:
+                    print(f"Error removing processed proxies from file: {e}")
+            # After successfully processing and if parameter single is set, break the loop to only process one file per run
+            if args.single:
+                break
+        finally:
+            try:
+                per_lock.release()
+                print(f"Lock released: {per_lock.file_path}")
+            except Exception as e:
+                print(f"Error releasing lock for {selected_file}: {e}")
+            _global_file_lock = None
 
 
 if __name__ == "__main__":
-    main()
+    collect()
