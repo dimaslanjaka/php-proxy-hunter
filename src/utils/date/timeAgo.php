@@ -9,6 +9,9 @@
  * @return string
  */
 function timeAgo($dateString, $simple = false, $unitOnly = false) {
+  if (empty($dateString)) {
+    return '';
+  }
   // Try converting to DateTime
   try {
     $date = new DateTime($dateString);
