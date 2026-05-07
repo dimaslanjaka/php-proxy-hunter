@@ -1,5 +1,77 @@
 [
   {
+    "hash": "b680bae42f97bbfdb134e4746ca0c2b20c0ab706",
+    "date": "2026-05-08T05:21:50+07:00",
+    "message": "fix(src/utils/parse_args): determine `single` using resolved `final_limit`\n\nPreviously `single` was derived from the raw `--limit`/`--max` inputs which\ncould be `None` when callers relied on the function's `default_limit`.\nAs a result `parse_args(default_limit=1)` did not set `single` to true.\nUse the resolved `final_limit` when deciding `single` so defaults and\nfallbacks are handled correctly.",
+    "files": [
+      "src/utils/parse_args.py"
+    ]
+  },
+  {
+    "hash": "30417e9c35d25f368926caf2bc8b73f7bfdf5128",
+    "date": "2026-05-08T05:18:05+07:00",
+    "message": "feat(crontab): update proxy collector command to limit batch size to 10",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
+    "hash": "b848b484fe22cffea0ea272dcf337c2598a9f10e",
+    "date": "2026-05-08T05:17:07+07:00",
+    "message": "feat(proxy-collector): consolidate collectors, remove proxyCollector2, use in-place cleanup\n\n- Remove `artisan/proxyCollector2.py` and consolidate its logic into `artisan/proxyCollector.py`.\n- Add `get_added_proxy_files()` (pathlib + `get_relative_path`) for deterministic file discovery.\n- Cache file sizes (`List[Tuple[str,int]]`) and choose smallest candidate; loop over small files but stop after one successful non-empty processing (continue when files are empty/no-results).\n- Import and use `remove_string_from_file` to remove successfully processed proxy lines in-place; retain failed lines for future runs.\n- Delete files that are empty or produce zero extracted proxies.\n- Simplify diagnostics, add minimal signal/lock handling, and preserve per-file locking and batch-stop behavior.\n- Update crontab wrappers and scripts to call `artisan/proxyCollector.py` (remove proxyCollector2 references).",
+    "files": [
+      ".crontab.py",
+      ".crontab.sh",
+      "artisan/proxyCollector.py",
+      "artisan/proxyCollector2.py",
+      "bin/collect-proxies",
+      "bin/collect-proxies.cmd"
+    ]
+  },
+  {
+    "hash": "d6588f5f85f37f20c2027ded323661c26afc8537",
+    "date": "2026-05-08T05:13:36+07:00",
+    "message": "feat(proxy-collector2): add file discovery + path helpers, use pathlib\n\n- Add `get_added_proxy_files()` to discover `assets/proxies/added-*.txt` and root files (`dead.txt`, `proxies.txt`) with deduplication.\n- Introduce path helpers and constants via `get_relative_path`: `LOCKS_DIR`, `LOCK_FILE_PATH`, `ASSETS_PROXIES_DIR`.\n- Use `pathlib.Path` and typed `small_file_tuples` for robust file handling.\n- Reorder imports and add `remove_string_from_file` / `parse_args` imports preparing for in-place removal of processed proxies.\n- Make `proxyCollector2.py` self-contained for file discovery (matches behavior in `proxyCollector.py`).",
+    "files": [
+      "artisan/proxyCollector2.py"
+    ]
+  },
+  {
+    "hash": "d1ee483189626a9fbea9e77ec4d3a8ec4114621d",
+    "date": "2026-05-08T05:10:06+07:00",
+    "message": "feat(proxy-collector): remove processed proxies from files, delete empty files, improve selection\n\n- Import and use `remove_string_from_file` to remove successfully processed proxy lines instead of rewriting or blindly deleting files.\n- `process_file` now collects successfully processed lines per batch and removes them from the source file; failed lines are retained for future runs. Keeps original batch-stop behavior.\n- `proxyCollector2.py`:\n  - Annotate `small_file_tuples: List[Tuple[str,int]]` and pick smallest file by cached size (use `os.stat`).\n  - Loop over small files so empty / no-result files are deleted and the collector continues to the next candidate.\n  - Delete files when content is empty or when `extract_proxies` returns zero results; otherwise remove processed proxies from the file.\n  - Keep per-file locking and stop after processing one non-empty file (honors `--single`/limit behavior).\n  - Reduce noisy diagnostics to minimal existence checks.\n- Preserve DB add/select semantics and lock cleanup; handle errors defensively.\n\nRefs: use `remove_string_from_file` for safer in-place cleanup; improve performance by caching file sizes.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxyCollector.py",
+      "artisan/proxyCollector2.py"
+    ]
+  },
+  {
+    "hash": "415a292d06854957e186925f86a01c453128be67",
+    "date": "2026-05-08T05:05:29+07:00",
+    "message": "feat(parse_args): add --single flag for processing a single item\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/utils/parse_args.py"
+    ]
+  },
+  {
+    "hash": "eb2f84389f2f79f2b441b48b8ed9514579eac66b",
+    "date": "2026-05-08T04:51:58+07:00",
+    "message": "feat(proxy-collector): remove processed proxies from files; delete only empty files\n\n- import `remove_string_from_file` and collect processed proxies during ingestion\n- remove processed proxy occurrences from the source file instead of deleting it\n- delete file only when content is empty or `extract_proxies` returns no results\n- cache file sizes via `os.stat` and choose the smallest file by cached size\n- simplify diagnostics to a minimal existence check and concise messages\n- preserve file-locking behavior and fallback selection logic",
+    "files": [
+      "artisan/proxyCollector2.py"
+    ]
+  },
+  {
+    "hash": "aa03148b096e3eba64fcd22623913d0d70a40c70",
+    "date": "2026-05-08T04:36:44+07:00",
+    "message": "feat(collector): parse whole proxy files, skip empty files, and add diagnostics\n\n- Read entire selected file and pass full content to `extract_proxies()` instead\n  of processing line-by-line to improve extraction accuracy.\n- Automatically detect and remove zero-byte `added-*.txt` files (skip if removal fails)\n  to avoid processing empty placeholders.\n- Add diagnostic output: file existence, size, 512-byte preview, and sample extracted proxies.\n- Track and print summary counters: total extracted, skipped (already present), and added.\n- Preserve existing behavior of deleting processed files after successful processing.\n- Update CLI wrappers (`bin/collect-proxies`, `bin/collect-proxies.cmd`) to invoke\n  `artisan/proxyCollector2.py`.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxyCollector2.py",
+      "bin/collect-proxies",
+      "bin/collect-proxies.cmd"
+    ]
+  },
+  {
     "hash": "4f351d29f9ff675116a2ac42c9bd4f145069da22",
     "date": "2026-05-08T04:22:42+07:00",
     "message": "feat(artisan): add --fileLock CLI override for file-based locks\n\nAdd a `file_lock` field to `ParseArgs` and register the `--fileLock` argument in\n`src/utils/parse_args.py`. When provided, artisan scripts now use the supplied\npath as the full lock file instead of constructing `tmp/locks/{name}.lock`.\n\nThis enables external tooling and tests to supply an explicit lock file path\nand reduces contention when running scripts in custom environments.\n\nCo-authored-by: Copilot <copilot@github.com>",
@@ -8758,70 +8830,6 @@
     "message": "chore(lint): remove non-existent Slevomat rule ref from phpcs.xml\n\nRemove the SlevomatCodingStandard.Namespaces.UnderscoreInName rule block which\ncould cause PHPCS to fail when the sniff is not installed. Keep naming-related\nexclusions but avoid referencing a sniff that may not exist in all environments.",
     "files": [
       "phpcs.xml"
-    ]
-  },
-  {
-    "hash": "3e392f3b101a5eaac67eaa3a0479c7fe61d151af",
-    "date": "2025-11-20T09:36:05+07:00",
-    "message": "feat(geoip): enhance getGeoIpSimple() documentation and include city information in response",
-    "files": [
-      "src/PhpProxyHunter/GeoIpHelper.php"
-    ]
-  },
-  {
-    "hash": "c49b5b88c0c450714ecd89c859b630b743c6b19d",
-    "date": "2025-11-20T09:31:12+07:00",
-    "message": "feat(geoip): include city information in getGeoIpSimple() response",
-    "files": [
-      "src/PhpProxyHunter/GeoIpHelper.php"
-    ]
-  },
-  {
-    "hash": "4758b1233cfc458e411c4494e03da6e917b545bf",
-    "date": "2025-11-20T09:29:27+07:00",
-    "message": "feat(geoip): add language information to getGeoIpSimple() response",
-    "files": [
-      "src/PhpProxyHunter/GeoIpHelper.php"
-    ]
-  },
-  {
-    "hash": "2ee7deee22c675a4e5ba60473d9b32472a987857",
-    "date": "2025-11-20T09:11:32+07:00",
-    "message": "refactor(geoplugin): modernize class structure, docs, and data handling\n\n- Add updated class-level PHPDoc with clearer descriptions.\n- Improve property PHPDoc blocks and expand metadata coverage.\n- Refactor `locate()` to simplify flow, reduce duplication, and improve resilience.\n- Add early returns and safer fallbacks for JSON and serialized responses.\n- Enhance recursive lookup with cleaner GeoPlugin2 integration.\n- Modernize `fetch()` with clearer caching logic and consolidated cURL/fopen paths.\n- Improve error messages and maintain consistent formatting across methods.\n- Update convert(), nearby(), and fromGeoIp2CityModel() with stricter validation and reduced redundancy.",
-    "files": [
-      "src/PhpProxyHunter/GeoPlugin.php"
-    ]
-  },
-  {
-    "hash": "0d97679220304c55f1c550aa797b3148dd5d6d52",
-    "date": "2025-11-20T09:05:51+07:00",
-    "message": "chore(lint): disable camelCase naming sniffs in phpcs.xml\n\nAdd exclusions for Generic, Squiz and Slevomat naming sniffs to allow non-camelcase\nidentifiers (functions, variables, classes, properties). Also lower severity for\nSlevomatCodingStandard.Namespaces.UnderscoreInName.\n\n- Exclude Generic.NamingConventions.CamelCapsFunctionName\n- Exclude Generic.NamingConventions.CamelCapsVariableName\n- Exclude Squiz.NamingConventions.ValidFunctionName\n- Exclude Squiz.NamingConventions.ValidVariableName\n- Exclude Squiz.Classes.ValidClassName\n- Exclude SlevomatCodingStandard.NamingConventions.UnderscoreSeparated\n- Exclude SlevomatCodingStandard.NamingConventions.ValidClassName\n- Exclude SlevomatCodingStandard.NamingConventions.ValidFunctionName\n- Exclude SlevomatCodingStandard.NamingConventions.ValidVariableName\n- Set severity 0 for SlevomatCodingStandard.Namespaces.UnderscoreInName",
-    "files": [
-      "phpcs.xml"
-    ]
-  },
-  {
-    "hash": "5bcbbc13ef954a6bba1961ff066a3d47e8cf81ad",
-    "date": "2025-11-20T09:03:34+07:00",
-    "message": "feat(vscode): update PHP CS Fixer settings for enhanced configuration",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "f66c6a3ee33e24710458c34a63d2545986af417b",
-    "date": "2025-11-20T09:03:06+07:00",
-    "message": "fix(geo-plugin): handle generic exceptions in locate method",
-    "files": [
-      "src/PhpProxyHunter/GeoPlugin2.php"
-    ]
-  },
-  {
-    "hash": "23718205a2b93fc0f29e7fbf34322351d3a6309f",
-    "date": "2025-11-20T09:01:02+07:00",
-    "message": "refactor(geoip): simplify getGeoIpSimple() data extraction and add debug field\n\n- Remove conditional checks and assign fields directly from GeoPlugin result\n- Add `debug` field using jsonSerialize() for improved diagnostics",
-    "files": [
-      "src/PhpProxyHunter/GeoIpHelper.php"
     ]
   }
 ]
