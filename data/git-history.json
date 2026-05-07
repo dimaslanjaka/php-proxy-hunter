@@ -1,5 +1,13 @@
 [
   {
+    "hash": "35f50febaf32d57cc7ad2f382a4998fd7436d0c3",
+    "date": "2026-05-08T02:40:42+07:00",
+    "message": "feat(proxy-list): implement caching for proxy list responses and improve CLI handling",
+    "files": [
+      "php_backend/proxy-list.php"
+    ]
+  },
+  {
     "hash": "b9dba258c0e10610f9a74235c14db81d32ed890f",
     "date": "2026-05-06T13:05:41+07:00",
     "message": "feat(devcontainer): ensure `python` and `pip` are available in Dockerfile\n\nRegister python3.11 as system `python`/`python3` via update-alternatives,\ninstall pip (via get-pip.py) and upgrade pip/setuptools/wheel.\nAlso normalize Dockerfile apt-get formatting.",
@@ -8810,14 +8818,6 @@
     "message": "chore(kills.cmd): clean up php and node",
     "files": [
       "bin/kills.cmd"
-    ]
-  },
-  {
-    "hash": "191fb448baf062b9835cf8cb45cb7cd930d58958",
-    "date": "2025-11-20T06:36:12+07:00",
-    "message": "refactor(cs-fixer): rename GlobalOneLineFixer namespace to PhpCsFixerCustom\n\n- Change namespace from `CustomFixer` to `PhpCsFixerCustom` in `GlobalOneLineFixer.php`.\n- Update formatting in `applyFix` (loop headers reflowed across multiple lines).",
-    "files": [
-      "src/dev/php-cs-fixer/GlobalOneLineFixer.php"
     ]
   }
 ]
