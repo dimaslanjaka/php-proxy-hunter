@@ -14,6 +14,7 @@ from src import ProxyDB
 from src.func import get_relative_path
 from src.func_console import cyan, red, magenta, green
 from src.utils.file import remove_string_from_file
+from src.utils.file.FileLockHelper import FileLockHelper
 from artisan.proxy_getter import (
     normalize_proxy_value,
     retrieve_proxies,
@@ -22,6 +23,9 @@ from artisan.proxy_getter import (
 from src.utils.parse_args import parse_args
 from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
 from src.shared import init_db, init_readonly_db
+
+current_filename = os.path.basename(__file__)
+locker: Optional[FileLockHelper] = None
 
 
 async def check_proxy_https(
@@ -205,12 +209,11 @@ async def _worker_check(
             break
 
 
-async def main():
+async def main(args):
     try:
         db = init_db("mysql")
     except Exception:
         db = init_readonly_db()
-    args = parse_args(default_limit=1)
 
     def custom_filter(rows: List[dict[str, Any]]) -> List[dict[str, Any]]:
         filtered = []
@@ -249,6 +252,11 @@ async def main():
     if tasks:
         await asyncio.gather(*tasks)
 
+    try:
+        db.close()
+    except Exception:
+        pass
+
     print(
         f"Finished testing {len(tested_proxies)} proxies from source {cyan(source_label)}."
     )
@@ -260,4 +268,19 @@ async def main():
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    args = parse_args(default_limit=1)
+
+    # use --uid for lock filename when provided
+    lock_name = args.uid if args.uid else current_filename
+    lock_path = get_relative_path(f"tmp/locks/{lock_name}.lock")
+    locker = FileLockHelper(lock_path)
+
+    if not locker.lock():
+        print("Another instance is running. Exiting.")
+        sys.exit(0)
+
+    try:
+        asyncio.run(main(args))
+    finally:
+        if locker:
+            locker.unlock()
