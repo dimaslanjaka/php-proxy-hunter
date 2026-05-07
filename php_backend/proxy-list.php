@@ -253,7 +253,7 @@ try {
   if (file_exists($cacheFile) && time() - filemtime($cacheFile) < $cacheTTL) {
     // Return cached response if query is the same and cache is less than cacheTTL seconds old
     $cachedResponse = json_decode(file_get_contents($cacheFile), true);
-    if ($cachedResponse && !empty($cachedResponse['data'])) {
+    if ($cachedResponse && !empty($cachedResponse['data'] ?? [])) {
       respond_json(array_merge($response, $cachedResponse, ['cached' => true]));
     }
   }
