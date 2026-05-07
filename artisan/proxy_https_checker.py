@@ -1,11 +1,11 @@
 import os
-import asyncio
 import sys
+import asyncio
 import random
-from typing import Any, Callable, Iterable, List, Optional, Set
-from urllib.parse import urlsplit
-from proxy_hunter import build_request, extract_proxies, get_device_ip
+from typing import Any, List, Optional, Set
+
 from bs4 import BeautifulSoup
+from proxy_hunter import build_request, get_device_ip
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
@@ -13,7 +13,6 @@ sys.path.append(PROJECT_ROOT)
 from src import ProxyDB
 from src.func import get_relative_path
 from src.func_console import cyan, red, magenta, green
-from src.utils.file.FileLockHelper import FileLockHelper
 from src.utils.file import remove_string_from_file
 from artisan.proxy_getter import (
     normalize_proxy_value,
@@ -21,7 +20,7 @@ from artisan.proxy_getter import (
     ProxyRetrievalResult,
 )
 from src.utils.parse_args import parse_args
-from src.func_date import is_date_rfc3339_older_than
+from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
 from src.shared import init_db, init_readonly_db
 
 
@@ -194,8 +193,12 @@ async def _worker_check(
             try:
                 db.update_data(
                     data["proxy"],
-                    {"status": "active", "type": proto, "https": "true"},
-                    True,
+                    {
+                        "status": "active",
+                        "type": proto,
+                        "https": "true",
+                        "last_checked": get_current_rfc3339_time(),
+                    },
                 )
             except Exception:
                 pass
