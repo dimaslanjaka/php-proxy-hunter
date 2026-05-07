@@ -1,6 +1,7 @@
 import mysql.connector
 from mysql.connector import Error
 from typing import Any, List, Optional, Union, Dict, Sequence, cast
+import hashlib
 
 DISCONNECT_ERRNOS = {2006, 2013, 2055, 4031}
 
@@ -256,6 +257,48 @@ class MySQLHelper:
         finally:
             if cur is not None:
                 cur.close()
+
+    def checksum(self, table: str, columns: Optional[List[str]] = None) -> str:
+        """Calculate a MD5 checksum for a table using GROUP_CONCAT over the given columns.
+
+        Returns hex string or empty string on failure.
+        """
+        # Determine columns if not provided by selecting a single row
+        cols = columns[:] if columns else []
+        if not cols:
+            try:
+                sample = self.execute_query_fetch(f"SELECT * FROM {table} LIMIT 1")
+                if isinstance(sample, list) and sample:
+                    first = sample[0]
+                    if isinstance(first, dict):
+                        cols = list(first.keys())
+            except Exception:
+                cols = []
+
+        if not cols:
+            return ""
+
+        # choose ordering column: prefer 'id' if present
+        order_col = "id" if "id" in cols else cols[0]
+
+        # build CONCAT_WS and COALESCE parts
+        coalesced = ", ".join(f"COALESCE({c}, '')" for c in cols)
+        concat_ws = f"CONCAT_WS('|', {coalesced})"
+
+        sql = (
+            f"SELECT MD5(GROUP_CONCAT({concat_ws} ORDER BY {order_col} SEPARATOR '||')) AS checksum "
+            f"FROM {table}"
+        )
+
+        try:
+            res = self.execute_query_fetch(sql)
+            if isinstance(res, list) and res:
+                row = res[0]
+                if isinstance(row, dict):
+                    return str(row.get("checksum") or "")
+            return ""
+        except Exception:
+            return ""
 
     def column_exists(self, table_name: str, column_name: str) -> bool:
         """

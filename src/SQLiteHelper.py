@@ -8,6 +8,7 @@ from proxy_hunter import copy_file, delete_path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from src.func import get_relative_path
 from src.func_console import get_message_exception
+import hashlib
 
 
 class MyDatabaseConnection(sqlite3.Connection):
@@ -349,6 +350,82 @@ class SQLiteHelper:
             return cur.rowcount
         finally:
             cur.close()
+
+    def checksum(self, table: str, columns: Optional[List[str]] = None) -> str:
+        """Calculate a checksum for a table by concatenating ordered row values and hashing.
+
+        This implementation fetches rows ordered by `id` (if present) and computes an MD5
+        over the concatenated values. If `columns` is None or empty, all columns are used
+        in the cursor order.
+        Returns the hex digest string or empty string on failure.
+        """
+        # Determine ordering and column list
+        cols: List[str] = columns[:] if columns else []
+
+        # Fetch a single row to determine columns if none provided
+        try:
+            cur = self.conn.cursor()
+            try:
+                cur.execute(f"SELECT * FROM {table} LIMIT 1")
+                first = cur.fetchone()
+                if first is not None and not cols:
+                    # sqlite3.Row supports keys
+                    if isinstance(first, sqlite3.Row):
+                        cols = list(first.keys())
+                    elif isinstance(first, (list, tuple)):
+                        # fallback: use cursor description
+                        cols = [d[0] for d in cur.description]
+            finally:
+                cur.close()
+        except Exception:
+            return ""
+
+        if not cols:
+            return ""
+
+        order_col = "id" if "id" in cols else cols[0]
+
+        # Fetch all rows ordered by order_col and build concatenated string
+        try:
+            cur = self.conn.cursor()
+            try:
+                cols_sql = ", ".join(cols)
+                cur.execute(f"SELECT {cols_sql} FROM {table} ORDER BY {order_col}")
+                rows = cur.fetchall()
+            finally:
+                cur.close()
+        except Exception:
+            return ""
+
+        parts: List[str] = []
+        for r in rows:
+            # r can be sqlite3.Row or tuple
+            values: List[str] = []
+            if isinstance(r, sqlite3.Row):
+                for c in cols:
+                    try:
+                        v = r[c]
+                    except Exception:
+                        v = None
+                    values.append(str(v) if v is not None else "")
+            elif isinstance(r, (list, tuple)):
+                for i in range(len(cols)):
+                    try:
+                        v = r[i]
+                    except Exception:
+                        v = None
+                    values.append(str(v) if v is not None else "")
+            else:
+                # unexpected row type
+                continue
+            parts.append("|".join(values))
+
+        joined = "||".join(parts)
+        try:
+            h = hashlib.md5(joined.encode("utf-8")).hexdigest()
+            return h
+        except Exception:
+            return ""
 
     def column_exists(self, table_name: str, column_name: str) -> bool:
         """
