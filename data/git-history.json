@@ -1,5 +1,74 @@
 [
   {
+    "hash": "4f351d29f9ff675116a2ac42c9bd4f145069da22",
+    "date": "2026-05-08T04:22:42+07:00",
+    "message": "feat(artisan): add --fileLock CLI override for file-based locks\n\nAdd a `file_lock` field to `ParseArgs` and register the `--fileLock` argument in\n`src/utils/parse_args.py`. When provided, artisan scripts now use the supplied\npath as the full lock file instead of constructing `tmp/locks/{name}.lock`.\n\nThis enables external tooling and tests to supply an explicit lock file path\nand reduces contention when running scripts in custom environments.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/filter_duplicate_ips.py",
+      "artisan/filter_open_port.py",
+      "artisan/geoIp.py",
+      "artisan/proxy-classifier-lookup.py",
+      "artisan/proxyCollector.py",
+      "artisan/proxyCollector2.py",
+      "artisan/proxyFetcher.py",
+      "artisan/proxy_checker_httpx.py",
+      "artisan/proxy_https_checker.py",
+      "artisan/proxy_private_checker.py",
+      "artisan/proxy_socks5_checker.py",
+      "artisan/proxy_ssl_test.py",
+      "artisan/proxy_tun2socks_stability.py",
+      "src/utils/parse_args.py"
+    ]
+  },
+  {
+    "hash": "8003d18d90f38e4c3b4e9b8e67e8fbf1fe48705c",
+    "date": "2026-05-08T04:15:28+07:00",
+    "message": "feat(artisan): add process-level file locking to proxy_https_checker with --uid support\n\n- import FileLockHelper and add a global `locker` to the module\n- change `main()` to accept parsed `args` and ensure DB is closed after tasks\n- create a lock path using `--uid` (falls back to script filename) at `tmp/locks/{uid|filename}.lock`\n- acquire a non-blocking process lock on startup and exit if another instance is running\n- ensure lock is released in a `finally` block after `asyncio.run(main(args))`\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxy_https_checker.py"
+    ]
+  },
+  {
+    "hash": "9f293a95a7d4437dbb58e8b145a6c8b2392ce32b",
+    "date": "2026-05-08T04:12:29+07:00",
+    "message": "fix(cleaner): update path for cleaning proxy directory",
+    "files": [
+      "artisan/cleaner.py"
+    ]
+  },
+  {
+    "hash": "6b262b9ffeb3b673b0c91ae8c621b3ffcb5f161e",
+    "date": "2026-05-08T04:11:19+07:00",
+    "message": "refactor(artisan): tidy imports and set last_checked when marking proxy active\n\n- remove unused imports (urlsplit, extract_proxies, FileLockHelper)\n- simplify typing imports and reorder import groups\n- import `get_current_rfc3339_time` and include `\"last_checked\"` when updating proxy to active in `artisan/proxy_https_checker.py`\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxy_https_checker.py"
+    ]
+  },
+  {
+    "hash": "a3df4bac1307b5cee56804b8e9992e4577386c55",
+    "date": "2026-05-08T04:05:18+07:00",
+    "message": "fix(timeAgo): return early for empty date string",
+    "files": [
+      "src/utils/date/timeAgo.php"
+    ]
+  },
+  {
+    "hash": "7ffa30434e53598b89e286128a8d782a68bc5576",
+    "date": "2026-05-08T04:03:00+07:00",
+    "message": "fix(proxy-list): enhance cached response by including SQL and parameters",
+    "files": [
+      "php_backend/proxy-list.php"
+    ]
+  },
+  {
+    "hash": "c0cf6a64888c2b6a958f0a80d7b6073b084273ab",
+    "date": "2026-05-08T03:59:28+07:00",
+    "message": "fix(proxy-list): handle potential null data in cached response",
+    "files": [
+      "php_backend/proxy-list.php"
+    ]
+  },
+  {
     "hash": "35f50febaf32d57cc7ad2f382a4998fd7436d0c3",
     "date": "2026-05-08T02:40:42+07:00",
     "message": "feat(proxy-list): implement caching for proxy list responses and improve CLI handling",
@@ -8753,71 +8822,6 @@
     "message": "refactor(geoip): simplify getGeoIpSimple() data extraction and add debug field\n\n- Remove conditional checks and assign fields directly from GeoPlugin result\n- Add `debug` field using jsonSerialize() for improved diagnostics",
     "files": [
       "src/PhpProxyHunter/GeoIpHelper.php"
-    ]
-  },
-  {
-    "hash": "9b292b7a796f3edd110bd9e0dc18382ec1221df6",
-    "date": "2025-11-20T08:57:30+07:00",
-    "message": "fix(geo-plugin): suppress JsonSerializable return type deprecation\n\nAdd #[\\ReturnTypeWillChange] attribute to GeoPlugin::jsonSerialize() to\ntemporarily silence the PHP deprecation notice about the JsonSerializable\nreturn type compatibility.",
-    "files": [
-      "src/PhpProxyHunter/GeoPlugin.php"
-    ]
-  },
-  {
-    "hash": "a4f5cabc57e70d8ac8403fc6e17c5636c140055b",
-    "date": "2025-11-20T08:52:51+07:00",
-    "message": "refactor(geoip): rename getGeoIp() to resolveGeoProxy() and update all call sites\n\n- Replace all usages of `GeoIpHelper::getGeoIp()` with `GeoIpHelper::resolveGeoProxy()`\n- Update method name and docblock in `GeoIpHelper`\n- Apply minor formatting and comment cleanups across proxy processing functions",
-    "files": [
-      "artisan/proxyChecker.php",
-      "func-proxy.php",
-      "geoIp.php",
-      "proxyChecker.php",
-      "proxyCheckerParallel-func.php",
-      "src/PhpProxyHunter/GeoIpHelper.php"
-    ]
-  },
-  {
-    "hash": "3112e1abe8765f38d3424599486cb528be2642e5",
-    "date": "2025-11-20T08:38:31+07:00",
-    "message": "feat(geo-plugin): add getGeoIpSimple method to retrieve basic geo information",
-    "files": [
-      "src/PhpProxyHunter/GeoIpHelper.php"
-    ]
-  },
-  {
-    "hash": "3db0b56223ddc758919e5f36958cb50e38490d3d",
-    "date": "2025-11-20T08:29:42+07:00",
-    "message": "fix(geo-plugin): write MMDB downloads to temp file and move atomically\n\nWrite downloaded GeoLite2 MMDB files to a temporary file first (using\nsys_get_temp_dir()/tempnam) and then move to the final destination to\navoid partial/corrupt files. Use atomic rename() with a copy+unlink\nfallback across filesystems, ensure destination directory exists, and\nimprove error logging. This prevents concurrent/partial-write issues.",
-    "files": [
-      "src/PhpProxyHunter/GeoPlugin2.php"
-    ]
-  },
-  {
-    "hash": "fb051388985bba4eb8472faf7dc341fd0c9aff58",
-    "date": "2025-11-20T08:28:36+07:00",
-    "message": "feat(server/respond): accept optional HTTP status in response helpers\n\n- Add optional int $status parameter (default 200) to respond_json(), respond_text(), and respond_html().\n- Use http_response_code($status) so helpers set the HTTP status; attempt to set code even if headers were already sent.\n- Add file-level doc comment documenting the new parameter and behavior.\n\nNo breaking changes — defaults preserve previous behavior (200).",
-    "files": [
-      "src/utils/server/respond.php"
-    ]
-  },
-  {
-    "hash": "cd791ee22718e0db5f2a38b27a9f912f310a93c9",
-    "date": "2025-11-20T08:12:55+07:00",
-    "message": "feat(php-cs-fixer): add dynamic custom fixer loading and introduce no-multiple-statements-per-line fallback\n\n- Replace direct GlobalOneLineFixer include with autoload loader\n- Add conditional registration of fixers based on availability in PhpCsFixer\n- Introduce CustomNoMultipleStatementsPerLineFixer with full logic for safe statement splitting\n- Update GlobalOneLineFixer formatting for cleaner loops\n- Add .gitignore for test input in php-cs-fixer directory\n- Add direct-test.cjs script for local debugging and validation of fixer behavior",
-    "files": [
-      ".php-cs-fixer.dist.php",
-      "src/dev/php-cs-fixer/.gitignore",
-      "src/dev/php-cs-fixer/CustomNoMultipleStatementsPerLineFixer.php",
-      "src/dev/php-cs-fixer/GlobalOneLineFixer.php",
-      "src/dev/php-cs-fixer/direct-test.cjs"
-    ]
-  },
-  {
-    "hash": "4a994168613809a69c3fd541fceb461cf9cd6449",
-    "date": "2025-11-20T07:31:50+07:00",
-    "message": "chore(kills.cmd): clean up php and node",
-    "files": [
-      "bin/kills.cmd"
     ]
   }
 ]
