@@ -453,8 +453,12 @@ if __name__ == "__main__":
     args = parse_args()
     lock_name = args.uid if getattr(args, "uid", None) else current_filename
 
-    # Create and acquire file lock
-    locker = FileLockHelper(get_relative_path(f"tmp/locks/{lock_name}.lock"))
+    # Create and acquire file lock (allow override via --fileLock)
+    file_lock_arg = getattr(args, "file_lock", None)
+    if file_lock_arg:
+        locker = FileLockHelper(file_lock_arg)
+    else:
+        locker = FileLockHelper(get_relative_path(f"tmp/locks/{lock_name}.lock"))
     if not locker.lock():
         print("Another instance is running. Exiting.")
         sys.exit(0)

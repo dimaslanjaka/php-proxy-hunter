@@ -66,8 +66,12 @@ def main() -> int:
     # Use shared parser: supports --limit/--max and --uid
     args = parse_args(default_limit=100, description="Filter Duplicate IPs")
 
-    lock_name = args.uid if args.uid else os.path.basename(__file__)
-    locker = FileLockHelper(get_relative_path(f"tmp/locks/{lock_name}.lock"))
+    file_lock_arg = getattr(args, "file_lock", None)
+    if file_lock_arg:
+        locker = FileLockHelper(file_lock_arg)
+    else:
+        lock_name = args.uid if args.uid else os.path.basename(__file__)
+        locker = FileLockHelper(get_relative_path(f"tmp/locks/{lock_name}.lock"))
     if not locker.lock():
         print(red("Another instance is running. Exiting."))
         return 0

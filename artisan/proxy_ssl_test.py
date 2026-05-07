@@ -25,12 +25,19 @@ from src.func_platform import is_debug
 from src.ProxyDB import ProxyDB
 from src.shared import init_db, init_readonly_db
 from src.utils.file.FileLockHelper import FileLockHelper
+from src.utils.parse_args import parse_args
 
 env_file = find_dotenv(filename=".env", usecwd=True)
 load_dotenv(env_file)
 
 current_filename = os.path.basename(__file__)
-locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
+# Parse arguments to allow --fileLock override for the module-level lock
+_ssl_args = parse_args(default_limit=1)
+file_lock_arg = getattr(_ssl_args, "file_lock", None)
+if file_lock_arg:
+    locker = FileLockHelper(file_lock_arg)
+else:
+    locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
 if not locker.lock():
     print(red("Another instance is running. Exiting."))
     sys.exit(0)

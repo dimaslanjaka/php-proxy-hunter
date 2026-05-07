@@ -21,9 +21,15 @@ from src.utils.file.FileLockHelper import FileLockHelper
 if __name__ == "__main__":
     args = parse_args(default_limit=10)
 
-    # Lock file name can be overridden with --uid
-    lock_name = args.uid if getattr(args, "uid", None) else os.path.basename(__file__)
-    locker = FileLockHelper(get_relative_path(f"tmp/locks/{lock_name}.lock"))
+    # Lock file name can be overridden with --uid; --fileLock overrides full path
+    file_lock_arg = getattr(args, "file_lock", None)
+    if file_lock_arg:
+        locker = FileLockHelper(file_lock_arg)
+    else:
+        lock_name = (
+            args.uid if getattr(args, "uid", None) else os.path.basename(__file__)
+        )
+        locker = FileLockHelper(get_relative_path(f"tmp/locks/{lock_name}.lock"))
     if not locker.lock():
         print(red("Another instance is running. Exiting."))
         sys.exit(0)

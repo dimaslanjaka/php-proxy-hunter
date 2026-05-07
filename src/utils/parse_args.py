@@ -33,6 +33,7 @@ class ParseArgs:
     limit: int = 100
     concurrency: int = 4
     uid: Optional[str] = None
+    file_lock: Optional[str] = None
     admin: bool = False
 
     def attr(self, name: str, default: T) -> T:
@@ -103,6 +104,12 @@ def parse_args(
         "--uid",
         type=str,
         help="Override lock filename (unique id)",
+    )
+    parser.add_argument(
+        "--fileLock",
+        dest="file_lock",
+        type=str,
+        help="Path to a lock file to prevent concurrent runs (alias: --file-lock)",
     )
     parser.add_argument(
         "--admin",

@@ -270,9 +270,14 @@ async def main(args):
 if __name__ == "__main__":
     args = parse_args(default_limit=1)
 
-    # use --uid for lock filename when provided
-    lock_name = args.uid if args.uid else current_filename
-    lock_path = get_relative_path(f"tmp/locks/{lock_name}.lock")
+    # use --fileLock override when provided, otherwise --uid for lock filename
+    file_lock_arg = getattr(args, "file_lock", None)
+    if file_lock_arg:
+        lock_path = file_lock_arg
+    else:
+        lock_name = args.uid if args.uid else current_filename
+        lock_path = get_relative_path(f"tmp/locks/{lock_name}.lock")
+
     locker = FileLockHelper(lock_path)
 
     if not locker.lock():

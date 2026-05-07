@@ -261,8 +261,12 @@ def filter_test_socks5_proxies_parallel(**kwargs) -> List[str]:
 if __name__ == "__main__":
     args = parse_args(default_limit=1)
 
-    # Create and acquire file lock
-    locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
+    # Create and acquire file lock (allow override via --fileLock)
+    file_lock_arg = getattr(args, "file_lock", None)
+    if file_lock_arg:
+        locker = FileLockHelper(file_lock_arg)
+    else:
+        locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
     if not locker.lock():
         print("Another instance is running. Exiting.")
         sys.exit(0)

@@ -11,6 +11,7 @@ from src.ProxyDB import ProxyDB
 from src.shared import init_db
 from proxy_hunter import extract_proxies
 from src.utils.file.FileLockHelper import FileLockHelper
+from src.utils.parse_args import parse_args
 
 # Global lock reference for signal handler
 _global_file_lock = None
@@ -64,7 +65,13 @@ def collect():
     print(f"Selected file: {selected_file}")
 
     lock_name = os.path.basename(selected_file) + ".lock"
-    per_lock_path = os.path.join(LOCKS_DIR, lock_name)
+    args = parse_args()
+    file_lock_arg = getattr(args, "file_lock", None)
+    if file_lock_arg:
+        per_lock_path = file_lock_arg
+    else:
+        per_lock_path = os.path.join(LOCKS_DIR, lock_name)
+
     per_lock = FileLockHelper(per_lock_path)
 
     global _global_file_lock

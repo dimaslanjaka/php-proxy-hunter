@@ -306,7 +306,11 @@ if __name__ == "__main__":
     current_filename = args.uid if args.uid else os.path.basename(__file__)
 
     # Create and acquire file lock after CLI parsing to allow overrides
-    locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
+    file_lock_arg = getattr(args, "file_lock", None)
+    if file_lock_arg:
+        locker = FileLockHelper(file_lock_arg)
+    else:
+        locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
     if not locker.lock():
         print("Another instance is running. Exiting.")
         sys.exit(0)

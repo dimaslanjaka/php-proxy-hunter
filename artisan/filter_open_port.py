@@ -180,7 +180,12 @@ async def process_proxies_async(
 
 
 if __name__ == "__main__":
-    locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
+    args = parse_args(default_limit=10, default_concurrency=4)
+    file_lock_arg = getattr(args, "file_lock", None)
+    if file_lock_arg:
+        locker = FileLockHelper(file_lock_arg)
+    else:
+        locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
     if not locker.lock():
         print("Another instance is already running. Exiting.")
         sys.exit(0)
@@ -196,7 +201,7 @@ if __name__ == "__main__":
             if getattr(db, "db", None) is None:
                 raise RuntimeError("Readonly database initialization failed") from exc
 
-        args = parse_args(default_limit=10, default_concurrency=4)
+        # args already parsed above
         yesterday_date_rfc3339 = get_yesterday_rfc3339_time()
         proxies = db.get_working_proxies(
             randomize=True,

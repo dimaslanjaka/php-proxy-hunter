@@ -232,6 +232,12 @@ def main():
         default=3,
         help="Max concurrent proxyCollector processes allowed (exit early when reached)",
     )
+    parser.add_argument(
+        "--fileLock",
+        dest="file_lock",
+        type=str,
+        help="Override per-file lock path (useful for testing)",
+    )
     # Allow unknown args so external wrappers can pass extra flags
     args = parser.parse_known_args()[0]
 
@@ -287,7 +293,11 @@ def main():
             print(f"Attempting to process random file: {file_path}")
 
             lock_name = os.path.basename(file_path) + ".lock"
-            per_lock_path = os.path.join(LOCKS_DIR, lock_name)
+            file_lock_arg = getattr(args, "file_lock", None)
+            if file_lock_arg:
+                per_lock_path = file_lock_arg
+            else:
+                per_lock_path = os.path.join(LOCKS_DIR, lock_name)
             per_lock = FileLockHelper(per_lock_path)
             _global_file_lock = per_lock
 
@@ -312,7 +322,11 @@ def main():
                 print(f"  - {file_path}")
 
                 lock_name = os.path.basename(file_path) + ".lock"
-                per_lock_path = os.path.join(LOCKS_DIR, lock_name)
+                file_lock_arg = getattr(args, "file_lock", None)
+                if file_lock_arg:
+                    per_lock_path = file_lock_arg
+                else:
+                    per_lock_path = os.path.join(LOCKS_DIR, lock_name)
                 per_lock = FileLockHelper(per_lock_path)
                 _global_file_lock = per_lock
 

@@ -189,7 +189,11 @@ async def run_checks(
 if __name__ == "__main__":
     # Parse args and create file lock
     args = parse_args(default_limit=10)
-    locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
+    file_lock_arg = getattr(args, "file_lock", None)
+    if file_lock_arg:
+        locker = FileLockHelper(file_lock_arg)
+    else:
+        locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
     if not locker.lock():
         print("Another instance is running. Exiting.")
         sys.exit(0)
