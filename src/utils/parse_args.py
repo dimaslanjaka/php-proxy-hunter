@@ -33,6 +33,7 @@ class ParseArgs:
     limit: int = 100
     concurrency: int = 4
     uid: Optional[str] = None
+    single: bool = False
     file_lock: Optional[str] = None
     admin: bool = False
 
@@ -110,6 +111,13 @@ def parse_args(
         dest="file_lock",
         type=str,
         help="Path to a lock file to prevent concurrent runs (alias: --file-lock)",
+    )
+    parser.add_argument(
+        "-s",
+        "--single",
+        dest="single",
+        action="store_true",
+        help="Process a single item/run (shorthand -s)",
     )
     parser.add_argument(
         "--admin",
@@ -197,6 +205,10 @@ def parse_args(
         else (raw_max if raw_max is not None else default_limit)
     )
 
+    # Determine single mode: explicit flag or when explicit --limit/--max equals 1
+    explicit_single = getattr(ns, "single", False)
+    single_flag = explicit_single or (raw_limit == 1 or raw_max == 1)
+
     result = ParseArgs(
         proxy_string=getattr(ns, "proxy_string", None),
         single_proxy=getattr(ns, "single_proxy", None),
@@ -204,6 +216,8 @@ def parse_args(
         limit=final_limit,
         concurrency=getattr(ns, "concurrency", default_concurrency),
         uid=getattr(ns, "uid", None),
+        single=single_flag,
+        file_lock=getattr(ns, "file_lock", None),
         admin=getattr(ns, "admin", False),
     )
 
