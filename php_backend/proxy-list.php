@@ -10,7 +10,8 @@ use PhpProxyHunter\Server;
 // Allow CORS
 Server::allowCors(true);
 
-$isCli = is_cli();
+$isCli   = is_cli();
+$isAdmin = is_admin();
 
 // Only allow if captcha passed
 if (empty($_SESSION['captcha']) && !$isCli) {
@@ -275,7 +276,11 @@ try {
   $response['data'] = array_values($rows);
 
   // Save the response to the cache file
-  write_file($cacheFile, json_encode(array_merge($response, ['sql' => $sql, 'params' => $params]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
+  if ($isAdmin) {
+    $response['sql']    = $sql;
+    $response['params'] = $params;
+  }
+  write_file($cacheFile, json_encode($response, JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
   respond_json($response);
 } catch (Throwable $e) {
