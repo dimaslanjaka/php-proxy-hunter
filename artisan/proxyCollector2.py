@@ -2,6 +2,7 @@ import os
 import sys
 import random
 import signal
+from typing import List, Tuple
 
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -42,7 +43,7 @@ def collect():
     # Filter files by size (only files smaller than 800 KB) and cache sizes to
     # avoid repeated os.path.getsize calls. Remove zero-length files when safe.
     max_size = 800 * 1024
-    small_file_tuples = []  # list of (path, size)
+    small_file_tuples: List[Tuple[str, int]] = []  # list of (path, size)
     for fp in files:
         try:
             stat = os.stat(fp)
@@ -64,64 +65,70 @@ def collect():
         print(f"No added proxy files under {max_size // 1024} KB found.")
         return
 
-    # Choose the smallest file by cached size to reduce processing time
-    try:
-        selected_file = min(small_file_tuples, key=lambda t: t[1])[0]
-    except Exception:
-        # Fallback to a random choice if selection fails
-        selected_file = random.choice([t[0] for t in small_file_tuples])
-    print(f"Selected file: {selected_file}")
-
-    lock_name = os.path.basename(selected_file) + ".lock"
-    args = parse_args()
+    # Process available small files in a loop so that deleting an empty/unused
+    # file will allow the collector to continue with the next file.
+    args = parse_args(default_limit=1)
     file_lock_arg = getattr(args, "file_lock", None)
-    if file_lock_arg:
-        per_lock_path = file_lock_arg
-    else:
-        per_lock_path = os.path.join(LOCKS_DIR, lock_name)
 
-    per_lock = FileLockHelper(per_lock_path)
-
-    global _global_file_lock
-    _global_file_lock = per_lock
-
-    if not per_lock.lock():
-        print(f"Skipping {selected_file}: locked by another process")
-        _global_file_lock = None
-        return
-
-    try:
-        db = init_db("mysql")
-        # Minimal diagnostics: ensure file exists before processing
-        if not os.path.exists(selected_file):
-            print(f"Selected file no longer exists: {selected_file}")
-            db.close()
-            return
-        added_count = 0
-        skipped_count = 0
-        proxies_extracted_total = 0
-        sample_extracted = []
-        processed_strings = []
-
-        # Read entire file and extract proxies from full content
+    while small_file_tuples:
         try:
-            with open(selected_file, "r", encoding="utf-8", errors="ignore") as f:
-                content = f.read()
-        except Exception as e:
-            print(f"Failed to read file {selected_file}: {e}")
-            content = ""
+            selected_file = min(small_file_tuples, key=lambda t: t[1])[0]
+        except Exception:
+            selected_file = random.choice([t[0] for t in small_file_tuples])
 
-        if not content or not content.strip():
-            print("File content empty after reading")
-            # No content to extract from — delete the file to avoid reprocessing
-            try:
-                os.remove(selected_file)
-                print(f"Deleted empty file: {selected_file}")
-            except Exception as e:
-                print(f"Failed to delete file {selected_file}: {e}")
-            db.close()
-            return
+        # remove this candidate from the list so we don't retry it repeatedly
+        small_file_tuples = [t for t in small_file_tuples if t[0] != selected_file]
+        print(f"Selected file: {selected_file}")
+
+        lock_name = os.path.basename(selected_file) + ".lock"
+        if file_lock_arg:
+            per_lock_path = file_lock_arg
         else:
+            per_lock_path = os.path.join(LOCKS_DIR, lock_name)
+
+        per_lock = FileLockHelper(per_lock_path)
+
+        global _global_file_lock
+        _global_file_lock = per_lock
+
+        if not per_lock.lock():
+            print(f"Skipping {selected_file}: locked by another process")
+            _global_file_lock = None
+            continue
+
+        try:
+            db = init_db("mysql")
+            # Minimal diagnostics: ensure file exists before processing
+            if not os.path.exists(selected_file):
+                print(f"Selected file no longer exists: {selected_file}")
+                db.close()
+                continue
+
+            added_count = 0
+            skipped_count = 0
+            proxies_extracted_total = 0
+            sample_extracted = []
+            processed_strings = []
+
+            # Read entire file and extract proxies from full content
+            try:
+                with open(selected_file, "r", encoding="utf-8", errors="ignore") as f:
+                    content = f.read()
+            except Exception as e:
+                print(f"Failed to read file {selected_file}: {e}")
+                content = ""
+
+            if not content or not content.strip():
+                print("File content empty after reading")
+                # No content to extract from — delete the file to avoid reprocessing
+                try:
+                    os.remove(selected_file)
+                    print(f"Deleted empty file: {selected_file}")
+                except Exception as e:
+                    print(f"Failed to delete file {selected_file}: {e}")
+                db.close()
+                continue
+
             try:
                 extracted_proxies = extract_proxies(content)
             except Exception as e:
@@ -129,7 +136,7 @@ def collect():
                 extracted_proxies = []
 
             proxies_extracted_total = len(extracted_proxies)
-            # If extraction yielded nothing, delete the source file and exit
+            # If extraction yielded nothing, delete the source file and continue
             if proxies_extracted_total == 0:
                 try:
                     os.remove(selected_file)
@@ -137,7 +144,8 @@ def collect():
                 except Exception as e:
                     print(f"Failed to delete file {selected_file}: {e}")
                 db.close()
-                return
+                continue
+
             for p in extracted_proxies:
                 if p.username and p.password:
                     proxy_str = f"{p.proxy}@{p.username}:{p.password}"
@@ -155,46 +163,50 @@ def collect():
                     exists = False
 
                 if exists:
-                    # print(f"Skipping existing proxy: {proxy_str}")
                     skipped_count += 1
                     processed_strings.append(proxy_str)
                 else:
-                    # print(f"Adding proxy: {proxy_str}")
                     try:
                         db.add(proxy_str)
                         added_count += 1
                         processed_strings.append(proxy_str)
                     except Exception as e:
                         print(f"Failed to add proxy {proxy_str}: {e}")
-        db.close()
 
-        print(f"Extracted proxies: {proxies_extracted_total}")
-        print(f"Skipped (already present): {skipped_count}")
-        if sample_extracted:
-            print(f"Sample extracted proxies: {sample_extracted}")
-        print(f"Added {added_count} proxies to database")
+            db.close()
 
-        # Remove processed proxy lines/occurrences from the file instead of deleting it
-        if processed_strings:
-            try:
-                removed = remove_string_from_file(
-                    selected_file, processed_strings, clear_trailing_empty_lines=True
-                )
-                if removed:
-                    print(f"Removed processed proxies from file: {selected_file}")
-                else:
-                    print(
-                        f"Failed to remove processed proxies from file: {selected_file}"
+            print(f"Extracted proxies: {proxies_extracted_total}")
+            print(f"Skipped (already present): {skipped_count}")
+            if sample_extracted:
+                print(f"Sample extracted proxies: {sample_extracted}")
+            print(f"Added {added_count} proxies to database")
+
+            # Remove processed proxy lines/occurrences from the file instead of deleting it
+            if processed_strings:
+                try:
+                    removed = remove_string_from_file(
+                        selected_file,
+                        processed_strings,
+                        clear_trailing_empty_lines=True,
                     )
+                    if removed:
+                        print(f"Removed processed proxies from file: {selected_file}")
+                    else:
+                        print(
+                            f"Failed to remove processed proxies from file: {selected_file}"
+                        )
+                except Exception as e:
+                    print(f"Error removing processed proxies from file: {e}")
+            # After successfully processing and if parameter single is set, break the loop to only process one file per run
+            if args.single:
+                break
+        finally:
+            try:
+                per_lock.release()
+                print(f"Lock released: {per_lock.file_path}")
             except Exception as e:
-                print(f"Error removing processed proxies from file: {e}")
-    finally:
-        try:
-            per_lock.release()
-            print(f"Lock released: {per_lock.file_path}")
-        except Exception as e:
-            print(f"Error releasing lock for {selected_file}: {e}")
-        _global_file_lock = None
+                print(f"Error releasing lock for {selected_file}: {e}")
+            _global_file_lock = None
 
 
 if __name__ == "__main__":

@@ -19,6 +19,7 @@ from src.func import get_relative_path
 from proxy_hunter import extract_proxies
 from src.utils.file.FileLockHelper import FileLockHelper
 from src.utils.process.count_running_files import count_running_files
+from src.utils.file.remove_string_from_file import remove_string_from_file
 
 # Global constants
 LOCK_FILE_PATH = get_relative_path("tmp/locks/proxyCollector.lock")
@@ -114,46 +115,43 @@ def process_file(file_path, proxy_db, batch_size=10):
                     batch_num += 1
                     print(f"  Processing batch {batch_num}...")
 
+                    processed_in_batch = []
                     for batch_line, batch_line_num in current_batch:
                         success = process_line(batch_line, proxy_db, batch_line_num)
                         if not success:
                             lines_to_keep.append(batch_line)
+                        else:
+                            processed_in_batch.append(batch_line)
 
                     current_batch = []
+
+                    # If we processed any lines in this batch, remove them from the
+                    # source file using `remove_string_from_file` so duplicates are
+                    # removed wherever they appear. Lines that failed processing
+                    # remain in `lines_to_keep` and will be left in the file.
+                    if processed_in_batch:
+                        try:
+                            removed = remove_string_from_file(
+                                file_path,
+                                processed_in_batch,
+                                clear_trailing_empty_lines=True,
+                            )
+                            if removed:
+                                print(
+                                    f"  Removed {len(processed_in_batch)} processed lines from file"
+                                )
+                            else:
+                                print(f"  Failed to remove processed lines from file")
+                        except Exception:
+                            print(f"  Error removing processed lines from file")
+
+                    print(f"  Total lines attempted: {lines_processed_in_batch}")
 
                     # Stop after processing this batch - don't continue to next file
                     print(
                         f"  Processed {lines_processed_in_batch} lines. Stopping for this run."
                     )
                     break
-
-        # If we processed any lines, keep unprocessed ones and rewrite file
-        if lines_processed_in_batch > 0:
-            # Add remaining lines from file that weren't read
-            try:
-                with open(file_path, "r", encoding="utf-8") as f:
-                    all_lines = [l.strip() for l in f.readlines() if l.strip()]
-
-                # Keep lines we haven't processed yet
-                processed_count = 0
-                for line in all_lines:
-                    if processed_count >= lines_processed_in_batch:
-                        lines_to_keep.append(line)
-                    processed_count += 1
-            except:
-                pass
-
-        print(f"  Total lines processed: {lines_processed_in_batch}")
-
-        # Rewrite file with only the lines that weren't processed
-        with open(file_path, "w", encoding="utf-8") as f:
-            for line in lines_to_keep:
-                f.write(line + "\n")
-
-        if lines_to_keep:
-            print(f"  Kept {len(lines_to_keep)} unprocessed lines in file")
-        else:
-            print(f"  File cleared - all proxies processed")
 
     except Exception as e:
         print(f"Error processing {file_path}: {e}")
