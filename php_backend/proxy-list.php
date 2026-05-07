@@ -275,7 +275,7 @@ try {
   $response['data'] = array_values($rows);
 
   // Save the response to the cache file
-  write_file($cacheFile, json_encode($response));
+  write_file($cacheFile, json_encode(array_merge($response, ['sql' => $sql, 'params' => $params]), JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES));
 
   respond_json($response);
 } catch (Throwable $e) {
