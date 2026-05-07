@@ -1,22 +1,58 @@
 import os
-import sys
 import random
 import signal
+import sys
+from pathlib import Path
 from typing import List, Tuple
 
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from artisan.proxyCollector import get_added_proxy_files, LOCKS_DIR
+from proxy_hunter import extract_proxies
+from src.func import get_relative_path
 from src.ProxyDB import ProxyDB
 from src.shared import init_db
-from proxy_hunter import extract_proxies
 from src.utils.file.FileLockHelper import FileLockHelper
-from src.utils.parse_args import parse_args
 from src.utils.file.remove_string_from_file import remove_string_from_file
+from src.utils.parse_args import parse_args
 
 # Global lock reference for signal handler
 _global_file_lock = None
+LOCKS_DIR = get_relative_path("tmp/locks")
+LOCK_FILE_PATH = get_relative_path(LOCKS_DIR + "/proxyCollector.lock")
+ASSETS_PROXIES_DIR = get_relative_path("assets/proxies")
+
+
+def get_added_proxy_files():
+    """Get all added-*.txt files from assets/proxies folder (recursive).
+
+    Also include project-root files `dead.txt` and `proxies.txt` when present.
+    Returns a deduplicated, sorted list of file paths as strings.
+    """
+    files = []
+
+    # Search assets/proxies for added-*.txt recursively (if folder exists)
+    p = Path(ASSETS_PROXIES_DIR)
+    if p.exists():
+        files.extend([fp for fp in sorted(p.rglob("added-*.txt")) if fp.is_file()])
+
+    # Also include root-level files if they exist
+    for name in ("dead.txt", "proxies.txt"):
+        root_fp = Path(get_relative_path(name))
+        if root_fp.exists() and root_fp.is_file():
+            files.append(root_fp)
+
+    # Deduplicate while preserving determinism, then return sorted string paths
+    unique_paths = []
+    seen = set()
+    for fp in files:
+        s = str(fp)
+        if s not in seen:
+            seen.add(s)
+            unique_paths.append(s)
+
+    unique_paths.sort()
+    return unique_paths
 
 
 def cleanup_and_exit(signum=None, frame=None):
