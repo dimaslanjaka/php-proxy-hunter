@@ -43,7 +43,16 @@ def collect():
     small_files = []
     for fp in files:
         try:
-            if os.path.getsize(fp) < max_size:
+            sz = os.path.getsize(fp)
+            # skip zero-length files (likely empty placeholders) and very large files
+            if sz == 0:
+                try:
+                    os.remove(fp)
+                    print(f"Removed empty file: {fp}")
+                except Exception:
+                    print(f"Skipping empty file (cannot remove): {fp}")
+                continue
+            if sz < max_size:
                 small_files.append(fp)
         except Exception:
             # skip files we can't stat
@@ -84,24 +93,75 @@ def collect():
 
     try:
         db = init_db("mysql")
-        with open(selected_file, "r", encoding="utf-8", errors="ignore") as f:
-            for line in f:
-                proxy = line.strip()
-                if proxy:
-                    extracted_proxies = extract_proxies(proxy)
-                    if extracted_proxies:
-                        for p in extracted_proxies:
-                            if p.username and p.password:
-                                print(
-                                    f"Adding proxy: {p.proxy}@{p.username}:{p.password}"
-                                )
-                                db.add(f"{p.proxy}@{p.username}:{p.password}")
-                            else:
-                                print(f"Adding proxy: {p.proxy}")
-                                db.add(p.proxy)
-                    else:
-                        print(f"No valid proxies found in line: {line.strip()}")
+        # Diagnostic: file existence and size
+        try:
+            print(f"File exists: {os.path.exists(selected_file)}")
+            print(f"File size: {os.path.getsize(selected_file)} bytes")
+            with open(selected_file, "rb") as fb:
+                preview = fb.read(512)
+            try:
+                preview_text = preview.decode("utf-8", errors="replace")
+            except Exception:
+                preview_text = repr(preview)
+            print(f"File preview (first 512 bytes): {preview_text}")
+        except Exception as e:
+            print(f"Could not stat/read selected file: {e}")
+        added_count = 0
+        skipped_count = 0
+        proxies_extracted_total = 0
+        sample_extracted = []
+
+        # Read entire file and extract proxies from full content
+        try:
+            with open(selected_file, "r", encoding="utf-8", errors="ignore") as f:
+                content = f.read()
+        except Exception as e:
+            print(f"Failed to read file {selected_file}: {e}")
+            content = ""
+
+        if not content or not content.strip():
+            print("File content empty after reading")
+        else:
+            try:
+                extracted_proxies = extract_proxies(content)
+            except Exception as e:
+                print(f"extract_proxies failed: {e}")
+                extracted_proxies = []
+
+            proxies_extracted_total = len(extracted_proxies)
+            for p in extracted_proxies:
+                if p.username and p.password:
+                    proxy_str = f"{p.proxy}@{p.username}:{p.password}"
+                else:
+                    proxy_str = p.proxy
+
+                if len(sample_extracted) < 10:
+                    sample_extracted.append(proxy_str)
+
+                try:
+                    sel = db.select(proxy_str)
+                    exists = bool(sel)
+                except Exception as e:
+                    print(f"DB select failed for {proxy_str}: {e}")
+                    exists = False
+
+                if exists:
+                    print(f"Skipping existing proxy: {proxy_str}")
+                    skipped_count += 1
+                else:
+                    print(f"Adding proxy: {proxy_str}")
+                    try:
+                        db.add(proxy_str)
+                        added_count += 1
+                    except Exception as e:
+                        print(f"Failed to add proxy {proxy_str}: {e}")
         db.close()
+
+        print(f"Extracted proxies: {proxies_extracted_total}")
+        print(f"Skipped (already present): {skipped_count}")
+        if sample_extracted:
+            print(f"Sample extracted proxies: {sample_extracted}")
+        print(f"Added {added_count} proxies to database")
 
         # Delete the file after successful processing
         try:
