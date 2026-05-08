@@ -1,5 +1,6 @@
 import os
 import time
+import asyncio
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
 from typing import List
@@ -36,8 +37,11 @@ def _remove_empty_directory(path: str) -> bool:
     return False
 
 
-def clean_proxies(db: "ProxyDB"):
-    """Remove invalid proxies using concurrency."""
+async def clean_proxies(db: "ProxyDB"):
+    """Async wrapper: run blocking `is_valid_proxy` in threads and collect invalid proxies.
+
+    Uses `asyncio.to_thread` to avoid changing `proxy_hunter` internals.
+    """
     # Stream proxies into a list of values to check. Minimizes memory spikes
     all_rows = db.get_all_proxies()
     if not all_rows:
@@ -47,19 +51,20 @@ def clean_proxies(db: "ProxyDB"):
     if not proxies:
         return
 
-    invalid: List[str] = []
-
     worker_count = min(MAX_WORKERS, max(1, len(proxies)))
-    with ThreadPoolExecutor(max_workers=worker_count) as executor:
-        future_map = {executor.submit(is_valid_proxy, p): p for p in proxies}
-        for future in as_completed(future_map):
-            proxy = future_map[future]
+    semaphore = asyncio.Semaphore(worker_count)
+
+    async def _check(proxy: str):
+        async with semaphore:
             try:
-                ok = future.result()
+                ok = await asyncio.to_thread(is_valid_proxy, proxy)
             except Exception:
                 ok = False
-            if not ok and proxy:
-                invalid.append(proxy)
+            return proxy if not ok else None
+
+    tasks = [asyncio.create_task(_check(str(p))) for p in proxies]
+    results = await asyncio.gather(*tasks)
+    invalid = [r for r in results if r]
 
     if not invalid:
         return
@@ -145,7 +150,7 @@ if __name__ == "__main__":
 
     # ---- Clean proxies ----
     if not args.attr("readonly", False):
-        clean_proxies(db)
+        asyncio.run(clean_proxies(db))
 
     # ---- Clean directories ----
     dirs = [
@@ -159,6 +164,7 @@ if __name__ == "__main__":
         "tmp/status",
         "tmp/download",
         "tmp/ips-ports",
+        "tmp/database",
     ]
 
     for d in dirs:
