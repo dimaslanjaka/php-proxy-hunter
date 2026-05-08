@@ -191,7 +191,10 @@ if (empty($_SESSION['authenticated_email'])) {
     if (isset($request['file'])) {
       $requestedFile = basename($request['file']);
       $logPath       = tmp('logs', 'crontab', $requestedFile);
-      if (file_exists($logPath) && is_readable($logPath)) {
+      if (file_exists($logPath)) {
+        if (!is_readable($logPath)) {
+          respond_text("Log file exists but is not readable: {$requestedFile}", 403);
+        }
         $logData = read_file($logPath);
         if ($logData !== false) {
           respond_text($logData);
@@ -199,7 +202,7 @@ if (empty($_SESSION['authenticated_email'])) {
           respond_text("Failed to read log file: {$requestedFile}", 500);
         }
       } else {
-        respond_text("Log file not found or not readable: {$requestedFile}", 404);
+        respond_text("Log file not found: {$requestedFile}", 404);
       }
     }
     $cronDir  = tmp('logs', 'crontab');
