@@ -18,7 +18,7 @@ if exist "%PROJECT_DIR%\venv\Scripts\python.exe" (
 )
 
 call %PROJECT_DIR%\venv\Scripts\activate.bat
-%PYTHON_PATH% %PROJECT_DIR%\artisan\proxy_checker_httpx.py %*
+%PYTHON_PATH% %PROJECT_DIR%\artisan\proxy_https_checker.py %*
 
 @REM %PHP_PATH% proxyCheckerBackground.php
 @REM echo.
