@@ -1,5 +1,35 @@
 [
   {
+    "hash": "0248b81bb9c9d8cc9b9dadf49ab997134ac120e0",
+    "date": "2026-05-08T12:12:57+07:00",
+    "message": "fix(routes): update titles and descriptions for examples in routes.json",
+    "files": [
+      "src/react/routes.json"
+    ]
+  },
+  {
+    "hash": "0a0718c53aba7b6ddc0bac612dfb3121916319c3",
+    "date": "2026-05-08T11:04:00+07:00",
+    "message": "fix(routes-fixer): handle missing or invalid routes.json gracefully",
+    "files": [
+      "scripts/routes-fixer.js"
+    ]
+  },
+  {
+    "hash": "231e3af77003d8e4ddf1487b1cbf87423db8fadd",
+    "date": "2026-05-08T10:56:46+07:00",
+    "message": "chore(scripts): enhance routes-fixer to merge, dedupe and format routes\n\n- Extract sorting logic into `sortRoutes()` with JSDoc and improved error handling.\n- Add `dedupeRoutes()` to remove duplicate route entries by normalized `path`.\n- Add `checkout()` to pull `routes.json` from `master` and `python` branches, merge with local routes, dedupe, then sort.\n- Run Prettier on the written file; use platform-safe spawn options and surface spawn/checkout errors.\n- Adjust logging and normalize path handling for robust comparisons.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "scripts/routes-fixer.js"
+    ]
+  },
+  {
+    "hash": "f204744ea73352fddd70be4bd1d0e4fd8a0c8dc6",
+    "date": "2026-05-08T10:55:50+07:00",
+    "message": "fix(pre-commit): conditionally run routes-fixer based on current branch\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": []
+  },
+  {
     "hash": "1aed0a158dd8998e47c1f886759961aa8ee824e8",
     "date": "2026-05-08T10:41:27+07:00",
     "message": "chore(routes): reorder and normalize src/react/routes.json\n\nReorder and normalize route entries in `src/react/routes.json`.\n- Add `/about`.\n- Replace several routes with example placeholder entries (Examples - *).\n- Update titles and `canonical` URLs to match new paths.\n- Reorganize OAuth, proxy-tools, outbound, proxy-list and settings entries.",
@@ -8799,39 +8829,6 @@
     "message": "fix(proxy-checker): use getPhpExecutable for PHP command",
     "files": [
       "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "da87a823aab6cf81884ec3e955444aaafc4e63a5",
-    "date": "2025-11-20T18:43:42+07:00",
-    "message": "fix(src/utils/process): make executables functions PHP 7.0 compatible and add optional escaping\n\n- Remove nullable return type hints (?string) to support PHP 7.0.\n- Add optional $escape parameter to `getPhpExecutable()` and `getPythonExecutable()`.\n- When $escape is true, return an escaped path via `escapeshellcmd()`; otherwise preserve previous behavior.",
-    "files": [
-      "artisan/proxyCollector.php",
-      "src/utils/process/executables.php"
-    ]
-  },
-  {
-    "hash": "831bf21418ec7f8427e998986bb6989617d09838",
-    "date": "2025-11-20T18:34:25+07:00",
-    "message": "feat(process): implement runCmdInBackground function for cross-platform command execution",
-    "files": [
-      "src/utils/process/runCmdInBackground.php"
-    ]
-  },
-  {
-    "hash": "c5e690121eaa035bf488aa959605edc91f13ecab",
-    "date": "2025-11-20T18:33:54+07:00",
-    "message": "feat(shared): add refreshDbConnections function to re-instantiate CoreDB and manage DB connections",
-    "files": [
-      "php_backend/shared.php"
-    ]
-  },
-  {
-    "hash": "aa4ee586622aeaaeed7f32c08715ce455226553d",
-    "date": "2025-11-20T18:28:16+07:00",
-    "message": "feat(postinstall): add logging for executed post-install scripts",
-    "files": [
-      "scripts/postinstall.js"
     ]
   }
 ]
