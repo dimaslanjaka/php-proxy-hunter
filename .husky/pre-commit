@@ -152,9 +152,14 @@ fi
 #   exit 1
 # }
 
-node "$PROJECT_DIR/scripts/routes-fixer.js" || {
-  echo "Routes fixer failed"
-  exit 1
-}
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD 2>/dev/null || echo "")
+if [ "$CURRENT_BRANCH" = "python" ]; then
+  node "$PROJECT_DIR/scripts/routes-fixer.js" || {
+    echo "Routes fixer failed"
+    exit 1
+  }
+else
+  echo "Skipping routes-fixer: current branch is $CURRENT_BRANCH"
+fi
 
 exit 0
