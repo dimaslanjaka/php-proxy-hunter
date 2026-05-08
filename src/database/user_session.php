@@ -3,31 +3,34 @@
 if (!function_exists('write_file')) {
   require_once __DIR__ . '/../utils/file/crud.php';
 }
+
 if (!function_exists('setMultiPermissions')) {
   require_once __DIR__ . '/../utils/file/permissions.php';
 }
+
 if (!function_exists('parseQueryOrPostBody')) {
   require_once __DIR__ . '/../utils/server/postdata.php';
 }
+
 if (!function_exists('get_project_root')) {
   require_once __DIR__ . '/../PhpProxyHunter/utils/get_project_root.php';
 }
-
-$isCli = php_sapi_name() === 'cli';
 
 /**
  * Set the current user ID and create a user config file if it doesn't exist.
  *
  * @param string $new_user_id The new user ID to be set.
  *
- * This function sets the global user ID, ensures the user config file exists,
- * and writes default config if the file is not already present.
+ * @return void
  */
 function setUserId(string $new_user_id) {
   global $user_id;
-  $user_file = !empty($new_user_id) ? getUserFile($new_user_id) : null;
 
-  if ($user_file != null) {
+  $user_file = !empty($new_user_id)
+      ? getUserFile($new_user_id)
+      : null;
+
+  if ($user_file !== null) {
     // Ensure the directory for the user file exists
     if (!file_exists(dirname($user_file))) {
       mkdir(dirname($user_file), 0777, true);
@@ -47,21 +50,26 @@ function setUserId(string $new_user_id) {
       ];
 
       $data = [
-        'endpoint' => $new_user_id == 'CLI'
-          ? 'https://api.myxl.xlaxiata.co.id/api/v1/xl-stores/options/list'
-          : 'https://bing.com',
-        'headers' => $new_user_id == 'CLI'
-          ? $headers
-          : ['User-Agent: Mozilla/5.0 (Linux; Android 14; Pixel 6 Pro Build/UPB3.230519.014) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.60 Mobile Safari/537.36 GNews Android/2022137898'],
+        'endpoint' => $new_user_id === 'CLI'
+            ? 'https://api.myxl.xlaxiata.co.id/api/v1/xl-stores/options/list'
+            : 'https://bing.com',
+
+        'headers' => $new_user_id === 'CLI'
+            ? $headers
+            : [
+              'User-Agent: Mozilla/5.0 (Linux; Android 14; Pixel 6 Pro Build/UPB3.230519.014) AppleWebKit/537.36 (KHTML, like Gecko) Version/4.0 Chrome/114.0.5735.60 Mobile Safari/537.36 GNews Android/2022137898',
+            ],
+
         'type' => 'http|socks4|socks5',
       ];
 
       $file = getUserFile($new_user_id);
+
       write_file($file, json_encode($data));
     }
 
     // Replace global user ID if different from current
-    if ($user_id != $new_user_id) {
+    if (!isset($user_id) || $user_id !== $new_user_id) {
       $user_id = $new_user_id;
     }
   }
@@ -70,39 +78,33 @@ function setUserId(string $new_user_id) {
 /**
  * Retrieve the current global user ID.
  *
- * @return string The current user ID.
+ * @return string
  */
 function getUserId(): string {
-  global $isCli;
-  // Default user ID for CLI mode; will be overridden if --userId or --uid is provided
+  // Default user ID for CLI mode
   $user_id = 'CLI';
 
-  // Check if the script is running in CLI mode or not
-  if (!$isCli) {
-    // --- Case 1: Running via web server ---
-
-    // Prioritize email → then user_id → then session_id
-    if (isset($_SESSION['email']) && isValidEmail($_SESSION['email'])) {
-      // Use valid session email first
+  // Check if running from web server
+  if (!is_cli()) {
+    // Prioritize email → user_id → session_id
+    if (
+      isset($_SESSION['email']) && isValidEmail($_SESSION['email'])
+    ) {
       $user_id_source = $_SESSION['email'];
     } elseif (!empty($_SESSION['user_id'])) {
-      // Use session user ID if available
       $user_id_source = $_SESSION['user_id'];
     } else {
-      // Fallback: use PHP session ID
       $user_id_source = session_id();
     }
 
-    // Hash the chosen ID for privacy and consistency
+    // Hash for privacy/consistency
     $user_id = md5($user_id_source);
   } else {
-    // --- Case 2: Running in CLI mode ---
-
-    // Parse command-line arguments using a helper function
+    // CLI mode
     $parsedArgs = parseQueryOrPostBody();
 
-    // Extract CLI user ID if provided (userId or uid)
     $cliUserId = '';
+
     if (!empty($parsedArgs)) {
       if (isset($parsedArgs['userId'])) {
         $cliUserId = $parsedArgs['userId'];
@@ -111,70 +113,139 @@ function getUserId(): string {
       }
     }
 
-    // If CLI user ID is non-empty, override default "CLI"
+    // Override default CLI user
     if (!empty(trim($cliUserId))) {
       $user_id = $cliUserId;
     }
   }
+
   return $user_id;
 }
 
 // Ensure config directory exists and has proper permissions
 $__pph_root = get_project_root();
-$configDir  = get_project_root('config');
+
+$configDir = get_project_root('tmp/config');
+
 if (!file_exists($configDir)) {
   mkdir($configDir, 0777, true);
 }
+
 setMultiPermissions($configDir);
 
+/**
+ * Get user config file path.
+ *
+ * @param string $user_id
+ *
+ * @return string
+ */
 function getUserFile(string $user_id): string {
-  return get_project_root('config', $user_id . '.json');
+  return get_project_root('tmp/config', $user_id . '.json');
 }
 
+/**
+ * Get user status file path.
+ *
+ * @param string $user_id
+ *
+ * @return string
+ */
 function getUserStatusFile(string $user_id): string {
   return get_project_root('tmp', 'status', $user_id . '.txt');
 }
 
+/**
+ * Get user log file path.
+ *
+ * @param string $user_id
+ *
+ * @return string
+ */
 function getUserLogFile(string $user_id): string {
   return get_project_root('tmp', 'logs', $user_id . '.txt');
 }
 
+/**
+ * Reset user log file.
+ *
+ * @param string $user_id
+ *
+ * @return bool
+ */
 function resetUserLogFile(string $user_id): bool {
   $user_file = getUserLogFile($user_id);
-  $now       = date('Y-m-d H:i:s');
-  $content   = "Log reset at $now\n";
-  return file_put_contents($user_file, $content, LOCK_EX) !== false;
+
+  $now = date('Y-m-d H:i:s');
+
+  $content = "Log reset at {$now}\n";
+
+  return file_put_contents(
+    $user_file,
+    $content,
+    LOCK_EX
+  ) !== false;
 }
 
+/**
+ * Add line into user log file.
+ *
+ * @param string $user_id
+ * @param string $message
+ *
+ * @return bool
+ */
 function addUserLog(string $user_id, string $message): bool {
   $user_file = getUserLogFile($user_id);
+
   if (!file_exists(dirname($user_file))) {
     mkdir(dirname($user_file), 0777, true);
   }
+
   if (!file_exists($user_file)) {
-    $now    = date('Y-m-d H:i:s');
-    $header = "Log created at $now\n";
-    file_put_contents($user_file, $header, LOCK_EX);
+    $now = date('Y-m-d H:i:s');
+
+    $header = "Log created at {$now}\n";
+
+    file_put_contents(
+      $user_file,
+      $header,
+      LOCK_EX
+    );
   }
-  return file_put_contents($user_file, date('Y-m-d H:i:s') . ' ' . $message . PHP_EOL, FILE_APPEND | LOCK_EX) !== false;
+
+  return file_put_contents(
+    $user_file,
+    date('Y-m-d H:i:s') . ' ' . $message . PHP_EOL,
+    FILE_APPEND | LOCK_EX
+  ) !== false;
 }
 
-
+/**
+ * Read user config.
+ *
+ * @param string $user_id
+ *
+ * @return array
+ */
 function getConfig(string $user_id): array {
   $user_file = getUserFile($user_id);
+
   if (!file_exists($user_file)) {
     setUserId($user_id);
+
     $user_file = getUserFile($user_id);
   }
+
   if (!is_readable($user_file)) {
     setMultiPermissions($user_file, false);
   }
-  // Read the JSON file into a string
+
+  // Read JSON file
   $jsonString = read_file($user_file);
 
-  // Decode the JSON string into a PHP array
+  // Decode JSON
   $data = json_decode($jsonString, true);
-  // Use true for associative array, false or omit for object
 
   $defaults = [
     'endpoint' => 'https://google.com',
@@ -183,32 +254,28 @@ function getConfig(string $user_id): array {
     'user_id'  => $user_id,
   ];
 
-  // Check if decoding was successful
-  if ($data === null && json_last_error() !== JSON_ERROR_NONE) {
-    // Decoding failed
-    // echo 'Error decoding JSON: ' . json_last_error_msg();
+  // Invalid JSON
+  if (
+    $data === null && json_last_error() !== JSON_ERROR_NONE
+  ) {
     return $defaults;
-  } else {
-    return mergeArrays($defaults, $data);
   }
+
+  return mergeArrays($defaults, $data);
 }
 
 /**
  * Update and save user configuration.
  *
- * Merges incoming config data with existing/default config,
- * writes the result into the user's JSON config file,
- * and ensures proper file permissions.
+ * @param string $user_id
+ * @param array  $data
  *
- * @param string               $user_id User identifier.
- * @param array<string, mixed> $data    Configuration data to merge.
- *
- * @return array<string, mixed> The final merged configuration.
+ * @return array
  */
 function setConfig(string $user_id, array $data): array {
   $user_file = getUserFile($user_id);
 
-  // Load existing/default config
+  // Existing/default config
   $defaults = getConfig($user_id);
 
   // Remove conflicting fields
@@ -218,16 +285,23 @@ function setConfig(string $user_id, array $data): array {
   $newConfig = mergeArrays($defaults, $data);
 
   // Encode JSON safely
-  $json = json_encode($newConfig, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+  $json = json_encode(
+    $newConfig,
+    JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES
+  );
 
   if ($json === false) {
     return $defaults;
   }
 
   // Save config
-  file_put_contents($user_file, $json, LOCK_EX);
+  file_put_contents(
+    $user_file,
+    $json,
+    LOCK_EX
+  );
 
-  // Set permissions
+  // Fix permissions
   setMultiPermissions($user_file);
 
   return $newConfig;
