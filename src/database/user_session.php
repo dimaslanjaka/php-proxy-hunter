@@ -15,49 +15,6 @@ if (!function_exists('get_project_root')) {
 
 $isCli = php_sapi_name() === 'cli';
 
-// Default user ID to "CLI" assuming the script is running from the command line
-$user_id = 'CLI';
-
-// Check if the script is running in CLI mode or not
-if (!$isCli) {
-  // --- Case 1: Running via web server ---
-
-  // Prioritize email → then user_id → then session_id
-  if (isset($_SESSION['email']) && isValidEmail($_SESSION['email'])) {
-    // Use valid session email first
-    $user_id_source = $_SESSION['email'];
-  } elseif (!empty($_SESSION['user_id'])) {
-    // Use session user ID if available
-    $user_id_source = $_SESSION['user_id'];
-  } else {
-    // Fallback: use PHP session ID
-    $user_id_source = session_id();
-  }
-
-  // Hash the chosen ID for privacy and consistency
-  $user_id = md5($user_id_source);
-} else {
-  // --- Case 2: Running in CLI mode ---
-
-  // Parse command-line arguments using a helper function
-  $parsedArgs = parseQueryOrPostBody();
-
-  // Extract CLI user ID if provided (userId or uid)
-  $cliUserId = '';
-  if (!empty($parsedArgs)) {
-    if (isset($parsedArgs['userId'])) {
-      $cliUserId = $parsedArgs['userId'];
-    } elseif (isset($parsedArgs['uid'])) {
-      $cliUserId = $parsedArgs['uid'];
-    }
-  }
-
-  // If CLI user ID is non-empty, override default "CLI"
-  if (!empty(trim($cliUserId))) {
-    $user_id = $cliUserId;
-  }
-}
-
 /**
  * Set the current user ID and create a user config file if it doesn't exist.
  *
@@ -110,16 +67,55 @@ function setUserId(string $new_user_id) {
   }
 }
 
-// Set the resolved user ID in your system
-setUserId($user_id);
-
 /**
  * Retrieve the current global user ID.
  *
  * @return string The current user ID.
  */
 function getUserId(): string {
-  global $user_id;
+  global $isCli;
+  // Default user ID for CLI mode; will be overridden if --userId or --uid is provided
+  $user_id = 'CLI';
+
+  // Check if the script is running in CLI mode or not
+  if (!$isCli) {
+    // --- Case 1: Running via web server ---
+
+    // Prioritize email → then user_id → then session_id
+    if (isset($_SESSION['email']) && isValidEmail($_SESSION['email'])) {
+      // Use valid session email first
+      $user_id_source = $_SESSION['email'];
+    } elseif (!empty($_SESSION['user_id'])) {
+      // Use session user ID if available
+      $user_id_source = $_SESSION['user_id'];
+    } else {
+      // Fallback: use PHP session ID
+      $user_id_source = session_id();
+    }
+
+    // Hash the chosen ID for privacy and consistency
+    $user_id = md5($user_id_source);
+  } else {
+    // --- Case 2: Running in CLI mode ---
+
+    // Parse command-line arguments using a helper function
+    $parsedArgs = parseQueryOrPostBody();
+
+    // Extract CLI user ID if provided (userId or uid)
+    $cliUserId = '';
+    if (!empty($parsedArgs)) {
+      if (isset($parsedArgs['userId'])) {
+        $cliUserId = $parsedArgs['userId'];
+      } elseif (isset($parsedArgs['uid'])) {
+        $cliUserId = $parsedArgs['uid'];
+      }
+    }
+
+    // If CLI user ID is non-empty, override default "CLI"
+    if (!empty(trim($cliUserId))) {
+      $user_id = $cliUserId;
+    }
+  }
   return $user_id;
 }
 
@@ -197,17 +193,42 @@ function getConfig(string $user_id): array {
   }
 }
 
-function setConfig($user_id, $data): array {
+/**
+ * Update and save user configuration.
+ *
+ * Merges incoming config data with existing/default config,
+ * writes the result into the user's JSON config file,
+ * and ensures proper file permissions.
+ *
+ * @param string               $user_id User identifier.
+ * @param array<string, mixed> $data    Configuration data to merge.
+ *
+ * @return array<string, mixed> The final merged configuration.
+ */
+function setConfig(string $user_id, array $data): array {
   $user_file = getUserFile($user_id);
-  $defaults  = getConfig($user_id);
-  // remove conflict data
+
+  // Load existing/default config
+  $defaults = getConfig($user_id);
+
+  // Remove conflicting fields
   unset($defaults['headers']);
-  // Encode the data to JSON format
-  $nData   = mergeArrays($defaults, $data);
-  $newData = json_encode($nData);
-  // write data
-  file_put_contents($user_file, $newData);
-  // set permission
+
+  // Merge configs
+  $newConfig = mergeArrays($defaults, $data);
+
+  // Encode JSON safely
+  $json = json_encode($newConfig, JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+
+  if ($json === false) {
+    return $defaults;
+  }
+
+  // Save config
+  file_put_contents($user_file, $json, LOCK_EX);
+
+  // Set permissions
   setMultiPermissions($user_file);
-  return $nData;
+
+  return $newConfig;
 }
