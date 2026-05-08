@@ -33,43 +33,105 @@ function compareByPath(a, b) {
   return pa.localeCompare(pb, undefined, { sensitivity: 'base', numeric: true });
 }
 
-try {
-  // const raw = fs.readFileSync(routesPath, 'utf8');
-  // const data = JSON.parse(raw);
-  const data = routes;
+/**
+ * Sort an array of route entries by their `path` key, persist the sorted
+ * array to `routes.json`, and run Prettier to format the file. Exits the
+ * process with a non-zero code on error.
+ *
+ * @param {Array<any>} routes - Routes array loaded from JSON
+ * @returns {void}
+ */
+function sortRoutes(routes) {
+  try {
+    if (!Array.isArray(routes)) {
+      console.error('Error: routes.json does not contain an array at top level.');
+      process.exit(2);
+    }
 
-  if (!Array.isArray(data)) {
-    console.error('Error: routes.json does not contain an array at top level.');
-    process.exit(2);
+    const sorted = routes.slice().sort(compareByPath);
+
+    fs.writeFileSync(routesPath, JSON.stringify(sorted, null, 2) + '\n', 'utf8');
+
+    console.log('routes.json sorted and saved:', routesPath);
+
+    // Spawn Prettier to format the file we just wrote. Use npx executable
+    // name compatible with Windows (npx.cmd) and POSIX (npx).
+    const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
+    const prettierArgs = ['prettier', '--write', routesPath];
+    const child = spawn(npxCmd, prettierArgs, { stdio: 'inherit', shell: true });
+
+    child.on('error', (e) => {
+      console.error('Failed to spawn Prettier:', e && e.message ? e.message : e);
+      process.exit(1);
+    });
+
+    child.on('close', (code) => {
+      if (code === 0) {
+        console.log('Prettier finished formatting', routesPath);
+        process.exit(0);
+      }
+      console.error('Prettier exited with code', code);
+      process.exit(code || 1);
+    });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error('Failed to sort routes.json:', msg);
+    process.exit(1);
   }
+}
 
-  const sorted = data.slice().sort(compareByPath);
+/**
+ * Remove duplicate route entries by normalized `path` value, keeping the
+ * first occurrence of each unique path.
+ *
+ * @param {Array<object|string>} routes - Array of route objects or path-like values
+ * @returns {Array<object|string>} Deduplicated array preserving original order
+ */
+function dedupeRoutes(routes) {
+  const seen = new Set();
+  const out = [];
+  for (const r of routes) {
+    const key = normalizePath(r && typeof r === 'object' && 'path' in r ? r.path : r);
+    if (seen.has(key)) continue;
+    seen.add(key);
+    out.push(r);
+  }
+  return out;
+}
 
-  fs.writeFileSync(routesPath, JSON.stringify(sorted, null, 2) + '\n', 'utf8');
-
-  console.log('routes.json sorted and saved:', routesPath);
-
-  // Spawn Prettier to format the file we just wrote. Use npx executable
-  // name compatible with Windows (npx.cmd) and POSIX (npx).
-  const npxCmd = process.platform === 'win32' ? 'npx.cmd' : 'npx';
-  const prettierArgs = ['prettier', '--write', routesPath];
-  const child = spawn(npxCmd, prettierArgs, { stdio: 'inherit', shell: true });
+/**
+ * Checkout a single file from a git branch into the working tree and
+ * invoke the callback with the parsed JSON content of that file.
+ *
+ * @param {string} branch - The branch name to checkout from (e.g., 'master').
+ * @param {(routes: any[]) => void} callback - Called with the file contents parsed as JSON on success.
+ * @returns {void}
+ */
+function checkout(branch, callback) {
+  const gitCmd = process.platform === 'win32' ? 'git.exe' : 'git';
+  const child = spawn(gitCmd, ['checkout', branch, routesPath], { stdio: 'inherit', shell: true });
 
   child.on('error', (e) => {
-    console.error('Failed to spawn Prettier:', e && e.message ? e.message : e);
+    console.error(`Failed to checkout branch ${branch}:`, e && e.message ? e.message : e);
     process.exit(1);
   });
 
   child.on('close', (code) => {
     if (code === 0) {
-      console.log('Prettier finished formatting', routesPath);
-      process.exit(0);
+      console.log(`Checked out branch ${branch}`);
+      callback(fs.readJSONSync(routesPath));
+    } else {
+      console.error(`Git checkout exited with code ${code} when checking out branch ${branch}`);
+      process.exit(code || 1);
     }
-    console.error('Prettier exited with code', code);
-    process.exit(code || 1);
   });
-} catch (err) {
-  const msg = err instanceof Error ? err.message : String(err);
-  console.error('Failed to sort routes.json:', msg);
-  process.exit(1);
 }
+
+checkout('master', (masterRoutes) => {
+  const allRoutes = [...masterRoutes, ...routes];
+  checkout('python', (pythonRoutes) => {
+    const merged = [...allRoutes, ...pythonRoutes];
+    const unique = dedupeRoutes(merged);
+    sortRoutes(unique);
+  });
+});
