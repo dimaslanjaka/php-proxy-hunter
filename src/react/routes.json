@@ -43,57 +43,57 @@
   },
   {
     "path": "/examples/form-saver",
-    "title": "Examples - Form Saver | PHP Proxy Hunter",
-    "description": "Example: form saver demo (placeholder).",
+    "title": "Form Saver Examples | PHP Proxy Hunter",
+    "description": "Demonstration of automatic form saving to localStorage with multiple examples including Settings Form (Component) and Contact Form (Hook) with auto-restore on page refresh.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/form-saver"
   },
   {
     "path": "/examples/highlightjs",
-    "title": "Examples - HighlightJS | PHP Proxy Hunter",
-    "description": "Example: code highlighting demo (placeholder).",
+    "title": "HighlightJS Examples | PHP Proxy Hunter",
+    "description": "Code syntax highlighting demonstration with support for multiple programming languages including JavaScript, TypeScript, Python, Bash, and PowerShell.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/highlightjs"
   },
   {
     "path": "/examples/snackbar",
-    "title": "Examples - Snackbar | PHP Proxy Hunter",
-    "description": "Example: snackbar component demo (placeholder).",
+    "title": "Snackbar Examples | PHP Proxy Hunter",
+    "description": "Interactive demonstration of snackbar notifications with different types (default, success, danger, warning) and stacking functionality.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/snackbar"
   },
   {
     "path": "/examples/tables",
-    "title": "Examples - Tables | PHP Proxy Hunter",
-    "description": "Example: data tables overview (placeholder).",
+    "title": "Tables Examples | PHP Proxy Hunter",
+    "description": "Comprehensive DataTable examples showcase including default, sorting, search, and advanced filtering options with pagination support.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables"
   },
   {
     "path": "/examples/tables/advanced",
-    "title": "Examples - Tables / Advanced | PHP Proxy Hunter",
-    "description": "Example: advanced table demo (placeholder).",
+    "title": "Advanced Table | PHP Proxy Hunter",
+    "description": "Advanced DataTable featuring column-based search filters, dynamic table rendering, sorting, pagination, and comprehensive filtering with per-column search inputs.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables/advanced"
   },
   {
     "path": "/examples/tables/default",
-    "title": "Examples - Tables / Default | PHP Proxy Hunter",
-    "description": "Example: default data table (placeholder).",
+    "title": "Default Table | PHP Proxy Hunter",
+    "description": "Basic DataTable with built-in sorting, pagination (5, 10, 15, 20 entries per page), and search functionality using simple-datatables library.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables/default"
   },
   {
     "path": "/examples/tables/search",
-    "title": "Examples - Tables / Search | PHP Proxy Hunter",
-    "description": "Example: search in table demo (placeholder).",
+    "title": "Search Table | PHP Proxy Hunter",
+    "description": "DataTable with real-time search functionality across all columns to filter company data with sorting and pagination support.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables/search"
   },
   {
     "path": "/examples/tables/sorting",
-    "title": "Examples - Tables / Sorting | PHP Proxy Hunter",
-    "description": "Example: sorting table demo (placeholder).",
+    "title": "Sorting Table | PHP Proxy Hunter",
+    "description": "DataTable with column header sorting capabilities - click headers to sort data in ascending or descending order without search functionality.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables/sorting"
   },
