@@ -7,25 +7,18 @@
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/"
   },
   {
+    "path": "/about",
+    "title": "About | PHP Proxy Hunter",
+    "description": "Learn more about PHP Proxy Hunter and its features.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/about"
+  },
+  {
     "path": "/admin",
     "title": "Admin | DX",
     "description": "Admin panel to add saldo for users.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/admin"
-  },
-  {
-    "path": "/outbound",
-    "title": "Outbound | PHP Proxy Hunter",
-    "description": "View and manage outbound proxy connections in PHP Proxy Hunter.",
-    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
-    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/outbound"
-  },
-  {
-    "path": "/login",
-    "title": "Login | PHP Proxy Hunter",
-    "description": "Login to your PHP Proxy Hunter account to access proxy management features.",
-    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
-    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/login"
   },
   {
     "path": "/changelog",
@@ -35,34 +28,6 @@
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/changelog"
   },
   {
-    "path": ["/oauth", "/oauth/google"],
-    "title": "OAuth Handler | PHP Proxy Hunter",
-    "description": "Handle OAuth authentication for PHP Proxy Hunter.",
-    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
-    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/oauth"
-  },
-  {
-    "path": "/settings",
-    "title": "Settings | PHP Proxy Hunter",
-    "description": "Configure your PHP Proxy Hunter preferences and settings.",
-    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
-    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/settings"
-  },
-  {
-    "path": "/dashboard",
-    "title": "Dashboard | DX",
-    "description": "View your dashboard and proxy statistics in PHP Proxy Hunter.",
-    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
-    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/dashboard"
-  },
-  {
-    "path": "/about",
-    "title": "About | PHP Proxy Hunter",
-    "description": "Learn more about PHP Proxy Hunter and its features.",
-    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
-    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/about"
-  },
-  {
     "path": "/contact",
     "title": "Contact | PHP Proxy Hunter",
     "description": "Contact the PHP Proxy Hunter team for support or inquiries.",
@@ -70,53 +35,11 @@
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/contact"
   },
   {
-    "path": "/logout",
-    "title": "Logout | PHP Proxy Hunter",
-    "description": "Logout from your PHP Proxy Hunter account.",
+    "path": "/dashboard",
+    "title": "Dashboard | DX",
+    "description": "View your dashboard and proxy statistics in PHP Proxy Hunter.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
-    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/logout"
-  },
-  {
-    "path": ["/proxy-list", "/proxyManager.html"],
-    "title": "Proxy List | PHP Proxy Hunter",
-    "description": "View and manage your proxy list in PHP Proxy Hunter.",
-    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
-    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/proxy-list"
-  },
-  {
-    "path": "/proxy-tools",
-    "title": "Proxy Tools | PHP Proxy Hunter",
-    "description": "Placeholder description for Proxy Tools.",
-    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
-    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/proxy-tools"
-  },
-  {
-    "path": "/proxy-tools/submit",
-    "title": "Proxy Tools - Submit | PHP Proxy Hunter",
-    "description": "Placeholder: submit proxies and extractor UI combined.",
-    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
-    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/proxy-tools/submit"
-  },
-  {
-    "path": "/proxy-tools/extract",
-    "title": "Proxy Tools - Extract | PHP Proxy Hunter",
-    "description": "Placeholder: proxy extractor view.",
-    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
-    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/proxy-tools/extract"
-  },
-  {
-    "path": "/proxy-tools/logs",
-    "title": "Proxy Tools - Logs | PHP Proxy Hunter",
-    "description": "Placeholder: logs and viewer for proxy tools.",
-    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
-    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/proxy-tools/logs"
-  },
-  {
-    "path": "/examples/snackbar",
-    "title": "Examples - Snackbar | PHP Proxy Hunter",
-    "description": "Example: snackbar component demo (placeholder).",
-    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
-    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/snackbar"
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/dashboard"
   },
   {
     "path": "/examples/form-saver",
@@ -133,11 +56,25 @@
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/highlightjs"
   },
   {
+    "path": "/examples/snackbar",
+    "title": "Examples - Snackbar | PHP Proxy Hunter",
+    "description": "Example: snackbar component demo (placeholder).",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/snackbar"
+  },
+  {
     "path": "/examples/tables",
     "title": "Examples - Tables | PHP Proxy Hunter",
     "description": "Example: data tables overview (placeholder).",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables"
+  },
+  {
+    "path": "/examples/tables/advanced",
+    "title": "Examples - Tables / Advanced | PHP Proxy Hunter",
+    "description": "Example: advanced table demo (placeholder).",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables/advanced"
   },
   {
     "path": "/examples/tables/default",
@@ -147,13 +84,6 @@
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables/default"
   },
   {
-    "path": "/examples/tables/sorting",
-    "title": "Examples - Tables / Sorting | PHP Proxy Hunter",
-    "description": "Example: sorting table demo (placeholder).",
-    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
-    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables/sorting"
-  },
-  {
     "path": "/examples/tables/search",
     "title": "Examples - Tables / Search | PHP Proxy Hunter",
     "description": "Example: search in table demo (placeholder).",
@@ -161,10 +91,80 @@
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables/search"
   },
   {
-    "path": "/examples/tables/advanced",
-    "title": "Examples - Tables / Advanced | PHP Proxy Hunter",
-    "description": "Example: advanced table demo (placeholder).",
+    "path": "/examples/tables/sorting",
+    "title": "Examples - Tables / Sorting | PHP Proxy Hunter",
+    "description": "Example: sorting table demo (placeholder).",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
-    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables/advanced"
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables/sorting"
+  },
+  {
+    "path": "/login",
+    "title": "Login | PHP Proxy Hunter",
+    "description": "Login to your PHP Proxy Hunter account to access proxy management features.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/login"
+  },
+  {
+    "path": "/logout",
+    "title": "Logout | PHP Proxy Hunter",
+    "description": "Logout from your PHP Proxy Hunter account.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/logout"
+  },
+  {
+    "path": ["/oauth", "/oauth/google"],
+    "title": "OAuth Handler | PHP Proxy Hunter",
+    "description": "Handle OAuth authentication for PHP Proxy Hunter.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/oauth"
+  },
+  {
+    "path": "/outbound",
+    "title": "Outbound | PHP Proxy Hunter",
+    "description": "View and manage outbound proxy connections in PHP Proxy Hunter.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/outbound"
+  },
+  {
+    "path": ["/proxy-list", "/proxyManager.html"],
+    "title": "Proxy List | PHP Proxy Hunter",
+    "description": "View and manage your proxy list in PHP Proxy Hunter.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/proxy-list"
+  },
+  {
+    "path": "/proxy-tools",
+    "title": "Proxy Tools | PHP Proxy Hunter",
+    "description": "Placeholder description for Proxy Tools.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/proxy-tools"
+  },
+  {
+    "path": "/proxy-tools/extract",
+    "title": "Proxy Tools - Extract | PHP Proxy Hunter",
+    "description": "Placeholder: proxy extractor view.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/proxy-tools/extract"
+  },
+  {
+    "path": "/proxy-tools/logs",
+    "title": "Proxy Tools - Logs | PHP Proxy Hunter",
+    "description": "Placeholder: logs and viewer for proxy tools.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/proxy-tools/logs"
+  },
+  {
+    "path": "/proxy-tools/submit",
+    "title": "Proxy Tools - Submit | PHP Proxy Hunter",
+    "description": "Placeholder: submit proxies and extractor UI combined.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/proxy-tools/submit"
+  },
+  {
+    "path": "/settings",
+    "title": "Settings | PHP Proxy Hunter",
+    "description": "Configure your PHP Proxy Hunter preferences and settings.",
+    "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
+    "canonical": "https://www.webmanajemen.com/php-proxy-hunter/settings"
   }
 ]
