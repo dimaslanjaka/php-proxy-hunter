@@ -65,8 +65,17 @@ if (isset($request['executor'])) {
     }
 
     $logPath = tmp('logs', $uid, $requestedName);
-    if (!file_exists($logPath) || !is_file($logPath) || !is_readable($logPath)) {
-      respond_text('Log file not found or not readable', 404);
+
+    if (!file_exists($logPath)) {
+      respond_text('Log file not found', 404);
+    }
+
+    if (!is_file($logPath)) {
+      respond_text('Path is not a file', 404);
+    }
+
+    if (!is_readable($logPath)) {
+      respond_text('Log file exists but is not readable', 403);
     }
 
     $data = read_file($logPath);
@@ -155,7 +164,10 @@ if (isset($request['cron'])) {
 if (!empty($file)) {
   $allowed = ['system-usage.json', 'php-error.log', 'php-error.txt'];
   $logPath = tmp('logs', $file);
-  if (in_array($file, $allowed, true) && file_exists($logPath) && is_readable($logPath)) {
+  if (in_array($file, $allowed, true) && file_exists($logPath)) {
+    if (!is_readable($logPath)) {
+      respond_text('Log file exists but is not readable', 403);
+    }
     $data = read_file($logPath);
 
     if ($data === false) {
