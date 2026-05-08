@@ -1,5 +1,71 @@
 [
   {
+    "hash": "c0cd695175f09a44d7ef2d8848e0d10f32e0809d",
+    "date": "2026-05-08T08:59:08+07:00",
+    "message": "feat(executor): add 'filter_duplicate_ips' to allowed executor scripts",
+    "files": [
+      "php_backend/executor.php"
+    ]
+  },
+  {
+    "hash": "13d359472017258a5803d7be23eb22eaa6a53c4d",
+    "date": "2026-05-08T08:58:08+07:00",
+    "message": "refactor(artisan): async duplicate IP filter, modern proxy checks, cache, and cleanup\n\n- Refactored filter_duplicate_ips.py to use asyncio for concurrent proxy checks, replacing ThreadPoolExecutor with async/await and semaphores.\n- Introduced async HTTP/HTTPS proxy checking using BeautifulSoup and new check_proxy_http/check_proxy_https/check_proxy_applied helpers.\n- Added get_duplicates_ip_proxy() for efficient DB-backed duplicate IP detection with paging and caching to tmp/proxies.\n- Removed legacy SQLiteMarker and port/protocol probing logic; now updates DB directly and deletes/keeps proxies based on async results.\n- Improved CLI arg handling, file locking, and error handling; now supports both MySQL and SQLite with fallback.\n- Modernized imports, code structure, and output messages for clarity and maintainability.",
+    "files": [
+      "artisan/filter_duplicate_ips.py"
+    ]
+  },
+  {
+    "hash": "41248181790a6cd85079b4d230d4813a2651f4e0",
+    "date": "2026-05-08T08:48:16+07:00",
+    "message": "fix(proxy_https_checker): enhance error and title logging with color formatting\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxy_https_checker.py"
+    ]
+  },
+  {
+    "hash": "a09248922e97e34b31ad1b590e3fe3e8685a8c3f",
+    "date": "2026-05-08T07:37:02+07:00",
+    "message": "feat(server, php_backend): add my-ip endpoint and CLI public IP fallback\n\n- Add `php_backend/my-ip.php` to return the client IP as JSON via `Server::getClientIp()`.\n- Update `Server::getClientIp()` to detect CLI environments and fall back to `getPublicIP()` when no address is available.\n- Ensures CLI-invoked scripts can resolve a public IP and provides a lightweight IP endpoint.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "php_backend/my-ip.php",
+      "src/PhpProxyHunter/Server.php"
+    ]
+  },
+  {
+    "hash": "0cfd79c97cd5c9619543e0754232ef682196a8bd",
+    "date": "2026-05-08T07:31:29+07:00",
+    "message": "feat(proxy): support non-HTTPS proxy checks; move `re` import to top-level\n\n- Add HTTP IP-echo endpoints (http://httpbin.org/ip, http://api.ipify.org, http://icanhazip.com, http://checkip.amazonaws.com)\n  so proxy application can be verified for proxies that don't support HTTPS tunneling.\n- Move local `import re` to module-level imports to follow project import style.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxy_https_checker.py"
+    ]
+  },
+  {
+    "hash": "85c09a7492d4c46518f15cfea8e09e5cec42411c",
+    "date": "2026-05-08T06:47:12+07:00",
+    "message": "feat(MySQLHelper, SQLiteHelper): add checksum method to calculate MD5 for table data\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/MySQLHelper.py",
+      "src/SQLiteHelper.py"
+    ]
+  },
+  {
+    "hash": "6d46fd950e745866364789863a28077eea2f6844",
+    "date": "2026-05-08T05:44:11+07:00",
+    "message": "fix(proxy-collector): continue processing files even if no new proxies are added\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxyCollector.py"
+    ]
+  },
+  {
+    "hash": "2f727c9a375c1307ab6f88fff34bf119ecbe6bd5",
+    "date": "2026-05-08T05:39:20+07:00",
+    "message": "feat(proxy-list): include SQL and params in response for admin users",
+    "files": [
+      "php_backend/proxy-list.php"
+    ]
+  },
+  {
     "hash": "b680bae42f97bbfdb134e4746ca0c2b20c0ab706",
     "date": "2026-05-08T05:21:50+07:00",
     "message": "fix(src/utils/parse_args): determine `single` using resolved `final_limit`\n\nPreviously `single` was derived from the raw `--limit`/`--max` inputs which\ncould be `None` when callers relied on the function's `default_limit`.\nAs a result `parse_args(default_limit=1)` did not set `single` to true.\nUse the resolved `final_limit` when deciding `single` so defaults and\nfallbacks are handled correctly.",
@@ -8766,70 +8832,6 @@
     "message": "refactor(filter-ports): simplify CLI detection, improve file handling, and streamline proxy processing\n\n- Replace manual CLI detection with `is_cli()` for clarity and reuse.\n- Normalize variable setup and reorganize admin/max settings logic.\n- Introduce `$scriptName` for cleaner lock file path generation.\n- Improve lock and status file handling using `write_file()` for consistency.\n- Rename shutdown function to `filterPortsExitProcess` to avoid collisions and improve clarity.\n- Simplify reading untested proxies and merging fallback proxy sources.\n- Replace redundant iterator setup with more concise conversion and iteration.\n- Improve proxy validation loop by reducing repeated array indexing.\n- Preserve all existing logic and behavior while improving readability and maintainability.",
     "files": [
       "artisan/filterPorts.php"
-    ]
-  },
-  {
-    "hash": "d400001d2ee82bb4be31652c190fecebe96c9bad",
-    "date": "2025-11-20T15:17:45+07:00",
-    "message": "refactor(filterPortsDuplicate): clean formatting and improve log messages\n\nSimplify whitespace and comment placement; replace terse reason tags with clear, human-readable log messages for deleted, kept, updated, and skipped proxies.",
-    "files": [
-      "artisan/filterPortsDuplicate.php"
-    ]
-  },
-  {
-    "hash": "fbc038feecf2ca13cc30fa2ef0205e1d1e2fcdd5",
-    "date": "2025-11-20T15:11:30+07:00",
-    "message": "refactor(geoIp): replace file_put_contents with write_file",
-    "files": [
-      "geoIpBackground.php"
-    ]
-  },
-  {
-    "hash": "a08165b69388bd2d24b9af8ebf57da362244ae10",
-    "date": "2025-11-20T15:10:54+07:00",
-    "message": "feat(proxy-checker): refactor starter script for clarity, session handling, and process management\n\n- Add minor formatting improvements and initialize Windows detection earlier.\n- Consolidate session key usage for proxy check cooldown logic.\n- Improve proxy selection flow with fallback to oldest tested proxies.\n- Simplify proxy extraction and variable usage (`$proxyStr`, `$processId`).\n- Reorganize runner, log, and lock directory paths for consistency.\n- Replace manual file preparation with `write_file()` and cleaner permission handling.\n- Build command using array-based parts for better readability and safety.\n- Improve background process execution logic for both Windows and Unix systems.",
-    "files": [
-      "artisan/proxyCheckerStarter.php"
-    ]
-  },
-  {
-    "hash": "ae432c95e14a0cb8fe759743e37f24fbbebb48a2",
-    "date": "2025-11-20T11:59:55+07:00",
-    "message": "refactor(proxy-checker): initialize CoreDB and rebuild DB connections to prevent conflicts\n\n- Introduce CoreDB usage and set up fresh instances for user_db, proxy_db, and log_db\n- Remove existing global DB handles and trigger garbage collection to avoid connection clashes\n- Update globals to include new DB-related variables\n- Minor formatting adjustments and comment clarifications in timeout refresh and file-writing sections",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "00ede910c53c135eb585b3a4a7e6a273da2f09fe",
-    "date": "2025-11-20T11:57:59+07:00",
-    "message": "refactor(proxy-list): optimize timezone-missing proxy selection with memoized candidates\n\n- Introduce `candidatesToUpdate` using `useMemo` to avoid recalculating filtered proxies\n- Replace inline filtering/sorting logic inside `useEffect`\n- Remove unnecessary early proxy length check and inner helper function\n- Simplify loop and enqueue logic before running scheduler",
-    "files": [
-      "src/react/pages/ProxyList/index.tsx"
-    ]
-  },
-  {
-    "hash": "299280fdd237d070fae8289ec387ffdf830c8083",
-    "date": "2025-11-20T11:53:07+07:00",
-    "message": "feat(server): add cache headers and improve documentation for caching",
-    "files": [
-      "src/PhpProxyHunter/Server.php"
-    ]
-  },
-  {
-    "hash": "3f05c6570bf5f06903f5ef8715b0a5d4c5a872aa",
-    "date": "2025-11-20T09:45:30+07:00",
-    "message": "feat(geoip): improve robustness and return values for GeoIpHelper\n\n- Change `resolveGeoProxy` to always return an array; return `[]` on empty input.\n- Replace `list()` with safer parsing using `$parts` and null-coalescing behavior.\n- Ensure resolved geo data is returned at end of `resolveGeoProxy`.\n- Update docblocks with correct return type information.\n- Remove strict type hint from `getGeoIpSimple` to allow more flexible input.",
-    "files": [
-      "src/PhpProxyHunter/GeoIpHelper.php"
-    ]
-  },
-  {
-    "hash": "8868872bcedeb88d2940f46cfc2bc4fd203362cf",
-    "date": "2025-11-20T09:39:52+07:00",
-    "message": "chore(lint): remove non-existent Slevomat rule ref from phpcs.xml\n\nRemove the SlevomatCodingStandard.Namespaces.UnderscoreInName rule block which\ncould cause PHPCS to fail when the sniff is not installed. Keep naming-related\nexclusions but avoid referencing a sniff that may not exist in all environments.",
-    "files": [
-      "phpcs.xml"
     ]
   }
 ]
