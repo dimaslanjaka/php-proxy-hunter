@@ -2,6 +2,7 @@ import os
 import sys
 import asyncio
 import random
+import re
 from typing import Any, List, Optional, Set
 
 from bs4 import BeautifulSoup
@@ -66,13 +67,15 @@ async def check_proxy_applied(proxy: str, timeout: int = 10) -> bool:
     # Use multiple public endpoints and extract the first IPv4 from the
     # response (same approach as packages/proxy-hunter-python/tests/build_request_direct.py)
     endpoints = [
+        "http://httpbin.org/ip",
+        "http://api.ipify.org?format=json",
+        "http://icanhazip.com",
+        "http://checkip.amazonaws.com",
         "https://httpbin.org/ip",
         "https://api.ipify.org?format=json",
         "https://icanhazip.com",
         "https://checkip.amazonaws.com",
     ]
-    import re
-
     any_success = False
     for ep in endpoints:
         try:
