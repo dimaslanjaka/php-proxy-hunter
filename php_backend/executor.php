@@ -37,6 +37,7 @@ $executorFiles = [
   'proxy-classifier-lookup'   => 'Proxy Classifier Lookup',
   'geoIp.py'                  => 'GeoIP Lookup',
   'proxy_private_checker'     => 'Private Proxy Checker',
+  'filter_duplicate_ips'      => 'Filter Duplicate IPs',
   // php_backend helpers (filename without extension)
   'check-proxy-type'  => 'Check Proxy Type',
   'check-http-proxy'  => 'Check HTTP Proxy',
