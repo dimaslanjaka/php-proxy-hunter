@@ -2,6 +2,7 @@ import os
 import time
 import sys
 from concurrent.futures import ThreadPoolExecutor, as_completed
+from typing import List
 
 from proxy_hunter import is_valid_proxy
 
@@ -13,45 +14,75 @@ from src.ProxyDB import ProxyDB
 from src.func import get_relative_path
 from src.shared import init_db, init_readonly_db
 from src.utils.parse_args import parse_args
+from artisan.cleaner_func import fetch_md5_hash_dirs
 
 # ---- CONFIG ----
 MAX_WORKERS = 20
+BATCH_DELETE_SIZE = 500
+
+
+def _remove_empty_directory(path: str) -> bool:
+    if not os.path.isdir(path):
+        return False
+
+    try:
+        if not os.listdir(path):
+            print(f"Removing empty directory: {path}")
+            os.rmdir(path)
+            return True
+    except FileNotFoundError:
+        return False
+
+    return False
 
 
 def clean_proxies(db: "ProxyDB"):
     """Remove invalid proxies using concurrency."""
-    proxies = [p["proxy"] for p in db.get_all_proxies()]
-    invalid = []
+    # Stream proxies into a list of values to check. Minimizes memory spikes
+    all_rows = db.get_all_proxies()
+    if not all_rows:
+        return
 
-    with ThreadPoolExecutor(max_workers=MAX_WORKERS) as executor:
+    proxies = [p["proxy"] for p in all_rows if p and p.get("proxy")]
+    if not proxies:
+        return
+
+    invalid: List[str] = []
+
+    worker_count = min(MAX_WORKERS, max(1, len(proxies)))
+    with ThreadPoolExecutor(max_workers=worker_count) as executor:
         future_map = {executor.submit(is_valid_proxy, p): p for p in proxies}
-
         for future in as_completed(future_map):
             proxy = future_map[future]
             try:
-                if not future.result():
-                    invalid.append(proxy)
+                ok = future.result()
             except Exception:
+                ok = False
+            if not ok and proxy:
                 invalid.append(proxy)
 
-    for proxy in invalid:
-        print(f"Deleting invalid proxy: {proxy}")
+    if not invalid:
+        return
+
+    # Delete invalid proxies in chunks to avoid very large parameter lists
+    placeholder = "%s" if getattr(db, "driver", "").lower() == "mysql" else "?"
+    for i in range(0, len(invalid), BATCH_DELETE_SIZE):
+        chunk = invalid[i : i + BATCH_DELETE_SIZE]
+        print(f"Deleting {len(chunk)} invalid proxies (chunk starting at index {i})...")
         try:
-            if getattr(db, "driver", "").lower() == "mysql":
-                sql = "DELETE FROM proxies WHERE proxy = %s"
-            else:
-                sql = "DELETE FROM proxies WHERE proxy = ?"
-            db.get_db().execute_query(sql, [proxy.strip()])
+            placeholders = ", ".join([placeholder] * len(chunk))
+            sql = f"DELETE FROM proxies WHERE proxy IN ({placeholders})"
+            db.get_db().execute_query(sql, [p.strip() for p in chunk])
+            for p in chunk:
+                print(f"Deleted invalid proxy: {p}")
         except Exception as e:
-            print(f"Failed to delete proxy {proxy}: {e}")
+            print(f"Failed to delete proxies chunk starting at {i}: {e}")
 
 
 def clean_directory(base_path: str, expire_seconds: int = 0) -> None:
     """Clean files older than `expire_seconds` and remove empty dirs.
 
-    Args:
-        base_path: Path to directory to clean.
-        expire_seconds: Age threshold in seconds; files older than this are removed.
+    Uses a bottom-up `os.walk` to minimize stat calls and simplify removal.
     """
     now = time.time()
     if expire_seconds == 0:
@@ -60,27 +91,33 @@ def clean_directory(base_path: str, expire_seconds: int = 0) -> None:
     if not os.path.exists(base_path):
         return
 
-    for entry in os.scandir(base_path):
-        path = entry.path
-        try:
-            if entry.is_dir():
-                clean_directory(path, expire_seconds)
-                if not os.listdir(path):
-                    print(f"Removing empty directory: {path}")
-                    os.rmdir(path)
+    # Walk bottom-up so files are removed before directories are considered
+    for root, dirs, files in os.walk(base_path, topdown=False):
+        # Remove old files
+        for name in files:
+            path = os.path.join(root, name)
+            try:
+                st = os.stat(path)
+            except FileNotFoundError:
+                continue
+            except Exception as e:
+                print(f"Error stat'ing {path}: {e}")
+                continue
 
-            elif entry.is_file():
-                if now - entry.stat().st_mtime > expire_seconds:
+            try:
+                if now - st.st_mtime > expire_seconds:
                     print(f"Removing old file: {path}")
                     os.remove(path)
+            except Exception as e:
+                print(f"Error removing file {path}: {e}")
 
-        except Exception as e:
-            print(f"Error cleaning {path}: {e}")
+        # Attempt to remove empty directories
+        for d in dirs:
+            dpath = os.path.join(root, d)
+            _remove_empty_directory(dpath)
 
-    # Remove base dir if empty
-    if not os.listdir(base_path):
-        print(f"Removing empty directory: {base_path}")
-        os.rmdir(base_path)
+    # Finally attempt to remove the base directory itself if empty
+    _remove_empty_directory(base_path)
 
 
 if __name__ == "__main__":
@@ -128,3 +165,5 @@ if __name__ == "__main__":
         clean_directory(get_relative_path(d))
 
     clean_directory(get_relative_path("tmp/proxies"), day_to_seconds(1))
+    for user_log_dir in fetch_md5_hash_dirs(get_relative_path("tmp/logs")):
+        clean_directory(user_log_dir, day_to_seconds(1))
