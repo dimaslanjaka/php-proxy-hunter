@@ -2,22 +2,30 @@ from __future__ import annotations
 
 import gc
 import os
-import platform
 import re
 import subprocess
 import sys
 import threading
 import time
+from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Iterable, Sequence, TypedDict
+from typing import Callable, Iterable, TypedDict
 
 from dotenv import load_dotenv
 
-from src.utils.process.resources_usage import check_system_resources, get_system_usage
+from src.utils.process.resources_usage import (
+    check_system_resources,
+    get_system_usage,
+)
+
+# =============================================================================
+# PATHS / ENVIRONMENT
+# =============================================================================
 
 CWD = Path(__file__).resolve().parent
-# Ensure the script runs with the working directory set to the project root
 os.chdir(CWD)
+
+IS_WINDOWS = os.name == "nt"
 
 CRONTAB_STATE_DIR = CWD / "tmp/crontab"
 CRONTAB_LOG_DIR = CWD / "tmp/logs/crontab"
@@ -26,49 +34,48 @@ CRONTAB_STATE_DIR.mkdir(parents=True, exist_ok=True)
 CRONTAB_LOG_DIR.mkdir(parents=True, exist_ok=True)
 
 
+def timestamp() -> str:
+    return time.strftime("%Y-%m-%d %H:%M:%S")
+
+
 def get_venv_name() -> str:
-    if (CWD / ".venv").is_dir():
-        return ".venv"
-    if (CWD / "venv").is_dir():
-        return "venv"
-    # Default to .venv when neither exists yet.
+    for name in (".venv", "venv"):
+        if (CWD / name).is_dir():
+            return name
+
     return ".venv"
 
 
 VENV_NAME = get_venv_name()
 
+VENV_BIN = CWD / VENV_NAME / ("Scripts" if IS_WINDOWS else "bin")
+
 
 def resolve_python_bin() -> str:
-    os_name = platform.system()
-    if os_name == "Windows":
-        candidates = [
-            CWD / "bin" / "py.cmd",
-            CWD / VENV_NAME / "Scripts" / "python.exe",
+    candidates = (
+        [
+            CWD / "bin/py.cmd",
+            VENV_BIN / "python.exe",
         ]
-    else:
-        candidates = [
-            CWD / "bin" / "py",
-            CWD / VENV_NAME / "bin" / "python",
+        if IS_WINDOWS
+        else [
+            CWD / "bin/py",
+            VENV_BIN / "python",
         ]
+    )
+
     for candidate in candidates:
-        if candidate.exists() and candidate.is_file():
+        if candidate.is_file():
             return str(candidate)
-    if os_name == "Windows":
-        return sys.executable
-    return "python3"
+
+    return sys.executable if IS_WINDOWS else "python3"
 
 
 PYTHON_BIN = resolve_python_bin()
 
 
 def build_path() -> str:
-    os_name = platform.system()
-    if os_name in {"Darwin", "Linux"}:
-        venv_bin = CWD / VENV_NAME / "bin"
-    else:
-        venv_bin = CWD / VENV_NAME / "Scripts"
-
-    essential = [
+    paths = [
         "/usr/local/bin",
         "/usr/bin",
         "/usr/local/sbin",
@@ -78,45 +85,72 @@ def build_path() -> str:
         str(CWD / "bin"),
         str(CWD / "node_modules/.bin"),
         str(CWD / "vendor/bin"),
-        str(venv_bin),
+        str(VENV_BIN),
+        os.environ.get("PATH", ""),
     ]
-    existing = os.environ.get("PATH", "")
-    if existing:
-        essential.append(existing)
-    return os.pathsep.join(essential)
+
+    return os.pathsep.join(filter(None, paths))
 
 
 os.environ["PATH"] = build_path()
 
+ENV = os.environ.copy()
 
 load_dotenv(dotenv_path=CWD / ".env")
 
+# =============================================================================
+# TYPES
+# =============================================================================
+
+
+class Job(TypedDict):
+    log_file: str | Path
+    command: Iterable[str]
+
+
+@dataclass(slots=True)
+class CronJob:
+    name: str
+    interval: str
+
+    commands: list[Job] = field(default_factory=list)
+
+    callback: Callable[[], None] | None = None
+
+    file_path: Path | None = None
+
+    ensure_run_daily: bool = False
+    skip_resource_checking: bool = False
+
+    max_cpu_percent: int = 50
+    max_ram_percent: int = 50
+
+
+# =============================================================================
+# HELPERS
+# =============================================================================
+
 
 def parse_interval_to_seconds(interval: str) -> int:
-    """Convert a compact interval string to seconds.
+    match = re.fullmatch(
+        r"\s*(\d+)\s*-?\s*([mhdwy])\s*",
+        interval.lower(),
+    )
 
-    Accepts both hyphenated and compact forms, e.g. `5-m` or `5m`,
-    `1-h` or `1h`, `2-d` or `2d`, `1-w` or `1w`, `1-y` or `1y`.
-    """
-
-    # Allow optional hyphen between number and unit (e.g. '5-m' or '5m')
-    match = re.fullmatch(r"\s*(\d+)\s*-?\s*([mhdwy])\s*", interval.lower())
     if not match:
-        raise ValueError(
-            "Invalid interval format. Use '<number><unit>' or '<number>-<unit>' where "
-            "unit is one of: m (minute), h (hour), d (day), w (week), y (year)."
-        )
+        raise ValueError(f"Invalid interval: {interval}")
 
     amount = int(match.group(1))
     unit = match.group(2)
 
     unit_seconds = {
         "m": 60,
-        "h": 60 * 60,
-        "d": 24 * 60 * 60,
-        "w": 7 * 24 * 60 * 60,
-        "y": 365 * 24 * 60 * 60,
+        "h": 3600,
+        "d": 86400,
+        "w": 604800,
+        "y": 31536000,
     }
+
     return amount * unit_seconds[unit]
 
 
@@ -128,167 +162,157 @@ def should_run_job(
     skip_resource_checking: bool = False,
     ensure_run_daily: bool = False,
 ) -> bool:
-    """Return whether a scheduled job should run and update its state timestamp.
-
-    The timestamp file stores the last successful run time as a UNIX epoch.
-    A job can run only when the configured interval has elapsed. By default,
-    CPU and RAM usage must also be below the provided thresholds.
-
-    Args:
-        interval: Minimum interval between runs in '<number>-<unit>' format.
-            Supported units are m (minute), h (hour), w (week), y (year).
-        file_path: Optional state file used to persist the last successful run
-            timestamp. If omitted, defaults to CRONTAB_STATE_DIR / interval.
-        max_cpu_percent: Maximum allowed CPU usage percentage.
-        max_ram_percent: Maximum allowed RAM usage percentage.
-        skip_resource_checking: If True, bypass CPU/RAM checks.
-        ensure_run_daily: If True, ensure short-interval jobs (<= 24h)
-            will run at least once every 24 hours even if resource checks fail.
-
-    Returns:
-        True if the job should run now (and state is updated), otherwise False.
-    """
-    # Accept `file_path` as `None`, `str`, or `Path`. If omitted, use a
-    # per-interval state file under `tmp/crontab/<interval>`.
-    if file_path is None:
-        file_path = CRONTAB_STATE_DIR / interval
-    elif isinstance(file_path, str):
-        file_path = Path(file_path)
+    state_file = (
+        Path(file_path) if file_path is not None else CRONTAB_STATE_DIR / interval
+    )
 
     current_time = int(time.time())
     interval_seconds = parse_interval_to_seconds(interval)
 
     try:
-        if file_path.is_file():
-            last_fetch = int(file_path.read_text(encoding="utf-8").strip())
-        else:
-            last_fetch = 0
+        last_run = (
+            int(state_file.read_text(encoding="utf-8").strip())
+            if state_file.is_file()
+            else 0
+        )
     except ValueError:
-        last_fetch = 0
+        last_run = 0
 
-    elapsed = current_time - last_fetch
+    elapsed = current_time - last_run
 
-    # If the configured interval has elapsed, prefer to run only when
-    # resource checks pass. However, to ensure short-interval jobs (<= 24h)
-    # run at least once per day, allow a forced run if it's been >= 24h
-    # since the last run even when resource checks fail.
-    if elapsed >= interval_seconds:
-        if skip_resource_checking or check_system_resources(
-            max_cpu_percent, max_ram_percent
-        ):
-            file_path.write_text(str(current_time), encoding="utf-8")
-            return True
-
-        # Fallback: for intervals at or below 1 day, force a run if the job
-        # is stale for 24 hours or more and `ensure_run_daily` is enabled.
-        if (
-            ensure_run_daily
-            and interval_seconds <= 24 * 60 * 60
-            and elapsed >= 24 * 60 * 60
-        ):
-            file_path.write_text(str(current_time), encoding="utf-8")
-            return True
-
+    if elapsed < interval_seconds:
         return False
+
+    resources_ok = skip_resource_checking or check_system_resources(
+        max_cpu_percent=max_cpu_percent,
+        max_ram_percent=max_ram_percent,
+    )
+
+    if resources_ok:
+        state_file.write_text(str(current_time), encoding="utf-8")
+        return True
+
+    if ensure_run_daily and interval_seconds <= 86400 and elapsed >= 86400:
+        state_file.write_text(str(current_time), encoding="utf-8")
+        return True
 
     return False
 
 
-def _finalize_log(
-    log_file: Path, process: subprocess.Popen[bytes], command: Sequence[str]
-) -> None:
-    exit_code = process.wait()
-    with log_file.open("a", encoding="utf-8") as fh:
-        fh.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Exit code: {exit_code}\n\n")
-        fh.write("====================\n\n")
-        fh.write(f"Command: {' '.join(command)}\n")
+def echo_skip_or_run(label: str, should_run: bool) -> None:
+    print(f"{'Running' if should_run else 'Skipping'} {label} job.")
 
-
-def log_command(log_file: str | Path, command: Iterable[str]) -> None:
-    cmd = [str(part) for part in command]
-    lf = Path(log_file)
-    lf.parent.mkdir(parents=True, exist_ok=True)
-
-    with lf.open("w", encoding="utf-8") as fh:
-        fh.write(f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] Running: {' '.join(cmd)}\n")
-
-    with lf.open("a", encoding="utf-8") as fh:
-        process = subprocess.Popen(
-            cmd,
-            stdout=fh,
-            stderr=subprocess.STDOUT,
-            cwd=CWD,
-            env=os.environ.copy(),
-        )
-
-    thread = threading.Thread(
-        target=_finalize_log, args=(lf, process, cmd), daemon=True
+    cpu_usage, ram_usage = get_system_usage(
+        sample_cpu_seconds=0.2,
     )
-    thread.start()
+
+    cpu_text = f"{cpu_usage}%" if cpu_usage is not None else "N/A"
+    ram_text = f"{ram_usage}%" if ram_usage is not None else "N/A"
+
+    print(f"Resource usage: CPU={cpu_text}, RAM={ram_text}")
 
 
-class Job(TypedDict):
-    log_file: str | Path
-    command: Iterable[str]
+# =============================================================================
+# PROCESS EXECUTION
+# =============================================================================
 
 
-def _run_single_job(
+def run_process(
     log_file: str | Path,
     command: Iterable[str],
 ) -> int:
     cmd = [str(part) for part in command]
 
-    lf = Path(log_file)
-    lf.parent.mkdir(parents=True, exist_ok=True)
+    log_path = Path(log_file)
 
-    with lf.open("w", encoding="utf-8") as fh:
-        fh.write(
-            f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] " f"Running: {' '.join(cmd)}\n\n"
-        )
+    log_path.parent.mkdir(
+        parents=True,
+        exist_ok=True,
+    )
 
-    with lf.open("a", encoding="utf-8") as fh:
+    start_time = time.time()
+
+    with log_path.open("w", encoding="utf-8") as fh:
+        fh.write(f"[{timestamp()}] " f"Running: {' '.join(cmd)}\n\n")
+
         process = subprocess.Popen(
             cmd,
             stdout=fh,
             stderr=subprocess.STDOUT,
             cwd=CWD,
-            env=os.environ.copy(),
+            env=ENV,
+            text=True,
         )
 
-        return process.wait()
+        exit_code = process.wait()
+
+        duration = round(
+            time.time() - start_time,
+            2,
+        )
+
+        fh.write(
+            "\n"
+            f"[{timestamp()}] Finished\n"
+            f"Exit code : {exit_code}\n"
+            f"Duration  : {duration} sec\n"
+        )
+
+    return exit_code
 
 
-def log_command_chain(list_jobs: list[Job]) -> threading.Thread:
+def log_command(
+    log_file: str | Path,
+    command: Iterable[str],
+) -> threading.Thread:
     def worker() -> None:
-        for index, job in enumerate(list_jobs, start=1):
-            log_file = Path(job["log_file"])
-            command = job["command"]
+        try:
+            run_process(
+                log_file=log_file,
+                command=command,
+            )
+        finally:
+            gc.collect()
 
-            try:
-                start_time = time.time()
+    thread = threading.Thread(
+        target=worker,
+        daemon=True,
+        name="log-command",
+    )
 
-                exit_code = _run_single_job(log_file, command)
+    thread.start()
 
-                duration = round(time.time() - start_time, 2)
+    return thread
 
-                with log_file.open("a", encoding="utf-8") as fh:
-                    fh.write(
-                        "\n"
-                        f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] "
-                        f"Job #{index} finished\n"
-                        f"Exit code : {exit_code}\n"
-                        f"Duration  : {duration} sec\n"
+
+def log_command_chain(
+    jobs: list[Job],
+) -> threading.Thread:
+    def worker() -> None:
+        try:
+            for job in jobs:
+                try:
+                    run_process(
+                        log_file=job["log_file"],
+                        command=job["command"],
                     )
 
-            except Exception as exc:
-                with log_file.open("a", encoding="utf-8") as fh:
-                    fh.write(
-                        "\n"
-                        f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] "
-                        f"ERROR: {type(exc).__name__}: {exc}\n"
-                    )
+                except Exception as exc:
+                    log_path = Path(job["log_file"])
 
-                continue
+                    with log_path.open(
+                        "a",
+                        encoding="utf-8",
+                    ) as fh:
+                        fh.write(
+                            "\n"
+                            f"[{timestamp()}] "
+                            f"ERROR: "
+                            f"{type(exc).__name__}: {exc}\n"
+                        )
+
+        finally:
+            gc.collect()
 
     thread = threading.Thread(
         target=worker,
@@ -301,26 +325,42 @@ def log_command_chain(list_jobs: list[Job]) -> threading.Thread:
     return thread
 
 
-def echo_skip_or_run(label: str, condition: bool) -> None:
-    if condition:
-        print(f"Running {label} job.")
-    else:
-        print(f"Skipping {label} job.")
+# =============================================================================
+# MAINTENANCE
+# =============================================================================
 
-    cpu_usage, ram_usage = get_system_usage(sample_cpu_seconds=0.2)
-    cpu_text = f"{cpu_usage}%" if cpu_usage is not None else "N/A"
-    ram_text = f"{ram_usage}%" if ram_usage is not None else "N/A"
-    print(f"Resource usage: CPU={cpu_text}, RAM={ram_text}")
+
+def truncate_sqlite_wal() -> None:
+    databases = [
+        CWD / "tmp/database.sqlite",
+        CWD / "src/database.sqlite",
+    ]
+
+    for db in databases:
+        wal_file = Path(f"{db}-wal")
+
+        if not wal_file.exists():
+            continue
+
+        print(f"Checkpointing WAL: {db}")
+
+        subprocess.run(
+            [
+                "sqlite3",
+                str(db),
+                "PRAGMA wal_checkpoint(TRUNCATE);",
+            ],
+            cwd=CWD,
+            env=ENV,
+            check=False,
+        )
 
 
 def cleanup_old_files(
     directories: Iterable[Path],
     days: int = 40,
-    dry_run: bool = False,
 ) -> None:
-    """Delete files older than `days` based on last modification time."""
-    now = time.time()
-    cutoff = now - (days * 24 * 60 * 60)
+    cutoff = time.time() - (days * 86400)
 
     for directory in directories:
         if not directory.exists():
@@ -331,249 +371,156 @@ def cleanup_old_files(
                 continue
 
             try:
-                mtime = path.stat().st_mtime
-            except OSError:
-                continue
+                if path.stat().st_mtime < cutoff:
+                    path.unlink()
+                    print(f"Deleted: {path}")
 
-            if mtime < cutoff:
-                if dry_run:
-                    print(f"[DRY RUN] Would delete: {path}")
-                else:
-                    try:
-                        path.unlink()
-                        print(f"Deleted old file: {path}")
-                    except OSError as e:
-                        print(f"Failed to delete {path}: {e}")
+            except OSError as exc:
+                print(f"Failed deleting {path}: {exc}")
 
 
-gc.collect()
+# =============================================================================
+# JOB DEFINITIONS
+# =============================================================================
 
-# run every 5 minutes
-run_5m = should_run_job("5-m")
-if run_5m:
-    echo_skip_or_run("5 minutes", True)
-    log_command(
-        CRONTAB_LOG_DIR / "cleanup-blacklist.log",
-        [PYTHON_BIN, str(CWD / "artisan/blacklist_remover.py")],
-    )
-else:
-    echo_skip_or_run("5 minutes", False)
-
-gc.collect()
-
-# run every 30 minutes (regular jobs — resource-checked)
-run_30m = should_run_job("30-m")
-if run_30m:
-    echo_skip_or_run("30 minutes", True)
-    log_command(
-        CRONTAB_LOG_DIR / "geoip.log",
-        [PYTHON_BIN, str(CWD / "artisan/geoIp.py"), "--limit=100"],
-    )
-    log_command(
-        CRONTAB_LOG_DIR / "tun2socks-stability-check.log",
-        [PYTHON_BIN, str(CWD / "artisan/proxy_tun2socks_stability.py"), "--limit=100"],
-    )
-else:
-    echo_skip_or_run("30 minutes", False)
-
-gc.collect()
-
-should_run_proxy_collectors = should_run_job(
-    "1-h",
-    file_path=CRONTAB_STATE_DIR / "proxy-collectors",
-    skip_resource_checking=True,
-)
-if should_run_proxy_collectors:
-    echo_skip_or_run("Proxy Collectors", True)
-    log_command(
-        CRONTAB_LOG_DIR / "proxyCollector.log",
-        [PYTHON_BIN, "artisan/proxyCollector.py", "--limit=10"],
-    )
-
-
-gc.collect()
-
-run_1h = should_run_job("1-h")
-if run_1h:
-    jobs: list[Job] = [
-        {
-            "log_file": CRONTAB_LOG_DIR / "filter-duplicate-ips.log",
-            "command": [
-                PYTHON_BIN,
-                str(CWD / "artisan/filter_duplicate_ips.py"),
-                "--limit=100",
-                "--include-untested",
-            ],
-        },
-        {
-            "log_file": CRONTAB_LOG_DIR / "filter_open_port.log",
-            "command": [
-                PYTHON_BIN,
-                str(CWD / "artisan/filter_open_port.py"),
-                "--limit=100",
-            ],
-        },
-    ]
-    echo_skip_or_run("1 hour", True)
-else:
-    echo_skip_or_run("1 hour", False)
-
-gc.collect()
-
-should_run_proxy_checker = should_run_job("1-h", ensure_run_daily=True)
-if should_run_proxy_checker:
-    echo_skip_or_run("1 hour", True)
-    log_command(
-        CRONTAB_LOG_DIR / "proxy_https_checker.log",
-        [PYTHON_BIN, str(CWD / "artisan/proxy_https_checker.py"), "--limit=100"],
-    )
-    log_command(
-        CRONTAB_LOG_DIR / "proxy-socks5-checker.log",
-        [PYTHON_BIN, str(CWD / "artisan/proxy_socks5_checker.py"), "--limit=100"],
-    )
-
-gc.collect()
-
-run_12h = should_run_job("12-h")
-if run_12h:
-    echo_skip_or_run("12 hours", True)
-    tmp_db = CWD / "tmp/database.sqlite"
-    src_db = CWD / "src/database.sqlite"
-
-    if (CWD / "tmp/database.sqlite-wal").is_file():
-        print("Checkpointing and truncating WAL file...")
-        subprocess.run(
-            ["sqlite3", str(tmp_db), "PRAGMA wal_checkpoint(TRUNCATE);"],
-            cwd=CWD,
-            check=False,
-            env=os.environ.copy(),
-        )
-        print(f"{tmp_db} WAL file truncated.")
-
-    if (CWD / "src/database.sqlite-wal").is_file():
-        print("Checkpointing and truncating WAL file...")
-        subprocess.run(
-            ["sqlite3", str(src_db), "PRAGMA wal_checkpoint(TRUNCATE);"],
-            cwd=CWD,
-            check=False,
-            env=os.environ.copy(),
-        )
-        print(f"{src_db} WAL file truncated.")
-else:
-    echo_skip_or_run("12 hours", False)
-
-
-gc.collect()
-
-run_24h = should_run_job("24-h")
-if run_24h:
-    echo_skip_or_run("24 hours", True)
-    log_command(
-        CRONTAB_LOG_DIR / "backup-db.log", ["bash", "-e", str(CWD / "bin/backup-db")]
-    )
-    log_command(
-        CRONTAB_LOG_DIR / "php-cleaner.log", ["php", str(CWD / "artisan/cleaner.php")]
-    )
-    log_command(
-        CRONTAB_LOG_DIR / "python-cleaner.log",
-        [PYTHON_BIN, str(CWD / "artisan/cleaner.py")],
-    )
-    log_command(
-        CRONTAB_LOG_DIR / "cleanup-backups.log",
-        [
-            "find",
-            str(CWD / "backups"),
-            "-type",
-            "f",
-            "-name",
-            "*.sql",
-            "-mtime",
-            "+7",
-            "-exec",
-            "rm",
-            "-f",
-            "{}",
-            ";",
+CRON_JOBS: list[CronJob] = [
+    CronJob(
+        name="5 minutes",
+        interval="5-m",
+        commands=[
+            {
+                "log_file": (CRONTAB_LOG_DIR / "cleanup-blacklist.log"),
+                "command": [
+                    PYTHON_BIN,
+                    str(CWD / "artisan/blacklist_remover.py"),
+                ],
+            }
         ],
-    )
-    print("Old backups removed, keeping only the last 7 days.")
-    log_command(
-        CRONTAB_LOG_DIR / "cleanup-logs.log",
-        [
-            "find",
-            str(CWD / "tmp/logs"),
-            "-type",
-            "f",
-            "-name",
-            "*.log",
-            "-mtime",
-            "+30",
-            "-exec",
-            "rm",
-            "-f",
-            "{}",
-            ";",
+    ),
+    CronJob(
+        name="30 minutes",
+        interval="30-m",
+        commands=[
+            {
+                "log_file": (CRONTAB_LOG_DIR / "geoip.log"),
+                "command": [
+                    PYTHON_BIN,
+                    str(CWD / "artisan/geoIp.py"),
+                    "--limit=100",
+                ],
+            },
+            {
+                "log_file": (CRONTAB_LOG_DIR / "tun2socks-stability-check.log"),
+                "command": [
+                    PYTHON_BIN,
+                    str(CWD / "artisan/proxy_tun2socks_stability.py"),
+                    "--limit=100",
+                ],
+            },
         ],
+    ),
+    CronJob(
+        name="Proxy Collectors",
+        interval="1-h",
+        file_path=(CRONTAB_STATE_DIR / "proxy-collectors"),
+        skip_resource_checking=True,
+        commands=[
+            {
+                "log_file": (CRONTAB_LOG_DIR / "proxyCollector.log"),
+                "command": [
+                    PYTHON_BIN,
+                    str(CWD / "artisan/proxyCollector.py"),
+                    "--limit=10",
+                ],
+            }
+        ],
+    ),
+    CronJob(
+        name="1 hour",
+        interval="1-h",
+        commands=[
+            {
+                "log_file": (CRONTAB_LOG_DIR / "filter-duplicate-ips.log"),
+                "command": [
+                    PYTHON_BIN,
+                    str(CWD / "artisan/filter_duplicate_ips.py"),
+                    "--limit=100",
+                    "--include-untested",
+                ],
+            },
+            {
+                "log_file": (CRONTAB_LOG_DIR / "filter_open_port.log"),
+                "command": [
+                    PYTHON_BIN,
+                    str(CWD / "artisan/filter_open_port.py"),
+                    "--limit=100",
+                ],
+            },
+        ],
+    ),
+    CronJob(
+        name="12 hours",
+        interval="12-h",
+        callback=truncate_sqlite_wal,
+    ),
+    CronJob(
+        name="10 days",
+        interval="10-d",
+        max_cpu_percent=90,
+        max_ram_percent=90,
+        callback=lambda: cleanup_old_files(
+            directories=[
+                CRONTAB_STATE_DIR,
+                CRONTAB_LOG_DIR,
+            ],
+            days=40,
+        ),
+    ),
+]
+
+# =============================================================================
+# EXECUTOR
+# =============================================================================
+
+
+def run_cron_job(job: CronJob) -> None:
+    should_run = should_run_job(
+        interval=job.interval,
+        file_path=job.file_path,
+        max_cpu_percent=job.max_cpu_percent,
+        max_ram_percent=job.max_ram_percent,
+        skip_resource_checking=(job.skip_resource_checking),
+        ensure_run_daily=job.ensure_run_daily,
     )
-    print("Old log files removed, keeping only the last 30 days.")
-    # Run proxy-classifier-lookup once per day (moved from 1h schedule)
-    log_command(
-        CRONTAB_LOG_DIR / "proxy-classifier-lookup.log",
-        [PYTHON_BIN, str(CWD / "artisan/proxy-classifier-lookup.py"), "--limit=100"],
+
+    echo_skip_or_run(
+        label=job.name,
+        should_run=should_run,
     )
-    # Run proxyFetcher once per day (moved from 4h schedule)
-    log_command(
-        CRONTAB_LOG_DIR / "proxy-fetcher.log",
-        [PYTHON_BIN, str(CWD / "artisan/proxyFetcher.py")],
-    )
-else:
-    echo_skip_or_run("24 hours", False)
+
+    if not should_run:
+        return
+
+    try:
+        if job.commands:
+            log_command_chain(job.commands)
+
+        if job.callback:
+            job.callback()
+
+    except Exception as exc:
+        print(f"Job '{job.name}' failed: " f"{type(exc).__name__}: {exc}")
+
+    finally:
+        gc.collect()
 
 
-gc.collect()
+def main() -> None:
+    for job in CRON_JOBS:
+        run_cron_job(job)
 
-should_run_3d = should_run_job("72-h")
-if should_run_3d:
-    echo_skip_or_run("72 hours", True)
-    log_command(
-        CRONTAB_LOG_DIR / "cleanup-backups-3d.log",
-        [PYTHON_BIN, str(CWD / "src/dev/backup-cleaner.py")],
-    )
-else:
-    echo_skip_or_run("72 hours", False)
-
-gc.collect()
-
-should_run_10d = should_run_job("10-d", max_cpu_percent=90, max_ram_percent=90)
-if should_run_10d:
-    echo_skip_or_run("10 days", True)
-    cleanup_old_files(
-        [CRONTAB_STATE_DIR, CRONTAB_LOG_DIR],
-        days=40,
-    )
-else:
-    echo_skip_or_run("10 days", False)
-
-gc.collect()
+    gc.collect()
 
 
-# Log resource usage
-should_run_resource_log = should_run_job(
-    "5-m",
-    file_path=CRONTAB_STATE_DIR / "resource-usage",
-    skip_resource_checking=True,
-)
-if should_run_resource_log:
-    echo_skip_or_run("Resource usage logging", True)
-    log_command(
-        CRONTAB_LOG_DIR / "resource-usage.log",
-        [PYTHON_BIN, str(CWD / "src/utils/process/process_usage.py")],
-    )
-    output_file = CWD / "tmp/logs/system-usage.json"
-    with open(output_file, "w") as f:
-        subprocess.run(
-            [PYTHON_BIN, str(CWD / "src/utils/process/process_usage.py"), "--json"],
-            stdout=f,
-            stderr=subprocess.STDOUT,
-            text=True,
-        )
+if __name__ == "__main__":
+    main()
