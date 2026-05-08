@@ -1,5 +1,21 @@
 [
   {
+    "hash": "0651e10224c43995c47c76dad5153778f15ed536",
+    "date": "2026-05-08T14:31:50+07:00",
+    "message": "refactor(user-session): remove unused variable for project root",
+    "files": [
+      "src/database/user_session.php"
+    ]
+  },
+  {
+    "hash": "352b2e5de8c25c704ede942a295c4e0100b18d29",
+    "date": "2026-05-08T14:31:14+07:00",
+    "message": "refactor(user-session): improve config handling and clean up session utilities\n\n- replace loose comparisons with strict comparisons\n- remove global CLI state dependency in favor of is_cli()\n- move user config storage to tmp/config\n- improve formatting and readability across functions\n- add and refine PHPDoc comments\n- harden user ID initialization checks\n- simplify config loading and JSON validation flow\n- improve file write operations formatting and consistency\n- standardize log creation/reset handling",
+    "files": [
+      "src/database/user_session.php"
+    ]
+  },
+  {
     "hash": "b84973685772da1ed2a4f897106733bbe7f94df0",
     "date": "2026-05-08T14:21:32+07:00",
     "message": "refactor(user-session): move user ID resolution into getUserId()\n\n- remove global user_id initialization at bootstrap\n- centralize CLI/web user ID resolution inside getUserId()\n- remove eager setUserId() execution\n- add strict type hints and PHPDoc for setConfig()\n- improve config JSON encoding and file write safety\n- use LOCK_EX and formatted JSON output for config persistence\n- rename internal variables for better readability",
@@ -8769,23 +8785,6 @@
     "message": "feat(img.php): add user-agent forwarding to cURL handle for improved request handling",
     "files": [
       "php_backend/img.php"
-    ]
-  },
-  {
-    "hash": "473a0d62ac84cd4511d08fe650b81297392aea2b",
-    "date": "2025-11-21T15:30:56+07:00",
-    "message": "refactor(img): use buildCurl helper for image proxy streaming\n\n- Replace manual curl_init + curl_setopt_array with shared buildCurl(...) helper to centralize cURL configuration.\n- Re-attach header and write callbacks to stream response to cache and client while enforcing MAX_BYTES.\n- Preserve existing behaviors (follow redirects, timeouts, buffer size) by overriding only necessary options.\n- Improve error reporting to include received byte count and requested URL for easier debugging.",
-    "files": [
-      "php_backend/img.php"
-    ]
-  },
-  {
-    "hash": "492474cf628830cab326e82e8b0937212054604f",
-    "date": "2025-11-21T14:51:57+07:00",
-    "message": "feat(security): expand sensitive file extension blocking in Apache and Nginx configs\n\n- Replace legacy Apache deny rules with `Require all denied`\n- Add additional sensitive extensions to `.htaccess` FilesMatch list\n- Update Nginx location block to match expanded sensitive extension set\n- Improve consistency of security rules across both configurations",
-    "files": [
-      ".htaccess",
-      ".htaccess_nginx.conf"
     ]
   }
 ]
