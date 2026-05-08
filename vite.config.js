@@ -78,10 +78,10 @@ export const viteConfig = defineConfig({
     prepareVitePlugins(),
     manualHmrPlugin(),
     indexHtmlReplacementPlugin(),
-    copyFontsPlugin(),
-    // Register fontsResolverPlugin only on GitHub Actions CI to avoid
+    fontsResolverPlugin(),
+    // Register copyFontsPlugin only on GitHub Actions CI to avoid
     // serving local font assets in other environments.
-    ...(isGithubCI ? [fontsResolverPlugin()] : []),
+    ...(isGithubCI ? [copyFontsPlugin()] : []),
     TailwindCSSBuildPlugin(),
     react(),
     mkcert(),
