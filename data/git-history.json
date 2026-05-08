@@ -1,5 +1,55 @@
 [
   {
+    "hash": "aa8abb0052a750f67a587f86853edea15a621ccc",
+    "date": "2026-05-08T13:07:27+07:00",
+    "message": "fix(vite): swap font plugins registration by environment\n\nRegister `fontsResolverPlugin` by default and only enable\n`copyFontsPlugin` on GitHub Actions CI to avoid serving local\nfont assets outside CI environments.",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "d5bcd0e3f8e6986ff1c706be652976367e7de78d",
+    "date": "2026-05-08T12:59:48+07:00",
+    "message": "refactor(crontab): simplify scheduler architecture and centralize job execution\n\n- replace platform.system() checks with os.name-based IS_WINDOWS flag\n- introduce CronJob dataclass for structured cron definitions\n- add centralized CRON_JOBS configuration list\n- add reusable timestamp() helper\n- simplify virtual environment and PATH resolution logic\n- cache environment variables into shared ENV mapping\n- refactor interval parsing and state file handling\n- simplify should_run_job() flow and resource validation\n- merge duplicated subprocess logging into run_process()\n- refactor log_command() and log_command_chain() with shared worker logic\n- add automatic gc.collect() cleanup after threaded job execution\n- add callback-based cron task execution support\n- extract SQLite WAL truncation into dedicated helper\n- simplify cleanup_old_files() implementation\n- centralize cron execution with run_cron_job()\n- add main() entrypoint for scheduler execution\n- improve readability with grouped section headers and consistent formatting\n- reduce duplicated code across scheduled job handlers",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
+    "hash": "322463325ce6a5322d8b27747931aa6e3771ed1f",
+    "date": "2026-05-08T12:54:50+07:00",
+    "message": "feat(crontab): add sequential background job chain executor\n\n- add TypedDict-based Job structure for typed command chains\n- add _run_single_job helper for isolated command execution\n- add log_command_chain for sequential background processing\n- continue executing remaining jobs even if one job fails\n- add per-job execution duration and exit code logging\n- move filter_open_port execution into 1-hour chained jobs\n- remove standalone 45-minute filter_open_port scheduler\n- remove unused shebang line",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
+    "hash": "316ac21fba8035663c1d5a7208fc309ceec6b1dd",
+    "date": "2026-05-08T12:42:38+07:00",
+    "message": "fix(logs): improve error handling for log file accessibility",
+    "files": [
+      "php_backend/logs.php"
+    ]
+  },
+  {
+    "hash": "7fa16f5c15d3d5531c0579113d5c07090f612bb6",
+    "date": "2026-05-08T12:36:09+07:00",
+    "message": "refactor(bin): migrate proxy checker scripts from PHP to Python\n\n- replace PHP-based proxy checker execution with Python scripts\n- add virtualenv Python detection for Linux and Windows\n- add custom PHP binary path resolution\n- simplify shell script environment handling\n- use portable bash shebang (`/usr/bin/env bash`)\n- add unique worker IDs and file lock support\n- replace proxy_checker_httpx.py with proxy_https_checker.py\n- update parallel runner scripts for new Python workers",
+    "files": [
+      "bin/check-proxy-parallel",
+      "bin/check-proxy-parallel.cmd",
+      "bin/check-proxy.cmd"
+    ]
+  },
+  {
+    "hash": "75b5f5fca12c5a6009adb5943996b7b93d81dc2e",
+    "date": "2026-05-08T12:14:19+07:00",
+    "message": "feat(routes-fixer): implement route fixes from routes-fix.json and enhance main processing flow",
+    "files": [
+      "scripts/routes-fixer.js"
+    ]
+  },
+  {
     "hash": "0248b81bb9c9d8cc9b9dadf49ab997134ac120e0",
     "date": "2026-05-08T12:12:57+07:00",
     "message": "fix(routes): update titles and descriptions for examples in routes.json",
@@ -8773,62 +8823,6 @@
       "tests/cloud_sqlite/SyncApiTest.php",
       "tests/proxy/getPublicIP.php",
       "tests/proxy/parse_working_proxies.php"
-    ]
-  },
-  {
-    "hash": "f62f2bf86babeb21d32a612d000a7345fa18d7a6",
-    "date": "2025-11-21T10:16:52+07:00",
-    "message": "feat(date): restructure timeAgo utility and add PHP version\n\n- Updated JS imports to use new path `src/utils/date/timeAgo.js` in:\n  - proxyManager-src.js\n  - src/react/pages/ProxyList/index.tsx\n- Renamed `src/utils/date.js` to `src/utils/date/timeAgo.js`\n- Added new PHP implementation: `src/utils/date/timeAgo.php`",
-    "files": [
-      "proxyManager-src.js",
-      "src/react/pages/ProxyList/index.tsx",
-      "src/utils/date/timeAgo.js",
-      "src/utils/date/timeAgo.php"
-    ]
-  },
-  {
-    "hash": "82bd2dae013ad513781de8c50ad8788fb32ddaaa",
-    "date": "2025-11-20T21:57:04+07:00",
-    "message": "docs(shared.php): update PHPDoc and return value for refreshDbConnections\n\n- Expand PHPDoc for `refreshDbConnections` to document additional global DB wrappers:\n  `user_db`, `proxy_db`, and `log_db`.\n- Update return annotation to an array shape describing `core_db`, `user_db`,\n  `proxy_db`, and `log_db`.\n- Add missing globals to the function (`$user_db`, `$proxy_db`, `$log_db`) so\n  they are re-populated after re-instantiating `CoreDB`.\n- Return the new DB wrapper instances as an associative array.\n\nThis clarifies function behaviour and types for static analysis and callers.",
-    "files": [
-      "php_backend/shared.php"
-    ]
-  },
-  {
-    "hash": "b2637f63dcdc3f2747f4eed503d0fcf46f740d00",
-    "date": "2025-11-20T20:29:06+07:00",
-    "message": "fix(executables): add PHP fallback to generate executables.json when Node fails\n\nTry the Node.js `executables-finder.cjs` first; if Node is unavailable or the script fails,\ncall a new `generateExecutablesJson()` PHP fallback that probes `PHP_BINARY`, common system\nand virtualenv locations and uses `which`/`where` as a last resort to locate `php` and `python`.\nWrite `src/utils/process/executables.json` instead of throwing a RuntimeException, preventing\na fatal error when Node isn't installed or the script cannot run.",
-    "files": [
-      "src/utils/process/executables.php"
-    ]
-  },
-  {
-    "hash": "1362aaae7f0aae34930b618a9e0f023154a95e6e",
-    "date": "2025-11-20T19:13:42+07:00",
-    "message": "refactor: move PHP-CS-Fixer scripts from src/dev to scripts directory\n\n- Updated .php-cs-fixer.dist.php to load autoload.php from new scripts path\n- Renamed src/dev/php-cs-fixer/ directory to scripts/php-cs-fixer/",
-    "files": [
-      ".php-cs-fixer.dist.php",
-      "scripts/php-cs-fixer/.gitignore",
-      "scripts/php-cs-fixer/CustomNoMultipleStatementsPerLineFixer.php",
-      "scripts/php-cs-fixer/GlobalOneLineFixer.php",
-      "scripts/php-cs-fixer/autoload.php",
-      "scripts/php-cs-fixer/direct-test.cjs"
-    ]
-  },
-  {
-    "hash": "2c5611b608a9c91e7c0336b20989760afe0e3307",
-    "date": "2025-11-20T19:11:08+07:00",
-    "message": "feat(proxy-checker): test all protocol types and aggregate results\n\n- Continue testing all configured proxy protocols (HTTP, HTTPS, SOCKS4, SOCKS5, etc.) instead of stopping on first success.\n- Track and collect all successful `workingTypes`.\n- Introduce `anonymityPriority` and aggregate the best anonymity level seen (transparent < anonymous < elite).\n- Record the best (minimum) latency among successful attempts (`attemptLatency`) instead of overwriting on each loop.\n- Keep transparent verification step (HTTP endpoint check) but continue to evaluate remaining types.\n\nThis improves detection accuracy by aggregating multiple working protocol types and selecting the best anonymity/latency metrics.",
-    "files": [
-      "src/PhpProxyHunter/Checker/ProxyChecker1.php"
-    ]
-  },
-  {
-    "hash": "c884524be6f049428a1cf45e4a3e2151ac39dbf9",
-    "date": "2025-11-20T18:45:13+07:00",
-    "message": "fix(proxy-checker): use getPhpExecutable for PHP command",
-    "files": [
-      "php_backend/proxy-checker.php"
     ]
   }
 ]
