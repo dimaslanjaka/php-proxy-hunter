@@ -12,6 +12,50 @@ from colorama import Fore, Style, init
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
+
+# Ensure stdout/stderr use UTF-8 on Windows to avoid "charmap" encode errors
+# (some geo names contain characters outside cp1252, e.g. Polish letters).
+# Handle stdout
+if getattr(sys.stdout, "encoding", None) is None or (
+    isinstance(sys.stdout.encoding, str) and sys.stdout.encoding.lower() != "utf-8"
+):
+    try:
+        stdout_reconf = getattr(sys.stdout, "reconfigure", None)
+        if callable(stdout_reconf):
+            stdout_reconf(encoding="utf-8", errors="replace")
+        else:
+            raise Exception("no reconfigure")
+    except Exception:
+        # Fallback for wrapped streams: replace sys.stdout with a UTF-8 wrapper
+        import io
+
+        try:
+            sys.stdout = io.TextIOWrapper(
+                sys.stdout.buffer, encoding="utf-8", errors="replace"
+            )
+        except Exception:
+            pass
+
+# Handle stderr
+if getattr(sys.stderr, "encoding", None) is None or (
+    isinstance(sys.stderr.encoding, str) and sys.stderr.encoding.lower() != "utf-8"
+):
+    try:
+        stderr_reconf = getattr(sys.stderr, "reconfigure", None)
+        if callable(stderr_reconf):
+            stderr_reconf(encoding="utf-8", errors="replace")
+        else:
+            raise Exception("no reconfigure")
+    except Exception:
+        import io
+
+        try:
+            sys.stderr = io.TextIOWrapper(
+                sys.stderr.buffer, encoding="utf-8", errors="replace"
+            )
+        except Exception:
+            pass
+
 # Import `is_debug` lazily inside `debug_log()` to avoid import-time side-effects
 # Initialize colorama (always) so Windows streams are wrapped for color handling.
 init(autoreset=True, strip=False, convert=False)

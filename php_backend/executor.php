@@ -164,6 +164,8 @@ if (!empty($file)) {
     $script .= "set \"WORKSPACE_FOLDER={$workspaceWin}\"\r\n";
     $script .= "set \"CUSTOM_PATH={$customPath}\"\r\n";
     $script .= "set \"PATH=%CUSTOM_PATH%\"\r\n";
+    // Ensure Python prints UTF-8 on Windows console
+    $script .= "set \"PYTHONIOENCODING=utf-8\"\r\n";
     $script .= $commandStr . "\r\n";
   } else {
     // POSIX: include node_modules/.bin, bin, vendor/bin and project bin dir
@@ -176,6 +178,8 @@ if (!empty($file)) {
     // Ensure a minimal system PATH is present for webrunner environments
     $finalPATH = "\"/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin:{$posixExtras}:{$escapedBin}:$PATH\"";
     $script .= "export PATH=$finalPATH\n";
+    # Ensure Python prints UTF-8 on POSIX shells
+    $script .= "export PYTHONIOENCODING=utf-8\n";
     $script .= $commandStr . "\n";
   }
 
