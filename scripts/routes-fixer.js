@@ -2,7 +2,6 @@ import fs from 'fs-extra';
 import path from 'upath';
 import { fileURLToPath } from 'url';
 import { spawn } from 'child_process';
-import routes from '../src/react/routes.json' with { type: 'json' };
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -127,6 +126,13 @@ function checkout(branch, callback) {
   });
 }
 
+/** @type {Array<any>} */
+const routes = [];
+try {
+  routes.push(...fs.readJSONSync(routesPath));
+} catch {
+  // skip if file doesn't exist or isn't valid JSON
+}
 checkout('master', (masterRoutes) => {
   const allRoutes = [...masterRoutes, ...routes];
   checkout('python', (pythonRoutes) => {
