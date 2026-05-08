@@ -32,11 +32,24 @@ async def check_proxy_http(
     timeout: int = 10,
     url: str = "http://httpforever.com/",
     expected_title: str = "HTTP Forever",
+    **kwargs,
 ) -> bool:
-    """Async wrapper: run blocking `build_request` in a thread and validate title for HTTP."""
+    """
+    Async wrapper: run blocking `build_request` in a thread and validate the page title for HTTP proxies.
+
+    Args:
+        proxy: Proxy string to use for the request (e.g., 'http://user:pass@host:port').
+        timeout: Request timeout in seconds.
+        url: The HTTP URL to check (default: 'http://httpforever.com/').
+        expected_title: Expected page title substring for validation (default: 'HTTP Forever').
+        **kwargs: Additional keyword arguments forwarded to build_request (e.g., headers, cookies, etc).
+
+    Returns:
+        True if the proxy returns the expected title and status code 200, False otherwise.
+    """
     try:
         response = await asyncio.to_thread(
-            build_request, endpoint=url, proxy=proxy, timeout=timeout
+            build_request, endpoint=url, proxy=proxy, timeout=timeout, **kwargs
         )
         soup = BeautifulSoup(response.text, "html.parser")
         title = str(soup.title.string) if soup.title else ""

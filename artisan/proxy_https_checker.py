@@ -34,11 +34,24 @@ async def check_proxy_https(
     timeout: int = 10,
     url: str = "https://www.google.com",
     expected_title: str = "Google",
+    **kwargs,
 ) -> bool:
-    """Async wrapper: run blocking `build_request` in a thread and validate title."""
+    """
+    Async wrapper: run blocking `build_request` in a thread and validate the page title for HTTPS proxies.
+
+    Args:
+        proxy: Proxy string to use for the request (e.g., 'https://user:pass@host:port').
+        timeout: Request timeout in seconds.
+        url: The HTTPS URL to check (default: 'https://www.google.com').
+        expected_title: Expected page title substring for validation (default: 'Google').
+        **kwargs: Additional keyword arguments forwarded to build_request (e.g., headers, cookies, etc).
+
+    Returns:
+        True if the proxy returns the expected title and status code 200, False otherwise.
+    """
     try:
         response = await asyncio.to_thread(
-            build_request, endpoint=url, proxy=proxy, timeout=timeout
+            build_request, endpoint=url, proxy=proxy, timeout=timeout, **kwargs
         )
         soup = BeautifulSoup(response.text, "html.parser")
         title = str(soup.title.string) if soup.title else ""
@@ -56,15 +69,20 @@ async def check_proxy_https(
 device_ip = get_device_ip()
 
 
-async def check_proxy_applied(proxy: str, timeout: int = 10) -> bool:
-    """Check if a proxy is applied by requesting an IP echo service and comparing the IP.
+async def check_proxy_applied(proxy: str, timeout: int = 10, **kwargs) -> bool:
+    """
+    Check if a proxy is applied by requesting multiple public IP echo services and comparing the returned IP to the device IP.
 
     Args:
         proxy: Proxy string to use for the request. Accepted formats:
-            - `IP:PORT`
-            - `user:pass@IP:PORT`
-            - `IP:PORT@user:pass`
+            - 'IP:PORT'
+            - 'user:pass@IP:PORT'
+            - 'IP:PORT@user:pass'
         timeout: Request timeout in seconds.
+        **kwargs: Additional keyword arguments forwarded to build_request (e.g., headers, cookies, etc).
+
+    Returns:
+        True if any endpoint returns an IP different from the device IP (proxy applied), False otherwise.
     """
     # Use multiple public endpoints and extract the first IPv4 from the
     # response (same approach as packages/proxy-hunter-python/tests/build_request_direct.py)
@@ -82,7 +100,7 @@ async def check_proxy_applied(proxy: str, timeout: int = 10) -> bool:
     for ep in endpoints:
         try:
             response = await asyncio.to_thread(
-                build_request, endpoint=ep, proxy=proxy, timeout=timeout
+                build_request, endpoint=ep, proxy=proxy, timeout=timeout, **kwargs
             )
             if getattr(response, "status_code", None) and response.status_code != 200:
                 print(
