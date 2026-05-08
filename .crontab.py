@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 from __future__ import annotations
 
 import gc
@@ -11,7 +9,7 @@ import sys
 import threading
 import time
 from pathlib import Path
-from typing import Iterable, Sequence
+from typing import Iterable, Sequence, TypedDict
 
 from dotenv import load_dotenv
 
@@ -229,6 +227,80 @@ def log_command(log_file: str | Path, command: Iterable[str]) -> None:
     thread.start()
 
 
+class Job(TypedDict):
+    log_file: str | Path
+    command: Iterable[str]
+
+
+def _run_single_job(
+    log_file: str | Path,
+    command: Iterable[str],
+) -> int:
+    cmd = [str(part) for part in command]
+
+    lf = Path(log_file)
+    lf.parent.mkdir(parents=True, exist_ok=True)
+
+    with lf.open("w", encoding="utf-8") as fh:
+        fh.write(
+            f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] " f"Running: {' '.join(cmd)}\n\n"
+        )
+
+    with lf.open("a", encoding="utf-8") as fh:
+        process = subprocess.Popen(
+            cmd,
+            stdout=fh,
+            stderr=subprocess.STDOUT,
+            cwd=CWD,
+            env=os.environ.copy(),
+        )
+
+        return process.wait()
+
+
+def log_command_chain(list_jobs: list[Job]) -> threading.Thread:
+    def worker() -> None:
+        for index, job in enumerate(list_jobs, start=1):
+            log_file = Path(job["log_file"])
+            command = job["command"]
+
+            try:
+                start_time = time.time()
+
+                exit_code = _run_single_job(log_file, command)
+
+                duration = round(time.time() - start_time, 2)
+
+                with log_file.open("a", encoding="utf-8") as fh:
+                    fh.write(
+                        "\n"
+                        f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] "
+                        f"Job #{index} finished\n"
+                        f"Exit code : {exit_code}\n"
+                        f"Duration  : {duration} sec\n"
+                    )
+
+            except Exception as exc:
+                with log_file.open("a", encoding="utf-8") as fh:
+                    fh.write(
+                        "\n"
+                        f"[{time.strftime('%Y-%m-%d %H:%M:%S')}] "
+                        f"ERROR: {type(exc).__name__}: {exc}\n"
+                    )
+
+                continue
+
+    thread = threading.Thread(
+        target=worker,
+        daemon=True,
+        name="log-command-chain",
+    )
+
+    thread.start()
+
+    return thread
+
+
 def echo_skip_or_run(label: str, condition: bool) -> None:
     if condition:
         print(f"Running {label} job.")
@@ -321,30 +393,27 @@ if should_run_proxy_collectors:
 
 gc.collect()
 
-run_45m = should_run_job("45-m")
-if run_45m:
-    echo_skip_or_run("45 minutes (filter_open_port)", True)
-    log_command(
-        CRONTAB_LOG_DIR / "filter_open_port.log",
-        [PYTHON_BIN, str(CWD / "artisan/filter_open_port.py"), "--limit=100"],
-    )
-else:
-    echo_skip_or_run("45 minutes (filter_open_port)", False)
-
-
-gc.collect()
-
 run_1h = should_run_job("1-h")
 if run_1h:
-    log_command(
-        CRONTAB_LOG_DIR / "filter-duplicate-ips.log",
-        [
-            PYTHON_BIN,
-            str(CWD / "artisan/filter_duplicate_ips.py"),
-            "--limit=100",
-            "--include-untested",
-        ],
-    )
+    jobs: list[Job] = [
+        {
+            "log_file": CRONTAB_LOG_DIR / "filter-duplicate-ips.log",
+            "command": [
+                PYTHON_BIN,
+                str(CWD / "artisan/filter_duplicate_ips.py"),
+                "--limit=100",
+                "--include-untested",
+            ],
+        },
+        {
+            "log_file": CRONTAB_LOG_DIR / "filter_open_port.log",
+            "command": [
+                PYTHON_BIN,
+                str(CWD / "artisan/filter_open_port.py"),
+                "--limit=100",
+            ],
+        },
+    ]
     echo_skip_or_run("1 hour", True)
 else:
     echo_skip_or_run("1 hour", False)
