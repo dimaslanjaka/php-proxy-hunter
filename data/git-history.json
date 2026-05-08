@@ -1,5 +1,21 @@
 [
   {
+    "hash": "1aed0a158dd8998e47c1f886759961aa8ee824e8",
+    "date": "2026-05-08T10:41:27+07:00",
+    "message": "chore(routes): reorder and normalize src/react/routes.json\n\nReorder and normalize route entries in `src/react/routes.json`.\n- Add `/about`.\n- Replace several routes with example placeholder entries (Examples - *).\n- Update titles and `canonical` URLs to match new paths.\n- Reorganize OAuth, proxy-tools, outbound, proxy-list and settings entries.",
+    "files": [
+      "src/react/routes.json"
+    ]
+  },
+  {
+    "hash": "75a14991a02d73629547a87ed1b7628070af590c",
+    "date": "2026-05-08T10:39:55+07:00",
+    "message": "chore(husky): add routes-fixer script and run it in pre-commit\n\n- Add `scripts/routes-fixer.js`: ESM script that sorts `src/react/routes.json` by its `path` key and runs Prettier on the file.\n- Update `.husky/pre-commit` to invoke the routes-fixer and fail the commit if it exits with an error.\n- Ensures consistent ordering and formatting of routes JSON; no functional changes to app behavior.",
+    "files": [
+      "scripts/routes-fixer.js"
+    ]
+  },
+  {
     "hash": "1ef4a69fa8dfee5368ef6b4eb4cf42381b6f30ad",
     "date": "2026-05-08T10:23:27+07:00",
     "message": "refactor(routes): update title separators for consistency",
@@ -8816,25 +8832,6 @@
     "message": "feat(postinstall): add logging for executed post-install scripts",
     "files": [
       "scripts/postinstall.js"
-    ]
-  },
-  {
-    "hash": "e153baeb362c73f6cd4b6ae190d312829f0b0a65",
-    "date": "2025-11-20T18:21:17+07:00",
-    "message": "fix(scripts/composer-installer): handle HTTP streams, cleanup partial downloads, and exit cleanly\n\n- Drain and consume non-200 responses to allow sockets to close.\n- Add error handlers on file and response streams to destroy streams and remove partial downloads.\n- Use robust HEAD handling: safely parse Content-Length (nullable) and consume the response.\n- Remove partial files on request errors (use fs.unlinkSync defensively).\n- Explicitly call process.exit(0) after successful install to prevent the Node process from hanging.",
-    "files": [
-      "scripts/composer-installer.js"
-    ]
-  },
-  {
-    "hash": "d4a2ada703bb0f8c6bcec9ff626bcc831a089343",
-    "date": "2025-11-20T18:17:35+07:00",
-    "message": "feat(process): add cross-platform executables finder for PHP and Python\n\n- Include new `executables-finder.cjs` in postinstall script\n- Add `.gitignore` entry for generated `executables.json`\n- Implement Node-based executable resolution with Windows/NIX support\n- Add PHP helper `executables.php` to load or generate executable paths",
-    "files": [
-      "scripts/postinstall.js",
-      "src/utils/process/.gitignore",
-      "src/utils/process/executables-finder.cjs",
-      "src/utils/process/executables.php"
     ]
   }
 ]
