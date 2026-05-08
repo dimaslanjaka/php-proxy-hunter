@@ -43,11 +43,13 @@ async def check_proxy_https(
         soup = BeautifulSoup(response.text, "html.parser")
         title = str(soup.title.string) if soup.title else ""
         if expected_title.lower() not in title.lower():
-            print(f"{proxy} returned unexpected title: {title}")
+            print(f"{magenta(proxy)} returned {red('unexpected title:')} {cyan(title)}")
             return False
         return getattr(response, "status_code", None) == 200
     except Exception as e:
-        print(f"Error checking {proxy} for {url}: {e}")
+        print(
+            f"{red('Error checking')} {magenta(proxy)} for {cyan(url)}: {red(str(e))}"
+        )
         return False
 
 
