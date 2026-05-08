@@ -92,77 +92,77 @@
   },
   {
     "path": "/proxy-tools/submit",
-    "title": "Proxy Tools — Submit | PHP Proxy Hunter",
+    "title": "Proxy Tools - Submit | PHP Proxy Hunter",
     "description": "Placeholder: submit proxies and extractor UI combined.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/proxy-tools/submit"
   },
   {
     "path": "/proxy-tools/extract",
-    "title": "Proxy Tools — Extract | PHP Proxy Hunter",
+    "title": "Proxy Tools - Extract | PHP Proxy Hunter",
     "description": "Placeholder: proxy extractor view.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/proxy-tools/extract"
   },
   {
     "path": "/proxy-tools/logs",
-    "title": "Proxy Tools — Logs | PHP Proxy Hunter",
+    "title": "Proxy Tools - Logs | PHP Proxy Hunter",
     "description": "Placeholder: logs and viewer for proxy tools.",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/proxy-tools/logs"
   },
   {
     "path": "/examples/snackbar",
-    "title": "Examples — Snackbar | PHP Proxy Hunter",
+    "title": "Examples - Snackbar | PHP Proxy Hunter",
     "description": "Example: snackbar component demo (placeholder).",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/snackbar"
   },
   {
     "path": "/examples/form-saver",
-    "title": "Examples — Form Saver | PHP Proxy Hunter",
+    "title": "Examples - Form Saver | PHP Proxy Hunter",
     "description": "Example: form saver demo (placeholder).",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/form-saver"
   },
   {
     "path": "/examples/highlightjs",
-    "title": "Examples — HighlightJS | PHP Proxy Hunter",
+    "title": "Examples - HighlightJS | PHP Proxy Hunter",
     "description": "Example: code highlighting demo (placeholder).",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/highlightjs"
   },
   {
     "path": "/examples/tables",
-    "title": "Examples — Tables | PHP Proxy Hunter",
+    "title": "Examples - Tables | PHP Proxy Hunter",
     "description": "Example: data tables overview (placeholder).",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables"
   },
   {
     "path": "/examples/tables/default",
-    "title": "Examples — Tables / Default | PHP Proxy Hunter",
+    "title": "Examples - Tables / Default | PHP Proxy Hunter",
     "description": "Example: default data table (placeholder).",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables/default"
   },
   {
     "path": "/examples/tables/sorting",
-    "title": "Examples — Tables / Sorting | PHP Proxy Hunter",
+    "title": "Examples - Tables / Sorting | PHP Proxy Hunter",
     "description": "Example: sorting table demo (placeholder).",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables/sorting"
   },
   {
     "path": "/examples/tables/search",
-    "title": "Examples — Tables / Search | PHP Proxy Hunter",
+    "title": "Examples - Tables / Search | PHP Proxy Hunter",
     "description": "Example: search in table demo (placeholder).",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables/search"
   },
   {
     "path": "/examples/tables/advanced",
-    "title": "Examples — Tables / Advanced | PHP Proxy Hunter",
+    "title": "Examples - Tables / Advanced | PHP Proxy Hunter",
     "description": "Example: advanced table demo (placeholder).",
     "thumbnail": "https://rawcdn.githack.com/dimaslanjaka/public-source/a74b24c2a5ff43e98d8409407b147e38c1b6a5a3/assets/img/favicon.jpg",
     "canonical": "https://www.webmanajemen.com/php-proxy-hunter/examples/tables/advanced"
