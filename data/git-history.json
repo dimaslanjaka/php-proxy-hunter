@@ -1,5 +1,48 @@
 [
   {
+    "hash": "1ef4a69fa8dfee5368ef6b4eb4cf42381b6f30ad",
+    "date": "2026-05-08T10:23:27+07:00",
+    "message": "refactor(routes): update title separators for consistency",
+    "files": [
+      "src/react/routes.json"
+    ]
+  },
+  {
+    "hash": "926374f7d8c9b73966339dcca69089b9b9a8adeb",
+    "date": "2026-05-08T10:22:00+07:00",
+    "message": "fix(encoding): set PYTHONIOENCODING in runners and force UTF-8 console streams\n\n- Add `PYTHONIOENCODING=utf-8` to generated runner scripts in `php_backend/executor.php`\n  (Windows `.bat` and POSIX `.sh`) so Python subprocesses use UTF-8 for stdout/stderr.\n- Configure `sys.stdout`/`sys.stderr` in `src/func_console.py` to use UTF-8 (call\n  `reconfigure` when available; fall back to `io.TextIOWrapper(..., encoding=\"utf-8\", errors=\"replace\")`)\n  to avoid Windows cp1252 `UnicodeEncodeError` when printing non-ASCII characters.\n- Guard `reconfigure` calls with `getattr(..., None)` to satisfy static checkers (pylance) and preserve\n  robust fallback behavior.\n\nThis prevents errors like: \"UnicodeEncodeError: 'charmap' codec can't encode character ...\" when printing\ngeo names or other Unicode text from background runners and scripts.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "php_backend/executor.php",
+      "src/func_console.py"
+    ]
+  },
+  {
+    "hash": "8e77e22eee79f34d9601864b534ddaed9f13f7c2",
+    "date": "2026-05-08T09:49:38+07:00",
+    "message": "refactor(cleaner): make proxy cleanup async and improve file cleanup\n\n- convert `clean_proxies` to `async` and run blocking `is_valid_proxy` via `asyncio.to_thread`\n- add semaphore-bounded concurrency to limit simultaneous checks\n- retain chunked DB deletes (`BATCH_DELETE_SIZE`) to avoid huge parameter lists\n- replace recursive scandir with bottom-up `os.walk` and add `_remove_empty_directory` helper\n- include `tmp/database` in cleaned directories\n- avoid changing `proxy_hunter` internals (non-blocking wrapper approach)\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/cleaner.py"
+    ]
+  },
+  {
+    "hash": "3e9a4e623d3a27962f46cb7693409ea43a013929",
+    "date": "2026-05-08T09:43:43+07:00",
+    "message": "perf(cleaner): batch-delete invalid proxies and use bottom-up directory walk\n\n- Add `BATCH_DELETE_SIZE` and chunked `DELETE ... IN (...)` to avoid very large SQL parameter lists\n- Stream proxies and size worker pool (`worker_count = min(MAX_WORKERS, len(proxies))`) to reduce memory and oversubscription\n- Replace recursive scandir with bottom-up `os.walk` for fewer stat calls and simpler directory removal\n- Add `_remove_empty_directory` helper for safe directory cleanup\n- Import `List` for type hints and annotate invalid proxy chunks\n- Add `artisan/cleaner_func.py` with `fetch_md5_hash_dirs` to list MD5-named log dirs and use it in cleaning\n\nNotes:\n- Improves performance and robustness when cleaning large proxy sets and file trees\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/cleaner.py",
+      "artisan/cleaner_func.py"
+    ]
+  },
+  {
+    "hash": "f3fe9d574eb6649747590149ac1ed53b2ae1314b",
+    "date": "2026-05-08T09:27:12+07:00",
+    "message": "refactor(proxy): improve proxy checkers with kwargs and enhanced docstrings\n\n- Add **kwargs to check_proxy_http, check_proxy_https, and check_proxy_applied to forward extra parameters to build_request for greater flexibility (e.g., headers, cookies).\n- Update and expand docstrings for these functions to clarify argument usage, accepted proxy formats, and return values.\n- This improves extensibility and developer experience when customizing proxy validation logic.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/filter_duplicate_ips.py",
+      "artisan/proxy_https_checker.py"
+    ]
+  },
+  {
     "hash": "c0cd695175f09a44d7ef2d8848e0d10f32e0809d",
     "date": "2026-05-08T08:59:08+07:00",
     "message": "feat(executor): add 'filter_duplicate_ips' to allowed executor scripts",
@@ -8792,46 +8835,6 @@
       "src/utils/process/.gitignore",
       "src/utils/process/executables-finder.cjs",
       "src/utils/process/executables.php"
-    ]
-  },
-  {
-    "hash": "20d62f0da65e56b031453a2cdaf3ce62ec666ade",
-    "date": "2025-11-20T16:18:28+07:00",
-    "message": "feat(geo-ip): add geo IP lookup functionality with proxy support",
-    "files": [
-      "php_backend/geo-ip.php"
-    ]
-  },
-  {
-    "hash": "0250ccfc39dc5aac13b67f4bce4917cabab2190e",
-    "date": "2025-11-20T16:17:15+07:00",
-    "message": "feat(checker): accept transparent proxies after verification\n\nTreat proxies that return the client's IP as \"transparent\" but still usable\nif they can successfully fetch a verification HTTP endpoint. The checker\nnow performs a lightweight cURL request through the same proxy/type/creds\nand accepts the proxy (anonymity='transparent') when the endpoint returns\na 2xx-3xx response. Debug logs updated to show verification attempts and\noutcomes. Also minor formatting tweak (move latency comment to its own line).",
-    "files": [
-      "src/PhpProxyHunter/Checker/ProxyChecker1.php"
-    ]
-  },
-  {
-    "hash": "86b2807a4121423f0aca528c16eb726247255d38",
-    "date": "2025-11-20T15:41:57+07:00",
-    "message": "feat(startup): spawn post-check tasks (filterPorts, filterPortsDuplicate)\n\n- remove unused global FileLockHelper instantiation\n- after launching proxy checker processes, start `filterPorts.php` and `filterPortsDuplicate.php` in background\n- pass per-script lock file paths and silence output (NUL or /dev/null)\n- maintain Windows and POSIX-compatible background execution paths\n\nStarts automated post-processing of ports once proxy checks are dispatched.",
-    "files": [
-      "artisan/proxyCheckerStarter.php"
-    ]
-  },
-  {
-    "hash": "b0b9f0afe42d51d47ff8f4dff44bbe4bfe7c912d",
-    "date": "2025-11-20T15:29:25+07:00",
-    "message": "fix(proxyCheckerStarter): improve request parsing, captcha validation, proxy arg and add global lock\n\n- import and instantiate FileLockHelper to track a global proxy-checker lock\n- replace direct $_REQUEST usage with parseQueryOrPostBody() for safer request parsing\n- strengthen captcha check to reject falsy values (empty or false)\n- only include credentials in the --proxy argument when both username and password are non-empty (fall back to proxy string otherwise)\n\nThis prevents passing empty credentials, makes request handling more robust, and prepares for centralized locking of proxy checks.",
-    "files": [
-      "artisan/proxyCheckerStarter.php"
-    ]
-  },
-  {
-    "hash": "e27970ba560408034b3d95f80618a1a335c0d947",
-    "date": "2025-11-20T15:25:45+07:00",
-    "message": "refactor(filter-ports): simplify CLI detection, improve file handling, and streamline proxy processing\n\n- Replace manual CLI detection with `is_cli()` for clarity and reuse.\n- Normalize variable setup and reorganize admin/max settings logic.\n- Introduce `$scriptName` for cleaner lock file path generation.\n- Improve lock and status file handling using `write_file()` for consistency.\n- Rename shutdown function to `filterPortsExitProcess` to avoid collisions and improve clarity.\n- Simplify reading untested proxies and merging fallback proxy sources.\n- Replace redundant iterator setup with more concise conversion and iteration.\n- Improve proxy validation loop by reducing repeated array indexing.\n- Preserve all existing logic and behavior while improving readability and maintainability.",
-    "files": [
-      "artisan/filterPorts.php"
     ]
   }
 ]
