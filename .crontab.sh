@@ -232,10 +232,10 @@ if should_run_job "$CRONTAB_STATE_DIR/24-h" 24; then
   # Run php cleanup script
   log_command "$CRONTAB_LOG_DIR/php-cleaner.log" php "$CWD/artisan/cleaner.php"
   # Remove old backups older than 7 days
-  log_command "$CRONTAB_LOG_DIR/cleanup-backups.log" find "$CWD/backups" -type f -name "*.sql" -mtime +7 -exec rm -f {} \;
+  # log_command "$CRONTAB_LOG_DIR/cleanup-backups.log" find "$CWD/backups" -type f -name "*.sql" -mtime +7 -exec rm -f {} \;
   echo "Old backups removed, keeping only the last 7 days."
   # Remove old log files older than 30 days
-  log_command "$CRONTAB_LOG_DIR/cleanup-logs.log" find "$CWD/tmp/logs" -type f -name "*.log" -mtime +30 -exec rm -f {} \;
+  # log_command "$CRONTAB_LOG_DIR/cleanup-logs.log" find "$CWD/tmp/logs" -type f -name "*.log" -mtime +30 -exec rm -f {} \;
   echo "Old log files removed, keeping only the last 30 days."
 else
   echo "Skipping 24 hours job."
