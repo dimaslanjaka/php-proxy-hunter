@@ -123,8 +123,6 @@ function getUserId(): string {
 }
 
 // Ensure config directory exists and has proper permissions
-$__pph_root = get_project_root();
-
 $configDir = get_project_root('tmp/config');
 
 if (!file_exists($configDir)) {
