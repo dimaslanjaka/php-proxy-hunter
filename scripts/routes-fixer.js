@@ -126,6 +126,39 @@ function checkout(branch, callback) {
   });
 }
 
+function _fixRoutes() {
+  const fixPath = path.join('src', 'react', 'routes-fix.json');
+  if (fs.existsSync(fixPath)) {
+    /** @type {import('../src/react/routes.json')} */
+    const fix = fs.readJsonSync(fixPath);
+    /** @type {import('../src/react/routes.json')} */
+    const toFix = fs.readJSONSync(routesPath);
+    for (const branch in fix) {
+      // apply title, decription, canonical, thumbnail from fix to toFix for matching paths
+      const fixes = fix[branch];
+      const toFixes = toFix.find((item) => {
+        if (typeof item.path === 'string' && typeof fixes.path === 'string') {
+          return item.path === fixes.path;
+        }
+        if (Array.isArray(item.path) && Array.isArray(fixes.path)) {
+          return item.path.join(' ') === fixes.path.join(' ');
+        }
+        return false;
+      });
+      if (toFixes) {
+        console.log(`Applying fixes for path: ${fixes.path}`);
+        toFixes.title = fixes.title;
+        toFixes.description = fixes.description;
+        toFixes.canonical = fixes.canonical;
+        toFixes.thumbnail = fixes.thumbnail;
+      } else {
+        console.warn(`No matching route found in routes.json for fix with path: ${fixes.path}`);
+      }
+    }
+    fs.writeFile(routesPath, JSON.stringify(toFix, null, 2) + '\n', 'utf8');
+  }
+}
+
 /** @type {Array<any>} */
 const routes = [];
 try {
@@ -133,11 +166,27 @@ try {
 } catch {
   // skip if file doesn't exist or isn't valid JSON
 }
-checkout('master', (masterRoutes) => {
-  const allRoutes = [...masterRoutes, ...routes];
-  checkout('python', (pythonRoutes) => {
-    const merged = [...allRoutes, ...pythonRoutes];
-    const unique = dedupeRoutes(merged);
-    sortRoutes(unique);
+
+function _main() {
+  checkout('master', (masterRoutes) => {
+    const allRoutes = [...masterRoutes, ...routes];
+    checkout('python', (pythonRoutes) => {
+      // Unstaged src/react/routes.json may contain changes from both master and python branches, so we merge all three sources and dedupe by path before sorting and writing back to disk.
+      const restore = spawn('git', ['restore', '--staged', routesPath], { stdio: 'inherit', shell: true });
+      restore.on('error', (e) => {
+        console.error('Failed to restore routes.json from git:', e && e.message ? e.message : e);
+        process.exit(1);
+      });
+      restore.on('close', (code) => {
+        console.log('Restored routes.json from git with code', code);
+        const merged = [...allRoutes, ...pythonRoutes];
+        const unique = dedupeRoutes(merged);
+        sortRoutes(unique);
+        _fixRoutes();
+        sortRoutes(fs.readJSONSync(routesPath));
+      });
+    });
   });
-});
+}
+
+_main();
