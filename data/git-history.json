@@ -1,5 +1,17 @@
 [
   {
+    "hash": "6a2ff26d297e725199a1e3c768188dd321420e81",
+    "date": "2026-05-10T01:06:41+07:00",
+    "message": "chore: remove obsolete tailscale directory\n\nTailscale is not good for public connection sharing.",
+    "files": [
+      "tailscale/index.php",
+      "tailscale/mysql-readme.md",
+      "tailscale/mysql-test.py",
+      "tailscale/readme.md",
+      "tailscale/utils.py"
+    ]
+  },
+  {
     "hash": "0651e10224c43995c47c76dad5153778f15ed536",
     "date": "2026-05-08T14:31:50+07:00",
     "message": "refactor(user-session): remove unused variable for project root",
@@ -8777,14 +8789,6 @@
     "files": [
       "src/react/pages/dashboard/UserPaymentLogs.tsx",
       "src/react/utils/icons.ts"
-    ]
-  },
-  {
-    "hash": "83ab17b2299eafff7ea68219be75177e8403e200",
-    "date": "2025-11-21T15:33:03+07:00",
-    "message": "feat(img.php): add user-agent forwarding to cURL handle for improved request handling",
-    "files": [
-      "php_backend/img.php"
     ]
   }
 ]
