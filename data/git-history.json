@@ -1,5 +1,50 @@
 [
   {
+    "hash": "9334cc1b466d3c1237db209fc20ccb072c8ba36e",
+    "date": "2026-05-10T11:59:55+07:00",
+    "message": "refactor(crontab, date): migrate cron system to simplified execution model and centralize interval parsing\n\n- Add Python 3 shebang and platform detection via `platform.system()`\n- Introduce `TextIO` typing for better file handle annotations\n- Replace legacy venv/bin detection logic with OS-aware resolution\n- Refactor PATH construction to be cleaner and include system PATH safely\n- Update dotenv loading with explicit override, encoding, and verbosity control\n- Move `parse_interval_to_seconds` from crontab into `src/func_date.py`\n- Add full validation docstring and regex-based interval parsing utility\n- Simplify job execution model by removing CronJob dataclass and job registry\n- Replace centralized cron loop with explicit `should_run_job` condition blocks\n- Introduce structured command runner `run_command_with_logging`\n  - Supports foreground (streaming) and background (file logging) modes\n  - Adds async log finalization via `_finalize_log`\n- Improve resource reporting via simplified `echo_skip_or_run`\n- Replace legacy process/log threading system with direct subprocess handling\n- Remove WAL maintenance and legacy SQLite cron utilities\n- Expand and restructure cron tasks (proxy collectors, cleaners, backups, checkers)\n- Add resource usage export job (JSON + log file output)\n- Improve error resilience in file cleanup logic and introduce dry-run mode support\n\nBREAKING CHANGE: cron architecture fully rewritten from CronJob-based scheduler to direct conditional execution model; interval parsing moved to shared utility module",
+    "files": [
+      ".crontab.py",
+      "src/func_date.py"
+    ]
+  },
+  {
+    "hash": "d260dd67e87f45b26394418c27c3904dd822a6de",
+    "date": "2026-05-10T11:49:51+07:00",
+    "message": "chore(deps): add @prettier/plugin-xml and upgrade prettier\n\n- add @prettier/plugin-xml dependency and enable in Prettier config\n- upgrade Prettier from 3.6.2 to 3.8.3\n- adjust IDE misc.xml formatting and Black executable path",
+    "files": [
+      ".idea/misc.xml",
+      ".prettierrc.json",
+      "package.json"
+    ]
+  },
+  {
+    "hash": "4bfb1475b2d29c5d4046917480f4927185488d3f",
+    "date": "2026-05-10T11:41:19+07:00",
+    "message": "chore: Update IDEA configs",
+    "files": [
+      ".idea/inspectionProfiles/Project_Default.xml",
+      ".idea/misc.xml",
+      ".idea/php.xml"
+    ]
+  },
+  {
+    "hash": "2351ff383f110043e062b6d668331cf884db8daa",
+    "date": "2026-05-10T11:36:39+07:00",
+    "message": "chore: rename last_checked to last_check\n\nFix unknown column 'last_checked' in table 'proxies'",
+    "files": [
+      "artisan/proxy_https_checker.py"
+    ]
+  },
+  {
+    "hash": "46fd9d8e5ada16e01263812ed9b7c4a6cc703883",
+    "date": "2026-05-10T11:34:38+07:00",
+    "message": "Delete artisan/proxy_checker_httpx.py",
+    "files": [
+      "artisan/proxy_checker_httpx.py"
+    ]
+  },
+  {
     "hash": "ed8f4e1d6665ba16a10c1393088bcaef05e39440",
     "date": "2026-05-10T09:19:08+07:00",
     "message": "feat(cron): ensure daily execution for specific cron jobs",
@@ -8752,46 +8797,6 @@
     "message": "refactor(check-https-proxy): improve code clarity with comments for proxy handling and process setup",
     "files": [
       "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "5e7599f8a932386af1eaf064ed0afd6a7c0fceb9",
-    "date": "2025-11-21T21:37:42+07:00",
-    "message": "fix(checker): remove HTTPS/SSL handling from ProxyCheckerHttpOnly\n\n- Exclude 'https' from the default protocols list.\n- Remove test URL scheme replacement for HTTPS.\n- Stop setting $result->isSSL for HTTPS responses.\n- Keep HTTP and SOCKS checking logic unchanged.\n\nFiles: src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php",
-    "files": [
-      "src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php"
-    ]
-  },
-  {
-    "hash": "8eb77bba080bf7f3038a84a15debf3619233a92c",
-    "date": "2025-11-21T18:09:01+07:00",
-    "message": "fix(checker): test all proxy protocols instead of stopping at first success\n\nRemove the `$http_ok` flag and the early `break` so the checker continues\nthrough the full protocol list. This change allows collecting all\nworking protocol types (`workingTypes[]`) per proxy while preserving\nlatency aggregation.",
-    "files": [
-      "src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php"
-    ]
-  },
-  {
-    "hash": "16b1044d768db99b99444439f62a70767f717e97",
-    "date": "2025-11-21T18:04:04+07:00",
-    "message": "fix(check-http-proxy): change delimiter from comma to hyphen for workingTypes",
-    "files": [
-      "php_backend/check-http-proxy.php"
-    ]
-  },
-  {
-    "hash": "d9fcba3fdff508b0ba8c2cd0dc813259a9d7ecf1",
-    "date": "2025-11-21T17:34:54+07:00",
-    "message": "refactor(deploy): consolidate SSH/SFTP helpers and add backend-only path\n\nRefactor `bin/deploy-vps.mjs` by extracting shared SSH/SFTP utilities (`createSftp`, `useSftp`, `withSSH`)\nand simplifying SFTP operations (`uploadFile`, `uploadDir`, `writeRemoteFile`, `deleteRemotePath`) to use them.\nStreamline `execWithBashrc`, `gitPull`, and `shell_exec` to reuse the SSH helper and reduce boilerplate.\n\nAlso:\n- Add a `--backend` / `--backend-only` deploy path that creates a remote lock, runs `git pull`, runs `bash bin/fix-perm`, and removes the lock.\n- Simplify and normalize error handling and logging across deploy steps (shorter error messages and truthy checks).\n- Clean up UI-only and full deploy flows (consistent lock handling, compact command invocations, and quieter delete fallbacks).\n\nThis change improves code reuse, reduces duplication, and makes backend-only deployments faster and safer.",
-    "files": [
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "b235b7e42bf69e7394fff169a768d58ce2b8fd37",
-    "date": "2025-11-21T17:33:39+07:00",
-    "message": "refactor(eslint): improve clarity and structure of ESLint config comments\n\n- Rewrote all inline comments to appear above their corresponding rules\n- Expanded and clarified comment explanations throughout the config\n- Added descriptive section headers for ignored files, globals, overrides, and rules\n- Improved readability by restructuring comment placement without modifying logic\n- Added comments for Prettier loading, FlatCompat initialization, and ESLint rule sets",
-    "files": [
-      "eslint.config.js"
     ]
   }
 ]
