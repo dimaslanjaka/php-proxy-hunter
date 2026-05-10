@@ -19,7 +19,6 @@ from src.utils.parse_args import parse_args
 # Global lock reference for signal handler
 _global_file_lock = None
 LOCKS_DIR = get_relative_path("tmp/locks")
-LOCK_FILE_PATH = get_relative_path(LOCKS_DIR + "/proxyCollector.lock")
 ASSETS_PROXIES_DIR = get_relative_path("assets/proxies")
 
 
