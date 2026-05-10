@@ -1,25 +1,30 @@
-import os
-import time
+from __future__ import annotations
+
 import asyncio
+import os
 import sys
-from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import List
+import time
+from concurrent.futures import ThreadPoolExecutor
+from typing import TYPE_CHECKING
 
 from proxy_hunter import is_valid_proxy
 
-# Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.func_date import day_to_seconds
-from src.ProxyDB import ProxyDB
-from src.func import get_relative_path
-from src.shared import init_db, init_readonly_db
-from src.utils.parse_args import parse_args
 from artisan.cleaner_func import fetch_md5_hash_dirs
+from src.func import get_relative_path
+from src.func_date import day_to_seconds
+from src.shared import init_db
+from src.utils.parse_args import parse_args
 
-# ---- CONFIG ----
+if TYPE_CHECKING:
+    from src.ProxyDB import ProxyDB
+
 MAX_WORKERS = 20
+
 BATCH_DELETE_SIZE = 500
+
+EXECUTOR = ThreadPoolExecutor(max_workers=MAX_WORKERS)
 
 
 def _remove_empty_directory(path: str) -> bool:
@@ -29,130 +34,167 @@ def _remove_empty_directory(path: str) -> bool:
     try:
         if not os.listdir(path):
             print(f"Removing empty directory: {path}")
+
             os.rmdir(path)
+
             return True
+
     except FileNotFoundError:
         return False
 
     return False
 
 
-async def clean_proxies(db: "ProxyDB"):
-    """Async wrapper: run blocking `is_valid_proxy` in threads and collect invalid proxies.
+def _validate_proxy(proxy: str) -> tuple[str, bool]:
+    try:
+        return proxy, bool(is_valid_proxy(proxy))
 
-    Uses `asyncio.to_thread` to avoid changing `proxy_hunter` internals.
-    """
-    # Stream proxies into a list of values to check. Minimizes memory spikes
-    all_rows = db.get_all_proxies()
-    if not all_rows:
-        return
+    except Exception:
+        return proxy, False
 
-    proxies = [p["proxy"] for p in all_rows if p and p.get("proxy")]
-    if not proxies:
-        return
 
-    worker_count = min(MAX_WORKERS, max(1, len(proxies)))
-    semaphore = asyncio.Semaphore(worker_count)
+async def _run_proxy_check(proxy: str) -> tuple[str, bool]:
+    loop = asyncio.get_running_loop()
 
-    async def _check(proxy: str):
-        async with semaphore:
-            try:
-                ok = await asyncio.to_thread(is_valid_proxy, proxy)
-            except Exception:
-                ok = False
-            return proxy if not ok else None
+    return await loop.run_in_executor(
+        EXECUTOR,
+        _validate_proxy,
+        proxy,
+    )
 
-    tasks = [asyncio.create_task(_check(str(p))) for p in proxies]
-    results = await asyncio.gather(*tasks)
-    invalid = [r for r in results if r]
 
+async def delete_invalid_proxies(
+    db: "ProxyDB",
+    invalid: list[str],
+) -> None:
     if not invalid:
         return
 
-    # Delete invalid proxies in chunks to avoid very large parameter lists
     placeholder = "%s" if getattr(db, "driver", "").lower() == "mysql" else "?"
+
+    execute_query = db.get_db().execute_query
+
     for i in range(0, len(invalid), BATCH_DELETE_SIZE):
         chunk = invalid[i : i + BATCH_DELETE_SIZE]
-        print(f"Deleting {len(chunk)} invalid proxies (chunk starting at index {i})...")
+
+        print(
+            f"Deleting {len(chunk)} invalid proxies "
+            f"(chunk starting at index {i})..."
+        )
+
         try:
             placeholders = ", ".join([placeholder] * len(chunk))
-            sql = f"DELETE FROM proxies WHERE proxy IN ({placeholders})"
-            db.get_db().execute_query(sql, [p.strip() for p in chunk])
-            for p in chunk:
-                print(f"Deleted invalid proxy: {p}")
+
+            sql = f"DELETE FROM proxies " f"WHERE proxy IN ({placeholders})"
+
+            execute_query(
+                sql,
+                [proxy.strip() for proxy in chunk],
+            )
+
+            for proxy in chunk:
+                print(f"Deleted invalid proxy: {proxy}")
+
         except Exception as e:
-            print(f"Failed to delete proxies chunk starting at {i}: {e}")
+            print(f"Failed to delete proxies " f"chunk starting at {i}: {e}")
 
 
-def clean_directory(base_path: str, expire_seconds: int = 0) -> None:
-    """Clean files older than `expire_seconds` and remove empty dirs.
+async def clean_proxies(db: "ProxyDB") -> None:
+    rows = db.get_all_proxies()
 
-    Uses a bottom-up `os.walk` to minimize stat calls and simplify removal.
-    """
+    if not rows:
+        return
+
+    proxies = [proxy for item in rows if (proxy := item.get("proxy"))]
+
+    if not proxies:
+        return
+
+    invalid: list[str] = []
+
+    pending: set[asyncio.Task] = set()
+
+    for proxy in proxies:
+        pending.add(asyncio.create_task(_run_proxy_check(str(proxy))))
+
+        if len(pending) >= MAX_WORKERS:
+            done, pending = await asyncio.wait(
+                pending,
+                return_when=asyncio.FIRST_COMPLETED,
+            )
+
+            for task in done:
+                proxy_value, valid = task.result()
+
+                if not valid:
+                    invalid.append(proxy_value)
+
+    for task in asyncio.as_completed(pending):
+        proxy_value, valid = await task
+
+        if not valid:
+            invalid.append(proxy_value)
+
+    await delete_invalid_proxies(db, invalid)
+
+
+def clean_directory(
+    base_path: str,
+    expire_seconds: int = 0,
+) -> None:
     now = time.time()
-    if expire_seconds == 0:
-        expire_seconds = day_to_seconds(7)  # Default to 7 days
+
+    if expire_seconds <= 0:
+        expire_seconds = day_to_seconds(7)
 
     if not os.path.exists(base_path):
         return
 
-    # Walk bottom-up so files are removed before directories are considered
-    for root, dirs, files in os.walk(base_path, topdown=False):
-        # Remove old files
+    for root, dirs, files in os.walk(
+        base_path,
+        topdown=False,
+    ):
         for name in files:
             path = os.path.join(root, name)
-            try:
-                st = os.stat(path)
-            except FileNotFoundError:
-                continue
-            except Exception as e:
-                print(f"Error stat'ing {path}: {e}")
-                continue
 
             try:
-                if now - st.st_mtime > expire_seconds:
+                if now - os.stat(path).st_mtime > expire_seconds:
                     print(f"Removing old file: {path}")
+
                     os.remove(path)
+
+            except FileNotFoundError:
+                continue
+
             except Exception as e:
                 print(f"Error removing file {path}: {e}")
 
-        # Attempt to remove empty directories
-        for d in dirs:
-            dpath = os.path.join(root, d)
-            _remove_empty_directory(dpath)
+        for dirname in dirs:
+            _remove_empty_directory(os.path.join(root, dirname))
 
-    # Finally attempt to remove the base directory itself if empty
     _remove_empty_directory(base_path)
 
 
-if __name__ == "__main__":
-    args = parse_args(
-        description="Python Cleaner Script",
-        additional=[
-            {
-                "flags": ["--readonly"],
-                "description": "Use read-only DB connection (no updates)",
-                "action": "store_true",
-            }
-        ],
+async def main() -> None:
+    parse_args(description="Python Cleaner Script")
+
+    mysql = init_db("mysql")
+    sqlite = init_db("sqlite")
+
+    for label, db in (
+        ("MySQL", mysql),
+        ("SQLite", sqlite),
+    ):
+        print(f"[{label}] Proxy counts by status:")
+
+        for item in db.count_by_status():
+            print(f"  {item.get('status') or '(empty)'}: " f"{item.get('count', 0)}")
+
+    await asyncio.gather(
+        clean_proxies(mysql),
+        clean_proxies(sqlite),
     )
 
-    db = init_readonly_db() if args.attr("readonly", False) else init_db("mysql")
-
-    # ---- Show proxy stats ----
-    try:
-        counts = db.count_by_status()
-        print("Proxy counts by status:")
-        for item in counts:
-            print(f"  {item.get('status') or '(empty)'}: {item.get('count', 0)}")
-    except Exception as e:
-        print("Failed to get proxy counts:", e)
-
-    # ---- Clean proxies ----
-    if not args.attr("readonly", False):
-        asyncio.run(clean_proxies(db))
-
-    # ---- Clean directories ----
     dirs = [
         "tmp/logs/crontab",
         "tmp/build",
@@ -167,9 +209,24 @@ if __name__ == "__main__":
         "tmp/database",
     ]
 
-    for d in dirs:
-        clean_directory(get_relative_path(d))
+    for directory in dirs:
+        clean_directory(get_relative_path(directory))
 
-    clean_directory(get_relative_path("tmp/proxies"), day_to_seconds(1))
+    clean_directory(
+        get_relative_path("tmp/proxies"),
+        day_to_seconds(1),
+    )
+
     for user_log_dir in fetch_md5_hash_dirs(get_relative_path("tmp/logs")):
-        clean_directory(user_log_dir, day_to_seconds(1))
+        clean_directory(
+            user_log_dir,
+            day_to_seconds(1),
+        )
+
+
+if __name__ == "__main__":
+    try:
+        asyncio.run(main())
+
+    finally:
+        EXECUTOR.shutdown(wait=True)
