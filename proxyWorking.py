@@ -126,19 +126,27 @@ class ProxyWorkingManager:
             for data in self.data
         ]
         marks: List[Dict[str, str]] = []
+        pending_proxies: List[str] = []
         if proxyList:
             for item in proxyList:
                 encrypted_data = md5(str(item).encode()).hexdigest()
-                temp_path = get_relative_path(f"tmp/upload/${item}.json")
+                # Use hash-based marker names to avoid invalid path characters.
+                temp_path = get_relative_path(f"tmp/upload/{encrypted_data}.json")
                 if os.path.exists(temp_path):
-                    proxyList.remove(item)
-                else:
-                    # mark current item as uploaded
-                    marks.append({"path": temp_path, "data": encrypted_data})
-            json_data = json.dumps(proxyList)
-            upload_proxy(json_data)
-            for obj in marks:
-                write_file(obj.get("path"), obj.get("data"))
+                    continue
+
+                pending_proxies.append(str(item))
+                # mark current item as uploaded
+                marks.append({"path": temp_path, "data": encrypted_data})
+
+            if pending_proxies:
+                json_data = json.dumps(pending_proxies)
+                upload_proxy(json_data)
+                for obj in marks:
+                    path = obj.get("path")
+                    data = obj.get("data")
+                    if path and data:
+                        write_file(path, data)
 
 
 if __name__ == "__main__":
