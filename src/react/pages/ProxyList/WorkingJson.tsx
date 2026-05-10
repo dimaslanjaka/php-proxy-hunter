@@ -387,239 +387,243 @@ function WorkingJson() {
   }, [userId, candidatesLatencyUpdate]);
 
   return (
-    <div className="relative min-h-screen p-4 bg-gray-50 dark:bg-gray-900">
-      {/* Main content */}
-      <div>
-        <div className="flex items-center justify-between mb-4">
-          <h1 className="text-2xl font-bold text-gray-900 dark:text-gray-100 flex items-center gap-2">
-            <i className="fa-duotone fa-list-check"></i> Proxy List
-          </h1>
-          <button
-            className="ml-0 sm:ml-4 px-3 py-1 bg-blue-500 hover:bg-blue-600 text-white text-xs font-semibold rounded shadow transition-colors flex items-center gap-1 flex-shrink-0"
-            onClick={handleRefresh}
-            disabled={loadingProxies}
-            title={'Refresh proxies'}
-            aria-label={'Refresh proxies'}>
-            <i className="fa fa-refresh sm:hidden" aria-hidden="true"></i>
-            <span className="hidden sm:inline">Refresh</span>
-          </button>
-        </div>
-        {/* Filter controls (always visible) */}
-        <div className="mb-4 w-full">
-          <div className="block">
-            <div className="flex flex-col sm:flex-row flex-wrap gap-x-4 gap-y-2 mt-4 items-center w-full">
-              <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[200px]">
-                <label className="text-gray-700 dark:text-gray-200 mb-1">Search:</label>
-                <input
-                  type="search"
-                  value={searchQuery}
-                  onChange={(e) => {
-                    setSearchQuery(e.target.value);
-                    setPage(1);
-                  }}
-                  placeholder="Search proxies..."
-                  className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full"
-                />
-              </div>
+    <section className="my-6">
+      <div className="relative overflow-hidden rounded-2xl border border-teal-200/70 dark:border-teal-900/60 bg-gradient-to-br from-white via-teal-50/70 to-violet-50/60 dark:from-gray-900 dark:via-teal-950/40 dark:to-violet-950/30 shadow-xl">
+        <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-teal-300/20 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -left-16 w-56 h-56 rounded-full bg-violet-300/20 blur-3xl pointer-events-none" />
 
-              <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
-                <label className="text-gray-700 dark:text-gray-200 mb-1">Type:</label>
-                <select
-                  value={typeFilter}
-                  onChange={(e) => {
-                    setTypeFilter(e.target.value);
-                    setPage(1);
-                  }}
-                  className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
-                  <option value="">All Types</option>
-                  <option value="http">HTTP</option>
-                  <option value="socks4">SOCKS4</option>
-                  <option value="socks5">SOCKS5</option>
-                  <option value="ssl">SSL</option>
-                </select>
-              </div>
-              <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
-                <label className="text-gray-700 dark:text-gray-200 mb-1">Country:</label>
-                <select
-                  value={countryFilter}
-                  onChange={(e) => {
-                    setCountryFilter(e.target.value);
-                    setPage(1);
-                  }}
-                  className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
-                  <option value="">All Countries</option>
-                  {uniqueCountries.map((country) => (
-                    <option key={country} value={country}>
-                      {country}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
-                <label className="text-gray-700 dark:text-gray-200 mb-1">City:</label>
-                <select
-                  value={cityFilter}
-                  onChange={(e) => {
-                    setCityFilter(e.target.value);
-                    setPage(1);
-                  }}
-                  className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
-                  <option value="">All Cities</option>
-                  {uniqueCities.map((city) => (
-                    <option key={city} value={city}>
-                      {city}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
-                <label className="text-gray-700 dark:text-gray-200 mb-1">Region:</label>
-                <select
-                  value={regionFilter}
-                  onChange={(e) => {
-                    setRegionFilter(e.target.value);
-                    setPage(1);
-                  }}
-                  className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
-                  <option value="">All Regions</option>
-                  {uniqueRegions.map((r) => (
-                    <option key={r} value={r}>
-                      {r}
-                    </option>
-                  ))}
-                </select>
-              </div>
-              <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
-                <label className="text-gray-700 dark:text-gray-200 mb-1">Timezone:</label>
-                <select
-                  value={timezoneFilter}
-                  onChange={(e) => {
-                    setTimezoneFilter(e.target.value);
-                    setPage(1);
-                  }}
-                  className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 w-full">
-                  <option value="">All Timezones</option>
-                  {uniqueTimezones.map((tz) => (
-                    <option key={tz} value={tz}>
-                      {tz}
-                    </option>
-                  ))}
-                </select>
+        <div className="relative p-4 sm:p-5">
+          <div className="flex items-center justify-between mb-4">
+            <h1 className="text-2xl font-bold text-slate-900 dark:text-slate-100 flex items-center gap-2">
+              <i className="fa-duotone fa-list-check"></i> Proxy List
+            </h1>
+            <button
+              className="ml-0 sm:ml-4 px-3 py-1 bg-teal-600 hover:bg-teal-500 text-white text-xs font-semibold rounded shadow transition-colors flex items-center gap-1 flex-shrink-0"
+              onClick={handleRefresh}
+              disabled={loadingProxies}
+              title={'Refresh proxies'}
+              aria-label={'Refresh proxies'}>
+              <i className="fa fa-refresh sm:hidden" aria-hidden="true"></i>
+              <span className="hidden sm:inline">Refresh</span>
+            </button>
+          </div>
+          {/* Filter controls (always visible) */}
+          <div className="mb-4 w-full">
+            <div className="block">
+              <div className="flex flex-col sm:flex-row flex-wrap gap-x-4 gap-y-2 mt-4 items-center w-full">
+                <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[200px]">
+                  <label className="text-slate-700 dark:text-slate-200 mb-1">Search:</label>
+                  <input
+                    type="search"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      setPage(1);
+                    }}
+                    placeholder="Search proxies..."
+                    className="border rounded px-2 py-1 border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-slate-900 dark:text-slate-100 w-full"
+                  />
+                </div>
+
+                <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
+                  <label className="text-slate-700 dark:text-slate-200 mb-1">Type:</label>
+                  <select
+                    value={typeFilter}
+                    onChange={(e) => {
+                      setTypeFilter(e.target.value);
+                      setPage(1);
+                    }}
+                    className="border rounded px-2 py-1 border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-slate-900 dark:text-slate-100 w-full [&>option]:bg-white [&>option]:dark:bg-slate-900">
+                    <option value="">All Types</option>
+                    <option value="http">HTTP</option>
+                    <option value="socks4">SOCKS4</option>
+                    <option value="socks5">SOCKS5</option>
+                    <option value="ssl">SSL</option>
+                  </select>
+                </div>
+                <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
+                  <label className="text-slate-700 dark:text-slate-200 mb-1">Country:</label>
+                  <select
+                    value={countryFilter}
+                    onChange={(e) => {
+                      setCountryFilter(e.target.value);
+                      setPage(1);
+                    }}
+                    className="border rounded px-2 py-1 border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-slate-900 dark:text-slate-100 w-full [&>option]:bg-white [&>option]:dark:bg-slate-900">
+                    <option value="">All Countries</option>
+                    {uniqueCountries.map((country) => (
+                      <option key={country} value={country}>
+                        {country}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
+                  <label className="text-slate-700 dark:text-slate-200 mb-1">City:</label>
+                  <select
+                    value={cityFilter}
+                    onChange={(e) => {
+                      setCityFilter(e.target.value);
+                      setPage(1);
+                    }}
+                    className="border rounded px-2 py-1 border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-slate-900 dark:text-slate-100 w-full [&>option]:bg-white [&>option]:dark:bg-slate-900">
+                    <option value="">All Cities</option>
+                    {uniqueCities.map((city) => (
+                      <option key={city} value={city}>
+                        {city}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
+                  <label className="text-slate-700 dark:text-slate-200 mb-1">Region:</label>
+                  <select
+                    value={regionFilter}
+                    onChange={(e) => {
+                      setRegionFilter(e.target.value);
+                      setPage(1);
+                    }}
+                    className="border rounded px-2 py-1 border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-slate-900 dark:text-slate-100 w-full [&>option]:bg-white [&>option]:dark:bg-slate-900">
+                    <option value="">All Regions</option>
+                    {uniqueRegions.map((r) => (
+                      <option key={r} value={r}>
+                        {r}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex flex-col sm:flex-1 w-full sm:w-auto min-w-[150px]">
+                  <label className="text-slate-700 dark:text-slate-200 mb-1">Timezone:</label>
+                  <select
+                    value={timezoneFilter}
+                    onChange={(e) => {
+                      setTimezoneFilter(e.target.value);
+                      setPage(1);
+                    }}
+                    className="border rounded px-2 py-1 border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-slate-900 dark:text-slate-100 w-full [&>option]:bg-white [&>option]:dark:bg-slate-900">
+                    <option value="">All Timezones</option>
+                    {uniqueTimezones.map((tz) => (
+                      <option key={tz} value={tz}>
+                        {tz}
+                      </option>
+                    ))}
+                  </select>
+                </div>
               </div>
             </div>
           </div>
-        </div>
-        {/* Table */}
-        <div className="overflow-x-auto rounded-lg shadow border border-gray-200 dark:border-gray-700">
-          <table className="min-w-full divide-y divide-gray-200 dark:divide-gray-700">
-            <thead className="bg-gray-100 dark:bg-gray-800">
-              <tr>
-                <th className="px-2 py-1 text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700 text-center">
-                  Actions
-                </th>
-                {proxyKeys.map((key) => (
-                  <th
-                    key={key}
-                    className="px-2 py-1 text-xs font-semibold text-gray-700 dark:text-gray-200 uppercase tracking-wider border-b border-gray-200 dark:border-gray-700">
-                    {key}
+          {/* Table */}
+          <div className="overflow-x-auto rounded-lg shadow border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-gray-900/50">
+            <table className="min-w-full divide-y divide-slate-200 dark:divide-slate-800">
+              <thead className="bg-slate-100/90 dark:bg-slate-800/80">
+                <tr>
+                  <th className="px-2 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wider border-b border-slate-200 dark:border-slate-700 text-center">
+                    Actions
                   </th>
-                ))}
-              </tr>
-            </thead>
-            <tbody className="bg-white dark:bg-gray-900 divide-y divide-gray-100 dark:divide-gray-800">
-              {paginatedProxies.map((proxy, idx) => (
-                <tr key={idx} className="hover:bg-gray-50 dark:hover:bg-gray-800">
-                  <td className="px-2 py-1 text-xs whitespace-nowrap border-b border-gray-100 dark:border-gray-800 text-center">
-                    <button
-                      title={t('recheck_proxy')}
-                      className="inline-flex items-center justify-center p-1 rounded bg-yellow-100 dark:bg-yellow-700 text-yellow-800 dark:text-yellow-200 hover:bg-yellow-200 dark:hover:bg-yellow-600 mr-1"
-                      onClick={() => handleRecheck(proxy, showSnackbar)}>
-                      <i className="fa-duotone fa-rotate-right"></i>
-                    </button>
-                    <button
-                      title={t('copy_proxy')}
-                      className="inline-flex items-center justify-center p-1 rounded bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600"
-                      onClick={() => handleCopy(proxy)}>
-                      <i className="fa-duotone fa-copy"></i>
-                    </button>
-                  </td>
                   {proxyKeys.map((key) => (
-                    <td
+                    <th
                       key={key}
-                      className="px-2 py-1 text-xs whitespace-nowrap border-b border-gray-100 dark:border-gray-800 text-gray-900 dark:text-gray-100">
-                      {key === 'last_check' && proxy[key]
-                        ? timeAgo(proxy[key], true, true)
-                        : key === 'type' && proxy[key]
-                          ? String(proxy[key])
-                              .split('-')
-                              .filter(Boolean)
-                              .map((t) => {
-                                const baseClass =
-                                  'inline-block rounded px-2 py-0.5 mx-0.5 mb-0.5 text-xxs font-semibold align-middle border mr-1';
-                                const colorClass = getProxyTypeColorClass(t);
-                                const badgeClass = `${baseClass} ${colorClass}`;
-
-                                return (
-                                  <span key={t + 'type' + badgeClass} className={badgeClass}>
-                                    {t.toUpperCase()}
-                                  </span>
-                                );
-                              })
-                          : key === 'latency' && proxy[key] !== undefined && proxy[key] !== null
-                            ? `${proxy[key]} ms`
-                            : String(proxy[key] ?? '')}
-                    </td>
+                      className="px-2 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wider border-b border-slate-200 dark:border-slate-700">
+                      {key}
+                    </th>
                   ))}
                 </tr>
-              ))}
-              {paginatedProxies.length === 0 && (
-                <tr>
-                  <td colSpan={proxyKeys.length} className="text-center py-4 text-gray-500 dark:text-gray-400">
-                    No proxies found.
-                  </td>
-                </tr>
-              )}
-            </tbody>
-          </table>
-        </div>
-        {/* Pagination */}
-        <div className="flex flex-col sm:flex-row gap-2 mt-4 items-center w-full justify-center text-center">
-          <div className="flex w-full sm:w-auto gap-1 justify-center whitespace-nowrap">
-            <button
-              onClick={() => setPage((p) => Math.max(1, p - 1))}
-              disabled={page === 1}
-              className="btn btn-outline px-2 py-1 border rounded disabled:opacity-50 flex items-center gap-1 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 w-auto min-w-[64px] text-xs">
-              <i className="fa-duotone fa-chevron-left"></i> Prev
-            </button>
-            <span className="text-gray-700 dark:text-gray-200 flex items-center px-1 text-xs">
-              Page {page} of {totalPages}
-            </span>
-            <button
-              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-              disabled={page === totalPages}
-              className="btn btn-outline px-2 py-1 border rounded disabled:opacity-50 flex items-center gap-1 border-gray-300 dark:border-gray-700 text-gray-700 dark:text-gray-200 bg-white dark:bg-gray-800 w-auto min-w-[64px] text-xs">
-              Next <i className="fa-duotone fa-chevron-right"></i>
-            </button>
+              </thead>
+              <tbody className="bg-white/85 dark:bg-gray-900/60 divide-y divide-slate-100 dark:divide-slate-800">
+                {paginatedProxies.map((proxy, idx) => (
+                  <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/70">
+                    <td className="px-2 py-1 text-xs whitespace-nowrap border-b border-slate-100 dark:border-slate-800 text-center">
+                      <button
+                        title={t('recheck_proxy')}
+                        className="inline-flex items-center justify-center p-1 rounded bg-amber-100 dark:bg-amber-700 text-amber-800 dark:text-amber-200 hover:bg-amber-200 dark:hover:bg-amber-600 mr-1"
+                        onClick={() => handleRecheck(proxy, showSnackbar)}>
+                        <i className="fa-duotone fa-rotate-right"></i>
+                      </button>
+                      <button
+                        title={t('copy_proxy')}
+                        className="inline-flex items-center justify-center p-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-300 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600"
+                        onClick={() => handleCopy(proxy)}>
+                        <i className="fa-duotone fa-copy"></i>
+                      </button>
+                    </td>
+                    {proxyKeys.map((key) => (
+                      <td
+                        key={key}
+                        className="px-2 py-1 text-xs whitespace-nowrap border-b border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100">
+                        {key === 'last_check' && proxy[key]
+                          ? timeAgo(proxy[key], true, true)
+                          : key === 'type' && proxy[key]
+                            ? String(proxy[key])
+                                .split('-')
+                                .filter(Boolean)
+                                .map((t) => {
+                                  const baseClass =
+                                    'inline-block rounded px-2 py-0.5 mx-0.5 mb-0.5 text-xxs font-semibold align-middle border mr-1';
+                                  const colorClass = getProxyTypeColorClass(t);
+                                  const badgeClass = `${baseClass} ${colorClass}`;
+
+                                  return (
+                                    <span key={t + 'type' + badgeClass} className={badgeClass}>
+                                      {t.toUpperCase()}
+                                    </span>
+                                  );
+                                })
+                            : key === 'latency' && proxy[key] !== undefined && proxy[key] !== null
+                              ? `${proxy[key]} ms`
+                              : String(proxy[key] ?? '')}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+                {paginatedProxies.length === 0 && (
+                  <tr>
+                    <td colSpan={proxyKeys.length} className="text-center py-4 text-slate-500 dark:text-slate-400">
+                      No proxies found.
+                    </td>
+                  </tr>
+                )}
+              </tbody>
+            </table>
           </div>
-          <div className="flex w-full sm:w-auto gap-2 justify-center items-center mt-2 sm:mt-0 text-xs">
-            <span className="text-gray-700 dark:text-gray-200">Rows per page:</span>
-            <select
-              value={rowsPerPage}
-              onChange={(e) => {
-                setRowsPerPage(Number(e.target.value));
-                setPage(1);
-              }}
-              className="border rounded px-2 py-1 dark:bg-gray-800 dark:text-gray-100 border-gray-300 dark:border-gray-700 w-auto min-w-[64px] text-xs">
-              {[10, 20, 50, 100].map((n) => (
-                <option key={n} value={n}>
-                  {n}
-                </option>
-              ))}
-            </select>
+          {/* Pagination */}
+          <div className="flex flex-col sm:flex-row gap-2 mt-4 items-center w-full justify-center text-center">
+            <div className="flex w-full sm:w-auto gap-1 justify-center whitespace-nowrap">
+              <button
+                onClick={() => setPage((p) => Math.max(1, p - 1))}
+                disabled={page === 1}
+                className="btn btn-outline px-2 py-1 border rounded disabled:opacity-50 flex items-center gap-1 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 bg-white/90 dark:bg-slate-800/80 w-auto min-w-[64px] text-xs">
+                <i className="fa-duotone fa-chevron-left"></i> Prev
+              </button>
+              <span className="text-slate-700 dark:text-slate-200 flex items-center px-1 text-xs">
+                Page {page} of {totalPages}
+              </span>
+              <button
+                onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+                disabled={page === totalPages}
+                className="btn btn-outline px-2 py-1 border rounded disabled:opacity-50 flex items-center gap-1 border-slate-300 dark:border-slate-700 text-slate-700 dark:text-slate-200 bg-white/90 dark:bg-slate-800/80 w-auto min-w-[64px] text-xs">
+                Next <i className="fa-duotone fa-chevron-right"></i>
+              </button>
+            </div>
+            <div className="flex w-full sm:w-auto gap-2 justify-center items-center mt-2 sm:mt-0 text-xs">
+              <span className="text-slate-700 dark:text-slate-200">Rows per page:</span>
+              <select
+                value={rowsPerPage}
+                onChange={(e) => {
+                  setRowsPerPage(Number(e.target.value));
+                  setPage(1);
+                }}
+                className="border rounded px-2 py-1 border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-slate-900 dark:text-slate-100 w-auto min-w-[64px] text-xs [&>option]:bg-white [&>option]:dark:bg-slate-900">
+                {[10, 20, 50, 100].map((n) => (
+                  <option key={n} value={n}>
+                    {n}
+                  </option>
+                ))}
+              </select>
+            </div>
           </div>
         </div>
       </div>
-    </div>
+    </section>
   );
 }
 

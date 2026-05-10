@@ -83,13 +83,11 @@ export default function ServerSide() {
     try {
       const start = (page - 1) * perPage;
 
-      // Use POST to avoid URL-length or nested param parsing issues
       const body = new URLSearchParams();
       body.append('draw', String(draw + 1));
       body.append('start', String(start));
       body.append('length', String(perPage));
       if (debouncedSearch && debouncedSearch.length > 0) {
-        // DataTables nested param name
         body.append('search[value]', debouncedSearch);
       }
       if (statusFilter && statusFilter.length > 0) {
@@ -109,15 +107,12 @@ export default function ServerSide() {
       const res = await fetch(url, { method: 'POST', body, cache: 'no-store' });
       const data = await res.json().catch(() => null);
       if (!res.ok || data?.error) {
-        // Prefer the human-readable `message` field the backend may include
-        // (e.g. 'Captcha not verified') over a raw error value.
         const msg =
           (data && typeof data.message === 'string' && data.message) ||
           (data && typeof data.error === 'string' && data.error) ||
           `HTTP ${res.status}`;
         console.error('Backend error', msg, data);
         setErrorMsg(msg);
-        // show empty rows
         setRows([]);
         setRecordsTotal(0);
         setRecordsFiltered(0);
@@ -132,10 +127,6 @@ export default function ServerSide() {
         const srvPerPage = Number.isFinite(Number(data.perPage)) ? Number(data.perPage) : null;
         setServerPage(srvPage);
         setServerPerPage(srvPerPage);
-        // After a successful fetch, sync the local `page` to the server's
-        // reported page. This follows the pattern: fetch data first, then
-        // update the UI page so immediate fetches use the requested page
-        // (avoids stale state when calling setPage() then fetchData()).
         if (srvPage !== null && srvPage !== page) {
           setPage(srvPage);
         }
@@ -156,7 +147,6 @@ export default function ServerSide() {
     try {
       const proxyStr = formatProxyWithOptionalAuth(row);
       if (!proxyStr) return;
-      // Use shared helper when available; fallback to navigator
       if (copyToClipboard) {
         await copyToClipboard(proxyStr);
       } else {
@@ -169,7 +159,6 @@ export default function ServerSide() {
     }
   };
 
-  // Re-check all proxies currently displayed in the table
   const handleRecheckDisplayed = async () => {
     if (!rows || rows.length === 0) {
       showSnackbar({ message: (t('No proxies to re-check') as string) || 'No proxies to re-check', type: 'danger' });
@@ -194,7 +183,6 @@ export default function ServerSide() {
     }
   };
 
-  // Fetch available distinct statuses for filter dropdown
   React.useEffect(() => {
     let mounted = true;
     (async () => {
@@ -215,7 +203,6 @@ export default function ServerSide() {
     };
   }, []);
 
-  // Fetch countries and cities options for filter dropdowns
   React.useEffect(() => {
     let mounted = true;
     (async () => {
@@ -243,7 +230,6 @@ export default function ServerSide() {
     };
   }, []);
 
-  // Fetch user info to get UID for background geoIP scheduling
   React.useEffect(() => {
     let mounted = true;
     (async () => {
@@ -263,7 +249,6 @@ export default function ServerSide() {
 
   const totalPages = perPage > 0 ? Math.max(1, Math.ceil(recordsFiltered / perPage)) : 1;
 
-  // Enqueue proxies missing `country` for background GeoIP lookup (limit to 5)
   const candidatesGeoIp = React.useMemo(() => {
     if (!rows || rows.length === 0) return [];
     return rows
@@ -296,11 +281,14 @@ export default function ServerSide() {
   }, [userId, candidatesGeoIp]);
 
   return (
-    <>
-      <section className="my-6">
-        <div className="bg-white dark:bg-gray-900 rounded-xl shadow-lg p-4 border border-blue-200 dark:border-blue-700 flowbite-modal">
+    <section className="my-6">
+      <div className="relative overflow-hidden rounded-2xl border border-sky-200/70 dark:border-sky-900/60 bg-gradient-to-br from-white via-sky-50/70 to-rose-50/60 dark:from-gray-900 dark:via-sky-950/40 dark:to-rose-950/30 shadow-xl">
+        <div className="absolute -top-16 -right-16 w-56 h-56 rounded-full bg-sky-300/20 blur-3xl pointer-events-none" />
+        <div className="absolute -bottom-20 -left-16 w-56 h-56 rounded-full bg-rose-300/20 blur-3xl pointer-events-none" />
+
+        <div className="relative p-4 sm:p-5 flowbite-modal">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between mb-3 gap-3">
-            <h2 className="text-lg font-semibold text-blue-800 dark:text-blue-200">{t('proxy_list_server')}</h2>
+            <h2 className="text-lg font-semibold text-slate-800 dark:text-slate-100">{t('proxy_list_server')}</h2>
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 w-full sm:w-auto">
               <input
                 type="search"
@@ -308,12 +296,12 @@ export default function ServerSide() {
                 value={search}
                 onChange={(e) => {
                   setSearch(e.target.value);
-                  setPage(1); // reset to first page when search changes
+                  setPage(1);
                 }}
                 onKeyDown={(e) => {
                   if (e.key === 'Enter') setPage(1);
                 }}
-                className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto"
+                className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-slate-900 dark:text-slate-100 placeholder:text-slate-400 dark:placeholder:text-slate-500"
               />
               <select
                 value={statusFilter}
@@ -321,7 +309,7 @@ export default function ServerSide() {
                   setStatusFilter(e.target.value);
                   setPage(1);
                 }}
-                className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto min-w-[120px]">
+                className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto min-w-[120px] border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-slate-900 dark:text-slate-100 [&>option]:bg-white [&>option]:dark:bg-slate-900">
                 <option value="">All statuses</option>
                 {statuses.map((s) => (
                   <option key={s} value={s}>
@@ -335,7 +323,7 @@ export default function ServerSide() {
                   setTypeFilter(e.target.value);
                   setPage(1);
                 }}
-                className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto min-w-[120px]">
+                className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto min-w-[120px] border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-slate-900 dark:text-slate-100 [&>option]:bg-white [&>option]:dark:bg-slate-900">
                 <option value="">All types</option>
                 <option value="http">HTTP</option>
                 <option value="https">HTTPS</option>
@@ -352,7 +340,7 @@ export default function ServerSide() {
                   setCountryFilter(e.target.value);
                   setPage(1);
                 }}
-                className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto min-w-[130px]">
+                className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto min-w-[130px] border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-slate-900 dark:text-slate-100 [&>option]:bg-white [&>option]:dark:bg-slate-900">
                 <option value="">All countries</option>
                 {countries.map((country) => (
                   <option key={country} value={country}>
@@ -366,7 +354,7 @@ export default function ServerSide() {
                   setCityFilter(e.target.value);
                   setPage(1);
                 }}
-                className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto min-w-[130px]">
+                className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto min-w-[130px] border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-slate-900 dark:text-slate-100 [&>option]:bg-white [&>option]:dark:bg-slate-900">
                 <option value="">All cities</option>
                 {cities.map((city) => (
                   <option key={city} value={city}>
@@ -380,7 +368,7 @@ export default function ServerSide() {
                   setPerPage(Number(e.target.value));
                   setPage(1);
                 }}
-                className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto min-w-[80px]">
+                className="px-2 py-1 border rounded-md text-sm w-full sm:w-auto min-w-[80px] border-slate-300 dark:border-slate-700 bg-white/90 dark:bg-slate-900/70 text-slate-900 dark:text-slate-100 [&>option]:bg-white [&>option]:dark:bg-slate-900">
                 {[10, 25, 50, 100].map((n) => (
                   <option key={n} value={n}>
                     {n}
@@ -391,7 +379,7 @@ export default function ServerSide() {
                 <button
                   title={t('refresh')}
                   onClick={() => fetchData().catch(noop)}
-                  className="px-3 py-1 bg-blue-600 text-white rounded-md text-sm w-full sm:w-auto">
+                  className="px-3 py-1 bg-sky-600 hover:bg-sky-500 text-white rounded-md text-sm w-full sm:w-auto">
                   <i className="fa-duotone fa-arrows-rotate" aria-hidden="true" />
                 </button>
               </div>
@@ -400,66 +388,66 @@ export default function ServerSide() {
                   disabled={loading || rows.length === 0}
                   onClick={() => handleRecheckDisplayed()}
                   title={t('recheck_proxy')}
-                  className="px-3 py-1 bg-green-600 text-white rounded-md text-sm w-full sm:w-auto disabled:opacity-50">
+                  className="px-3 py-1 bg-rose-600 hover:bg-rose-500 text-white rounded-md text-sm w-full sm:w-auto disabled:opacity-50">
                   <i className="fa-duotone fa-recycle" aria-hidden="true" />
                 </button>
               </div>
             </div>
           </div>
 
-          <div className="relative overflow-x-auto mb-3">
+          <div className="relative overflow-x-auto mb-3 rounded-lg border border-slate-200 dark:border-slate-800 bg-white/80 dark:bg-gray-900/50">
             {errorMsg && (
-              <div className="mb-3 p-3 rounded bg-red-50 dark:bg-red-900 text-red-800 dark:text-red-200 border border-red-200 dark:border-red-700 flex justify-between items-start gap-3">
+              <div className="mb-3 p-3 rounded bg-rose-50 dark:bg-rose-900/30 text-rose-800 dark:text-rose-200 border border-rose-200 dark:border-rose-700 flex justify-between items-start gap-3">
                 <div className="text-sm">{errorMsg}</div>
                 <button
                   onClick={() => setErrorMsg('')}
-                  className="text-sm px-2 py-1 rounded bg-transparent border border-red-200 dark:border-red-700 text-red-700 dark:text-red-200 hover:bg-red-100 dark:hover:bg-red-800">
+                  className="text-sm px-2 py-1 rounded bg-transparent border border-rose-200 dark:border-rose-700 text-rose-700 dark:text-rose-200 hover:bg-rose-100 dark:hover:bg-rose-800">
                   Dismiss
                 </button>
               </div>
             )}
-            <table className="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-auto">
-              <thead>
+            <table className="w-full text-sm text-left text-slate-500 dark:text-slate-400 table-auto">
+              <thead className="bg-slate-100/90 dark:bg-slate-800/80">
                 <tr>
-                  <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Proxy</th>
-                  <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Status</th>
-                  <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Type</th>
-                  <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Country</th>
-                  <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">City</th>
-                  <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Latency</th>
-                  <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Tun2Socks</th>
-                  <th className="px-2 py-1 text-gray-700 dark:text-gray-200 whitespace-nowrap">Last Check</th>
+                  <th className="px-2 py-1 text-slate-700 dark:text-slate-200 whitespace-nowrap">Proxy</th>
+                  <th className="px-2 py-1 text-slate-700 dark:text-slate-200 whitespace-nowrap">Status</th>
+                  <th className="px-2 py-1 text-slate-700 dark:text-slate-200 whitespace-nowrap">Type</th>
+                  <th className="px-2 py-1 text-slate-700 dark:text-slate-200 whitespace-nowrap">Country</th>
+                  <th className="px-2 py-1 text-slate-700 dark:text-slate-200 whitespace-nowrap">City</th>
+                  <th className="px-2 py-1 text-slate-700 dark:text-slate-200 whitespace-nowrap">Latency</th>
+                  <th className="px-2 py-1 text-slate-700 dark:text-slate-200 whitespace-nowrap">Tun2Socks</th>
+                  <th className="px-2 py-1 text-slate-700 dark:text-slate-200 whitespace-nowrap">Last Check</th>
                 </tr>
               </thead>
               <tbody>
                 {rows.length === 0 ? (
                   <tr>
-                    <td colSpan={8} className="px-2 py-4 text-center text-gray-500 dark:text-gray-400">
+                    <td colSpan={8} className="px-2 py-4 text-center text-slate-500 dark:text-slate-400">
                       {loading ? (
-                        <span className="text-gray-700 dark:text-gray-200">Loading...</span>
+                        <span className="text-slate-700 dark:text-slate-200">Loading...</span>
                       ) : errorMsg ? (
-                        <span className="text-red-700 dark:text-red-200">{errorMsg}</span>
+                        <span className="text-rose-700 dark:text-rose-200">{errorMsg}</span>
                       ) : (
-                        <span className="text-gray-700 dark:text-gray-200">No proxies</span>
+                        <span className="text-slate-700 dark:text-slate-200">No proxies</span>
                       )}
                     </td>
                   </tr>
                 ) : (
                   <>
                     {rows.map((r, i) => (
-                      <tr key={i} className="odd:bg-gray-50 dark:odd:bg-gray-800">
-                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                      <tr key={i} className="odd:bg-slate-50/70 dark:odd:bg-slate-800/70">
+                        <td className="px-2 py-1 text-slate-900 dark:text-slate-100 whitespace-nowrap">
                           <div className="flex items-center gap-2">
                             <span className="truncate max-w-[18rem] block">{r.proxy}</span>
                             <button
                               type="button"
                               title="Copy proxy"
                               onClick={() => handleCopy(r, i)}
-                              className="inline-flex items-center justify-center p-1 rounded bg-gray-200 dark:bg-gray-800 text-gray-800 dark:text-gray-100 hover:bg-gray-300 dark:hover:bg-gray-700 border border-gray-300 dark:border-gray-600">
+                              className="inline-flex items-center justify-center p-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-300 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600">
                               <i className="fa-duotone fa-copy" />
                             </button>
                             {copiedIndex === i && (
-                              <span className="text-xs text-green-600 dark:text-green-300">Copied</span>
+                              <span className="text-xs text-emerald-600 dark:text-emerald-300">Copied</span>
                             )}
                           </div>
                         </td>
@@ -467,16 +455,16 @@ export default function ServerSide() {
                           {(() => {
                             const s = String(r.status || '').toLowerCase();
                             let cls =
-                              'border border-gray-300 text-gray-800 dark:border-gray-700 dark:text-gray-200 bg-transparent';
+                              'border border-slate-300 text-slate-800 dark:border-slate-700 dark:text-slate-200 bg-transparent';
                             if (s === 'dead' || s === 'port-closed') {
                               cls =
-                                'border border-red-500 text-red-600 dark:border-red-400 dark:text-red-400 bg-transparent';
+                                'border border-rose-500 text-rose-600 dark:border-rose-400 dark:text-rose-300 bg-transparent';
                             } else if (s === 'active') {
                               cls =
-                                'border border-green-500 text-green-600 dark:border-green-400 dark:text-green-400 bg-transparent';
+                                'border border-emerald-500 text-emerald-600 dark:border-emerald-400 dark:text-emerald-300 bg-transparent';
                             } else if (s === 'port-open' || s === 'untested') {
                               cls =
-                                'border border-yellow-500 text-yellow-700 dark:border-yellow-400 dark:text-yellow-300 bg-transparent';
+                                'border border-amber-500 text-amber-700 dark:border-amber-400 dark:text-amber-300 bg-transparent';
                             }
                             return (
                               <div className="flex items-center gap-2">
@@ -495,7 +483,7 @@ export default function ServerSide() {
                             );
                           })()}
                         </td>
-                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                        <td className="px-2 py-1 text-slate-900 dark:text-slate-100 whitespace-nowrap">
                           {r.type ? (
                             String(r.type)
                               .split('-')
@@ -512,7 +500,7 @@ export default function ServerSide() {
                                 );
                               })
                           ) : (
-                            <span className="inline-block rounded px-1 py-0.5 mx-0.5 mb-0.5 text-xs font-semibold align-middle border mr-1 bg-gray-50 text-gray-700 dark:border-gray-600 dark:bg-gray-800 dark:text-gray-200">
+                            <span className="inline-block rounded px-1 py-0.5 mx-0.5 mb-0.5 text-xs font-semibold align-middle border mr-1 bg-slate-50 text-slate-700 dark:border-slate-600 dark:bg-slate-800 dark:text-slate-200">
                               [unknown protocol]
                             </span>
                           )}
@@ -529,17 +517,17 @@ export default function ServerSide() {
                             </span>
                           )}
                         </td>
-                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">{r.country}</td>
-                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">{r.city}</td>
-                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                        <td className="px-2 py-1 text-slate-900 dark:text-slate-100 whitespace-nowrap">{r.country}</td>
+                        <td className="px-2 py-1 text-slate-900 dark:text-slate-100 whitespace-nowrap">{r.city}</td>
+                        <td className="px-2 py-1 text-slate-900 dark:text-slate-100 whitespace-nowrap">
                           {formatLatency(r.latency)}
                         </td>
-                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100">
+                        <td className="px-2 py-1 text-slate-900 dark:text-slate-100">
                           {r.tun2socks ? (
                             <div className="flex items-center">
-                              <div className="relative w-20 h-5 bg-gray-300 dark:bg-gray-700 rounded-full overflow-hidden border border-gray-400 dark:border-gray-600">
+                              <div className="relative w-20 h-5 bg-slate-300 dark:bg-slate-700 rounded-full overflow-hidden border border-slate-400 dark:border-slate-600">
                                 <div
-                                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-blue-500 to-blue-600 dark:from-blue-600 dark:to-blue-700 transition-all duration-300"
+                                  className="absolute inset-y-0 left-0 bg-gradient-to-r from-sky-500 to-rose-500 dark:from-sky-600 dark:to-rose-600 transition-all duration-300"
                                   style={{
                                     width: `${Math.max(0, Math.min(Number(r.tun2socks), 100))}%`
                                   }}
@@ -553,10 +541,10 @@ export default function ServerSide() {
                               </div>
                             </div>
                           ) : (
-                            <span className="text-gray-400 dark:text-gray-500">-</span>
+                            <span className="text-slate-400 dark:text-slate-500">-</span>
                           )}
                         </td>
-                        <td className="px-2 py-1 text-gray-900 dark:text-gray-100 whitespace-nowrap">
+                        <td className="px-2 py-1 text-slate-900 dark:text-slate-100 whitespace-nowrap">
                           {r.last_check ? timeAgo(r.last_check) : '-'}
                         </td>
                       </tr>
@@ -569,20 +557,20 @@ export default function ServerSide() {
               <div className="absolute inset-0 z-30 flex items-center justify-center bg-white/60 dark:bg-black/60 backdrop-blur-sm pointer-events-auto">
                 <div className="px-4 py-3 rounded-lg shadow bg-white dark:bg-gray-900/80 flex items-center gap-3">
                   <i
-                    className="fa-duotone fa-spinner fa-spin text-2xl text-gray-700 dark:text-gray-200"
+                    className="fa-duotone fa-spinner fa-spin text-2xl text-slate-700 dark:text-slate-200"
                     aria-hidden="true"
                   />
-                  <span className="text-sm text-gray-700 dark:text-gray-200">Loading...</span>
+                  <span className="text-sm text-slate-700 dark:text-slate-200">Loading...</span>
                 </div>
               </div>
             )}
           </div>
 
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-3 gap-2">
-            <div className="text-sm text-gray-600 dark:text-gray-400">
+            <div className="text-sm text-slate-600 dark:text-slate-400">
               <div className="flex flex-col sm:flex-row sm:items-center gap-2">
                 <div>{`Showing ${rows.length} of ${recordsFiltered} filtered (${recordsTotal} total)`}</div>
-                <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500 dark:text-gray-400">
+                <div className="flex flex-wrap items-center gap-2 text-xs text-slate-500 dark:text-slate-400">
                   {serverDriver ? <span>{`Driver: ${serverDriver}`}</span> : null}
                   {serverDriver ? <span className="mx-1">·</span> : null}
                   <span>{`Page: ${serverPage ?? page}/${totalPages || 1} · Per page: ${serverPerPage ?? perPage}`}</span>
@@ -593,7 +581,7 @@ export default function ServerSide() {
               <button
                 disabled={page <= 1}
                 onClick={() => setPage(1)}
-                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700"
+                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700"
                 title="First">
                 <i className="fa-duotone fa-angle-double-left" aria-hidden="true" />
                 <span className="sr-only">First</span>
@@ -601,13 +589,12 @@ export default function ServerSide() {
               <button
                 disabled={page <= 1}
                 onClick={() => setPage((p) => Math.max(1, p - 1))}
-                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700"
+                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700"
                 title="Previous">
                 <i className="fa-duotone fa-angle-left" aria-hidden="true" />
                 <span className="sr-only">Previous</span>
               </button>
 
-              {/* Numeric page buttons - full on desktop, compact on mobile */}
               <div className="hidden sm:flex items-center gap-1">
                 {(() => {
                   const maxButtons = 7;
@@ -623,14 +610,13 @@ export default function ServerSide() {
                     <button
                       key={p}
                       onClick={() => setPage(p)}
-                      className={`px-2 py-1 rounded border ${p === page ? 'bg-blue-600 text-white' : 'bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700'}`}>
+                      className={`px-2 py-1 rounded border ${p === page ? 'bg-sky-600 text-white' : 'bg-transparent text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700'}`}>
                       {p}
                     </button>
                   ));
                 })()}
               </div>
 
-              {/* Compact numeric page buttons for mobile (current ±1) */}
               <div className="flex sm:hidden items-center gap-1">
                 {(() => {
                   const pages: number[] = [];
@@ -641,7 +627,7 @@ export default function ServerSide() {
                     <button
                       key={p}
                       onClick={() => setPage(p)}
-                      className={`px-2 py-1 rounded border text-xs ${p === page ? 'bg-blue-600 text-white' : 'bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700'}`}>
+                      className={`px-2 py-1 rounded border text-xs ${p === page ? 'bg-sky-600 text-white' : 'bg-transparent text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700'}`}>
                       {p}
                     </button>
                   ));
@@ -651,7 +637,7 @@ export default function ServerSide() {
               <button
                 disabled={page >= totalPages}
                 onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
-                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700"
+                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700"
                 title="Next">
                 <i className="fa-duotone fa-angle-right" aria-hidden="true" />
                 <span className="sr-only">Next</span>
@@ -659,7 +645,7 @@ export default function ServerSide() {
               <button
                 disabled={page >= totalPages}
                 onClick={() => setPage(totalPages)}
-                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-gray-700 dark:text-gray-200 border-gray-300 dark:border-gray-700"
+                className="px-2 py-1 border rounded disabled:opacity-50 bg-transparent text-slate-700 dark:text-slate-200 border-slate-300 dark:border-slate-700"
                 title="Last">
                 <i className="fa-duotone fa-angle-double-right" aria-hidden="true" />
                 <span className="sr-only">Last</span>
@@ -667,7 +653,7 @@ export default function ServerSide() {
             </div>
           </div>
         </div>
-      </section>
-    </>
+      </div>
+    </section>
   );
 }
