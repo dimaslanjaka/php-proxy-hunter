@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 import gc
+from hashlib import md5
 import os
 import platform
 import re
