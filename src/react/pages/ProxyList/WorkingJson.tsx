@@ -58,6 +58,34 @@ const handleCopy = async (proxy: ProxyDetails, showSnackbar?: any) => {
   }
 };
 
+const normalizeTun2SocksValue = (value: unknown): number | null => {
+  const raw = String(value ?? '').trim();
+  if (!raw || raw === '-' || raw.toLowerCase() === 'n/a') {
+    return null;
+  }
+
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed)) {
+    return null;
+  }
+
+  return Math.max(0, Math.min(parsed, 100));
+};
+
+const normalizeLatencyValue = (value: unknown): number | null => {
+  const raw = String(value ?? '').trim();
+  if (!raw || raw === '-' || raw.toLowerCase() === 'n/a') {
+    return null;
+  }
+
+  const parsed = Number(raw);
+  if (!Number.isFinite(parsed) || parsed <= 0) {
+    return null;
+  }
+
+  return parsed;
+};
+
 // getWorkingProxies moved inside the component for easier access to state and refs
 
 // Module-level cache to avoid long waits between navigations
@@ -170,7 +198,7 @@ function WorkingJson() {
     const lastCols = ['useragent', 'webgl_vendor', 'browser_vendor', 'webgl_renderer'];
     const main = keys.filter((k) => !lastCols.includes(k));
     const last = lastCols.filter((k) => keys.includes(k));
-    return [...main, ...last];
+    return [...main, ...last].filter((key) => key !== 'tun2socks');
   }, [proxies]);
 
   // Unique values for dropdown filters
@@ -527,57 +555,86 @@ function WorkingJson() {
                       {key}
                     </th>
                   ))}
+                  <th className="px-2 py-1 text-xs font-semibold text-slate-700 dark:text-slate-200 uppercase tracking-wider border-b border-slate-200 dark:border-slate-700 whitespace-nowrap">
+                    Tun2Socks
+                  </th>
                 </tr>
               </thead>
               <tbody className="bg-white/85 dark:bg-gray-900/60 divide-y divide-slate-100 dark:divide-slate-800">
-                {paginatedProxies.map((proxy, idx) => (
-                  <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/70">
-                    <td className="px-2 py-1 text-xs whitespace-nowrap border-b border-slate-100 dark:border-slate-800 text-center">
-                      <button
-                        title={t('recheck_proxy')}
-                        className="inline-flex items-center justify-center p-1 rounded bg-amber-100 dark:bg-amber-700 text-amber-800 dark:text-amber-200 hover:bg-amber-200 dark:hover:bg-amber-600 mr-1"
-                        onClick={() => handleRecheck(proxy, showSnackbar)}>
-                        <i className="fa-duotone fa-rotate-right"></i>
-                      </button>
-                      <button
-                        title={t('copy_proxy')}
-                        className="inline-flex items-center justify-center p-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-300 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600"
-                        onClick={() => handleCopy(proxy)}>
-                        <i className="fa-duotone fa-copy"></i>
-                      </button>
-                    </td>
-                    {proxyKeys.map((key) => (
-                      <td
-                        key={key}
-                        className="px-2 py-1 text-xs whitespace-nowrap border-b border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100">
-                        {key === 'last_check' && proxy[key]
-                          ? timeAgo(proxy[key], true, true)
-                          : key === 'type' && proxy[key]
-                            ? String(proxy[key])
-                                .split('-')
-                                .filter(Boolean)
-                                .map((t) => {
-                                  const baseClass =
-                                    'inline-block rounded px-2 py-0.5 mx-0.5 mb-0.5 text-xxs font-semibold align-middle border mr-1';
-                                  const colorClass = getProxyTypeColorClass(t);
-                                  const badgeClass = `${baseClass} ${colorClass}`;
+                {paginatedProxies.map((proxy, idx) => {
+                  const tun2socksValue = normalizeTun2SocksValue(proxy.tun2socks);
 
-                                  return (
-                                    <span key={t + 'type' + badgeClass} className={badgeClass}>
-                                      {t.toUpperCase()}
-                                    </span>
-                                  );
-                                })
-                            : key === 'latency' && proxy[key] !== undefined && proxy[key] !== null
-                              ? `${proxy[key]} ms`
-                              : String(proxy[key] ?? '')}
+                  return (
+                    <tr key={idx} className="hover:bg-slate-50/80 dark:hover:bg-slate-800/70">
+                      <td className="px-2 py-1 text-xs whitespace-nowrap border-b border-slate-100 dark:border-slate-800 text-center">
+                        <button
+                          title={t('recheck_proxy')}
+                          className="inline-flex items-center justify-center p-1 rounded bg-amber-100 dark:bg-amber-700 text-amber-800 dark:text-amber-200 hover:bg-amber-200 dark:hover:bg-amber-600 mr-1"
+                          onClick={() => handleRecheck(proxy, showSnackbar)}>
+                          <i className="fa-duotone fa-rotate-right"></i>
+                        </button>
+                        <button
+                          title={t('copy_proxy')}
+                          className="inline-flex items-center justify-center p-1 rounded bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-slate-100 hover:bg-slate-300 dark:hover:bg-slate-700 border border-slate-300 dark:border-slate-600"
+                          onClick={() => handleCopy(proxy)}>
+                          <i className="fa-duotone fa-copy"></i>
+                        </button>
                       </td>
-                    ))}
-                  </tr>
-                ))}
+                      {proxyKeys.map((key) => (
+                        <td
+                          key={key}
+                          className="px-2 py-1 text-xs whitespace-nowrap border-b border-slate-100 dark:border-slate-800 text-slate-900 dark:text-slate-100">
+                          {key === 'last_check' && proxy[key]
+                            ? timeAgo(proxy[key], true, true)
+                            : key === 'type' && proxy[key]
+                              ? String(proxy[key])
+                                  .split('-')
+                                  .filter(Boolean)
+                                  .map((t) => {
+                                    const baseClass =
+                                      'inline-block rounded px-2 py-0.5 mx-0.5 mb-0.5 text-xxs font-semibold align-middle border mr-1';
+                                    const colorClass = getProxyTypeColorClass(t);
+                                    const badgeClass = `${baseClass} ${colorClass}`;
+
+                                    return (
+                                      <span key={t + 'type' + badgeClass} className={badgeClass}>
+                                        {t.toUpperCase()}
+                                      </span>
+                                    );
+                                  })
+                              : key === 'latency'
+                                ? normalizeLatencyValue(proxy[key]) !== null
+                                  ? `${normalizeLatencyValue(proxy[key])} ms`
+                                  : '-'
+                                : String(proxy[key] ?? '')}
+                        </td>
+                      ))}
+                      <td className="px-2 py-1 text-slate-900 dark:text-slate-100 whitespace-nowrap border-b border-slate-100 dark:border-slate-800">
+                        {tun2socksValue !== null ? (
+                          <div className="flex items-center">
+                            <div className="relative w-20 h-5 bg-slate-300 dark:bg-slate-700 rounded-full overflow-hidden border border-slate-400 dark:border-slate-600">
+                              <div
+                                className="absolute inset-y-0 left-0 bg-gradient-to-r from-teal-500 to-violet-500 dark:from-teal-600 dark:to-violet-600 transition-all duration-300"
+                                style={{ width: `${tun2socksValue}%` }}
+                              />
+                              <div
+                                className={`absolute inset-0 flex items-center justify-center text-[11px] font-bold ${
+                                  tun2socksValue >= 45 ? 'text-white' : 'text-slate-700 dark:text-slate-100'
+                                }`}>
+                                {`${Math.round(tun2socksValue)}%`}
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <span className="text-slate-400 dark:text-slate-500">-</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
                 {paginatedProxies.length === 0 && (
                   <tr>
-                    <td colSpan={proxyKeys.length} className="text-center py-4 text-slate-500 dark:text-slate-400">
+                    <td colSpan={proxyKeys.length + 2} className="text-center py-4 text-slate-500 dark:text-slate-400">
                       No proxies found.
                     </td>
                   </tr>
