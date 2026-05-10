@@ -21,38 +21,52 @@ def run_commands(
     cmds = [list(cmd) for cmd in commands]
     is_windows = platform.system() == "Windows"
 
-    for cmd in cmds:
-        # =====================================================
-        # BACKGROUND MODE (silent)
-        # =====================================================
-        if background:
-            subprocess.Popen(
-                cmd,
-                cwd=cwd,
-                stdout=subprocess.DEVNULL,
-                stderr=subprocess.DEVNULL,
-                stdin=subprocess.DEVNULL,
-                creationflags=subprocess.CREATE_NEW_PROCESS_GROUP if is_windows else 0,
-            )
-            continue
+    # -----------------------------
+    # Build script file
+    # -----------------------------
+    script_hash = md5(str(cmds).encode()).hexdigest()
+    ext = ".bat" if is_windows else ".sh"
 
-        # =====================================================
-        # FOREGROUND MODE (live output)
-        # =====================================================
+    script_path = Path.cwd() / "tmp" / "runners" / f"{script_hash}{ext}"
+    script_path.parent.mkdir(parents=True, exist_ok=True)
+
+    lines: list[str] = []
+
+    if is_windows:
+        lines.append("@echo off")
+    else:
+        lines.append("#!/usr/bin/env bash")
+        lines.append("set -e")
+
+    for cmd in cmds:
+        lines.append(" ".join(cmd))
+
+    script_path.write_text("\n".join(lines), encoding="utf-8")
+
+    if not is_windows:
+        script_path.chmod(0o755)
+
+    # -----------------------------
+    # Execute script
+    # -----------------------------
+    if is_windows:
         proc = subprocess.Popen(
-            cmd,
+            ["cmd", "/c", str(script_path)],
             cwd=cwd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.STDOUT,
-            text=True,
+        )
+    else:
+        proc = subprocess.Popen(
+            ["bash", str(script_path)],
+            cwd=cwd,
         )
 
-        assert proc.stdout is not None
+    # -----------------------------
+    # Background vs foreground
+    # -----------------------------
+    if background:
+        return  # fire & forget
 
-        for line in proc.stdout:
-            print(line, end="")
-
-        proc.wait()
+    proc.wait()
 
 
 if __name__ == "__main__":
