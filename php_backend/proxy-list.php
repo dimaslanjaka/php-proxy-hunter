@@ -237,10 +237,14 @@ try {
     $limitSql = 'LIMIT ' . (int)$perPage . ' OFFSET ' . (int)$offset;
   }
 
-  $sql         = 'SELECT * FROM proxies ' . $where . ' ' . $orderSql . ' ' . $limitSql;
-  $sqlChecksum = md5($sql . json_encode($params) . $driver);
-  $cacheFile   = get_project_root("tmp/proxies/{$sqlChecksum}.json");
-  $response    = [
+  $sql = 'SELECT * FROM proxies ' . $where . ' ' . $orderSql . ' ' . $limitSql;
+  if (!empty($request['hash'])) {
+    $cacheName = $request['hash'];
+  } else {
+    $cacheName = md5($sql . json_encode($params) . $driver);
+  }
+  $cacheFile = get_project_root("tmp/proxies/{$cacheName}.json");
+  $response  = [
     'error'           => false,
     'draw'            => $draw,
     'recordsTotal'    => $recordsTotal,
