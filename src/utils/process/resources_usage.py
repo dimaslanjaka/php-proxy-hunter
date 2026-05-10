@@ -138,18 +138,19 @@ def get_system_usage(sample_cpu_seconds: float = 0.5) -> tuple[int | None, int |
 
 
 def check_system_resources(
-    max_cpu_percent: int = 50, max_ram_percent: int = 50
+    max_cpu_percent: int = 50, max_ram_percent: int = 50, verbose: bool = False
 ) -> bool:
     cpu_usage, ram_usage = get_system_usage(sample_cpu_seconds=1.0)
 
     if cpu_usage is not None and ram_usage is not None:
         if cpu_usage <= max_cpu_percent and ram_usage <= max_ram_percent:
             return True
-        print(
-            "Skipping job due to high resource usage: "
-            f"CPU={cpu_usage}% (max {max_cpu_percent}%), "
-            f"RAM={ram_usage}% (max {max_ram_percent}%)."
-        )
+        if verbose:
+            print(
+                "Skipping job due to high resource usage: "
+                f"CPU={cpu_usage}% (max {max_cpu_percent}%), "
+                f"RAM={ram_usage}% (max {max_ram_percent}%)."
+            )
         return False
 
     # If usage cannot be determined on this platform, do not block execution.
