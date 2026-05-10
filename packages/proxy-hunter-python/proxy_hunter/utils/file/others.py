@@ -6,13 +6,16 @@ import re
 import shutil
 import string
 import tempfile
-from typing import Any, Dict, List, Optional, Set, Tuple, Union
+from pathlib import Path
+from typing import Any, Callable, Dict, List, Optional, Set, Tuple, Union
+
 from filelock import FileLock
 from filelock import Timeout as FilelockTimeout
+
 from ..ansi import remove_ansi, remove_non_ascii
-from .writer import write_file
 from ..md5 import md5
 from .folder import resolve_parent_folder
+from .writer import write_file
 
 
 def save_tuple_to_file(
@@ -190,6 +193,42 @@ def read_all_text_files(directory: str) -> Dict[str, str]:
     return text_files_content
 
 
+def get_random_file(
+    dir: Union[str, Path],
+    recursive: bool = False,
+    custom_filter: Optional[Callable[[Path], bool]] = None,
+) -> Optional[Path]:
+    """
+    Get a random file from a directory.
+
+    Args:
+        dir: Directory path.
+        recursive: Include files from subdirectories.
+        custom_filter: Callback filter function.
+                       Example: lambda f: f.suffix == ".txt"
+
+    Returns:
+        A random Path object, or None if no matching files found.
+    """
+    dir_path = Path(dir)
+
+    if not dir_path.is_dir():
+        raise ValueError(f"Not a valid directory: {dir}")
+
+    # Collect files
+    if recursive:
+        files = [f for f in dir_path.rglob("*") if f.is_file()]
+    else:
+        files = [f for f in dir_path.iterdir() if f.is_file()]
+
+    # Apply custom filter
+    if custom_filter:
+        files = [f for f in files if custom_filter(f)]
+
+    # Return random file or None
+    return random.choice(files) if files else None
+
+
 def serialize(obj):
     """Serialize an object to a dictionary."""
     if hasattr(obj, "__dict__"):
@@ -279,9 +318,10 @@ def remove_string_from_file(
         # Attempt to acquire the lock with a timeout
         with lock.acquire(timeout=10):  # Timeout after 10 seconds
             # Open the original file and the temporary file
-            with open(file_path, "r", encoding="utf-8") as file, open(
-                temp_file_path, "w", encoding="utf-8"
-            ) as temp_file:
+            with (
+                open(file_path, "r", encoding="utf-8") as file,
+                open(temp_file_path, "w", encoding="utf-8") as temp_file,
+            ):
                 for line in file:
                     # Replace all occurrences of the pattern with an empty string
                     modified_line = regex.sub("", line)
@@ -321,9 +361,10 @@ def file_remove_empty_lines(file_path: str) -> None:
     """
     temp_file = os.path.join("tmp", md5(file_path) + ".tmp")
     try:
-        with open(file_path, "r", encoding="utf-8") as f_in, open(
-            temp_file, "w", encoding="utf-8"
-        ) as f_out:
+        with (
+            open(file_path, "r", encoding="utf-8") as f_in,
+            open(temp_file, "w", encoding="utf-8") as f_out,
+        ):
             for line in f_in:
                 if line.strip():  # Check if the line is not empty
                     f_out.write(line)
@@ -354,11 +395,12 @@ def remove_duplicate_line_from_file(filename: str) -> None:
     if not os.path.exists(filename):
         return
     # Copy content to a temporary file
-    with open(
-        filename, "r", encoding="utf-8"
-    ) as original_file, tempfile.NamedTemporaryFile(
-        mode="w", encoding="utf-8", delete=False
-    ) as temp_file:
+    with (
+        open(filename, "r", encoding="utf-8") as original_file,
+        tempfile.NamedTemporaryFile(
+            mode="w", encoding="utf-8", delete=False
+        ) as temp_file,
+    ):
         lines_seen = set()  # Set to store unique lines
         for line in original_file:
             if line not in lines_seen:
