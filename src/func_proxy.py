@@ -150,71 +150,128 @@ def check_proxy_new(proxy: str):
 
 
 def get_proxies(
-    working_only: Optional[bool] = False, untested_only: Optional[bool] = False
+    working_only: bool = False,
+    untested_only: bool = False,
+    skip_last_check_filter: bool = False,
 ) -> List[Dict[str, str]]:
     """
-    Get proxies based on their status, excluding dead proxies.
+    Get proxies based on status while excluding dead/private proxies.
+
+    Args:
+        working_only:
+            Only return active proxies.
+
+        untested_only:
+            Only return untested proxies.
+
+        skip_last_check_filter:
+            Skip stale last_check validation when fetching
+            random fallback proxies.
     """
-    proxies: List[Dict[str, str]] = []
     db = ProxyDB(get_relative_path("src/database.sqlite"), True)
 
-    # Retrieve proxies from the database based on conditions
-    if untested_only or not working_only:
-        proxies.extend(db.db.select("proxies", "*", "status = ?", ["untested"]))
+    try:
+        database = db.get_db()
 
-    if working_only or not untested_only:
-        proxies.extend(db.db.select("proxies", "*", "status = ?", ["active"]))
+        proxies: list[dict[str, str]] = []
 
-    # Read proxies from files if no specific filtering is requested
-    if not working_only and not untested_only:
-        files_content = read_all_text_files(get_relative_path("assets/proxies"))
-        proxy_file_path = get_relative_path("proxies.txt")
-        if os.path.exists(proxy_file_path):
-            files_content[proxy_file_path] = str(read_file(proxy_file_path))
+        append = proxies.extend
 
-        for file_path, content in files_content.items():
-            extracted_proxies = db.extract_proxies(content, True)
-            print(
-                f"Total proxies extracted from {file_path} is {len(extracted_proxies)}"
-            )
-            proxies.extend([item.to_dict() for item in extracted_proxies])
+        select = database.select
 
-        # Ensure a minimum number of proxies is collected
-        if len(proxies) < 100:
-            proxies.extend(db.db.select("proxies", "*", "status = ?", ["active"], True))
-        if len(proxies) < 100:
-            proxies.extend(
-                db.db.select("proxies", "*", "status = ?", ["untested"], True)
-            )
+        # =====================================================
+        # Database selection
+        # =====================================================
 
-        # Fetch proxies checked more than 1 hour ago
-        if len(proxies) < 100:
-            all_proxies = db.db.select("proxies", "*", rand=True)
-            proxies.extend(
-                [
+        if untested_only or not working_only:
+            append(select("proxies", "*", "status = ?", ["untested"]))
+
+        if working_only or not untested_only:
+            append(select("proxies", "*", "status = ?", ["active"]))
+
+        # =====================================================
+        # File extraction
+        # =====================================================
+
+        if not working_only and not untested_only:
+            files_content = read_all_text_files(get_relative_path("assets/proxies"))
+
+            proxy_file_path = get_relative_path("proxies.txt")
+
+            if os.path.exists(proxy_file_path):
+                files_content[proxy_file_path] = str(read_file(proxy_file_path))
+
+            for file_path, content in files_content.items():
+                extracted = db.extract_proxies(content, True)
+
+                total = len(extracted)
+
+                print(f"Total proxies extracted from {file_path} is {total}")
+
+                if total:
+                    append(item.to_dict() for item in extracted)
+
+            # =================================================
+            # Ensure minimum proxies
+            # =================================================
+
+            if len(proxies) < 100:
+                append(select("proxies", "*", "status = ?", ["active"], True))
+
+            if len(proxies) < 100:
+                append(select("proxies", "*", "status = ?", ["untested"], True))
+
+            # =================================================
+            # Re-check stale proxies
+            # =================================================
+
+            if len(proxies) < 100:
+                append(
                     item
-                    for item in all_proxies
-                    if is_date_rfc3339_hour_more_than(item.get("last_check"), 1)
-                    and item.get("proxy")
-                ]
-            )
+                    for item in select("proxies", "*", rand=True)
+                    if item.get("proxy")
+                    and (
+                        skip_last_check_filter
+                        or is_date_rfc3339_hour_more_than(
+                            item.get("last_check"),
+                            1,
+                        )
+                    )
+                )
 
-    # Filter out private or dead proxies and remove duplicates
-    proxies = [proxy for proxy in proxies if not is_private_or_dead(proxy)]
-    proxies = get_unique_dicts_by_key_in_list(proxies, "proxy")
+        # =====================================================
+        # Deduplicate + filtering
+        # =====================================================
 
-    # Close the database
-    db.close()
+        seen: set[str] = set()
 
-    # Log if no proxies found, else shuffle
-    if not proxies:
-        log_proxy("proxies empty")
-        file, line = get_caller_info()
-        debug_log(f"Called from file '{file}', line {line}")
-        return []
+        filtered: list[dict[str, str]] = []
 
-    random.shuffle(proxies)
-    return proxies
+        for proxy in proxies:
+            proxy_value = proxy.get("proxy")
+
+            if not proxy_value or proxy_value in seen or is_private_or_dead(proxy):
+                continue
+
+            seen.add(proxy_value)
+
+            filtered.append(proxy)
+
+        if not filtered:
+            log_proxy("proxies empty")
+
+            file, line = get_caller_info()
+
+            debug_log(f"Called from file '{file}', line {line}")
+
+            return []
+
+        random.shuffle(filtered)
+
+        return filtered
+
+    finally:
+        db.close()
 
 
 def is_proxy_recently_checked(proxy: Dict[str, Union[None, str]]):
