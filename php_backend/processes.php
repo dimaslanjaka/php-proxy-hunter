@@ -2,11 +2,14 @@
 
 require_once __DIR__ . '/shared.php';
 
+use PhpProxyHunter\AnsiColors;
 use PhpProxyHunter\Server;
 
 $isAdmin     = is_admin();
 $proxy_db    = refreshDbConnections()['proxy_db'] ?? null;
 $projectRoot = dirname(__DIR__);
+$request     = parseQueryOrPostBody();
+$useColor    = isset($request['color']);
 
 function format_bytes(float $bytes): string {
   if ($bytes < 1024) {
@@ -23,6 +26,35 @@ function format_bytes(float $bytes): string {
   }
 
   return rtrim(rtrim(number_format($value, 2), '0'), '.') . ' TB';
+}
+
+function format_ram_usage(float $bytes, ?float $totalBytes): string {
+  global $useColor;
+
+  $formattedBytes = format_bytes($bytes);
+
+  if ($totalBytes === null || $totalBytes <= 0) {
+    return $formattedBytes;
+  }
+
+  $percent     = ($bytes / $totalBytes) * 100;
+  $percentText = number_format($percent, 1) . '%';
+
+  if ($useColor) {
+    $percentText = AnsiColors::meter((int)round($percent));
+  }
+
+  return $percentText . ' (' . $formattedBytes . ')';
+}
+
+function format_cpu_usage(float $percent): string {
+  global $useColor;
+
+  if ($useColor) {
+    return AnsiColors::meter((int)round($percent));
+  }
+
+  return number_format($percent, 1) . '%';
 }
 
 Server::allowCors(true);
@@ -119,9 +151,14 @@ if ($isWin) {
 $processes = array_filter($processes, function ($proc) use ($userId) {
   return strpos($proc['command'], $userId) !== false;
 });
+$ram      = getTotalRAM();
+$ramBytes = is_numeric($ram) ? (float)$ram : null;
+$totalRAM = round($ram / 1024 / 1024 / 1024, 2) . ' GB';
 
 if (empty($processes)) {
   echo "No running PHP/Python processes found for user ID: $userId" . PHP_EOL;
+  echo 'Total RAM: ' . $totalRAM . PHP_EOL;
+
   // Define lock file paths with comments preserved
   $lockFiles = [
     // php_backend/proxy-checker.php lock file
@@ -136,13 +173,42 @@ if (empty($processes)) {
   }
 } else {
   echo 'Found ' . count($processes) . " running PHP/Python processes for user ID: $userId" . PHP_EOL;
+  echo 'Total RAM: ' . $totalRAM . PHP_EOL;
+
   echo str_repeat('=', 50) . PHP_EOL;
   foreach ($processes as $proc) {
     if ($isWin) {
-      echo "PID: {$proc['pid']}, PPID: {$proc['ppid']}, CPU: " . number_format((float)$proc['cpu_percent'], 1) . '%, RAM: ' . format_bytes((float)$proc['ram_bytes']) . ", Command: {$proc['command']}" . PHP_EOL;
+      echo "PID: {$proc['pid']}, PPID: {$proc['ppid']}, CPU: " . format_cpu_usage((float)$proc['cpu_percent']) . ', RAM: ' . format_ram_usage((float)$proc['ram_bytes'], $ramBytes) . ", Command: {$proc['command']}" . PHP_EOL;
       continue;
     }
 
-    echo "PID: {$proc['pid']}, PPID: {$proc['ppid']}, CPU: " . number_format((float)$proc['cpu_percent'], 1) . '%, RAM: ' . format_bytes((float)$proc['ram_bytes']) . ' (' . number_format((float)$proc['memory_percent'], 1) . "%), Command: {$proc['command']}" . PHP_EOL;
+    echo "PID: {$proc['pid']}, PPID: {$proc['ppid']}, CPU: " . format_cpu_usage((float)$proc['cpu_percent']) . ', RAM: ' . format_ram_usage((float)$proc['ram_bytes'], $ramBytes) . ", Command: {$proc['command']}" . PHP_EOL;
   }
+}
+
+function getTotalRAM() {
+  $os = PHP_OS_FAMILY;
+
+  // Linux / Unix-like systems
+  if ($os === 'Linux' || $os === 'Darwin') {
+    $meminfo = file_get_contents('/proc/meminfo');
+
+    if (preg_match('/MemTotal:\s+(\d+)\s+kB/', $meminfo, $matches)) {
+      return (int)$matches[1] * 1024; // bytes
+    }
+  }
+
+  // Windows
+  if ($os === 'Windows') {
+    $output = [];
+    @exec('wmic ComputerSystem get TotalPhysicalMemory', $output);
+
+    foreach ($output as $line) {
+      if (is_numeric(trim($line))) {
+        return (int)trim($line); // bytes
+      }
+    }
+  }
+
+  return null; // unknown
 }

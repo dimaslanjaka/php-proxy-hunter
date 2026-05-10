@@ -149,4 +149,34 @@ class AnsiColors
 
     return $clean;
   }
+
+  /**
+   * Color meter (0–100) from green → yellow → red.
+   * If $inverse = true, direction becomes red → yellow → green.
+   *
+   * @param int $value 0–100
+   * @param bool $inverse reverse gradient
+   * @return string colored value
+   */
+  public static function meter($value, $inverse = false) {
+    $value = max(0, min(100, $value));
+
+    // Normalize (0–1)
+    $t = $value / 100;
+
+    if ($inverse) {
+      $t = 1 - $t;
+    }
+
+    // ANSI color mapping (simple 3-step gradient)
+    if ($t < 0.5) {
+      // green → yellow
+      $color = ($t < 0.25) ? 'green' : 'yellow';
+    } else {
+      // yellow → red
+      $color = 'red';
+    }
+
+    return self::colorize($color, $value . '%');
+  }
 }

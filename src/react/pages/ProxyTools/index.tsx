@@ -3,6 +3,7 @@ import { Routes, Route, NavLink, Navigate } from 'react-router-dom';
 import ProxySubmission from '../ProxyList/ProxySubmission';
 import ProxyExtractor from '../ProxyList/ProxyExtractor';
 import LogViewer from '../ProxyList/LogViewer';
+import ProcessMonitor from '../../components/ProcessMonitor';
 
 export default function ProxyToolsRouter() {
   return (
@@ -70,6 +71,7 @@ export default function ProxyToolsRouter() {
           element={
             <>
               <ProxySubmission />
+              <ProcessMonitor />
               <LogViewer />
             </>
           }
