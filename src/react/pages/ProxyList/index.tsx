@@ -7,19 +7,29 @@ import AdSense from '../../components/AdSense';
 import { NavLink } from 'react-router-dom';
 import UniqueIpList from './UniqueIpList';
 import Summary from './Summary';
+import WorkingJson from './WorkingJson';
 
 export default function ProxyList() {
   const { t } = useTranslation();
   const [recaptchaOpen, setRecaptchaOpen] = React.useState(false);
 
-  const [listTab, setListTab] = React.useState<'server' | 'unique-ip'>(() => {
+  const [listTab, setListTab] = React.useState<'server' | 'unique-ip' | 'working-json'>(() => {
     const saved = localStorage.getItem('proxyList_listTab');
-    return saved === 'unique-ip' ? 'unique-ip' : 'server';
+    return saved === 'unique-ip' || saved === 'working-json' ? saved : 'working-json';
   });
 
   React.useEffect(() => {
     localStorage.setItem('proxyList_listTab', listTab);
   }, [listTab]);
+
+  let listTabContent: React.ReactNode;
+  if (listTab === 'server') {
+    listTabContent = <ServerSide />;
+  } else if (listTab === 'unique-ip') {
+    listTabContent = <UniqueIpList />;
+  } else {
+    listTabContent = <WorkingJson />;
+  }
 
   return (
     <div className="mx-2">
@@ -70,6 +80,18 @@ export default function ProxyList() {
         <div className="inline-flex items-center rounded-lg border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-900 p-1 gap-1">
           <button
             type="button"
+            onClick={() => setListTab('working-json')}
+            className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
+              listTab === 'working-json'
+                ? 'bg-emerald-700 text-white'
+                : 'text-gray-700 dark:text-gray-200 hover:bg-gray-100 dark:hover:bg-gray-800'
+            }`}>
+            <i className="fa-duotone fa-file-code mr-2" aria-hidden="true" />
+            Working JSON
+          </button>
+
+          <button
+            type="button"
             onClick={() => setListTab('server')}
             className={`px-3 py-2 rounded-md text-sm font-medium transition-colors ${
               listTab === 'server'
@@ -94,7 +116,7 @@ export default function ProxyList() {
         </div>
       </div>
 
-      {listTab === 'server' ? <ServerSide /> : <UniqueIpList />}
+      {listTabContent}
 
       {/* Proxy counters summary */}
       <div className="my-4">
