@@ -1,5 +1,31 @@
 [
   {
+    "hash": "ff149d7fbff580638625323043f5db3f7b3ef8f0",
+    "date": "2026-05-10T13:22:27+07:00",
+    "message": "refactor(crontab): consolidate periodic jobs into run_commands pipeline\n\n- Replace multiple run_command_with_logging calls with run_commands batch execution\n- Group proxy and filter tasks into a single background job sequence\n- Redirect logs via command arguments for unified script-based handling\n- Update 1-hour job to use shared execution pipeline with cwd support\n- Adjust 24-hour job condition to use dedicated state key (daily-tasks)\n- Improve scheduling structure by reducing repeated gc/command blocks",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
+    "hash": "4cafba18cffb7bd8140be922f91165e7580d12e5",
+    "date": "2026-05-10T13:20:35+07:00",
+    "message": "refactor(process): replace per-command execution with script-based runner\n\n- Introduce temporary .bat/.sh script generation for command batches\n- Replace multiple subprocess.Popen calls with single script execution\n- Improve cross-platform behavior (Windows batch vs Bash script)\n- Ensure sequential execution is handled by shell script instead of Python\n- Simplify background vs foreground handling using single process wait model",
+    "files": [
+      "src/utils/process/run_commands.py"
+    ]
+  },
+  {
+    "hash": "a4475ca84d8334e4268964b3977d186dba55928d",
+    "date": "2026-05-10T13:02:06+07:00",
+    "message": "feat(process): add run_commands module and export process utilities\n\n- Introduce new run_commands module for executing multiple commands sequentially\n- Support background execution with silent subprocess handling (DEVNULL streams)\n- Support foreground execution with live stdout/stderr streaming\n- Add Windows-safe process creation using CREATE_NEW_PROCESS_GROUP\n- Export run_commands and run_command_with_logging from process package\n- Add usage examples for both background and foreground execution modes\n- Minor import cleanup and md5 import addition in spawn utilities",
+    "files": [
+      "src/utils/process/__init__.py",
+      "src/utils/process/run_commands.py",
+      "src/utils/process/spawn.py"
+    ]
+  },
+  {
     "hash": "b80959a79f4d3bea1f1ad9f7630a06b714cf9480",
     "date": "2026-05-10T12:25:53+07:00",
     "message": "feat(resources): add verbose option to check_system_resources for detailed logging",
@@ -8768,35 +8794,6 @@
     "message": "fix(logs): restrict log path visibility to admins only",
     "files": [
       "php_backend/logs.php"
-    ]
-  },
-  {
-    "hash": "80ae6a1f9cbe97ca61f9e496d03a57c5cb3ddaeb",
-    "date": "2025-11-22T04:30:29+07:00",
-    "message": "refactor(checker): standardize log filenames to .txt and simplify shared helpers\n\n- Use `.txt` for output log files instead of `.out` (php_backend/check-http-proxy.php, check-https-proxy.php).\n- Normalize hash filename format (use \"$currentScriptFilename/$user\" and \"$currentScriptFilename/cli.txt\" fallback).\n- Use `$hashFilename` directly for log labels (remove string replace on `$currentScriptFilename`).\n- Adjust globals in check functions to remove unused `$currentScriptFilename`.\n- Simplify `checker-runner.php` helpers (streamline `get_log_file_shared` / `_log_shared` implementations; remove extra wrapper guards and minor formatting).\n- No changes to the proxy-checking algorithms; this is a maintenance/refactor change.\n\nNote: Update any external tooling or scripts that expect the old `.out` log filenames or the previous hash format (`-` style) if necessary. No breaking API changes expected.",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php",
-      "php_backend/checker-runner.php"
-    ]
-  },
-  {
-    "hash": "15c4db2278df4c18dd1afe38b962fa284c4ca199",
-    "date": "2025-11-22T04:29:02+07:00",
-    "message": "fix(logs): use read_file and improve missing/unreadable log diagnostics\n\n- Replace suppressed `@file_get_contents()` with `read_file()` for consistent file access and better error handling.\n- Print clearer messages when logs are missing or unreadable and include the log file path to aid debugging.\n- Normalize message punctuation for consistency.\n\nNo breaking changes.",
-    "files": [
-      "php_backend/logs.php"
-    ]
-  },
-  {
-    "hash": "e881224c620918050db9586b9d941803694a8a3d",
-    "date": "2025-11-22T04:14:12+07:00",
-    "message": "feat(checker): extract shared checker-runner + add HTTP log viewer\n\n- Add: php_backend/checker-runner.php\n  - get_log_file_shared(string $hashFilename)\n  - _log_shared(string $hashFilename, ...$args)\n  - load_proxies_for_mode($file, $proxy, $mode, $proxy_db)\n- Update: php_backend/check-http-proxy.php\n  - require checker-runner, replace local get_log_file/_log with shared helpers\n  - use load_proxies_for_mode('http', ...)\n  - use get_log_file_shared/_log_shared\n- Update: php_backend/check-https-proxy.php\n  - require checker-runner, replace local get_log_file/_log with shared helpers\n  - use load_proxies_for_mode('https', ...)\n  - use get_log_file_shared/_log_shared\n- Update: src/react/pages/ProxyList/LogViewer.tsx\n  - change log fetch path to use `check-*-proxy/{hash}`\n  - add HTTP tab, polling, and fetchHttpProxyCheckerResult()\n\nBREAKING CHANGE: log URL/hash format changed from `check-*-proxy-<hash>` to `check-*-proxy/<hash>`. Update any external callers or integrations that rely on the old path.",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php",
-      "php_backend/checker-runner.php",
-      "src/react/pages/ProxyList/LogViewer.tsx"
     ]
   }
 ]
