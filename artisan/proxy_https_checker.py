@@ -222,7 +222,7 @@ async def _worker_check(
                         "status": "active",
                         "type": proto,
                         "https": "true",
-                        "last_checked": get_current_rfc3339_time(),
+                        "last_check": get_current_rfc3339_time(),
                     },
                 )
             except Exception as e:
@@ -241,10 +241,10 @@ async def main(args):
         for row in rows:
             if row.get("https", "").lower() == "true":
                 continue
-            last_checked = row.get("last_checked", "")
-            if not last_checked:
+            last_check = row.get("last_check", "")
+            if not last_check:
                 filtered.append(row)
-            if is_date_rfc3339_older_than(last_checked, hours=24):
+            if is_date_rfc3339_older_than(last_check, hours=24):
                 continue
         return filtered
 
