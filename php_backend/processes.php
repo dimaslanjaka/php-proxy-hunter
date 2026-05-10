@@ -4,9 +4,8 @@ require_once __DIR__ . '/shared.php';
 
 use PhpProxyHunter\Server;
 
-global $proxy_db;
-$isAdmin = is_admin();
-
+$isAdmin     = is_admin();
+$proxy_db    = refreshDbConnections()['proxy_db'] ?? null;
 $projectRoot = dirname(__DIR__);
 
 Server::allowCors(true);
