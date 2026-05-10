@@ -292,14 +292,8 @@ if should_run_job(
     skip_resource_checking=True,
 ):
     echo_skip_or_run("Proxy Collectors", True)
-
     run_command_with_logging(
-        [PYTHON_BIN, "artisan/proxyCollector2.py", "--batch-size=500", "--shuffle"],
-        log_file=CRONTAB_LOG_DIR / "proxyCollector2.log",
-    )
-
-    run_command_with_logging(
-        [PYTHON_BIN, "artisan/proxyCollector.py", "--batch-size=500", "--shuffle"],
+        [PYTHON_BIN, "artisan/proxyCollector.py"],
         log_file=CRONTAB_LOG_DIR / "proxyCollector.log",
     )
 
@@ -378,3 +372,28 @@ if should_run_job(
             stderr=subprocess.STDOUT,
             text=True,
         )
+
+gc.collect()
+
+if should_run_job(
+    "12-h", file_path=CRONTAB_STATE_DIR / "sqlite-wal-checkpoint", ensure_run_daily=True
+):
+    echo_skip_or_run("SQLite WAL checkpoint", True)
+
+    run_command_with_logging(
+        [
+            "sqlite3",
+            str(CWD / "tmp/database.sqlite"),
+            "PRAGMA wal_checkpoint(TRUNCATE);",
+        ],
+        log_file=CRONTAB_LOG_DIR / "sqlite-wal-tmp.log",
+    )
+
+    run_command_with_logging(
+        [
+            "sqlite3",
+            str(CWD / "src/database.sqlite"),
+            "PRAGMA wal_checkpoint(TRUNCATE);",
+        ],
+        log_file=CRONTAB_LOG_DIR / "sqlite-wal-src.log",
+    )
