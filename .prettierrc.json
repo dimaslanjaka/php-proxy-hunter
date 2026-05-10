@@ -25,5 +25,11 @@
       }
     }
   ],
-  "plugins": ["prettier-plugin-embed", "prettier-plugin-sql", "prettier-plugin-twig", "prettier-plugin-sh"]
+  "plugins": [
+    "prettier-plugin-embed",
+    "prettier-plugin-sql",
+    "prettier-plugin-twig",
+    "prettier-plugin-sh",
+    "@prettier/plugin-xml"
+  ]
 }
