@@ -112,16 +112,11 @@ class Job(TypedDict):
 class CronJob:
     name: str
     interval: str
-
     commands: list[Job] = field(default_factory=list)
-
     callback: Callable[[], None] | None = None
-
     file_path: Path | None = None
-
     ensure_run_daily: bool = False
     skip_resource_checking: bool = False
-
     max_cpu_percent: int = 50
     max_ram_percent: int = 50
 
@@ -387,6 +382,7 @@ CRON_JOBS: list[CronJob] = [
     CronJob(
         name="Blacklist Cleanup",
         interval="5-m",
+        ensure_run_daily=True,
         commands=[
             {
                 "log_file": (CRONTAB_LOG_DIR / "cleanup-blacklist.log"),
@@ -400,6 +396,7 @@ CRON_JOBS: list[CronJob] = [
     CronJob(
         name="30 minutes",
         interval="30-m",
+        ensure_run_daily=True,
         commands=[
             {
                 "log_file": (CRONTAB_LOG_DIR / "geoip.log"),
@@ -479,6 +476,7 @@ CRON_JOBS: list[CronJob] = [
     CronJob(
         name="Daily Backup",
         interval="1-d",
+        ensure_run_daily=True,
         commands=[
             {
                 "log_file": (CRONTAB_LOG_DIR / "daily-backup.log"),
