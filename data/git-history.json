@@ -1,5 +1,131 @@
 [
   {
+    "hash": "59993a05082fcf45722abf079ace2e7056907f4f",
+    "date": "2026-05-11T06:42:46+07:00",
+    "message": "feat(proxy-tools): add live process monitor with colored usage meters\n\nAdd ANSI meter formatting for CPU and RAM usage in php_backend/processes.php, expose the monitor in Proxy Tools, and add a reusable React component to fetch and display the current process list.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "php_backend/processes.php",
+      "src/PhpProxyHunter/AnsiColors.php",
+      "src/react/components/ProcessMonitor.tsx",
+      "src/react/pages/ProxyTools/index.tsx"
+    ]
+  },
+  {
+    "hash": "84e8f11bbeb5363bc0a0338e62401d730c525483",
+    "date": "2026-05-11T06:24:59+07:00",
+    "message": "feat(processes): display CPU and RAM usage per process\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "php_backend/processes.php"
+    ]
+  },
+  {
+    "hash": "f0824bddaafc97a2c84006466d09920ad04cda9d",
+    "date": "2026-05-11T06:20:33+07:00",
+    "message": "fix(processes): remove per-session rate limiting for non-admin users",
+    "files": [
+      "php_backend/processes.php"
+    ]
+  },
+  {
+    "hash": "0f7f1625f4a481731310afb5330b74376985a35f",
+    "date": "2026-05-11T06:13:41+07:00",
+    "message": "feat(proxy-list): add Tun2Socks column and normalize latency/tun2socks display\n\n- Add `normalizeTun2SocksValue` and `normalizeLatencyValue` helpers.\n- Exclude `tun2socks` from dynamic column list and render a dedicated Tun2Socks column (percentage bar) after the latency column.\n- Treat empty strings, `-`, and `N/A` as missing for both fields; display `-` for missing or zero latency and append `ms` only for positive numeric latency.\n- Update empty-state `colSpan` to account for the new column.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/react/pages/ProxyList/WorkingJson.tsx"
+    ]
+  },
+  {
+    "hash": "314cd4c9ccbe67224c69e6e42e78d966cd613f8f",
+    "date": "2026-05-11T06:12:01+07:00",
+    "message": "fix(proxyWorking): use hash-based upload markers and avoid mutating proxy list\n\nUse MD5-hashed filenames for upload marker files to avoid invalid path\ncharacters (e.g. \":\" and \"@\") on Windows and other platforms. Stop\nmutating `proxyList` during iteration by collecting `pending_proxies`\nand uploading that list instead. Also add safe marker-writing checks so\nmarker files are only written when path and data exist.\n\n- Replace temp marker path construction with hash-based names.\n- Replace in-loop removal with a separate `pending_proxies` collection.\n- Only write marker files when both path and data are present.\n\nNo behavior changes to upload semantics beyond making the flow robust.fix(proxyWorking): use hash-based upload markers and avoid mutating proxy list\n\nUse MD5-hashed filenames for upload marker files to avoid invalid path\ncharacters (e.g. \":\" and \"@\") on Windows and other platforms. Stop\nmutating `proxyList` during iteration by collecting `pending_proxies`\nand uploading that list instead. Also add safe marker-writing checks so\nmarker files are only written when path and data exist.\n\n- Replace temp marker path construction with hash-based names.\n- Replace in-loop removal with a separate `pending_proxies` collection.\n- Only write marker files when both path and data are present.\n\nNo behavior changes to upload semantics beyond making the flow robust.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "proxyWorking.py"
+    ]
+  },
+  {
+    "hash": "61dbe9854ffd384de6bf5c419c25361928bf3300",
+    "date": "2026-05-11T06:01:26+07:00",
+    "message": "style(proxy-list): refactor proxy list pages to gradient card layouts\n\nUpdate ServerSide and WorkingJson to use layered gradient shells with new color accents, and add rose/primary palette entries to Tailwind for the refreshed UI.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx",
+      "src/react/pages/ProxyList/WorkingJson.tsx",
+      "tailwind.config.js"
+    ]
+  },
+  {
+    "hash": "60abeeb247af6f6eba43f40a25c2e959ff335c2c",
+    "date": "2026-05-11T05:50:09+07:00",
+    "message": "fix(processes): initialize proxy_db variable correctly in processes.php",
+    "files": [
+      "php_backend/processes.php"
+    ]
+  },
+  {
+    "hash": "e80d1b6a99beb3c72b90bf35136177ce72eebfeb",
+    "date": "2026-05-11T05:48:58+07:00",
+    "message": "fix(processes): enhance rate limiting by excluding debug devices",
+    "files": [
+      "php_backend/processes.php"
+    ]
+  },
+  {
+    "hash": "ee702e48a511870f2c38abc60daa0cefbc29d2ce",
+    "date": "2026-05-11T05:48:11+07:00",
+    "message": "feat(proxy-list): add Working JSON tab and refactor tab rendering logic\n\n- introduce new \"working-json\" tab in ProxyList\n- persist working-json as default/valid tab in localStorage state\n- add WorkingJson component and corresponding tab button UI\n- refactor conditional rendering into listTabContent variable for clarity\n- update tab rendering logic to include server, unique-ip, and working-json views\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
+    "hash": "1781e08d27df90a49d79333fde93d73ce9b0cbed",
+    "date": "2026-05-11T05:47:06+07:00",
+    "message": "fix(proxy_https_checker): simplify error message format in proxy check",
+    "files": [
+      "artisan/proxy_https_checker.py"
+    ]
+  },
+  {
+    "hash": "d531ff1b85a674f590f639a9d1a01f2b9a3faa08",
+    "date": "2026-05-11T05:44:54+07:00",
+    "message": "refactor(proxy-list): streamline proxy refresh flow and remove unused background jobs/UI\n\n- make proxyWorking.php refresh non-blocking and explicitly ignore errors\n- add cache-busting hash (Date.now) to working.json fetch to avoid stale responses\n- remove background calls to processes.php and proxyCheckerStarter.php\n- remove localStorage-based proxy check scheduling logic\n- remove ModifyCurl section from WorkingJson page\n- clean up unused imports and reorder utility imports for consistency",
+    "files": [
+      "src/react/pages/ProxyList/WorkingJson.tsx"
+    ]
+  },
+  {
+    "hash": "bb67163fa6dc59403cc813a7805552cab840a31b",
+    "date": "2026-05-11T05:33:49+07:00",
+    "message": "feat(proxy-list): allow request-provided cache hash for proxy list caching\n\n- introduce optional `request['hash']` to override generated cache key\n- fallback to md5(sql + params + driver) when no hash is provided\n- update cache file naming to use resolved cache name",
+    "files": [
+      "php_backend/proxy-list.php"
+    ]
+  },
+  {
+    "hash": "43775aa5264e54825321c597296b9c873360da07",
+    "date": "2026-05-11T05:32:22+07:00",
+    "message": "feat(mcp): add Ollama AI MCP server integration\n\n- add `mcp-server/ollama.js` implementing MCP tool for chatting with local Ollama (llama3 via OpenAI-compatible API)\n- register new `ollama-ai` MCP server in `.vscode/mcp.json`\n- add `OLLAMA_API_KEY` to `.env.example`\n- extend PATH in `.vscode/settings.json` and `cmd-here.bat` to include Ollama installation directory",
+    "files": [
+      ".env.example",
+      ".vscode/mcp.json",
+      ".vscode/settings.json",
+      "cmd-here.bat",
+      "mcp-server/ollama.js"
+    ]
+  },
+  {
+    "hash": "60f4130f47b634ffea23aeb4b5f545e1351d91a0",
+    "date": "2026-05-11T05:02:25+07:00",
+    "message": "feat(mcp): add NVIDIA AI MCP server integration with Copilot support\n\n- add MCP stdio server implementation for Copilot tool integration\n- implement JSON-RPC lifecycle (initialize, tools/list, tools/call)\n- add NVIDIA DeepSeek API integration via OpenAI-compatible SDK\n- introduce chat tool for LLM inference through MCP\n- add MCP-safe stdout/stderr separation for protocol stability\n- add local MCP test harness for tool execution validation\n- enable VS Code MCP configuration via .vscode/mcp.json\n- update VS Code settings to enable MCP discovery and access\n- add NVIDIA API key support via environment configuration\n- update dependency list to include OpenAI SDK\n\nfix(mcp): ensure Copilot MCP compatibility and initialization flow\n\n- implement proper MCP initialization handshake with Copilot\n- add notifications/initialized support for MCP lifecycle stability\n- enforce JSON-RPC validation for incoming requests\n- improve tool argument validation and error handling\n- prevent MCP startup loop caused by missing initialization response\n\nchore(vscode): enable MCP discovery and Copilot chat integrations\n\n- enable MCP apps and gallery features in VS Code settings\n- configure MCP access permissions for workspace tools\n- adjust TypeScript checkJs setting for performance optimization\n\ndocs(env): add NVIDIA API key configuration support\n\n- extend .env.example with NVIDIA_API_KEY documentation\n- reference NVIDIA DeepSeek API provider setup\n\ntest(mcp): add local MCP tool execution test script\n\n- add child_process-based MCP server test harness\n- validate chat tool execution via stdin/stdout pipeline\n- ensure JSON-RPC response handling works correctly",
+    "files": [
+      ".env.example",
+      ".vscode/mcp.json",
+      ".vscode/settings.json",
+      "mcp-server/index.js",
+      "mcp-server/test.js",
+      "package.json"
+    ]
+  },
+  {
     "hash": "aafec390705d4f490b0ad3ce9e0b2139a3dfb830",
     "date": "2026-05-10T13:37:31+07:00",
     "message": "feat(proxyCollector): add clean_invalid_proxies function to remove invalid proxies",
@@ -8663,137 +8789,6 @@
     "message": "fix(executables): avoid caret escapes on Windows by quoting executables\n\nWhen escaping executable paths for shell use, `escapeshellcmd` on Windows can\ninsert caret (`^`) characters which corrupt paths like\n`C:\\xampp\\php\\php.exe` (becoming `C:^\\xampp^\\php^\\php.exe`). Change the\nbehavior of `getPhpExecutable` and `getPythonExecutable` to return a safely\ndouble-quoted path on Windows when escaping is requested, and fall back to\n`escapeshellcmd` on non-Windows platforms.\n\nThis preserves correct quoting for `cmd.exe` while keeping existing escaping",
     "files": [
       "src/utils/process/executables.php"
-    ]
-  },
-  {
-    "hash": "a531294936a1091558a45183bda82667065ca776",
-    "date": "2025-11-22T13:11:23+07:00",
-    "message": "fix(proxy): ensure proxy check function returns a confirmation message",
-    "files": [
-      "src/react/pages/ProxyList/index.tsx",
-      "src/react/utils/proxy.ts"
-    ]
-  },
-  {
-    "hash": "ec3cc0a51305bf8714fe5e4f667d0a98a3a32102",
-    "date": "2025-11-22T13:10:11+07:00",
-    "message": "chore(proxy): remove php_backend/proxy-checker.php and update React UI\n\n- delete: remove backend script `php_backend/proxy-checker.php`\n  - removes server-side proxy checking, log/status endpoints and related helper functions\n  - removes background runner/lock/pid logic and proxyChecker implementation\n\n- refactor(react/proxy-list): update LogViewer and recheck flow\n  - `src/react/pages/ProxyList/LogViewer.tsx`: remove \"Checker Log\" tab and reset action that referenced the deleted backend; keep HTTPS/HTTP log polling via `php_backend/logs.php`\n  - `src/react/pages/ProxyList/index.tsx`: replace direct fetch to `/php_backend/proxy-checker.php` with `checkProxy` utility call\n  - update `getUserProxyLogUrl()` to point to `php_backend/logs.php` for compatibility\n\nNotes:\n- This change removes the old PHP-based proxy-checker; ensure any clients or external scripts are migrated to the new `checkProxy` interface or alternate backend.\n- Update docs and API usage references if necessary.",
-    "files": [
-      "php_backend/proxy-checker.php",
-      "src/react/pages/ProxyList/LogViewer.tsx",
-      "src/react/pages/ProxyList/index.tsx"
-    ]
-  },
-  {
-    "hash": "12ba05967ed519a7eb4cc2dceec30f5cbb613fe7",
-    "date": "2025-11-22T10:24:31+07:00",
-    "message": "refactor(proxy): update toObject return type and add format method for proxy string representation",
-    "files": [
-      "src/proxy/ProxyData.js"
-    ]
-  },
-  {
-    "hash": "3274505dc26b4310486349739b27840ed7dfd0f4",
-    "date": "2025-11-22T10:23:31+07:00",
-    "message": "refactor(proxy): return ProxyData[] from extractProxies and update call sites\n\n- import ProxyData and change `extractProxies` to return an array of `ProxyData` instances\n- improve JSDoc for `extractProxies` to document returned fields and supported formats\n- update `extractProxiesToObject` to consume `ProxyData` instances\n- update call sites to handle new shape:\n  - `src/proxy/hunter.js` — map returned ProxyData to `.proxy` for file I/O\n  - `src/react/pages/ProxyList/ProxySubmission.tsx` — accept/normalize ProxyData objects\n  - `src/react/utils/proxy.ts` — map ProxyData -> proxy string for checks\n  - `tests/proxy/ProxyChecker.direct.js`, `tests/proxy/portOpen.direct.js` — use `.proxy`/normalize before checks\n- keep deduplication and credential-priority behavior\n\nBREAKING CHANGE: `extractProxies` previously returned `string[]` (ip:port strings). It now returns `ProxyData[]`. Callers must read the `proxy` field (ip:port) or adapt to the new object shape.",
-    "files": [
-      "src/proxy/extractor.js",
-      "src/proxy/hunter.js",
-      "src/react/pages/ProxyList/ProxySubmission.tsx",
-      "tests/proxy/ProxyChecker.direct.js",
-      "tests/proxy/portOpen.direct.js"
-    ]
-  },
-  {
-    "hash": "295cc1e82c2dbbca79611009af574afa21b71cf5",
-    "date": "2025-11-22T07:35:33+07:00",
-    "message": "fix(proxy): update handleRecheck to send JSON body instead of URL-encoded string",
-    "files": [
-      "src/react/pages/ProxyList/index.tsx"
-    ]
-  },
-  {
-    "hash": "28edf138f2256c6ecb57a8ee233ef6f54e4f29a3",
-    "date": "2025-11-22T07:30:42+07:00",
-    "message": "refactor(proxy): move proxy checking logic to utility function\n\n- Removed inline _checkProxy and _checkProxy2 functions from ProxySubmission.tsx\n- Added checkProxy function in src/react/utils/proxy.ts\n- Updated ProxySubmission to use checkProxy utility for re-checking proxies\n- Simplifies code and centralizes proxy checking logic",
-    "files": [
-      "src/react/pages/ProxyList/ProxySubmission.tsx",
-      "src/react/utils/proxy.ts"
-    ]
-  },
-  {
-    "hash": "0fe00f09714dbc7feff5b300fea44dbf32a0b929",
-    "date": "2025-11-22T07:16:33+07:00",
-    "message": "fix: dont treat as dead when SSL test failed",
-    "files": [
-      "php_backend/proxy-checker.php"
-    ]
-  },
-  {
-    "hash": "b4fa54ddf4847655779b4aab42bef0188f8895d5",
-    "date": "2025-11-22T07:09:33+07:00",
-    "message": "refactor(proxy-checker): rename ProxyChecker1 to ProxyCheckerPublicIP",
-    "files": [
-      "php_backend/proxy-checker.php",
-      "src/PhpProxyHunter/Checker/ProxyChecker-test.php",
-      "src/PhpProxyHunter/Checker/ProxyCheckerPublicIP.php"
-    ]
-  },
-  {
-    "hash": "e218b39abcb9388f2810427682befef829c44329",
-    "date": "2025-11-22T06:54:29+07:00",
-    "message": "fix(lock): update FileLockHelper usage to remove non-blocking option",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "9faa72f9788888f367251104e10191c0fa558795",
-    "date": "2025-11-22T06:43:00+07:00",
-    "message": "fix(lock): make file locking non-blocking and update callers/tests\n\n- Use LOCK_NB in `src/PhpProxyHunter/FileLockHelper.php::lock()` so attempts to\n  acquire an already-held lock return false immediately instead of blocking.\n- Update backend callers to the non-blocking behavior:\n  - `php_backend/check-http-proxy.php` -> use `lock(LOCK_NB)` and remove redundant `_log_shared(...)`\n  - `php_backend/check-https-proxy.php` -> use `lock(LOCK_NB)`\n- Add tests in `tests/PhpProxyHunter/FileLockHelperTest.php`:\n  - `testLockFailsIfAlreadyLocked`\n  - `testLockFailsIfAlreadyExists`\n- Minor CLI demo comment/formatting tweak.\n\nNo breaking API changes expected; this prevents scripts/tests from hanging when locks are held.",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php",
-      "src/PhpProxyHunter/FileLockHelper.php",
-      "tests/PhpProxyHunter/FileLockHelperTest.php"
-    ]
-  },
-  {
-    "hash": "2df7dacb172b0dcd71cd3a4acf467ea358b80469",
-    "date": "2025-11-22T06:23:32+07:00",
-    "message": "feat(checkers): use FileLockHelper, add stale-lock handling, ensure log dirs\n\n- Replace manual fopen/flock locking with Composer-autoloaded PhpProxyHunter\\FileLockHelper.\n- Detect and remove stale CLI lock files older than 1 hour; write PID/timestamp JSON to new lock files for diagnostics.\n- Ensure nested log directories are created (tmp/logs/{checker}/{hash}.txt) in get_log_file_shared.\n- Normalize request parsing, CORS, content-type, and explicit max execution time (300s).\n- Unify hash filename generation for web/CLI runs and redirect runner output to `.txt` logs for frontend consumption.\n- Misc: small refactors and clearer comments/messages in HTTP/HTTPS checker flows.\n\nThis reduces duplication, improves lock reliability, and makes logs discoverable by the frontend.",
-    "files": [
-      "artisan/cleaner.php",
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php",
-      "php_backend/checker-runner.php"
-    ]
-  },
-  {
-    "hash": "fa11b92e52c6478f0f63e4ec5b6f92072e327989",
-    "date": "2025-11-22T05:14:00+07:00",
-    "message": "refactor: replace echo with respond_text for usage output",
-    "files": [
-      "php_backend/check-http-proxy.php"
-    ]
-  },
-  {
-    "hash": "146383b803f210a22fceb1ea828bfdcdd976255c",
-    "date": "2025-11-22T04:53:44+07:00",
-    "message": "refactor: update lock file paths to use '/locks/' directory",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "39211609f42b078729971d94fbac60f4b5b6f34e",
-    "date": "2025-11-22T04:51:53+07:00",
-    "message": "refactor(checker): use getPhpExecutable() for runner and normalize cli hashFilename\n\n- Use `getPhpExecutable(true)` instead of the hardcoded `'php'` when building the background runner command to improve portability (Windows/Env-specific PHP).\n- Normalize the fallback hash filename for CLI runs from `\"$currentScriptFilename/cli.txt\"` to `\"$currentScriptFilename/cli\"` (remove `.txt` suffix).\n- Files changed: `php_backend/check-http-proxy.php`, `php_backend/check-https-proxy.php`.\n\nNote: This is a maintenance/refactor change. The hash/filename format used for logs/runners has been adjusted — update any external tooling or integrations that depend on the previous `cli.txt` naming if needed.",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php"
     ]
   }
 ]
