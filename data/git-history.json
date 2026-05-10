@@ -1,5 +1,30 @@
 [
   {
+    "hash": "aafec390705d4f490b0ad3ce9e0b2139a3dfb830",
+    "date": "2026-05-10T13:37:31+07:00",
+    "message": "feat(proxyCollector): add clean_invalid_proxies function to remove invalid proxies",
+    "files": [
+      "artisan/proxyCollector.py"
+    ]
+  },
+  {
+    "hash": "c3e88c2a644b5eee1531de71390a7316aa76b11e",
+    "date": "2026-05-10T13:31:30+07:00",
+    "message": "refactor(proxyCollector): remove unused lock file path variable",
+    "files": [
+      "artisan/proxyCollector.py"
+    ]
+  },
+  {
+    "hash": "5d82c0631d12867eac27bda090e4be49715bb0d5",
+    "date": "2026-05-10T13:30:06+07:00",
+    "message": "feat(proxy-collector): add configurable file size limit and CLI option\n\n- Introduce `limit_kb` parameter to collect() for dynamic file size filtering\n- Replace hardcoded 800KB limit with configurable value (converted to bytes)\n- Add `--size-limit` CLI argument to control proxy file processing threshold\n- Update crontab job to pass size-limit argument to proxyCollector\n- Improve readability and simplify lock path assignment logic\n- Refactor comments and remove redundant explanations for cleaner flow\n- Ensure consistent logging message for size-based filtering",
+    "files": [
+      ".crontab.py",
+      "artisan/proxyCollector.py"
+    ]
+  },
+  {
     "hash": "ff149d7fbff580638625323043f5db3f7b3ef8f0",
     "date": "2026-05-10T13:22:27+07:00",
     "message": "refactor(crontab): consolidate periodic jobs into run_commands pipeline\n\n- Replace multiple run_command_with_logging calls with run_commands batch execution\n- Group proxy and filter tasks into a single background job sequence\n- Redirect logs via command arguments for unified script-based handling\n- Update 1-hour job to use shared execution pipeline with cwd support\n- Adjust 24-hour job condition to use dedicated state key (daily-tasks)\n- Improve scheduling structure by reducing repeated gc/command blocks",
@@ -8769,31 +8794,6 @@
     "files": [
       "php_backend/check-http-proxy.php",
       "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "a7423c721c098010944a5e140ac8e11b8945b0af",
-    "date": "2025-11-22T04:38:00+07:00",
-    "message": "refactor: move php_exec() to dedicated utility file\n\n- Removed php_exec() from func.php\n- Added new file src/utils/process/php_exec.php containing the function\n- Improved project structure by isolating process-related utilities",
-    "files": [
-      "func.php",
-      "src/utils/process/php_exec.php"
-    ]
-  },
-  {
-    "hash": "5a5e26f1132e0a154c6a5df03abcc67bffda5206",
-    "date": "2025-11-22T04:34:57+07:00",
-    "message": "refactor: remove getPhpBinaryPath() and normalize comment style\n\n- Deleted unused getPhpBinaryPath() function\n- Moved inline end-of-line comments onto their own lines for clarity\n- No behavioral changes to existing logic",
-    "files": [
-      "func.php"
-    ]
-  },
-  {
-    "hash": "583af1a2aa20cd146669aebce6476453cd8a961f",
-    "date": "2025-11-22T04:31:04+07:00",
-    "message": "fix(logs): restrict log path visibility to admins only",
-    "files": [
-      "php_backend/logs.php"
     ]
   }
 ]
