@@ -108,6 +108,8 @@ def run_command_with_logging(
 if __name__ == "__main__":
     CWD = Path(__file__).resolve().parent.parent.parent.parent
     print(f"Current working directory: {CWD}")
+
+    # Example command to run in background with logging
     outFile = CWD / "tmp/logs/example.log"
     run_command_with_logging(
         ["echo", "Hello, World!"],
@@ -115,3 +117,9 @@ if __name__ == "__main__":
         background=False,
     )
     print(f"Log written to: {outFile}")
+
+    # Example command to run in foreground with live output
+    run_command_with_logging(
+        ["ping", "google.com"],
+        background=False,
+    )
