@@ -25,9 +25,9 @@ if (!empty($str)) {
 }
 $uid   = getUserId();
 $limit = $request['limit'] ?? $request['max'] ?? 1;
-// Limit for non-admin should not exceed 100 (protect against abuse and shell command length limits).
+// Limit for non-admin should not exceed 10 (protect against abuse and shell command length limits).
 if (!$isAdmin) {
-  $limit = min($limit, 100);
+  $limit = min($limit, 10);
 }
 // Allowed executor scripts mapping (key = basename without extension => friendly name)
 $executorFiles = [
