@@ -60,7 +60,7 @@ async def check_proxy_https(
             return False
         return getattr(response, "status_code", None) == 200
     except Exception as e:
-        print(f"{red('Error checking')} {magenta(proxy)} for {cyan(url)}: {e}")
+        print(f"{red('Error')} checking {magenta(proxy)} for {cyan(url)}: {e}")
         return False
 
 
