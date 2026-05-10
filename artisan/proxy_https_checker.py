@@ -201,8 +201,8 @@ async def _worker_check(
                 # mark https=false
                 try:
                     db.update_data(data["proxy"], {"https": "false"}, False)
-                except Exception:
-                    pass
+                except Exception as e:
+                    print(f"Error updating proxy data for {magenta(proxy)}: {e}")
                 continue
 
             proxy_applied = await check_proxy_applied(proxy=proxy)
@@ -225,8 +225,8 @@ async def _worker_check(
                         "last_checked": get_current_rfc3339_time(),
                     },
                 )
-            except Exception:
-                pass
+            except Exception as e:
+                print(f"Error updating proxy data for {magenta(proxy)}: {e}")
             break
 
 
