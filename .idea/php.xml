@@ -196,6 +196,10 @@
       <path value="$PROJECT_DIR$/vendor/symfony/config" />
       <path value="$PROJECT_DIR$/vendor/psr/clock" />
       <path value="$PROJECT_DIR$/vendor/ergebnis/agent-detector" />
+      <path value="$PROJECT_DIR$/vendor/php-webdriver/webdriver" />
+      <path value="$PROJECT_DIR$/vendor/sapistudio/seleniumstealth" />
+      <path value="$PROJECT_DIR$/vendor/dimaslanjaka/proxy-checker-python" />
+      <path value="$PROJECT_DIR$/vendor/twig/string-extra" />
     </include_path>
   </component>
   <component name="PhpProjectSharedConfiguration" php_language_level="7.2">
