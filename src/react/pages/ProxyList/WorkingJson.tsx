@@ -2,15 +2,14 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ProxyDetails } from '../../../../types/proxy';
 import { add_ajax_schedule, run_ajax_schedule } from '../../../utils/ajaxScheduler';
+import copyToClipboard from '../../../utils/data/copyToClipboard.js';
 import { timeAgo } from '../../../utils/date/timeAgo.js';
 import { noop } from '../../../utils/other';
 import { useSnackbar } from '../../components/Snackbar';
+import { checkProxy } from '../../utils/proxy';
+import { getProxyTypeColorClass } from '../../utils/proxyColors';
 import { createUrl } from '../../utils/url';
 import { getUserInfo } from '../../utils/user';
-import { getProxyTypeColorClass } from '../../utils/proxyColors';
-import ModifyCurl from './ModifyCurl';
-import { checkProxy } from '../../utils/proxy';
-import copyToClipboard from '../../../utils/data/copyToClipboard.js';
 
 /**
  * Handler to re-check a proxy (calls backend API, supports user/pass)
@@ -122,11 +121,11 @@ function WorkingJson() {
   const getWorkingProxies = React.useCallback(async () => {
     if (fetchingProxiesRef.current) return [];
     fetchingProxiesRef.current = true;
-    // refresh working.json
-    await fetch(createUrl('/artisan/proxyWorking.php')).catch(noop);
+    // refresh working.json in background (non-blocking, no need to await, and ignore errors)
+    fetch(createUrl('/artisan/proxyWorking.php')).catch(noop);
     let result: any = [];
     try {
-      const res = await fetch(createUrl('/embed.php?file=working.json'), {
+      const res = await fetch(createUrl('/embed.php?file=working.json&hash=' + Date.now()), {
         signal: AbortSignal.timeout(5000)
       });
       if (res.status === 403) {
@@ -270,15 +269,6 @@ function WorkingJson() {
       // always refresh in background to get latest list
       await refreshProxies();
     })();
-    // fetch processes.php
-    fetch(createUrl('/php_backend/processes.php')).catch(noop);
-    // fetch artisan/proxyCheckerStarter.php to start background checks every 5 minutes
-    const lastCheck = localStorage.getItem('lastProxyCheckStart') || '0';
-    const now = Date.now();
-    if (now - parseInt(lastCheck, 10) > 5 * 60 * 1000) {
-      fetch(createUrl('/artisan/proxyCheckerStarter.php')).catch(noop);
-      localStorage.setItem('lastProxyCheckStart', now.toString());
-    }
 
     return () => {
       isMountedRef.current = false;
@@ -629,11 +619,6 @@ function WorkingJson() {
           </div>
         </div>
       </div>
-
-      {/* Section: How to Modify cURL Timeout in PHP */}
-      <ModifyCurl />
-
-      {/* API Usage moved to the page index */}
     </div>
   );
 }
