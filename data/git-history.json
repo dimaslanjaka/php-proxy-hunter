@@ -1,5 +1,46 @@
 [
   {
+    "hash": "ed8f4e1d6665ba16a10c1393088bcaef05e39440",
+    "date": "2026-05-10T09:19:08+07:00",
+    "message": "feat(cron): ensure daily execution for specific cron jobs",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
+    "hash": "e86449467016f7a0867aa90d81e8dc9eb7bb71b7",
+    "date": "2026-05-10T09:13:49+07:00",
+    "message": "refactor(cleaner): optimize async proxy cleanup and directory maintenance\n\n- refactor cleaner script to modern asyncio architecture\n- add shared ThreadPoolExecutor for proxy validation tasks\n- replace asyncio.to_thread semaphore model with run_in_executor\n- implement bounded async task scheduling with asyncio.wait\n- add batched invalid proxy deletion helper\n- optimize proxy validation memory usage and concurrency flow\n- add concurrent MySQL and SQLite proxy cleanup support\n- remove readonly database mode and unused init_readonly_db import\n- improve directory cleanup traversal and stat handling\n- add TYPE_CHECKING import guard for ProxyDB typing\n- replace List typing with modern built-in generic annotations\n- add __future__.annotations support\n- improve SQL execution reuse with cached execute_query reference\n- streamline logging and cleanup flow readability\n- ensure executor shutdown with try/finally guard\n- remove unused as_completed import and legacy logic",
+    "files": [
+      "artisan/cleaner.py"
+    ]
+  },
+  {
+    "hash": "96d073e367216d1d3b13484ef74ca340552b7299",
+    "date": "2026-05-10T09:05:09+07:00",
+    "message": "fix(proxy): improve error handling in proxy data updates with detailed logging",
+    "files": [
+      "artisan/proxy_https_checker.py"
+    ]
+  },
+  {
+    "hash": "e7cbff0a55b293a9809ccc20825ee602611309fe",
+    "date": "2026-05-10T09:04:22+07:00",
+    "message": "feat(file): add random file picker utility with optional recursive filtering\n\n- add `get_random_file()` utility to select a random file from a directory\n- support recursive directory traversal\n- support custom file filter callback\n- add `Path` and `Callable` typing imports\n- refactor multiple context managers using parenthesized `with` statements",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/utils/file/others.py"
+    ]
+  },
+  {
+    "hash": "c22940996d704f0ffd1ada94aab56713dc9b2ded",
+    "date": "2026-05-10T08:50:20+07:00",
+    "message": "refactor(logging): simplify error and latency formatting\n\nRemove unnecessary str() conversions in log messages and\nstandardize latency formatting with explicit \"ms\" suffix.",
+    "files": [
+      "artisan/proxy_https_checker.py",
+      "proxyCheckerReal.py"
+    ]
+  },
+  {
     "hash": "262985850e9ff3725a53f6834e26610cacbbd604",
     "date": "2026-05-10T08:45:09+07:00",
     "message": "refactor(proxy): optimize proxy retrieval and filtering workflow\n\n- refactor get_proxies() with structured control flow\n- add skip_last_check_filter parameter for stale proxy bypass\n- replace Optional[bool] annotations with plain bool defaults\n- cache database select and list extend callables\n- use try/finally to guarantee database cleanup\n- optimize deduplication using seen set during filtering\n- remove redundant temporary lists and allocations\n- streamline active/untested proxy selection queries\n- improve fallback proxy retrieval readability\n- simplify proxy extraction and logging logic\n- reduce repeated database access calls\n- improve typing consistency with modern list annotations\n- enhance function documentation and argument descriptions",
@@ -8751,46 +8792,6 @@
     "message": "refactor(eslint): improve clarity and structure of ESLint config comments\n\n- Rewrote all inline comments to appear above their corresponding rules\n- Expanded and clarified comment explanations throughout the config\n- Added descriptive section headers for ignored files, globals, overrides, and rules\n- Improved readability by restructuring comment placement without modifying logic\n- Added comments for Prettier loading, FlatCompat initialization, and ESLint rule sets",
     "files": [
       "eslint.config.js"
-    ]
-  },
-  {
-    "hash": "b6be91204dd578fe7ac28c988cdd6953fd28f4ad",
-    "date": "2025-11-21T17:30:53+07:00",
-    "message": "feat(eslint): allow empty catch blocks in ESLint configuration",
-    "files": [
-      "eslint.config.js"
-    ]
-  },
-  {
-    "hash": "8715f7caa94628bea36f1af710cb5809d716f18c",
-    "date": "2025-11-21T17:28:30+07:00",
-    "message": "feat(deploy): add --backend flag for backend-only deploy\n\nAdd support for `--backend` / `--backend-only` to `bin/deploy-vps.mjs`.\nWhen provided the script now:\n- creates the remote build lock (`tmp/locks/.build-lock`),\n- runs a `git pull` in the configured `remotePath`,\n- runs `bash bin/fix-perm` on the remote to fix permissions,\n- removes the lock and exits.\n\nReuses existing helpers (`gitPull`, `shell_exec`, `writeRemoteFile`, `deleteRemotePath`)\nand short-circuits the full UI/build/deploy flow so composer/build/uploads are skipped.",
-    "files": [
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "7574f9176bb54424c99c4e565ff3d9ecaa243a84",
-    "date": "2025-11-21T17:23:34+07:00",
-    "message": "fix(logviewer): make log URL and HTTPS UID responsive\n\n- stack label and value on small screens (flex-col / sm:flex-row)\n- allow monospace values to wrap or scroll (break-words, max-w-full, overflow-auto)\n- prevents URL/UID text from overflowing the LogViewer panel on narrow viewports",
-    "files": [
-      "src/react/pages/ProxyList/LogViewer.tsx"
-    ]
-  },
-  {
-    "hash": "918972ba098f1c2c75f644c6f10440317948fb0b",
-    "date": "2025-11-21T17:19:53+07:00",
-    "message": "feat(dashboard): add empty state and optimize UserPaymentLogs rendering\n\nCompute visibleEntries once (filter + slice) and return a clear empty-state\nwhen no payment-related entries exist. Refactor mapping to use visibleEntries\nfor readability and to avoid repeated filtering. Minor layout/formatting cleanup.",
-    "files": [
-      "src/react/pages/dashboard/UserPaymentLogs.tsx"
-    ]
-  },
-  {
-    "hash": "f556f84ffcd409a7f264b2e7cf643c07d47cf5cf",
-    "date": "2025-11-21T17:18:30+07:00",
-    "message": "feat(dashboard): add Payment Activity tab and make header tabs scrollable on mobile\n\n- import and register `UserActivityCard`; extend `activeTab` union to include 'payment'\n- add new \"Payment Activity\" tab panel and move `UserPaymentLogs` into it\n- make tab header horizontally scrollable on small screens (wrap in overflow-x-auto, use flex-nowrap/whitespace-nowrap)\n- prevent tab buttons from shrinking (add flex-shrink-0) so tabs remain scrollable touch targets",
-    "files": [
-      "src/react/pages/Dashboard.tsx"
     ]
   }
 ]
