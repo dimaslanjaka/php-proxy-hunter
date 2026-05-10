@@ -1,5 +1,54 @@
 [
   {
+    "hash": "b80959a79f4d3bea1f1ad9f7630a06b714cf9480",
+    "date": "2026-05-10T12:25:53+07:00",
+    "message": "feat(resources): add verbose option to check_system_resources for detailed logging",
+    "files": [
+      "src/utils/process/resources_usage.py"
+    ]
+  },
+  {
+    "hash": "7ff194d764c0918fba7cea46cf8260600eab6ded",
+    "date": "2026-05-10T12:25:20+07:00",
+    "message": "docs(spawn): add example commands for running processes with logging",
+    "files": [
+      "src/utils/process/spawn.py"
+    ]
+  },
+  {
+    "hash": "b7163f5adebcfc053a3972cc5f6da232238b91bd",
+    "date": "2026-05-10T12:23:16+07:00",
+    "message": "refactor(crontab,spawn): extract run_command_with_logging into reusable spawn module\n\n- remove embedded run_command_with_logging and _finalize_log from .crontab.py\n- move command execution + logging logic into src/utils/process/spawn.py\n- introduce dedicated spawn utility module for process execution\n- add optional cwd support to run_command_with_logging\n- improve separation of concerns between scheduler and process runner\n- add standalone CLI test block for spawn module\n- simplify crontab by delegating command execution to shared utility",
+    "files": [
+      ".crontab.py",
+      "src/utils/process/spawn.py"
+    ]
+  },
+  {
+    "hash": "b6a75fb0a6930bff609adea75e81b4a9a5bf46e1",
+    "date": "2026-05-10T12:16:07+07:00",
+    "message": "feat(crontab): enhance SQLite maintenance with WAL checkpoint and VACUUM tasks",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
+    "hash": "0f9bfe268c3da532ad2adc4ae4bb363e480820f3",
+    "date": "2026-05-10T12:11:03+07:00",
+    "message": "fix(executor): reduce non-admin limit from 100 to 10 to prevent abuse",
+    "files": [
+      "php_backend/executor.php"
+    ]
+  },
+  {
+    "hash": "ef25df810172d4377f21a3b3d6dd0f5e7bb3b81c",
+    "date": "2026-05-10T12:07:48+07:00",
+    "message": "feat(crontab): simplify proxy collector job and add SQLite WAL checkpoint task\n\n- Remove proxyCollector2.py job from proxy collectors section\n- Simplify proxyCollector.py execution by removing extra flags\n- Add new 12-hour SQLite WAL checkpoint maintenance job\n  - Runs wal_checkpoint(TRUNCATE) for tmp and src databases\n  - Adds separate log files for each database\n  - Enables ensure_run_daily for reliability",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
     "hash": "9334cc1b466d3c1237db209fc20ccb072c8ba36e",
     "date": "2026-05-10T11:59:55+07:00",
     "message": "refactor(crontab, date): migrate cron system to simplified execution model and centralize interval parsing\n\n- Add Python 3 shebang and platform detection via `platform.system()`\n- Introduce `TextIO` typing for better file handle annotations\n- Replace legacy venv/bin detection logic with OS-aware resolution\n- Refactor PATH construction to be cleaner and include system PATH safely\n- Update dotenv loading with explicit override, encoding, and verbosity control\n- Move `parse_interval_to_seconds` from crontab into `src/func_date.py`\n- Add full validation docstring and regex-based interval parsing utility\n- Simplify job execution model by removing CronJob dataclass and job registry\n- Replace centralized cron loop with explicit `should_run_job` condition blocks\n- Introduce structured command runner `run_command_with_logging`\n  - Supports foreground (streaming) and background (file logging) modes\n  - Adds async log finalization via `_finalize_log`\n- Improve resource reporting via simplified `echo_skip_or_run`\n- Replace legacy process/log threading system with direct subprocess handling\n- Remove WAL maintenance and legacy SQLite cron utilities\n- Expand and restructure cron tasks (proxy collectors, cleaners, backups, checkers)\n- Add resource usage export job (JSON + log file output)\n- Improve error resilience in file cleanup logic and introduce dry-run mode support\n\nBREAKING CHANGE: cron architecture fully rewritten from CronJob-based scheduler to direct conditional execution model; interval parsing moved to shared utility module",
@@ -8748,55 +8797,6 @@
       "php_backend/check-https-proxy.php",
       "php_backend/checker-runner.php",
       "src/react/pages/ProxyList/LogViewer.tsx"
-    ]
-  },
-  {
-    "hash": "b879401320fe876f295e76f1ced207bc27f73125",
-    "date": "2025-11-21T22:18:08+07:00",
-    "message": "refactor(proxy-submission): simplify _checkProxy2 by removing try/catch and adding http/https proxy checks",
-    "files": [
-      "src/react/pages/ProxyList/ProxySubmission.tsx"
-    ]
-  },
-  {
-    "hash": "2a052035f1fb2350ae33d7c874ee2037e6c002c7",
-    "date": "2025-11-21T22:11:14+07:00",
-    "message": "fix(check): update proxy status to 'dead' when not active",
-    "files": [
-      "php_backend/check-http-proxy.php"
-    ]
-  },
-  {
-    "hash": "6060023d6bfa7125d7137e96f97429ead56e83b6",
-    "date": "2025-11-21T22:09:12+07:00",
-    "message": "feat(proxy): unify per-proxy logging and adjust HTTP checker protocols\n\n- remove 'https' from protocols in `check-http-proxy.php` (keep http, socks4, socks5)\n- add a friendly per-proxy summary log line in `check-http-proxy.php`:\n  - includes status symbol ([OK]/[--]), protocols, and latency\n- add a consolidated per-proxy summary log line in `check-https-proxy.php`:\n  - includes status symbol ([OK]/[--]), protocols, and latency (uses max latency)\n- keep existing DB updates and behavior unchanged; logging improved for easier reading and tooling\n\nNotes:\n- Latency formatting printed in seconds (rounded to 2 decimals) to match existing log style.\n- Logging changes are cosmetic and intended to aid operators and automated parsers.",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "c0d2c3fdbcec4c080aa3cc3c13cf205d3d0f26c6",
-    "date": "2025-11-21T21:57:45+07:00",
-    "message": "refactor(check-http-proxy): comment out starting verbose logging",
-    "files": [
-      "src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php"
-    ]
-  },
-  {
-    "hash": "f7a82c4e8dadfb3bb77ceedecf36755b534faf17",
-    "date": "2025-11-21T21:43:13+07:00",
-    "message": "refactor(php_backend): remove unused $url/$webTitle and simplify check() signature\n\n- Remove unused top-level variables `$url` and `$webTitle` from `php_backend/check-http-proxy.php`.\n- Update call site to invoke `check($proxy)` instead of `check($proxy, $url, $webTitle)`.\n- Change `check()` function signature and docblock to accept only `string $proxy`.\n- Cleanup only: no behavioral changes expected, just removal of unused parameters/vars to reduce warnings and improve clarity.",
-    "files": [
-      "php_backend/check-http-proxy.php"
-    ]
-  },
-  {
-    "hash": "2d8d8b96456268fac4e689224c0482b1402ac83a",
-    "date": "2025-11-21T21:39:21+07:00",
-    "message": "refactor(check-https-proxy): improve code clarity with comments for proxy handling and process setup",
-    "files": [
-      "php_backend/check-https-proxy.php"
     ]
   }
 ]
