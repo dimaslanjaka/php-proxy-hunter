@@ -4,6 +4,14 @@
       "type": "stdio",
       "command": "node",
       "args": ["./mcp-server/index.js"]
+    },
+    "ollama-ai": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["./mcp-server/ollama.js"],
+      "env": {
+        "OLLAMA_MODEL": "llama3"
+      }
     }
   }
 }
