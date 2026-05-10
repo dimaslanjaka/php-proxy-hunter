@@ -1,5 +1,32 @@
 [
   {
+    "hash": "e97dfc28cb36a1c2f54c229c6ae605a06d95d89e",
+    "date": "2026-05-10T08:09:58+07:00",
+    "message": "refactor(process): unify runtime metadata with dataclass registry\n\n- replace string runtime mappings with RuntimeDefinition dataclass\n- merge runtime names and colors into a single registry\n- simplify alias resolution using runtime keys\n- optimize executable normalization with pathlib.Path.stem\n- remove regex tokenization from runtime detection\n- centralize psutil exception handling\n- reduce redundant lowercase and float conversions\n- improve command normalization and formatting\n- simplify JSON output generation\n- cache colored runtime labels in process results\n- remove unused process name field\n- improve readability with structured helper sections",
+    "files": [
+      "src/utils/process/process_usage.py"
+    ]
+  },
+  {
+    "hash": "bd2a0ea13762af1008209c2b793c8b4d4307105c",
+    "date": "2026-05-10T08:05:36+07:00",
+    "message": "feat(process): enhance process usage monitor with runtime detection and colored output\n\n- add runtime detection using executable, aliases, and tokenized command matching\n- introduce cross-platform executable normalization for Windows suffixes\n- add runtime-specific colored labels in terminal output\n- support configurable process limit and CPU sampling interval\n- improve process filtering with runtime-aware inclusion logic\n- add command truncation to avoid oversized output\n- include JSON metadata count field in output payload\n- improve type hints and modernize module structure\n- handle ZombieProcess exceptions during process iteration\n- refactor process collection and sorting logic for readability",
+    "files": [
+      "src/utils/process/process_usage.py"
+    ]
+  },
+  {
+    "hash": "3fa9e88cc2ea571ccd394cd3a1889b58cc461e36",
+    "date": "2026-05-10T07:48:53+07:00",
+    "message": "refactor(bin): migrate file hash scripts to sbg-utility package\n\n- replace local file-hasher implementation with sbg-utility exports\n- remove deprecated bin/file-hasher.cjs module\n- update hash generation logic to use hash map structure\n- add TypeScript extensions to tracked file list\n- scope old hash script to src directory\n- simplify dotenv initialization with quiet and override options\n- update sbg-utility package reference",
+    "files": [
+      "bin/cfh-old.cjs",
+      "bin/cfh.cjs",
+      "bin/file-hasher.cjs",
+      "package.json"
+    ]
+  },
+  {
     "hash": "6a2ff26d297e725199a1e3c768188dd321420e81",
     "date": "2026-05-10T01:06:41+07:00",
     "message": "chore: remove obsolete tailscale directory\n\nTailscale is not good for public connection sharing.",
@@ -8764,31 +8791,6 @@
     "message": "fix(dashboard): make user activity table full-width to enable horizontal scrolling\n\nReplace `inline-table` with `min-w-full table-auto` in UserActivityCard so the\ntable expands to the container width and horizontal overflow/scrolling works\ncorrectly inside the activity panel.",
     "files": [
       "src/react/pages/dashboard/UserActivityCard.tsx"
-    ]
-  },
-  {
-    "hash": "77136736f4912b7697d8420522b882fcf92cbc5c",
-    "date": "2025-11-21T15:49:29+07:00",
-    "message": "fix(UserPaymentLogs): ensure safe string conversion for action types",
-    "files": [
-      "src/react/pages/dashboard/UserPaymentLogs.tsx"
-    ]
-  },
-  {
-    "hash": "1910bf29a7b591a8f48f554a86023c2f26d98790",
-    "date": "2025-11-21T15:43:43+07:00",
-    "message": "feat(Navbar): add spacers to offset fixed navbar",
-    "files": [
-      "src/react/components/Navbar.tsx"
-    ]
-  },
-  {
-    "hash": "a223e830e2b28ba7eea1640e06f70c53a733063f",
-    "date": "2025-11-21T15:37:24+07:00",
-    "message": "feat(ui): show ISP brand icons in UserPaymentLogs\n\n- add `src/react/utils/icons.ts` exporting `brandIcons` (im3, axis, unknown) and `statusIcons`\n- update `src/react/pages/dashboard/UserPaymentLogs.tsx` to:\n  - import `brandIcons` and compute `isp`/`iconSrc`\n  - render circular brand image when available, fall back to `TX` badge\n  - refine `payment.details` typing and use a typed lookup to avoid TS indexing errors",
-    "files": [
-      "src/react/pages/dashboard/UserPaymentLogs.tsx",
-      "src/react/utils/icons.ts"
     ]
   }
 ]
