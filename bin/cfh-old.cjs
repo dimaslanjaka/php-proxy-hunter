@@ -1,7 +1,7 @@
 const { execSync } = require('child_process');
 const path = require('path');
 const fs = require('fs').promises;
-const { createFileHashes, getFileTreeString } = require('./file-hasher.cjs');
+const { createFileHashes, getFileTreeString } = require('sbg-utility');
 const dotenv = require('dotenv');
 
 // Determine the current script directory and project directory
@@ -10,10 +10,7 @@ const projectDir = path.dirname(scriptDir);
 const envPath = path.join(projectDir, '.env');
 
 // Load the .env file using dotenv
-dotenv.config({ path: envPath });
-if (require('fs').existsSync(envPath)) {
-  console.log(`${envPath} file loaded`);
-}
+dotenv.config({ path: envPath, quiet: true, override: true });
 
 const createFileHashesMain = async () => {
   // Define the output file
@@ -21,7 +18,7 @@ const createFileHashesMain = async () => {
   const outputFile = path.join(projectDir, relativeOutputFile);
 
   // List of file extensions to include
-  const extensions = ['py', 'js', 'php', 'cjs', 'mjs'];
+  const extensions = ['py', 'js', 'php', 'cjs', 'mjs', 'ts', 'tsx'];
   // Directories to exclude
   const excludeDirs = [
     'dashboard',
@@ -61,15 +58,15 @@ const createFileHashesMain = async () => {
   ];
 
   // Generate hashes
-  const hashArray = await createFileHashes({
-    projectDir,
+  const hashMap = await createFileHashes({
+    projectDir: path.join(projectDir, 'src'),
     extensions,
     excludeDirs,
     extraFiles
   });
 
   // Write directory/file tree to the output file (hashes are included in the tree)
-  const fileTreeString = getFileTreeString(hashArray);
+  const fileTreeString = getFileTreeString(hashMap);
   await fs.writeFile(outputFile, fileTreeString + '\n', 'utf-8');
 
   // Add the hash file to the commit

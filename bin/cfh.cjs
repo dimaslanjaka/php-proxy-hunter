@@ -1,7 +1,7 @@
 const { spawnSync } = require('child_process');
 const path = require('path');
 const fs = require('fs').promises;
-const { createFileHashes, getFileTreeString } = require('./file-hasher.cjs');
+const { createFileHashes, getFileTreeString } = require('sbg-utility');
 const dotenv = require('dotenv');
 const crypto = require('crypto');
 
@@ -11,10 +11,7 @@ const projectDir = path.dirname(scriptDir);
 const envPath = path.join(projectDir, '.env');
 
 // Load the .env file using dotenv
-dotenv.config({ path: envPath });
-if (require('fs').existsSync(envPath)) {
-  console.log(`${envPath} file loaded`);
-}
+dotenv.config({ path: envPath, quiet: true, override: true });
 
 const createFileHashesMain = async () => {
   // Define the default output file (used when run normally)
@@ -62,7 +59,7 @@ const createFileHashesMain = async () => {
   ];
 
   // Generate hashes
-  const hashArray = await createFileHashes({
+  const hashMap = await createFileHashes({
     projectDir,
     extensions,
     excludeDirs,
@@ -71,7 +68,7 @@ const createFileHashesMain = async () => {
 
   // Compute a single checksum for the parent project folder from the sorted file hashes.
   // Join the sorted hash lines with a newline to create a stable input, then hash it.
-  const sorted = hashArray.slice().sort();
+  const sorted = Object.values(hashMap).slice().sort();
   const joined = sorted.join('\n');
   const folderHash = crypto.createHash('sha256').update(joined).digest('hex').slice(0, 16);
 
