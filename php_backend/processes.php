@@ -8,6 +8,23 @@ $isAdmin     = is_admin();
 $proxy_db    = refreshDbConnections()['proxy_db'] ?? null;
 $projectRoot = dirname(__DIR__);
 
+function format_bytes(float $bytes): string {
+  if ($bytes < 1024) {
+    return number_format($bytes, 0) . ' B';
+  }
+
+  $units = ['KB', 'MB', 'GB', 'TB'];
+  $value = $bytes / 1024;
+  foreach ($units as $unit) {
+    if ($value < 1024 || $unit === 'TB') {
+      return rtrim(rtrim(number_format($value, 2), '0'), '.') . ' ' . $unit;
+    }
+    $value /= 1024;
+  }
+
+  return rtrim(rtrim(number_format($value, 2), '0'), '.') . ' TB';
+}
+
 Server::allowCors(true);
 
 if (!is_cli()) {
@@ -20,46 +37,61 @@ $isWin     = strtoupper(substr(PHP_OS, 0, 3)) === 'WIN';
 $processes = [];
 if ($isWin) {
   // Windows
-  exec('wmic process get ProcessId,ParentProcessId,CommandLine', $output);
-  foreach ($output as $line) {
-    if (preg_match('/^(.*)\s+(\d+)\s+(\d+)$/', trim($line), $matches)) {
-      $commandLine = trim($matches[1]);
-      $pid         = (int)$matches[2];
-      $ppid        = (int)$matches[3];
-      if ($commandLine) {
-        // Extract executable (first token), handling quoted paths like "C:\\Program Files\\...\\node.exe"
-        $exe = $commandLine;
-        if (preg_match('/^"([^"]+)"/', $commandLine, $m)) {
-          $exe = $m[1];
-        } else {
-          // first space-separated token
-          $parts = preg_split('/\s+/', $commandLine, 2);
-          $exe   = $parts[0];
-        }
-        // basename
-        $basename = basename($exe);
-        if (preg_match('/^(?:php(?:\.exe)?|python(?:[0-9\.]*)(?:\.exe)?)$/i', $basename)) {
-          $processes[] = [
-            'pid'     => $pid,
-            'ppid'    => $ppid,
-            'command' => trim($commandLine),
-          ];
-        }
+  $command = 'powershell -NoProfile -Command "$processes = Get-CimInstance Win32_Process | Select-Object ProcessId,ParentProcessId,CommandLine,WorkingSetSize; $usage = Get-CimInstance Win32_PerfFormattedData_PerfProc_Process | Select-Object IDProcess,PercentProcessorTime; $usageMap = @{}; foreach ($item in $usage) { if ($null -ne $item.IDProcess) { $usageMap[[int]$item.IDProcess] = [double]$item.PercentProcessorTime } }; $processes | ForEach-Object { [pscustomobject]@{ ProcessId = $_.ProcessId; ParentProcessId = $_.ParentProcessId; CommandLine = $_.CommandLine; WorkingSetSize = $_.WorkingSetSize; CpuPercent = $(if ($usageMap.ContainsKey([int]$_.ProcessId)) { $usageMap[[int]$_.ProcessId] } else { 0 }) } } | ConvertTo-Json -Compress"';
+  exec($command, $output);
+  $json = trim(implode('', $output));
+  $rows = $json !== '' ? json_decode($json, true) : [];
+  if (isset($rows['ProcessId'])) {
+    $rows = [$rows];
+  }
+  if (!is_array($rows)) {
+    $rows = [];
+  }
+  foreach ($rows as $row) {
+    $commandLine = isset($row['CommandLine']) ? trim((string)$row['CommandLine']) : '';
+    $pid         = isset($row['ProcessId']) ? (int)$row['ProcessId'] : 0;
+    $ppid        = isset($row['ParentProcessId']) ? (int)$row['ParentProcessId'] : 0;
+    $workingSet  = isset($row['WorkingSetSize']) ? (float)$row['WorkingSetSize'] : 0.0;
+    $cpuPercent  = isset($row['CpuPercent']) ? (float)$row['CpuPercent'] : 0.0;
+    if ($commandLine) {
+      // Extract executable (first token), handling quoted paths like "C:\\Program Files\\...\\node.exe"
+      $exe = $commandLine;
+      if (preg_match('/^"([^"]+)"/', $commandLine, $m)) {
+        $exe = $m[1];
+      } else {
+        // first space-separated token
+        $parts = preg_split('/\s+/', $commandLine, 2);
+        $exe   = $parts[0];
+      }
+      // basename
+      $basename = basename($exe);
+      if (preg_match('/^(?:php(?:\.exe)?|python(?:[0-9\.]*)(?:\.exe)?)$/i', $basename)) {
+        $processes[] = [
+          'pid'            => $pid,
+          'ppid'           => $ppid,
+          'command'        => $commandLine,
+          'cpu_percent'    => $cpuPercent,
+          'memory_percent' => 0.0,
+          'ram_bytes'      => $workingSet,
+        ];
       }
     }
   }
 } else {
   // Unix-like
-  exec('ps -eo pid,ppid,user,command', $output);
+  exec('ps -eo pid,ppid,user,%cpu,%mem,rss,command', $output);
   foreach ($output as $index => $line) {
     if ($index === 0) {
       continue;
     } // Skip header
-    if (preg_match('/^\s*(\d+)\s+(\d+)\s+(\S+)\s+(.*)$/', trim($line), $matches)) {
+    if (preg_match('/^\s*(\d+)\s+(\d+)\s+(\S+)\s+([\d.]+)\s+([\d.]+)\s+(\d+)\s+(.*)$/', trim($line), $matches)) {
       $pid     = (int)$matches[1];
       $ppid    = (int)$matches[2];
       $user    = $matches[3];
-      $command = $matches[4];
+      $cpuPct  = (float)$matches[4];
+      $memPct  = (float)$matches[5];
+      $rssKiB  = (float)$matches[6];
+      $command = $matches[7];
       // Extract first token (the executable) and check its basename to avoid matching PATH text
       $exe = $command;
       if (preg_match('/^\s*"([^"]+)"/', $command, $m)) {
@@ -71,9 +103,12 @@ if ($isWin) {
       $basename = basename($exe);
       if ($exe && preg_match('/^(?:php(?:\.[a-z0-9]+)?|python(?:[0-9\.]*)?)$/i', $basename)) {
         $processes[] = [
-          'pid'     => $pid,
-          'ppid'    => $ppid,
-          'command' => trim($command),
+          'pid'            => $pid,
+          'ppid'           => $ppid,
+          'command'        => trim($command),
+          'cpu_percent'    => $cpuPct,
+          'memory_percent' => $memPct,
+          'ram_bytes'      => $rssKiB * 1024,
         ];
       }
     }
@@ -103,6 +138,11 @@ if (empty($processes)) {
   echo 'Found ' . count($processes) . " running PHP/Python processes for user ID: $userId" . PHP_EOL;
   echo str_repeat('=', 50) . PHP_EOL;
   foreach ($processes as $proc) {
-    echo "PID: {$proc['pid']}, PPID: {$proc['ppid']}, Command: {$proc['command']}" . PHP_EOL;
+    if ($isWin) {
+      echo "PID: {$proc['pid']}, PPID: {$proc['ppid']}, CPU: " . number_format((float)$proc['cpu_percent'], 1) . '%, RAM: ' . format_bytes((float)$proc['ram_bytes']) . ", Command: {$proc['command']}" . PHP_EOL;
+      continue;
+    }
+
+    echo "PID: {$proc['pid']}, PPID: {$proc['ppid']}, CPU: " . number_format((float)$proc['cpu_percent'], 1) . '%, RAM: ' . format_bytes((float)$proc['ram_bytes']) . ' (' . number_format((float)$proc['memory_percent'], 1) . "%), Command: {$proc['command']}" . PHP_EOL;
   }
 }
