@@ -376,10 +376,15 @@ if should_run_job(
 gc.collect()
 
 if should_run_job(
-    "12-h", file_path=CRONTAB_STATE_DIR / "sqlite-wal-checkpoint", ensure_run_daily=True
+    "12-h",
+    file_path=CRONTAB_STATE_DIR / "sqlite-wal-checkpoint",
+    ensure_run_daily=True,
 ):
-    echo_skip_or_run("SQLite WAL checkpoint", True)
+    echo_skip_or_run("SQLite WAL + Vacuum maintenance", True)
 
+    # =========================
+    # tmp database
+    # =========================
     run_command_with_logging(
         [
             "sqlite3",
@@ -392,8 +397,47 @@ if should_run_job(
     run_command_with_logging(
         [
             "sqlite3",
+            str(CWD / "tmp/database.sqlite"),
+            "PRAGMA wal_checkpoint(SQLITE_CHECKPOINT_TRUNCATE);",
+        ],
+        log_file=CRONTAB_LOG_DIR / "sqlite-wal-truncate-tmp.log",
+    )
+
+    run_command_with_logging(
+        [
+            "sqlite3",
+            str(CWD / "tmp/database.sqlite"),
+            "VACUUM;",
+        ],
+        log_file=CRONTAB_LOG_DIR / "sqlite-vacuum-tmp.log",
+    )
+
+    # =========================
+    # src database
+    # =========================
+    run_command_with_logging(
+        [
+            "sqlite3",
             str(CWD / "src/database.sqlite"),
             "PRAGMA wal_checkpoint(TRUNCATE);",
         ],
         log_file=CRONTAB_LOG_DIR / "sqlite-wal-src.log",
+    )
+
+    run_command_with_logging(
+        [
+            "sqlite3",
+            str(CWD / "src/database.sqlite"),
+            "PRAGMA wal_checkpoint(SQLITE_CHECKPOINT_TRUNCATE);",
+        ],
+        log_file=CRONTAB_LOG_DIR / "sqlite-wal-truncate-src.log",
+    )
+
+    run_command_with_logging(
+        [
+            "sqlite3",
+            str(CWD / "src/database.sqlite"),
+            "VACUUM;",
+        ],
+        log_file=CRONTAB_LOG_DIR / "sqlite-vacuum-src.log",
     )
