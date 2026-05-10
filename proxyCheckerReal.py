@@ -283,7 +283,7 @@ class ProxyCheckerReal:
                     + f' page title should be "{title_should_be.lower()}" but "{response_title.lower()}"'
                 )
                 latency_log = (
-                    green(f"{latency} ms") if latency > 0 else red(str(latency))
+                    green(f"{latency} ms") if latency > 0 else red(f"{latency} ms")
                 )
 
                 if title_should_be.lower() in response_title.lower():

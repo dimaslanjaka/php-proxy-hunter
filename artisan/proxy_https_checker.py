@@ -60,9 +60,7 @@ async def check_proxy_https(
             return False
         return getattr(response, "status_code", None) == 200
     except Exception as e:
-        print(
-            f"{red('Error checking')} {magenta(proxy)} for {cyan(url)}: {red(str(e))}"
-        )
+        print(f"{red('Error checking')} {magenta(proxy)} for {cyan(url)}: {e}")
         return False
 
 
@@ -104,7 +102,7 @@ async def check_proxy_applied(proxy: str, timeout: int = 10, **kwargs) -> bool:
             )
             if getattr(response, "status_code", None) and response.status_code != 200:
                 print(
-                    f"{magenta(proxy)} returned status code {red(str(response.status_code))} for {cyan(ep)}"
+                    f"{magenta(proxy)} returned status code {red(response.status_code)} for {cyan(ep)}"
                 )
                 continue
             # Prefer parsing JSON responses for known keys, otherwise fall back to text extraction
@@ -158,7 +156,7 @@ async def check_proxy_applied(proxy: str, timeout: int = 10, **kwargs) -> bool:
                     f"{magenta(proxy)} {red('did not return an IP')} when checking {cyan(ep)}"
                 )
         except Exception as e:
-            print(f"Request to {cyan(ep)} failed for {magenta(proxy)}: {red(str(e))}")
+            print(f"Request to {cyan(ep)} failed for {magenta(proxy)}: {e}")
             continue
 
     if any_success:
