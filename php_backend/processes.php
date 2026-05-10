@@ -14,7 +14,7 @@ Server::allowCors(true);
 // Per-session rate limit: allow this script to be accessed once per 60 seconds
 // for non-admin users. The session is started in shared.php. Admins are
 // identified by the existing $isAdmin variable (set in shared.php).
-if (!$isAdmin && !is_cli()) {
+if (!$isAdmin && !is_cli() && !is_debug_device()) {
   $key = 'processes_last_access';
   $now = time();
   if (!empty($_SESSION[$key]) && ($now - (int)$_SESSION[$key]) < 60) {
@@ -124,6 +124,3 @@ if (empty($processes)) {
     echo "PID: {$proc['pid']}, PPID: {$proc['ppid']}, Command: {$proc['command']}" . PHP_EOL;
   }
 }
-
-// Write working proxies
-writing_working_proxies_file($proxy_db);
