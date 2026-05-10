@@ -1,5 +1,13 @@
 [
   {
+    "hash": "262985850e9ff3725a53f6834e26610cacbbd604",
+    "date": "2026-05-10T08:45:09+07:00",
+    "message": "refactor(proxy): optimize proxy retrieval and filtering workflow\n\n- refactor get_proxies() with structured control flow\n- add skip_last_check_filter parameter for stale proxy bypass\n- replace Optional[bool] annotations with plain bool defaults\n- cache database select and list extend callables\n- use try/finally to guarantee database cleanup\n- optimize deduplication using seen set during filtering\n- remove redundant temporary lists and allocations\n- streamline active/untested proxy selection queries\n- improve fallback proxy retrieval readability\n- simplify proxy extraction and logging logic\n- reduce repeated database access calls\n- improve typing consistency with modern list annotations\n- enhance function documentation and argument descriptions",
+    "files": [
+      "src/func_proxy.py"
+    ]
+  },
+  {
     "hash": "e97dfc28cb36a1c2f54c229c6ae605a06d95d89e",
     "date": "2026-05-10T08:09:58+07:00",
     "message": "refactor(process): unify runtime metadata with dataclass registry\n\n- replace string runtime mappings with RuntimeDefinition dataclass\n- merge runtime names and colors into a single registry\n- simplify alias resolution using runtime keys\n- optimize executable normalization with pathlib.Path.stem\n- remove regex tokenization from runtime detection\n- centralize psutil exception handling\n- reduce redundant lowercase and float conversions\n- improve command normalization and formatting\n- simplify JSON output generation\n- cache colored runtime labels in process results\n- remove unused process name field\n- improve readability with structured helper sections",
@@ -8783,14 +8791,6 @@
     "message": "feat(dashboard): add Payment Activity tab and make header tabs scrollable on mobile\n\n- import and register `UserActivityCard`; extend `activeTab` union to include 'payment'\n- add new \"Payment Activity\" tab panel and move `UserPaymentLogs` into it\n- make tab header horizontally scrollable on small screens (wrap in overflow-x-auto, use flex-nowrap/whitespace-nowrap)\n- prevent tab buttons from shrinking (add flex-shrink-0) so tabs remain scrollable touch targets",
     "files": [
       "src/react/pages/Dashboard.tsx"
-    ]
-  },
-  {
-    "hash": "5d8d5a2cab0a77a7b224dac4ed6315cc76e2d45b",
-    "date": "2025-11-21T17:11:35+07:00",
-    "message": "fix(dashboard): make user activity table full-width to enable horizontal scrolling\n\nReplace `inline-table` with `min-w-full table-auto` in UserActivityCard so the\ntable expands to the container width and horizontal overflow/scrolling works\ncorrectly inside the activity panel.",
-    "files": [
-      "src/react/pages/dashboard/UserActivityCard.tsx"
     ]
   }
 ]
