@@ -1,4 +1,5 @@
 import os
+import re
 import sys
 from datetime import datetime, timedelta, timezone
 from typing import Optional
@@ -241,6 +242,51 @@ def is_date_rfc3339_hour_more_than(
             f"Invalid date string format: {date_string}. Expected RFC3339 format."
         )
         return None
+
+
+def parse_interval_to_seconds(interval: str) -> int:
+    """
+    Convert a human-readable interval string into seconds.
+
+    Supported formats:
+        - "5m", "5-m", "5 m"   -> minutes
+        - "2h"                 -> hours
+        - "1d"                 -> days
+        - "3w"                 -> weeks
+        - "1y"                 -> years
+
+    Units:
+        m = minutes
+        h = hours
+        d = days
+        w = weeks
+        y = years
+
+    Notes:
+        - Whitespace is ignored
+        - Optional hyphen between number and unit is allowed
+        - Case-insensitive
+
+    Raises:
+        ValueError: If the format is invalid
+    """
+
+    match = re.fullmatch(r"\s*(\d+)\s*-?\s*([mhdwy])\s*", interval.lower())
+    if not match:
+        raise ValueError(f"Invalid interval format: {interval}")
+
+    amount = int(match.group(1))
+    unit = match.group(2)
+
+    unit_seconds = {
+        "m": 60,
+        "h": 3600,
+        "d": 86400,
+        "w": 604800,
+        "y": 31536000,
+    }
+
+    return amount * unit_seconds[unit]
 
 
 if __name__ == "__main__":
