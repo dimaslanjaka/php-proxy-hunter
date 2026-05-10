@@ -205,7 +205,7 @@ if should_run_job(
 ):
     echo_skip_or_run("Proxy Collectors", True)
     run_command_with_logging(
-        [PYTHON_BIN, "artisan/proxyCollector.py"],
+        [PYTHON_BIN, "artisan/proxyCollector.py", "--size-limit=10000"],
         log_file=CRONTAB_LOG_DIR / "proxyCollector.log",
     )
 

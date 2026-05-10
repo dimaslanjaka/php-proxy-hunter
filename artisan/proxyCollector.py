@@ -66,7 +66,7 @@ def cleanup_and_exit(signum=None, frame=None):
     sys.exit(0)
 
 
-def collect():
+def collect(limit_kb: int | float = 800):
     # Register signal handlers so locks are released on interrupt/terminate
     signal.signal(signal.SIGINT, cleanup_and_exit)
     signal.signal(signal.SIGTERM, cleanup_and_exit)
@@ -76,14 +76,16 @@ def collect():
         print("No added proxy files found.")
         return
 
-    # Filter files by size (only files smaller than 800 KB) and cache sizes to
-    # avoid repeated os.path.getsize calls. Remove zero-length files when safe.
-    max_size = 800 * 1024
-    small_file_tuples: List[Tuple[str, int]] = []  # list of (path, size)
+    # Convert KB → bytes
+    max_size = int(limit_kb * 1024)
+
+    # Filter files by size (only files smaller than limit_kb KB)
+    small_file_tuples: List[Tuple[str, int]] = []
     for fp in files:
         try:
             stat = os.stat(fp)
             sz = stat.st_size
+
             if sz == 0:
                 try:
                     os.remove(fp)
@@ -91,18 +93,17 @@ def collect():
                 except Exception:
                     print(f"Skipping empty file (cannot remove): {fp}")
                 continue
+
             if sz < max_size:
                 small_file_tuples.append((fp, sz))
+
         except Exception:
-            # skip files we can't stat
             continue
 
     if not small_file_tuples:
-        print(f"No added proxy files under {max_size // 1024} KB found.")
+        print(f"No added proxy files under {limit_kb} KB found.")
         return
 
-    # Process available small files in a loop so that deleting an empty/unused
-    # file will allow the collector to continue with the next file.
     args = parse_args(default_limit=1)
     file_lock_arg = getattr(args, "file_lock", None)
 
@@ -112,15 +113,15 @@ def collect():
         except Exception:
             selected_file = random.choice([t[0] for t in small_file_tuples])
 
-        # remove this candidate from the list so we don't retry it repeatedly
+        # remove selected file from pool
         small_file_tuples = [t for t in small_file_tuples if t[0] != selected_file]
+
         print(f"Selected file: {selected_file}")
 
         lock_name = os.path.basename(selected_file) + ".lock"
-        if file_lock_arg:
-            per_lock_path = file_lock_arg
-        else:
-            per_lock_path = os.path.join(LOCKS_DIR, lock_name)
+        per_lock_path = (
+            file_lock_arg if file_lock_arg else os.path.join(LOCKS_DIR, lock_name)
+        )
 
         per_lock = FileLockHelper(per_lock_path)
 
@@ -134,7 +135,7 @@ def collect():
 
         try:
             db = init_db("mysql")
-            # Minimal diagnostics: ensure file exists before processing
+
             if not os.path.exists(selected_file):
                 print(f"Selected file no longer exists: {selected_file}")
                 db.close()
@@ -146,7 +147,6 @@ def collect():
             sample_extracted = []
             processed_strings = []
 
-            # Read entire file and extract proxies from full content
             try:
                 with open(selected_file, "r", encoding="utf-8", errors="ignore") as f:
                     content = f.read()
@@ -156,7 +156,6 @@ def collect():
 
             if not content or not content.strip():
                 print("File content empty after reading")
-                # No content to extract from — delete the file to avoid reprocessing
                 try:
                     os.remove(selected_file)
                     print(f"Deleted empty file: {selected_file}")
@@ -172,7 +171,7 @@ def collect():
                 extracted_proxies = []
 
             proxies_extracted_total = len(extracted_proxies)
-            # If extraction yielded nothing, delete the source file and continue
+
             if proxies_extracted_total == 0:
                 try:
                     os.remove(selected_file)
@@ -213,11 +212,12 @@ def collect():
 
             print(f"Extracted proxies: {proxies_extracted_total}")
             print(f"Skipped (already present): {skipped_count}")
+
             if sample_extracted:
                 print(f"Sample extracted proxies: {sample_extracted}")
+
             print(f"Added {added_count} proxies to database")
 
-            # Remove processed proxy lines/occurrences from the file instead of deleting it
             if processed_strings:
                 try:
                     removed = remove_string_from_file(
@@ -233,14 +233,14 @@ def collect():
                         )
                 except Exception as e:
                     print(f"Error removing processed proxies from file: {e}")
-            # If no new proxies were added from this file, continue to next file
-            # instead of stopping the collector run.
+
             if added_count == 0:
                 print("No new proxies added from this file; continuing to next file.")
                 continue
-            # After successfully processing and if parameter single is set, break the loop to only process one file per run
+
             if args.single:
                 break
+
         finally:
             try:
                 per_lock.release()
@@ -251,4 +251,15 @@ def collect():
 
 
 if __name__ == "__main__":
-    collect()
+    args = parse_args(
+        additional=[
+            {
+                "flag": "--size-limit",
+                "type": float,
+                "default": 800,
+                "help": "Max file size in KB to process (default: 800)",
+                "dest": "size_limit",
+            }
+        ]
+    )
+    collect(args.attr("size_limit", 800))
