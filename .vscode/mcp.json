@@ -1,0 +1,9 @@
+{
+  "servers": {
+    "nvidia-ai": {
+      "type": "stdio",
+      "command": "node",
+      "args": ["./mcp-server/index.js"]
+    }
+  }
+}

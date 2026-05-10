@@ -232,7 +232,7 @@
   "intelephense.rename.exclude": [],
   "isort.args": ["--profile", "black"],
   "js/ts.updateImportsOnPaste.enabled": false,
-  "js/ts.implicitProjectConfig.checkJs": true,
+  "js/ts.implicitProjectConfig.checkJs": false,
   "js/ts.implicitProjectConfig.experimentalDecorators": true,
   "js/ts.implicitProjectConfig.module": "ESNext",
   "remoteHub.gitProtocol": "http",
@@ -425,5 +425,14 @@
   "github.copilot.chat.rateLimitAutoSwitchToAuto": true,
   "github.copilot.chat.codesearch.enabled": true,
   "github.copilot.chat.copilotMemory.enabled": true,
-  "github.copilot.chat.alternateGeminiModelFPrompt.enabled": true
+  "github.copilot.chat.alternateGeminiModelFPrompt.enabled": true,
+  "chat.mcp.discovery.enabled": {
+    "claude-desktop": false,
+    "windsurf": false,
+    "cursor-global": false,
+    "cursor-workspace": true
+  },
+  "chat.mcp.apps.enabled": true,
+  "chat.mcp.access": "all",
+  "chat.mcp.gallery.enabled": true
 }
