@@ -20,7 +20,7 @@ from src.utils.process.resources_usage import (
     get_system_usage,
 )
 from src.func_date import parse_interval_to_seconds
-from src.utils.process.spawn import run_command_with_logging
+from src.utils.process import run_command_with_logging, run_commands
 
 CWD = Path(__file__).resolve().parent
 os.chdir(CWD)
@@ -211,41 +211,44 @@ if should_run_job(
 
 gc.collect()
 
-if should_run_job("45-m"):
-    echo_skip_or_run("Filter Open Port", True)
-
-    run_command_with_logging(
-        [PYTHON_BIN, str(CWD / "artisan/filter_open_port.py")],
-        log_file=CRONTAB_LOG_DIR / "filter_open_port.log",
-    )
-
-gc.collect()
-
-if should_run_job("1-h"):
-    run_command_with_logging(
-        [PYTHON_BIN, str(CWD / "artisan/filter_duplicate_ips.py")],
-        log_file=CRONTAB_LOG_DIR / "filter-duplicate-ips.log",
-    )
-    echo_skip_or_run("1 hour", True)
-
-gc.collect()
-
 if should_run_job("1-h", ensure_run_daily=True):
     echo_skip_or_run("1 hour", True)
-
-    run_command_with_logging(
-        [PYTHON_BIN, str(CWD / "artisan/proxy_https_checker.py")],
-        log_file=CRONTAB_LOG_DIR / "proxy_https_checker.log",
-    )
-
-    run_command_with_logging(
-        [PYTHON_BIN, str(CWD / "artisan/proxy_socks5_checker.py")],
-        log_file=CRONTAB_LOG_DIR / "proxy-socks5.log",
+    run_commands(
+        [
+            [
+                PYTHON_BIN,
+                str(CWD / "artisan/proxy_https_checker.py"),
+                ">",
+                str(CRONTAB_LOG_DIR / "proxy_https_checker.log"),
+            ],
+            [
+                PYTHON_BIN,
+                str(CWD / "artisan/proxy_socks5_checker.py"),
+                ">",
+                str(CRONTAB_LOG_DIR / "proxy_socks5_checker.log"),
+            ],
+            [
+                PYTHON_BIN,
+                str(CWD / "artisan/filter_duplicate_ips.py"),
+                ">",
+                str(CRONTAB_LOG_DIR / "filter-duplicate-ips.log"),
+            ],
+            [
+                PYTHON_BIN,
+                str(CWD / "artisan/filter_open_port.py"),
+                ">",
+                str(CRONTAB_LOG_DIR / "filter_open_port.log"),
+            ],
+        ],
+        background=True,
+        cwd=CWD,
     )
 
 gc.collect()
 
-if should_run_job("24-h"):
+if should_run_job(
+    "24-h", ensure_run_daily=True, file_path=CRONTAB_STATE_DIR / "daily-tasks"
+):
     echo_skip_or_run("24 hours", True)
     run_command_with_logging(
         ["bash", "-e", str(CWD / "bin/backup-db")],
