@@ -114,10 +114,10 @@ def get_current_rfc3339_time(use_utc=False):
     """
     if use_utc:
         now = datetime.now(timezone.utc)
-        rfc3339_timestamp = now.strftime("%Y-%m-%dT%H:%M:%SZ")
+        rfc3339_timestamp = now.isoformat(timespec="seconds")
     else:
         now = datetime.now(get_localzone())
-        rfc3339_timestamp = now.strftime("%Y-%m-%dT%H:%M:%S%z")
+        rfc3339_timestamp = now.isoformat(timespec="seconds")
 
     return rfc3339_timestamp
 
@@ -134,10 +134,10 @@ def get_yesterday_rfc3339_time(use_utc=False):
     """
     if use_utc:
         yesterday = datetime.now(timezone.utc) - timedelta(days=1)
-        rfc3339_timestamp = yesterday.strftime("%Y-%m-%dT%H:%M:%SZ")
+        rfc3339_timestamp = yesterday.isoformat(timespec="seconds")
     else:
         yesterday = datetime.now(get_localzone()) - timedelta(days=1)
-        rfc3339_timestamp = yesterday.strftime("%Y-%m-%dT%H:%M:%S%z")
+        rfc3339_timestamp = yesterday.isoformat(timespec="seconds")
 
     return rfc3339_timestamp
 
@@ -290,10 +290,12 @@ def parse_interval_to_seconds(interval: str) -> int:
 
 
 if __name__ == "__main__":
-    date_str = "2024-07-29T10:36:02+0700"
+    date_str = "2024-07-29T10:36:02+07:00"
     hours_to_check = 1
 
     if is_date_rfc3339_older_than(date_str, hours_to_check):
         print(f"The timestamp {date_str} is older than {hours_to_check} hour(s).")
     else:
         print(f"The timestamp {date_str} is not older than {hours_to_check} hour(s).")
+
+    print(f"Current time in RFC3339 format: {get_current_rfc3339_time()}")
