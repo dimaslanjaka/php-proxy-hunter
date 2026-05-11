@@ -158,6 +158,30 @@ class SQLiteHelper:
         finally:
             cur.close()
 
+    def insert_ignore(self, table_name: str, data: Dict[str, Any]) -> None:
+        columns = ", ".join(data.keys())
+        placeholders = ", ".join("?" * len(data))
+        sql = f"INSERT OR IGNORE INTO {table_name} ({columns}) VALUES ({placeholders})"
+        cur = self.conn.cursor()
+        try:
+            params = tuple(list(data.values()))
+            cur.execute(sql, params)
+            self.conn.commit()
+        finally:
+            cur.close()
+
+    def insert_replace(self, table_name: str, data: Dict[str, Any]) -> None:
+        columns = ", ".join(data.keys())
+        placeholders = ", ".join("?" * len(data))
+        sql = f"INSERT OR REPLACE INTO {table_name} ({columns}) VALUES ({placeholders})"
+        cur = self.conn.cursor()
+        try:
+            params = tuple(list(data.values()))
+            cur.execute(sql, params)
+            self.conn.commit()
+        finally:
+            cur.close()
+
     def select(
         self,
         table_name: str,

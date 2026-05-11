@@ -142,6 +142,20 @@ class MySQLHelper:
         self._execute_with_retry(sql, tuple(data.values()))
         self.conn.commit()
 
+    def insert_ignore(self, table_name: str, data: Dict[str, Any]) -> None:
+        columns = ", ".join(data.keys())
+        placeholders = ", ".join(["%s"] * len(data))
+        sql = f"INSERT IGNORE INTO {table_name} ({columns}) VALUES ({placeholders})"
+        self._execute_with_retry(sql, tuple(data.values()))
+        self.conn.commit()
+
+    def insert_replace(self, table_name: str, data: Dict[str, Any]) -> None:
+        columns = ", ".join(data.keys())
+        placeholders = ", ".join(["%s"] * len(data))
+        sql = f"REPLACE INTO {table_name} ({columns}) VALUES ({placeholders})"
+        self._execute_with_retry(sql, tuple(data.values()))
+        self.conn.commit()
+
     def select(
         self,
         table_name: str,
