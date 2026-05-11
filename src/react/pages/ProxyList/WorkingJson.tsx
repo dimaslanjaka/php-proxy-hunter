@@ -153,7 +153,7 @@ function WorkingJson() {
     fetch(createUrl('/artisan/proxyWorking.php')).catch(noop);
     let result: any = [];
     try {
-      const res = await fetch(createUrl('/embed.php?file=working.json&hash=' + Date.now()), {
+      const res = await fetch(createUrl('/php_backend/embed.php?file=working.json&hash=' + Date.now()), {
         signal: AbortSignal.timeout(5000)
       });
       if (res.status === 403) {

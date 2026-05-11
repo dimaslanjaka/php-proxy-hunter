@@ -35,7 +35,7 @@ $.get('./user-info.php', (data) => {
         });
         $('#data-proxies').val(proxiesStr.join('\n'));
       };
-      $.get('../embed.php?file=working.json', workingHandler);
+      $.get('../php_backend/embed.php?file=working.json', workingHandler);
     });
   }
 });

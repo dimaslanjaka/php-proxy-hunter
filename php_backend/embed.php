@@ -1,6 +1,6 @@
 <?php
 
-require_once __DIR__ . '/func.php';
+require_once __DIR__ . '/../func.php';
 
 use PhpProxyHunter\Server;
 
@@ -13,7 +13,7 @@ $serialNumber = isset($_SERVER['HTTP_X_SERIAL_NUMBER']) ? $_SERVER['HTTP_X_SERIA
 Server::allowCors();
 
 if ($userToken && $serialNumber) {
-  $userFile = __DIR__ . '/data/' . $userToken . '.json';
+  $userFile = __DIR__ . '/../data/' . $userToken . '.json';
   if (file_exists($userFile)) {
     $read = read_file($userFile);
     if ($read !== false) {
@@ -104,11 +104,11 @@ $real_file = false;
 // allows other project-root paths like "/logs/..." to be resolved safely.
 if (strlen($file) > 0 && $file[0] === '/') {
   // Remove leading slash and resolve under project dir
-  $mapped    = __DIR__ . '/' . ltrim($file, '/\\');
+  $mapped    = __DIR__ . '/../' . ltrim($file, '/\\');
   $real_file = realpath($mapped);
 } else {
   // If no leading slash, try resolving as given (relative path) via basename fallback.
-  $real_file = realpath(__DIR__ . '/' . $baseFile);
+  $real_file = realpath(__DIR__ . '/../' . $baseFile);
 }
 
 if ($real_file && file_exists($real_file)) {
