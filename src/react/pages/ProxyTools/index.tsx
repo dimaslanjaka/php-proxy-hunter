@@ -71,7 +71,6 @@ export default function ProxyToolsRouter() {
           element={
             <>
               <ProxySubmission />
-              <ProcessMonitor />
               <LogViewer />
             </>
           }
@@ -79,6 +78,8 @@ export default function ProxyToolsRouter() {
         <Route path="extract" element={<ProxyExtractor />} />
         <Route path="logs" element={<LogViewer />} />
       </Routes>
+
+      <ProcessMonitor />
     </div>
   );
 }
