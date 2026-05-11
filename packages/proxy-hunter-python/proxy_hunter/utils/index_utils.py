@@ -131,6 +131,15 @@ def is_valid_proxy(proxy: Optional[str], validate_credential: bool = True) -> bo
 
     ip, port = parts
 
+    # Reject IPv4-like numeric dot notation that is not a valid IPv4 address.
+    # Example: 999.999.999.999 should not be accepted as a hostname.
+    if re.fullmatch(r"\d+(?:\.\d+)+", ip) and not is_valid_ip(ip):
+        return False
+
+    # Reject prefixed IPv4-like host patterns such as n46.101.95.183.
+    if re.fullmatch(r"[A-Za-z]+\d+(?:\.\d+){3}", ip):
+        return False
+
     # Accept either a valid IP (IPv4/IPv6) or a valid hostname/domain
     if not (is_valid_ip(ip) or is_valid_hostname(ip)):
         return False
