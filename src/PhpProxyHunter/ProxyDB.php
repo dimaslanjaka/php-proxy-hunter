@@ -468,10 +468,11 @@ class ProxyDB
    *        - false => return only proxies where tun2socks is NULL/empty or <= 0.
    *        - null  => no tun2socks filtering (default).
    * @param string|null $proxyType Filter by the `type` column using LIKE.
-  * @param string|null $lastChecked Filter by last_check column (RFC3339 date string). When provided, returns only proxies checked on or before this date (last_check <= lastChecked).
+   * @param string|null $lastChecked Filter by last_check column (RFC3339 date string). When provided, returns only proxies checked on or before this date (last_check <= lastChecked).
+   * @param string|null $outputFile If provided, saves the results as JSON to the specified file path.
    * @return array
    */
-  public function getWorkingProxies($limit = null, $randomize = null, $page = null, $perPage = null, $ssl = null, $tun2socks = null, $proxyType = null, $lastChecked = null) {
+  public function getWorkingProxies($limit = null, $randomize = null, $page = null, $perPage = null, $ssl = null, $tun2socks = null, $proxyType = null, $lastChecked = null, $outputFile = null) {
     $whereClause = 'status = ?';
     $params      = ['active'];
 
@@ -525,7 +526,24 @@ class ProxyDB
     }
 
     $result = $this->db->select('proxies', '*', $whereClause, $params, $orderBy, $finalLimit, $offset);
-    return $result ?: [];
+    $result = $result ?: [];
+
+    if ($outputFile !== null) {
+      try {
+        $outputDir = dirname($outputFile);
+        if (!is_dir($outputDir) && !mkdir($outputDir, 0755, true)) {
+          throw new \RuntimeException("Failed to create directory: $outputDir");
+        }
+        $jsonContent = json_encode($result, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE);
+        if (file_put_contents($outputFile, $jsonContent, LOCK_EX) === false) {
+          throw new \RuntimeException("Failed to write to file: $outputFile");
+        }
+      } catch (\Exception $e) {
+        error_log("Error writing results to {$outputFile}: " . $e->getMessage());
+      }
+    }
+
+    return $result;
   }
 
   public function getPrivateProxies($limit = null) {

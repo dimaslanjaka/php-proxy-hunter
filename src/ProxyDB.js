@@ -1,4 +1,4 @@
-import fs from 'fs';
+import fs from 'fs-extra';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import { randomWebGLData } from '../data/webgl.js';
@@ -82,9 +82,7 @@ class ProxyDB {
 
   appendErrorLog(error) {
     const dir = path.dirname(this.errorFile);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
+    fs.ensureDirSync(dir);
     fs.appendFileSync(this.errorFile, `${error}\n`);
   }
 
@@ -239,6 +237,7 @@ class ProxyDB {
    * @param {boolean} [autoFix=true] - Whether to automatically fix missing data.
    * @param {boolean} [rand=true] - Whether to randomize the results.
    * @param {number} [limit=1000] - The maximum number of results to return.
+   * @param {string|null} [outputFile=null] - If provided, saves the results as JSON to the specified file path.
    * @returns {Promise<{
    *   id: number;
    *   proxy: string;
@@ -264,10 +263,23 @@ class ProxyDB {
    *   password?: string;
    * }[]>} A promise resolving to an array of proxy objects.
    */
-  async getWorkingProxies(autoFix = true, rand = true, limit = 1000) {
+  async getWorkingProxies(autoFix = true, rand = true, limit = 1000, outputFile = null) {
     if (!this.db) await this.startConnection();
     const result = this.db.select('proxies', '*', 'status = ?', ['active'], rand, limit);
-    return autoFix ? await this.fixEmptyData(result) : result;
+    let finalResult = autoFix ? await this.fixEmptyData(result) : result;
+
+    if (outputFile) {
+      try {
+        const outputPath = path.resolve(outputFile);
+        const outputDir = path.dirname(outputPath);
+        fs.ensureDirSync(outputDir);
+        fs.writeJsonSync(outputPath, finalResult, { spaces: 2 });
+      } catch (error) {
+        console.error(`Error writing results to ${outputFile}:`, error);
+      }
+    }
+
+    return finalResult;
   }
 
   /**

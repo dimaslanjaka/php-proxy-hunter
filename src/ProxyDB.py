@@ -1,7 +1,9 @@
+import json
 import os
 import sys
 import time
 from datetime import datetime
+from pathlib import Path
 from typing import Any, Callable, Dict, List, Optional, Union, cast
 
 from proxy_hunter import (
@@ -572,6 +574,7 @@ class ProxyDB:
         page: Optional[int] = None,
         per_page: Optional[int] = None,
         last_checked: Optional[str] = None,
+        output_file: Optional[Union[str, Path]] = None,
     ) -> List[Dict[str, Union[str, None]]]:
         """
         Retrieve working (active) proxies with optional limit, ordering and filters.
@@ -604,6 +607,8 @@ class ProxyDB:
         - last_checked (Optional[str]): Filter by `last_check` column (RFC3339
             date string). When provided, only returns proxies with
             `last_check <= last_checked`.
+        - output_file (Optional[Union[str, Path]]): If provided, saves the results
+            as JSON to the specified file path.
 
         Returns
         - List[Dict[str, Union[str, None]]]: List of proxy rows as dictionaries.
@@ -700,7 +705,17 @@ class ProxyDB:
         result = cast(List[Dict[str, Union[str, None]]], result)
 
         if auto_fix:
-            return self.fix_empty_data(result)
+            result = self.fix_empty_data(result)
+
+        if output_file:
+            try:
+                output_path = Path(output_file)
+                output_path.parent.mkdir(parents=True, exist_ok=True)
+                with open(output_path, "w", encoding="utf-8") as f:
+                    json.dump(result, f, indent=2, ensure_ascii=False)
+            except Exception as e:
+                print(f"Error writing results to {output_file}: {e}")
+
         return result
 
     def clean_type(
