@@ -38,6 +38,21 @@ def test_normalize_proxy(proxy_db: ProxyDB):
     proxy = "044.026.021.044:0796"
     normalized_proxy = proxy_db.normalize_proxy(proxy)
     assert normalized_proxy == "44.26.21.44:796"
+    # Test with extra 177.26.112.65:5678: should be 177.26.112.65:5678
+    proxy = "177.26.112.65:5678:"
+    normalized_proxy = proxy_db.normalize_proxy(proxy)
+    assert normalized_proxy == "177.26.112.65:5678"
+    proxy = "103.250.166.04:6667:"
+    normalized_proxy = proxy_db.normalize_proxy(proxy)
+    assert normalized_proxy == "103.250.166.4:6667"
+    # Test with missing port
+    proxy = "177.26.112.65:"
+    normalized_proxy = proxy_db.normalize_proxy(proxy)
+    assert normalized_proxy == ""
+    # Test with full url format
+    proxy = "http://174.138.165.126:33508"
+    normalized_proxy = proxy_db.normalize_proxy(proxy)
+    assert normalized_proxy == "174.138.165.126:33508"
 
 
 if __name__ == "__main__":

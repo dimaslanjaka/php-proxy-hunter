@@ -326,19 +326,39 @@ class ProxyDB:
         if proxy is None:
             return ""
         proxy = proxy.strip()
+
+        # Remove URL scheme if present (e.g., "http://", "https://")
+        if "://" in proxy:
+            proxy = proxy.split("://", 1)[1]
+
+        # Remove trailing colon or other non-alphanumeric suffix characters
+        proxy = re.sub(r"[:;,\s]+$", "", proxy)
+
+        # Match IP:PORT pattern, allowing leading zeros in port and IP octets
         pattern = r"^(\d{1,3}(?:\.\d{1,3}){3}):(\d+)$"
         match = re.match(pattern, proxy)
         if not match:
-            # raise ValueError(f"Invalid proxy format: {proxy}")
             return ""
-        # Normalize the port number (remove leading zeros)
-        ip, port = match.groups()
-        octets = [str(int(octet)) for octet in ip.split(".")]
-        for octet in octets:
-            if not 0 <= int(octet) <= 255:
-                return proxy
 
-        return f"{'.'.join(octets)}:{int(port)}"
+        # Normalize both IP octets and port (remove leading zeros)
+        ip, port = match.groups()
+        try:
+            # Normalize IP octets: convert to int to remove leading zeros, then back to string
+            octets = [str(int(octet)) for octet in ip.split(".")]
+
+            # Validate that all octets are in valid range (0-255)
+            for octet in octets:
+                if not 0 <= int(octet) <= 255:
+                    return ""
+
+            # Normalize port: convert to int to remove leading zeros, validate range
+            port_num = int(port)
+            if not 1 <= port_num <= 65535:
+                return ""
+
+            return f"{'.'.join(octets)}:{port_num}"
+        except (ValueError, IndexError):
+            return ""
 
     def get_all_proxies(
         self,
@@ -568,6 +588,23 @@ class ProxyDB:
         if data:
             data = self.clean_type(data)
             data = self.fix_no_such_column(data)
+            # sanitize values for SQL drivers (MySQL in particular)
+            if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
+                for k, v in list(data.items()):
+                    # convert complex types to JSON strings
+                    if isinstance(v, (list, dict)):
+                        try:
+                            data[k] = json.dumps(v, ensure_ascii=False)
+                        except Exception:
+                            data[k] = str(v)
+                    elif isinstance(v, bytes):
+                        try:
+                            data[k] = v.decode("utf-8", "ignore")
+                        except Exception:
+                            data[k] = str(v)
+                    else:
+                        # leave scalars as-is
+                        pass
             if debug:
                 print(f"{debug_prefix} Updating proxy {proxy} with data: {data}")
             # use correct placeholder depending on backend
