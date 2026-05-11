@@ -10,6 +10,7 @@ import { defineConfig } from 'vite';
 import mkcert from 'vite-plugin-mkcert';
 import {
   copyFontsPlugin,
+  serveDistAssetsPlugin,
   customStaticAssetsPlugin,
   fontsResolverPlugin,
   indexHtmlReplacementPlugin,
@@ -75,6 +76,8 @@ export const viteConfig = defineConfig({
   cacheDir: path.resolve(__dirname, 'tmp/.vite'),
   // Register Vite plugins
   plugins: [
+    // Serve pre-built assets from dist/react/assets when requested during dev
+    serveDistAssetsPlugin(),
     prepareVitePlugins(),
     manualHmrPlugin(),
     indexHtmlReplacementPlugin(),

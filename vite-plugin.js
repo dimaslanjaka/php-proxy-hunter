@@ -301,6 +301,62 @@ export function copyFontsPlugin() {
   };
 }
 
+/**
+ * Vite plugin to serve pre-built assets from `dist/react/assets` during development.
+ * This allows the dev server to resolve requests for fingerprinted files that
+ * already exist in the built `dist/react/assets` directory.
+ * @returns {import('vite').Plugin}
+ */
+export function serveDistAssetsPlugin() {
+  const distBase = path.join(__dirname, 'dist/react');
+  const allowedPrefixes = ['/assets/', '/data/', '/config/'];
+  return {
+    name: 'serve-dist-assets',
+    configureServer(server) {
+      server.middlewares.use((req, res, next) => {
+        try {
+          if (!req.url) return next();
+          const prefix = allowedPrefixes.find((p) => req.url.startsWith(p));
+          if (!prefix) return next();
+          const rel = decodeURIComponent(req.url.replace(new RegExp('^' + prefix), ''));
+          const baseDirName = prefix.replace(/\//g, '');
+          const filePath = path.join(distBase, baseDirName, rel);
+          if (fs.existsSync(filePath) && fs.statSync(filePath).isFile()) {
+            const ext = path.extname(filePath).toLowerCase();
+            const mimeMap = {
+              '.js': 'application/javascript',
+              '.css': 'text/css',
+              '.json': 'application/json',
+              '.png': 'image/png',
+              '.jpg': 'image/jpeg',
+              '.jpeg': 'image/jpeg',
+              '.svg': 'image/svg+xml',
+              '.gif': 'image/gif',
+              '.webp': 'image/webp',
+              '.ico': 'image/x-icon',
+              '.woff2': 'font/woff2',
+              '.woff': 'font/woff',
+              '.ttf': 'font/ttf',
+              '.otf': 'font/otf',
+              '.eot': 'application/vnd.ms-fontobject'
+            };
+            const mime = mimeMap[ext] || 'application/octet-stream';
+            res.setHeader('Content-Type', mime);
+            const stream = fs.createReadStream(filePath);
+            stream.on('error', next);
+            res.statusCode = 200;
+            stream.pipe(res);
+            return;
+          }
+          next();
+        } catch (_) {
+          next();
+        }
+      });
+    }
+  };
+}
+
 const lockFilePath = path.join(__dirname, 'tmp/locks/.dev-server-lock');
 const buildLockFilePath = path.join(__dirname, 'tmp/locks/.build-lock');
 fs.ensureDirSync(path.dirname(lockFilePath));
