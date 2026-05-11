@@ -205,6 +205,35 @@ def convert_rfc3339_to_datetime(dt_str: str) -> datetime:
             return datetime.min
 
 
+def normalize_rfc3339(value: str) -> Optional[str]:
+    """Normalize timestamp strings to RFC3339 using datetime parsing."""
+    raw = value.strip()
+    if not raw:
+        return None
+
+    # Accept compact numeric offsets like +0700 and normalize to +07:00.
+    candidate = re.sub(r"([+-]\d{2})(\d{2})$", r"\1:\2", raw)
+
+    # datetime.fromisoformat does not accept trailing Z.
+    if candidate.endswith("Z"):
+        candidate = f"{candidate[:-1]}+00:00"
+
+    try:
+        parsed = datetime.fromisoformat(candidate)
+    except ValueError:
+        return None
+
+    system_tz = get_localzone()
+
+    # RFC3339 requires timezone info; treat naive values as system timezone.
+    if parsed.tzinfo is None:
+        parsed = parsed.replace(tzinfo=system_tz)
+    else:
+        parsed = parsed.astimezone(system_tz)
+
+    return parsed.isoformat()
+
+
 def get_system_timezone() -> str:
     """
     Get system timezone name.
@@ -299,3 +328,8 @@ if __name__ == "__main__":
         print(f"The timestamp {date_str} is not older than {hours_to_check} hour(s).")
 
     print(f"Current time in RFC3339 format: {get_current_rfc3339_time()}")
+    print(f"Yesterday's time in RFC3339 format: {get_yesterday_rfc3339_time()}")
+    print(f"System timezone: {get_system_timezone()}")
+    print(f"Normalized RFC3339: {normalize_rfc3339('2024-07-29T10:36:02+0700')}")
+    print(f"Normalized RFC3339: {normalize_rfc3339('2024-07-29T10:36:02Z')}")
+    print(f"Normalized RFC3339: {normalize_rfc3339('2026-04-15T13:05:45')}")

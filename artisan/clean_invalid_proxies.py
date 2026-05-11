@@ -11,6 +11,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from proxy_hunter import extract_proxies, is_valid_proxy
 
+from src.func_date import normalize_rfc3339
 from src.func import get_relative_path
 from src.func_console import green, red
 from src.ProxyDB import ProxyDB
@@ -37,6 +38,26 @@ async def process_proxy(
 ):
     async with semaphore:
         proxy = str(data.get("proxy", ""))
+        # fix invalid DATE RFC3339 format in last_check if exists
+        last_check = data.get("last_check")
+        if last_check and isinstance(last_check, str):
+            normalized_last_check = normalize_rfc3339(last_check)
+            if normalized_last_check and normalized_last_check != last_check:
+                data["last_check"] = normalized_last_check
+
+            # Update database if last_check was modified
+            if "last_check" in data and data["last_check"] != last_check:
+                try:
+                    await asyncio.to_thread(
+                        db.update_data,
+                        proxy,
+                        data,
+                    )
+                except Exception as e:
+                    print(
+                        f"[{driver}] Failed to update last_check for proxy {proxy}: {e}"
+                    )
+
         normalized_proxy = db.normalize_proxy(proxy)
 
         valid_normalized = is_valid_proxy(normalized_proxy)
