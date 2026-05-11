@@ -235,7 +235,7 @@ def find_first_working_proxy(proxies: List[str]) -> Optional[str]:
 if __name__ == "__main__":
     args = parse_args()
 
-    db = init_db("mysql")
+    db = init_db()
     proxies = load_working_proxies_from_db(db, args.limit, True, True)
     proxies = load_proxies_from_file(get_relative_path("proxies.txt"))
     proxy_list = to_socks5_list(proxies)

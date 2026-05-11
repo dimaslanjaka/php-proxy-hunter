@@ -12,7 +12,7 @@ blacklist_conf = os.path.join(PROJECT_ROOT, "data/blacklist.conf")
 
 blacklists = get_blacklist(blacklist_conf)
 
-db = init_db("mysql")
+db = init_db()
 db_helper = db.get_db()
 db_driver = db.driver  # sqlite or mysql
 

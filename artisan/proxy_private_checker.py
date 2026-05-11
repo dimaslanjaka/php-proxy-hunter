@@ -200,7 +200,7 @@ if __name__ == "__main__":
 
     try:
         proxy_file = get_relative_path("proxies.txt")
-        db = init_db("mysql")
+        db = init_db()
 
         try:
             # Use retrieve_proxies and provide a custom_filter that applies

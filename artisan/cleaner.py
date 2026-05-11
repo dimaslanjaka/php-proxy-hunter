@@ -14,7 +14,7 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 from artisan.cleaner_func import fetch_md5_hash_dirs
 from src.func import get_relative_path
 from src.func_date import day_to_seconds
-from src.shared import init_db
+from src.shared import init_db, init_mysql_db, init_sqlite_db
 from src.utils.parse_args import parse_args
 
 if TYPE_CHECKING:
@@ -178,8 +178,8 @@ def clean_directory(
 async def main() -> None:
     parse_args(description="Python Cleaner Script")
 
-    mysql = init_db("mysql")
-    sqlite = init_db("sqlite")
+    mysql = init_mysql_db()
+    sqlite = init_sqlite_db()
 
     for label, db in (
         ("MySQL", mysql),

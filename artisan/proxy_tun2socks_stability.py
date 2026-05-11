@@ -482,7 +482,7 @@ if __name__ == "__main__":
                 ]
                 return filtered
 
-            db_local = init_db("mysql")
+            db_local = init_db()
             try:
                 result = retrieve_proxies(
                     db=db_local, limit=args.limit, custom_filter=custom_filter
@@ -535,7 +535,7 @@ if __name__ == "__main__":
                 print("No untested proxies left for tun2socks stability check")
                 sys.exit(0)
 
-            db = init_db("mysql")
+            db = init_db()
             db_write_lock = asyncio.Lock()
 
             async def on_success(

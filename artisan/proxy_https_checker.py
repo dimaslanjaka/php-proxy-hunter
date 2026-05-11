@@ -236,7 +236,7 @@ async def _worker_check(
 
 async def main(args: ParseArgs):
     try:
-        db = init_db("mysql")
+        db = init_db()
     except Exception:
         db = init_readonly_db()
 

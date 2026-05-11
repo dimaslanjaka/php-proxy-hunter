@@ -57,18 +57,12 @@ def get_db_config(production: bool = False) -> dict:
     return db_config
 
 
-def init_db(
-    db_type: str = "sqlite",
-    custom_db_name: Optional[str] = None,
-):
+def init_mysql_db(custom_db_name: Optional[str] = None):
     """
-    Initialize ProxyDB with environment configuration.
+    Initialize ProxyDB with MySQL configuration.
 
     Args:
-        db_type (str): Database type - 'sqlite' or 'mysql' (default: sqlite)
-        custom_db_name (Optional[str]): If provided, enforce using this database name
-            (for MySQL) or file/path (for SQLite). If a relative path is given for
-            SQLite, it will be resolved with `get_relative_path`.
+        custom_db_name (Optional[str]): If provided, enforce using this database name.
 
     Environment variables:
     - MYSQL_HOST: MySQL host (default: localhost)
@@ -80,62 +74,93 @@ def init_db(
     - MYSQL_PASS_PRODUCTION: Production password
 
     Returns:
-        ProxyDB: Initialized database instance
+        ProxyDB: Initialized MySQL database instance
     """
-    db_type = db_type.lower()
     is_debug_flag = is_debug()
 
-    if db_type == "mysql":
-        # MySQL configuration
-        if custom_db_name:
-            db_name = custom_db_name
-        else:
-            if not is_debug_flag:
-                db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
-            else:
-                # db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter_test")
-                db_name = "php_proxy_hunter_test"
+    if custom_db_name:
+        db_name = custom_db_name
+    else:
         if not is_debug_flag:
-            db_host = os.getenv(
-                "MYSQL_HOST_PRODUCTION", os.getenv("MYSQL_HOST", "localhost")
-            )
-            db_user = os.getenv(
-                "MYSQL_USER_PRODUCTION", os.getenv("MYSQL_USER", "root")
-            )
-            db_pass = os.getenv("MYSQL_PASS_PRODUCTION", os.getenv("MYSQL_PASS", ""))
+            db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter")
         else:
-            db_host = os.getenv("MYSQL_HOST", "localhost")
-            db_user = os.getenv("MYSQL_USER", "root")
-            db_pass = os.getenv("MYSQL_PASS", "")
+            # db_name = os.getenv("MYSQL_DBNAME", "php_proxy_hunter_test")
+            db_name = "php_proxy_hunter_test"
 
-        proxy_db = ProxyDB(
-            db_location=db_name,
-            start=True,
-            db_type="mysql",
-            mysql_host=db_host,
-            mysql_dbname=db_name,
-            mysql_user=db_user,
-            mysql_password=db_pass,
+    if not is_debug_flag:
+        db_host = os.getenv(
+            "MYSQL_HOST_PRODUCTION", os.getenv("MYSQL_HOST", "localhost")
+        )
+        db_user = os.getenv("MYSQL_USER_PRODUCTION", os.getenv("MYSQL_USER", "root"))
+        db_pass = os.getenv("MYSQL_PASS_PRODUCTION", os.getenv("MYSQL_PASS", ""))
+    else:
+        db_host = os.getenv("MYSQL_HOST", "localhost")
+        db_user = os.getenv("MYSQL_USER", "root")
+        db_pass = os.getenv("MYSQL_PASS", "")
+
+    return ProxyDB(
+        db_location=db_name,
+        start=True,
+        db_type="mysql",
+        mysql_host=db_host,
+        mysql_dbname=db_name,
+        mysql_user=db_user,
+        mysql_password=db_pass,
+    )
+
+
+def init_sqlite_db(custom_db_name: Optional[str] = None):
+    """
+    Initialize ProxyDB with SQLite configuration.
+
+    Args:
+        custom_db_name (Optional[str]): If provided, enforce using this database
+            file/path. Relative paths are resolved with `get_relative_path`.
+
+    Returns:
+        ProxyDB: Initialized SQLite database instance
+    """
+    if custom_db_name:
+        # Use absolute path as-is; resolve relative paths against project
+        db_file = (
+            custom_db_name
+            if os.path.isabs(custom_db_name)
+            else get_relative_path(custom_db_name)
         )
     else:
-        # SQLite configuration (default)
-        if custom_db_name:
-            # Use absolute path as-is; resolve relative paths against project
-            db_file = (
-                custom_db_name
-                if os.path.isabs(custom_db_name)
-                else get_relative_path(custom_db_name)
-            )
-        else:
-            db_file = get_relative_path("src/database.sqlite")
+        db_file = get_relative_path("src/database.sqlite")
 
-        proxy_db = ProxyDB(
-            db_location=db_file,
-            start=True,
-            db_type="sqlite",
-        )
+    return ProxyDB(
+        db_location=db_file,
+        start=True,
+        db_type="sqlite",
+    )
 
-    return proxy_db
+
+def init_db(
+    custom_db_name: Optional[str] = None,
+):
+    """
+    Initialize ProxyDB based on database type.
+
+    Args:
+        db_type (str): Database type - 'sqlite' or 'mysql'
+        custom_db_name (Optional[str]): Custom database name/path
+
+    Returns:
+        ProxyDB: Initialized database instance
+    """
+    try:
+        return init_mysql_db(custom_db_name)
+    except Exception as e:
+        pass
+
+    try:
+        return init_readonly_db()
+    except Exception as e:
+        pass
+
+    return init_sqlite_db(custom_db_name)
 
 
 def init_readonly_db():

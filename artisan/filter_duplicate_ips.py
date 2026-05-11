@@ -256,7 +256,7 @@ if __name__ == "__main__":
         sys.exit(0)
 
     try:
-        db = init_db("mysql")
+        db = init_db()
     except Exception:
         db = init_readonly_db()
 

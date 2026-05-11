@@ -275,7 +275,7 @@ if __name__ == "__main__":
 
     try:
         proxy_file = get_relative_path("proxies.txt")
-        db = init_db("mysql")
+        db = init_db()
 
         try:
             # Build custom filter that applies last-check + dedupe

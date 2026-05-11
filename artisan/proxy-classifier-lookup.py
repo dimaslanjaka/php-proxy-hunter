@@ -92,7 +92,7 @@ def main():
             mysql_password=db_pass,
         )
     else:
-        db = init_db("mysql")
+        db = init_db()
     asn_lookup = ASNLookup()
 
     def _process_ips(datas: List[Tuple[str, str]]):

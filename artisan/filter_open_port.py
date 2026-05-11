@@ -193,7 +193,7 @@ if __name__ == "__main__":
     db = None
     try:
         try:
-            db = init_db("mysql")
+            db = init_db()
             if getattr(db, "db", None) is None:
                 raise RuntimeError("MySQL initialization failed")
         except Exception as exc:

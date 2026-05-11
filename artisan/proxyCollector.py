@@ -134,7 +134,7 @@ def collect(limit_kb: int | float = 800):
             continue
 
         try:
-            db = init_db("mysql")
+            db = init_db()
 
             if not os.path.exists(selected_file):
                 print(f"Selected file no longer exists: {selected_file}")
@@ -279,4 +279,4 @@ if __name__ == "__main__":
         ]
     )
     collect(args.attr("size_limit", 800))
-    clean_invalid_proxies(init_db("mysql"))
+    clean_invalid_proxies(init_db())
