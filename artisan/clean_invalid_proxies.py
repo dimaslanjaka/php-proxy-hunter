@@ -65,7 +65,10 @@ if __name__ == "__main__":
                 )
                 new_data = data.copy()
                 new_data["proxy"] = extract[0].proxy
-                db.update_data(extract[0].proxy, new_data)
+                try:
+                    db.update_data(extract[0].proxy, new_data)
+                except Exception as e:
+                    print(f"Failed to update proxy in database: {e}")
                 db.remove(proxy)
                 continue
             print(f"Invalid proxy: {red(proxy)} -> Normalized: {red(normalized_proxy)}")
@@ -79,5 +82,8 @@ if __name__ == "__main__":
             # Update the database with the normalized proxy, clone the data except for the proxy field
             new_data = data.copy()
             new_data["proxy"] = normalized_proxy
-            db.update_data(normalized_proxy, new_data)
+            try:
+                db.update_data(normalized_proxy, new_data)
+            except Exception as e:
+                print(f"Failed to update proxy in database: {e}")
             continue
