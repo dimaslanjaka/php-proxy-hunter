@@ -69,13 +69,14 @@ class MySQLHelper:
         if not isinstance(err, Error):
             return False
         errno = getattr(err, "errno", None)
-        if errno in DISCONNECT_ERRNOS:
+        if errno in DISCONNECT_ERRNOS or errno == 1043:
             return True
         msg = str(err).lower()
         return (
             "server has gone away" in msg
             or "lost connection" in msg
             or "disconnected by the server" in msg
+            or "bad handshake" in msg
         )
 
     def _reconnect(self) -> None:
@@ -92,6 +93,11 @@ class MySQLHelper:
             )
             self.conn.autocommit = True
         self._reset_cursor()
+        # Ensure the connection is actually usable
+        try:
+            self.conn.ping(reconnect=True, attempts=3, delay=1)
+        except Exception:
+            pass
 
     def _execute_with_retry(
         self,
