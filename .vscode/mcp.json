@@ -8,10 +8,7 @@
     "ollama-ai": {
       "type": "stdio",
       "command": "node",
-      "args": ["./mcp-server/ollama.js"],
-      "env": {
-        "OLLAMA_MODEL": "llama3"
-      }
+      "args": ["./mcp-server/ollama.js"]
     }
   }
 }
