@@ -26,6 +26,7 @@ class SQLiteMarker:
         os.makedirs(db_dir, exist_ok=True)
 
         self.db = SQLiteHelper(os.path.join(db_dir, db_filename))
+
         self.db.create_table(
             self.table_name,
             [
@@ -34,7 +35,20 @@ class SQLiteMarker:
                 "expires_at TEXT",
             ],
         )
+
         self._ensure_expires_column()
+        self._configure_sqlite()
+
+    # moved here
+    def _configure_sqlite(self):
+        try:
+            self.db.execute_query("PRAGMA journal_mode=WAL")
+            self.db.execute_query("PRAGMA synchronous=NORMAL")
+            self.db.execute_query("PRAGMA temp_store=MEMORY")
+            self.db.execute_query("PRAGMA cache_size=-20000")
+            self.db.execute_query("PRAGMA busy_timeout=30000")
+        except Exception as e:
+            print(f"[sqlite] PRAGMA error: {e}")
 
     def _validate_identifier(self, value: str) -> str:
         if not _IDENTIFIER_RE.match(value):
@@ -42,7 +56,6 @@ class SQLiteMarker:
         return value
 
     def _ensure_expires_column(self) -> None:
-        """Backfill expires_at column for marker DBs created before expiration support."""
         if not self.db.column_exists(self.table_name, "expires_at"):
             self.db.execute_query(
                 f"ALTER TABLE {self.table_name} ADD COLUMN expires_at TEXT"
@@ -57,16 +70,17 @@ class SQLiteMarker:
             text = f"{text[:-1]}+00:00"
 
         parsed = datetime.fromisoformat(text)
+
         if parsed.tzinfo is None:
             parsed = parsed.replace(tzinfo=timezone.utc)
 
-        # Store normalized UTC RFC3339 for stable comparisons.
         return parsed.astimezone(timezone.utc).isoformat()
 
     def get_existing(
         self, values: Iterable[str], as_of: Optional[str] = None
     ) -> Set[str]:
-        normalized = [str(value).strip() for value in values if str(value).strip()]
+        normalized = [str(v).strip() for v in values if str(v).strip()]
+
         if not normalized:
             return set()
 
@@ -77,6 +91,7 @@ class SQLiteMarker:
         )
 
         placeholders = ",".join("?" for _ in normalized)
+
         sql = (
             f"SELECT {self.key_column} FROM {self.table_name} "
             f"WHERE {self.key_column} IN ({placeholders}) "
@@ -84,41 +99,33 @@ class SQLiteMarker:
         )
 
         rows = self.db.execute_query_fetch(sql, [*normalized, as_of_value])
-        rows_list = rows if isinstance(rows, list) else []
+        rows = rows if isinstance(rows, list) else []
+
         return {
-            str(row.get(self.key_column))
-            for row in rows_list
-            if isinstance(row, dict) and row.get(self.key_column)
+            str(r.get(self.key_column))
+            for r in rows
+            if isinstance(r, dict) and r.get(self.key_column)
         }
 
     def filter_unseen(
         self, values: Iterable[str], as_of: Optional[str] = None
     ) -> Tuple[List[str], int]:
-        """Return unseen values that are not marked as valid at ``as_of``.
-
-        Args:
-            values: Input marker values to deduplicate and inspect.
-            as_of: RFC3339 timestamp used to evaluate expiration. Defaults to now.
-
-        Returns:
-            A tuple of ``(pending_values, already_checked_count)`` where
-            ``pending_values`` preserves input order and excludes valid markers.
-        """
         cleaned: List[str] = []
-        seen_in_input: Set[str] = set()
+        seen: Set[str] = set()
 
-        for value in values:
-            marker = str(value).strip()
-            if not marker or marker in seen_in_input:
+        for v in values:
+            v = str(v).strip()
+            if not v or v in seen:
                 continue
-            seen_in_input.add(marker)
-            cleaned.append(marker)
+            seen.add(v)
+            cleaned.append(v)
 
         if not cleaned:
             return [], 0
 
-        existing = self.get_existing(cleaned, as_of=as_of)
-        pending = [value for value in cleaned if value not in existing]
+        existing = self.get_existing(cleaned, as_of)
+        pending = [v for v in cleaned if v not in existing]
+
         return pending, len(existing)
 
     def _resolve_valid_until(
@@ -135,46 +142,36 @@ class SQLiteMarker:
         return self._normalize_rfc3339(valid_until)
 
     def mark(self, value: str, valid_until: Optional[Union[str, int]] = None) -> None:
-        """Persist a marker and optionally set its expiration.
-
-        Args:
-            value: Marker value to store.
-            valid_until: Expiration control for the marker.
-                - ``None`` keeps the marker valid indefinitely.
-                - ``int`` is treated as a number of days from now.
-                - ``str`` must be an RFC3339 timestamp.
-        """
-        marker = str(value).strip()
-        if not marker:
+        value = str(value).strip()
+        if not value:
             return
 
-        created_at = datetime.now(timezone.utc).isoformat()
-        expires_at = self._resolve_valid_until(valid_until)
+        now = datetime.now(timezone.utc).isoformat()
+        expires = self._resolve_valid_until(valid_until)
 
-        # Update first so existing markers can refresh expiration.
         self.db.execute_query(
             f"""
             UPDATE {self.table_name}
             SET created_at = ?, expires_at = ?
             WHERE {self.key_column} = ?
             """,
-            [created_at, expires_at, marker],
+            [now, expires, value],
         )
 
-        # Insert path for first mark.
         self.db.execute_query(
             f"""
-            INSERT OR IGNORE INTO {self.table_name} ({self.key_column}, created_at, expires_at)
+            INSERT OR IGNORE INTO {self.table_name}
+            ({self.key_column}, created_at, expires_at)
             VALUES (?, ?, ?)
             """,
-            [marker, created_at, expires_at],
+            [value, now, expires],
         )
 
-    def close(self) -> None:
+    def close(self):
         self.db.close()
 
     def __enter__(self):
         return self
 
-    def __exit__(self, exc_type, exc_value, traceback):
+    def __exit__(self, *_):
         self.close()
