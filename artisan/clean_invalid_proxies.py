@@ -1,21 +1,33 @@
+from __future__ import annotations
+
+import asyncio
 import os
-import random
-import re
-import signal
-import sys
 from pathlib import Path
-from typing import List, Tuple
+import re
+import sys
+from typing import Any
 
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 from proxy_hunter import extract_proxies, is_valid_proxy
 
 from src.func import get_relative_path
 from src.func_console import green, red
 from src.ProxyDB import ProxyDB
 from src.shared import init_db, init_sqlite_db
-from src.utils.file.FileLockHelper import FileLockHelper
-from src.utils.file.remove_string_from_file import remove_string_from_file
+
+CONCURRENT_TASKS = 100
+
+
+def to_project_relative_path(path: Any) -> str | None:
+    if not path or not isinstance(path, str):
+        return path
+    if isinstance(path, Path):
+        path = str(path)
+
+    project_root = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+    return os.path.relpath(os.path.abspath(path), project_root)
 
 
 def normalize_proxy(proxy: str) -> str:
@@ -35,73 +47,131 @@ def normalize_proxy(proxy: str) -> str:
 
     ip, port = match.groups()
 
-    # Remove leading zeros from each octet
-    octets = [str(int(octet)) for octet in ip.split(".")]
+    try:
+        octets = [str(int(octet)) for octet in ip.split(".")]
+    except ValueError:
+        return proxy
 
-    # Keep normalization best-effort; invalid octets should be handled by is_valid_proxy.
     for octet in octets:
         if not 0 <= int(octet) <= 255:
             return proxy
 
     ip_port = f"{'.'.join(octets)}:{port}"
+
     extract = extract_proxies(ip_port)
     if extract:
         return extract[0].proxy
+
     return proxy
 
 
-def remover(db: ProxyDB):
+async def process_proxy(
+    db: ProxyDB,
+    data: dict[str, Any],
+    driver: str,
+    semaphore: asyncio.Semaphore,
+):
+    async with semaphore:
+        proxy = str(data.get("proxy", ""))
+        normalized_proxy = normalize_proxy(proxy)
+
+        valid_normalized = is_valid_proxy(normalized_proxy)
+        valid_original = is_valid_proxy(proxy)
+
+        # Completely invalid proxy
+        if not valid_normalized and not valid_original:
+            extract = extract_proxies(proxy)
+
+            if extract:
+                extracted_proxy = extract[0].proxy
+
+                print(
+                    f"[{driver}] Extracted valid proxy from invalid format: "
+                    f"{red(proxy)} -> {green(extracted_proxy)}"
+                )
+
+                new_data = data.copy()
+                new_data["proxy"] = extracted_proxy
+
+                try:
+                    await asyncio.to_thread(
+                        db.update_data,
+                        extracted_proxy,
+                        new_data,
+                    )
+                except Exception as e:
+                    print(f"[{driver}] Failed to update proxy in database: {e}")
+
+                await asyncio.to_thread(db.remove, proxy)
+                return
+
+            print(
+                f"[{driver}] Invalid proxy: "
+                f"{red(proxy)} -> Normalized: {red(normalized_proxy)}"
+            )
+
+            await asyncio.to_thread(db.remove, proxy)
+            return
+
+        # Needs normalization
+        if proxy != normalized_proxy:
+            print(
+                f"[{driver}] Invalid proxy format: "
+                f"{red(proxy)} -> Normalized: {green(normalized_proxy)}"
+            )
+
+            await asyncio.to_thread(db.remove, proxy)
+
+            new_data = data.copy()
+            new_data["proxy"] = normalized_proxy
+
+            try:
+                await asyncio.to_thread(
+                    db.update_data,
+                    normalized_proxy,
+                    new_data,
+                )
+            except Exception as e:
+                print(f"[{driver}] Failed to update proxy in database: {e}")
+
+
+async def remover(db: ProxyDB):
     page = 1
     per_page = 1000
+
     driver = (
-        f"{db.driver} {f"({db.db_location})" if db.driver == 'sqlite' else ''}".strip()
-    )
+        f"{db.driver} "
+        f"{f'({to_project_relative_path(db.db_location)})' if db.driver == 'sqlite' else ''}"
+    ).strip()
+
+    semaphore = asyncio.Semaphore(CONCURRENT_TASKS)
 
     while True:
-        proxies = db.get_all_proxies(page=page, per_page=per_page)
+        proxies = await asyncio.to_thread(
+            db.get_all_proxies,
+            page=page,
+            per_page=per_page,
+        )
+
         if not proxies:
             break
 
-        for data in proxies:
-            proxy = str(data.get("proxy", ""))
-            normalized_proxy = normalize_proxy(proxy)
-            if not is_valid_proxy(normalized_proxy) and not is_valid_proxy(proxy):
-                extract = extract_proxies(proxy)
-                if extract:
-                    print(
-                        f"[{driver}] Extracted valid proxy from invalid format: {red(proxy)} -> {green(extract[0].proxy)}"
-                    )
-                    new_data = data.copy()
-                    new_data["proxy"] = extract[0].proxy
-                    try:
-                        db.update_data(extract[0].proxy, new_data)
-                    except Exception as e:
-                        print(f"[{driver}] Failed to update proxy in database: {e}")
-                    db.remove(proxy)
-                    continue
-                print(
-                    f"[{driver}] Invalid proxy: {red(proxy)} -> Normalized: {red(normalized_proxy)}"
-                )
-                db.remove(proxy)
-                continue
-            if proxy != normalized_proxy:
-                print(
-                    f"[{driver}] Invalid proxy format: {red(proxy)} -> Normalized: {green(normalized_proxy)}"
-                )
-                db.remove(proxy)
-                # Update the database with the normalized proxy, clone the data except for the proxy field
-                new_data = data.copy()
-                new_data["proxy"] = normalized_proxy
-                try:
-                    db.update_data(normalized_proxy, new_data)
-                except Exception as e:
-                    print(f"[{driver}] Failed to update proxy in database: {e}")
-                continue
+        tasks = [
+            process_proxy(
+                db=db,
+                data=data,
+                driver=driver,
+                semaphore=semaphore,
+            )
+            for data in proxies
+        ]
+
+        await asyncio.gather(*tasks)
 
         page += 1
 
 
-if __name__ == "__main__":
+async def main():
     databases = [
         init_db(),
         init_sqlite_db(get_relative_path("src/database.sqlite")),
@@ -109,11 +179,23 @@ if __name__ == "__main__":
     ]
 
     try:
-        for db in databases:
-            remover(db)
+        await asyncio.gather(*(remover(db) for db in databases))
+
     finally:
+        close_tasks = []
+
         for db in databases:
-            try:
-                db.close()
-            except Exception as e:
-                print(f"[{db.driver}] Error occurred while closing database: {e}")
+            close_tasks.append(asyncio.to_thread(close_database, db))
+
+        await asyncio.gather(*close_tasks)
+
+
+def close_database(db: ProxyDB):
+    try:
+        db.close()
+    except Exception as e:
+        print(f"[{db.driver}] Error occurred while closing database: {e}")
+
+
+if __name__ == "__main__":
+    asyncio.run(main())
