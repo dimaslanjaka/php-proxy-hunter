@@ -4,7 +4,6 @@ import { ProxyDetails } from '../../../../types/proxy';
 import { add_ajax_schedule, run_ajax_schedule } from '../../../utils/ajaxScheduler';
 import copyToClipboard from '../../../utils/data/copyToClipboard.js';
 import { timeAgo } from '../../../utils/date/timeAgo.js';
-import { noop } from '../../../utils/other';
 import { useSnackbar } from '../../components/Snackbar';
 import { checkProxy } from '../../utils/proxy';
 import { getProxyTypeColorClass } from '../../utils/proxyColors';
@@ -149,8 +148,6 @@ function WorkingJson() {
   const getWorkingProxies = React.useCallback(async () => {
     if (fetchingProxiesRef.current) return [];
     fetchingProxiesRef.current = true;
-    // refresh working.json in background (non-blocking, no need to await, and ignore errors)
-    fetch(createUrl('/artisan/proxyWorking.php')).catch(noop);
     let result: any = [];
     try {
       const res = await fetch(createUrl('/php_backend/embed.php?file=working.json&hash=' + Date.now()), {
