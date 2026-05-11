@@ -238,11 +238,13 @@ try {
   }
 
   $sql = 'SELECT * FROM proxies ' . $where . ' ' . $orderSql . ' ' . $limitSql;
+
+  $checksum  = $proxy_db->checksum('proxies', ['proxy', 'status', 'type']);
+  $cacheName = md5($sql . json_encode($params) . $driver . $checksum);
   if (!empty($request['hash'])) {
-    $cacheName = $request['hash'];
-  } else {
-    $cacheName = md5($sql . json_encode($params) . $driver);
+    $cacheName .= $request['hash'];
   }
+  $cacheName = sanitizeFilename($cacheName);
   $cacheFile = get_project_root("tmp/proxies/{$cacheName}.json");
   $response  = [
     'error'           => false,
@@ -252,6 +254,8 @@ try {
     'driver'          => $driver,
     'page'            => $page,
     'perPage'         => $perPage,
+    'checksum'        => $checksum,
+    'cacheName'       => $cacheName,
   ];
 
   $cacheTTL = 300; // Cache time-to-live in seconds (5 minutes)
