@@ -53,6 +53,9 @@ def normalize_proxy(proxy: str) -> str:
 def remover(db: ProxyDB):
     page = 1
     per_page = 1000
+    driver = (
+        f"{db.driver} {f"({db.db_location})" if db.driver == 'sqlite' else ''}".strip()
+    )
 
     while True:
         proxies = db.get_all_proxies(page=page, per_page=per_page)
@@ -66,24 +69,24 @@ def remover(db: ProxyDB):
                 extract = extract_proxies(proxy)
                 if extract:
                     print(
-                        f"Extracted valid proxy from invalid format: {red(proxy)} -> {green(extract[0].proxy)}"
+                        f"[{driver}] Extracted valid proxy from invalid format: {red(proxy)} -> {green(extract[0].proxy)}"
                     )
                     new_data = data.copy()
                     new_data["proxy"] = extract[0].proxy
                     try:
                         db.update_data(extract[0].proxy, new_data)
                     except Exception as e:
-                        print(f"Failed to update proxy in database: {e}")
+                        print(f"[{driver}] Failed to update proxy in database: {e}")
                     db.remove(proxy)
                     continue
                 print(
-                    f"Invalid proxy: {red(proxy)} -> Normalized: {red(normalized_proxy)}"
+                    f"[{driver}] Invalid proxy: {red(proxy)} -> Normalized: {red(normalized_proxy)}"
                 )
                 db.remove(proxy)
                 continue
             if proxy != normalized_proxy:
                 print(
-                    f"Invalid proxy format: {red(proxy)} -> Normalized: {green(normalized_proxy)}"
+                    f"[{driver}] Invalid proxy format: {red(proxy)} -> Normalized: {green(normalized_proxy)}"
                 )
                 db.remove(proxy)
                 # Update the database with the normalized proxy, clone the data except for the proxy field
@@ -92,7 +95,7 @@ def remover(db: ProxyDB):
                 try:
                     db.update_data(normalized_proxy, new_data)
                 except Exception as e:
-                    print(f"Failed to update proxy in database: {e}")
+                    print(f"[{driver}] Failed to update proxy in database: {e}")
                 continue
 
         page += 1
@@ -113,4 +116,4 @@ if __name__ == "__main__":
             try:
                 db.close()
             except Exception as e:
-                print(f"Error occurred while closing database: {e}")
+                print(f"[{db.driver}] Error occurred while closing database: {e}")
