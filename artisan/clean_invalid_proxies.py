@@ -13,7 +13,7 @@ from proxy_hunter import extract_proxies, is_valid_proxy
 from src.func import get_relative_path
 from src.func_console import green, red
 from src.ProxyDB import ProxyDB
-from src.shared import init_db
+from src.shared import init_db, init_sqlite_db
 from src.utils.file.FileLockHelper import FileLockHelper
 from src.utils.file.remove_string_from_file import remove_string_from_file
 
@@ -50,8 +50,7 @@ def normalize_proxy(proxy: str) -> str:
     return proxy
 
 
-if __name__ == "__main__":
-    db = init_db()
+def remover(db: ProxyDB):
     page = 1
     per_page = 1000
 
@@ -98,7 +97,20 @@ if __name__ == "__main__":
 
         page += 1
 
+
+if __name__ == "__main__":
+    databases = [
+        init_db(),
+        init_sqlite_db(get_relative_path("src/database.sqlite")),
+        init_sqlite_db(get_relative_path("tmp/database.sqlite")),
+    ]
+
     try:
-        db.close()
-    except Exception:
-        pass
+        for db in databases:
+            remover(db)
+    finally:
+        for db in databases:
+            try:
+                db.close()
+            except Exception as e:
+                print(f"Error occurred while closing database: {e}")
