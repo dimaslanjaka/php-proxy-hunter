@@ -16,7 +16,6 @@ from src.ProxyDB import ProxyDB
 from src.shared import init_db
 from src.utils.file.FileLockHelper import FileLockHelper
 from src.utils.file.remove_string_from_file import remove_string_from_file
-from src.utils.parse_args import parse_args
 
 
 def normalize_proxy(proxy: str) -> str:
@@ -53,37 +52,53 @@ def normalize_proxy(proxy: str) -> str:
 
 if __name__ == "__main__":
     db = init_db()
-    proxies = db.get_all_proxies()
-    for data in proxies:
-        proxy = str(data.get("proxy", ""))
-        normalized_proxy = normalize_proxy(proxy)
-        if not is_valid_proxy(normalized_proxy) and not is_valid_proxy(proxy):
-            extract = extract_proxies(proxy)
-            if extract:
+    page = 1
+    per_page = 1000
+
+    while True:
+        proxies = db.get_all_proxies(page=page, per_page=per_page)
+        if not proxies:
+            break
+
+        for data in proxies:
+            proxy = str(data.get("proxy", ""))
+            normalized_proxy = normalize_proxy(proxy)
+            if not is_valid_proxy(normalized_proxy) and not is_valid_proxy(proxy):
+                extract = extract_proxies(proxy)
+                if extract:
+                    print(
+                        f"Extracted valid proxy from invalid format: {red(proxy)} -> {green(extract[0].proxy)}"
+                    )
+                    new_data = data.copy()
+                    new_data["proxy"] = extract[0].proxy
+                    try:
+                        db.update_data(extract[0].proxy, new_data)
+                    except Exception as e:
+                        print(f"Failed to update proxy in database: {e}")
+                    db.remove(proxy)
+                    continue
                 print(
-                    f"Extracted valid proxy from invalid format: {red(proxy)} -> {green(extract[0].proxy)}"
+                    f"Invalid proxy: {red(proxy)} -> Normalized: {red(normalized_proxy)}"
                 )
-                new_data = data.copy()
-                new_data["proxy"] = extract[0].proxy
-                try:
-                    db.update_data(extract[0].proxy, new_data)
-                except Exception as e:
-                    print(f"Failed to update proxy in database: {e}")
                 db.remove(proxy)
                 continue
-            print(f"Invalid proxy: {red(proxy)} -> Normalized: {red(normalized_proxy)}")
-            db.remove(proxy)
-            continue
-        if proxy != normalized_proxy:
-            print(
-                f"Invalid proxy format: {red(proxy)} -> Normalized: {green(normalized_proxy)}"
-            )
-            db.remove(proxy)
-            # Update the database with the normalized proxy, clone the data except for the proxy field
-            new_data = data.copy()
-            new_data["proxy"] = normalized_proxy
-            try:
-                db.update_data(normalized_proxy, new_data)
-            except Exception as e:
-                print(f"Failed to update proxy in database: {e}")
-            continue
+            if proxy != normalized_proxy:
+                print(
+                    f"Invalid proxy format: {red(proxy)} -> Normalized: {green(normalized_proxy)}"
+                )
+                db.remove(proxy)
+                # Update the database with the normalized proxy, clone the data except for the proxy field
+                new_data = data.copy()
+                new_data["proxy"] = normalized_proxy
+                try:
+                    db.update_data(normalized_proxy, new_data)
+                except Exception as e:
+                    print(f"Failed to update proxy in database: {e}")
+                continue
+
+        page += 1
+
+    try:
+        db.close()
+    except Exception:
+        pass
