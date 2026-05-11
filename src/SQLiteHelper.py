@@ -1,6 +1,7 @@
 import os
 import sqlite3
 import sys
+import threading
 from typing import List, Optional, Union, Dict, Any
 
 from proxy_hunter import copy_file, delete_path
@@ -105,10 +106,12 @@ class SQLiteHelper:
             db_path (str): The file path to the SQLite database.
         """
         self.db_path = db_path
-        # Connect database
+        # Connect database (create a connection object)
         sqlite3.connect(db_path, check_same_thread=check_same_thread)
         # Wrap custom class
         self.conn = MyDatabaseConnection(db_path, check_same_thread=check_same_thread)
+        # Lock to serialize access from multiple threads
+        self._lock = threading.RLock()
         self.conn.execute("PRAGMA foreign_keys = ON")  # Enable foreign key support
         self.conn.row_factory = sqlite3.Row  # Access rows by column names
 
@@ -129,12 +132,19 @@ class SQLiteHelper:
         """
         columns_str = ", ".join(columns)
         sql = f"CREATE TABLE IF NOT EXISTS {table_name} ({columns_str})"
-        cur = self.conn.cursor()
-        try:
-            cur.execute(sql)
-            self.conn.commit()
-        finally:
-            cur.close()
+        with self._lock:
+            cur = self.conn.cursor()
+            try:
+                cur.execute(sql)
+                try:
+                    self.conn.commit()
+                except sqlite3.OperationalError as e:
+                    if "no transaction is active" in str(e).lower():
+                        pass
+                    else:
+                        raise
+            finally:
+                cur.close()
 
     def insert(self, table_name: str, data: dict) -> None:
         """
@@ -150,37 +160,92 @@ class SQLiteHelper:
         columns = ", ".join(data.keys())
         placeholders = ", ".join("?" * len(data))
         sql = f"INSERT INTO {table_name} ({columns}) VALUES ({placeholders})"
-        cur = self.conn.cursor()
-        try:
-            params = tuple(list(data.values()))
-            cur.execute(sql, params)
-            self.conn.commit()
-        finally:
-            cur.close()
+        with self._lock:
+            cur = self.conn.cursor()
+            try:
+                params = tuple(list(data.values()))
+                try:
+                    cur.execute(sql, params)
+                except sqlite3.OperationalError as e:
+                    msg = str(e).lower()
+                    if "cannot start a transaction within a transaction" in msg:
+                        try:
+                            self.conn.rollback()
+                        except Exception:
+                            pass
+                        # retry once
+                        cur.execute(sql, params)
+                    else:
+                        raise
+                try:
+                    self.conn.commit()
+                except sqlite3.OperationalError as e:
+                    if "no transaction is active" in str(e).lower():
+                        pass
+                    else:
+                        raise
+            finally:
+                cur.close()
 
     def insert_ignore(self, table_name: str, data: Dict[str, Any]) -> None:
         columns = ", ".join(data.keys())
         placeholders = ", ".join("?" * len(data))
         sql = f"INSERT OR IGNORE INTO {table_name} ({columns}) VALUES ({placeholders})"
-        cur = self.conn.cursor()
-        try:
-            params = tuple(list(data.values()))
-            cur.execute(sql, params)
-            self.conn.commit()
-        finally:
-            cur.close()
+        with self._lock:
+            cur = self.conn.cursor()
+            try:
+                params = tuple(list(data.values()))
+                try:
+                    cur.execute(sql, params)
+                except sqlite3.OperationalError as e:
+                    msg = str(e).lower()
+                    if "cannot start a transaction within a transaction" in msg:
+                        try:
+                            self.conn.rollback()
+                        except Exception:
+                            pass
+                        cur.execute(sql, params)
+                    else:
+                        raise
+                try:
+                    self.conn.commit()
+                except sqlite3.OperationalError as e:
+                    if "no transaction is active" in str(e).lower():
+                        pass
+                    else:
+                        raise
+            finally:
+                cur.close()
 
     def insert_replace(self, table_name: str, data: Dict[str, Any]) -> None:
         columns = ", ".join(data.keys())
         placeholders = ", ".join("?" * len(data))
         sql = f"INSERT OR REPLACE INTO {table_name} ({columns}) VALUES ({placeholders})"
-        cur = self.conn.cursor()
-        try:
-            params = tuple(list(data.values()))
-            cur.execute(sql, params)
-            self.conn.commit()
-        finally:
-            cur.close()
+        with self._lock:
+            cur = self.conn.cursor()
+            try:
+                params = tuple(list(data.values()))
+                try:
+                    cur.execute(sql, params)
+                except sqlite3.OperationalError as e:
+                    msg = str(e).lower()
+                    if "cannot start a transaction within a transaction" in msg:
+                        try:
+                            self.conn.rollback()
+                        except Exception:
+                            pass
+                        cur.execute(sql, params)
+                    else:
+                        raise
+                try:
+                    self.conn.commit()
+                except sqlite3.OperationalError as e:
+                    if "no transaction is active" in str(e).lower():
+                        pass
+                    else:
+                        raise
+            finally:
+                cur.close()
 
     def select(
         self,
@@ -214,33 +279,54 @@ class SQLiteHelper:
         if use_limit_param:
             sql += " LIMIT ?"
 
-        cur = self.conn.cursor()
-        try:
-            exec_params_list = list(params) if params is not None else []
-            if use_limit_param:
-                exec_params_list.append(limit)
-            exec_params = tuple(exec_params_list)
+        with self._lock:
+            cur = self.conn.cursor()
             try:
-                cur.execute(sql, exec_params)
-            except sqlite3.InterfaceError:
-                # Debug info to help diagnose bad parameter misuse from callers
+                exec_params_list = list(params) if params is not None else []
+                if use_limit_param:
+                    exec_params_list.append(limit)
+                exec_params = tuple(exec_params_list)
                 try:
-                    print("[SQLiteHelper.select] InterfaceError executing SQL:", sql)
-                    print("[SQLiteHelper.select] exec_params repr:", repr(exec_params))
-                    print("[SQLiteHelper.select] exec_params type:", type(exec_params))
-                    if isinstance(exec_params, (list, tuple)) and len(exec_params) > 0:
+                    cur.execute(sql, exec_params)
+                except sqlite3.InterfaceError:
+                    # Debug info to help diagnose bad parameter misuse from callers
+                    try:
                         print(
-                            "[SQLiteHelper.select] first param type:",
-                            type(exec_params[0]),
-                            repr(exec_params[0]),
+                            "[SQLiteHelper.select] InterfaceError executing SQL:", sql
                         )
-                except Exception:
-                    pass
-                raise
-            rows = cur.fetchall()
-            return [dict(row) for row in rows]
-        finally:
-            cur.close()
+                        print(
+                            "[SQLiteHelper.select] exec_params repr:", repr(exec_params)
+                        )
+                        print(
+                            "[SQLiteHelper.select] exec_params type:", type(exec_params)
+                        )
+                        if (
+                            isinstance(exec_params, (list, tuple))
+                            and len(exec_params) > 0
+                        ):
+                            print(
+                                "[SQLiteHelper.select] first param type:",
+                                type(exec_params[0]),
+                                repr(exec_params[0]),
+                            )
+                    except Exception:
+                        pass
+                    raise
+                except sqlite3.OperationalError as e:
+                    msg = str(e).lower()
+                    if "cannot start a transaction within a transaction" in msg:
+                        try:
+                            self.conn.rollback()
+                        except Exception:
+                            pass
+                        # retry once
+                        cur.execute(sql, exec_params)
+                    else:
+                        raise
+                rows = cur.fetchall()
+                return [dict(row) for row in rows]
+            finally:
+                cur.close()
 
     def count(
         self,
@@ -250,27 +336,31 @@ class SQLiteHelper:
     ) -> int:
         """
         Returns the number of rows matching the given conditions.
-
-        Args:
-            table_name (str): The name of the table.
-            where (Optional[str]): The WHERE clause without the 'WHERE' keyword (default is None).
-            params (Optional[Union[tuple, list]]): Parameters to substitute in the query (default is None).
-
-        Returns:
-            int: The number of rows matching the conditions.
         """
         sql = f"SELECT COUNT(*) as count FROM {table_name}"
         if where:
             sql += f" WHERE {where}"
-        cur = self.conn.cursor()
-        try:
-            exec_params = tuple(params) if params is not None else ()
-            cur.execute(sql, exec_params)
-            row = cur.fetchone()
-            count = row["count"] if row else 0
-            return count if count is not None else 0
-        finally:
-            cur.close()
+        with self._lock:
+            cur = self.conn.cursor()
+            try:
+                exec_params = tuple(params) if params is not None else ()
+                try:
+                    cur.execute(sql, exec_params)
+                except sqlite3.OperationalError as e:
+                    msg = str(e).lower()
+                    if "cannot start a transaction within a transaction" in msg:
+                        try:
+                            self.conn.rollback()
+                        except Exception:
+                            pass
+                        cur.execute(sql, exec_params)
+                    else:
+                        raise
+                row = cur.fetchone()
+                count = row["count"] if row else 0
+                return count if count is not None else 0
+            finally:
+                cur.close()
 
     def update(
         self,
@@ -283,25 +373,61 @@ class SQLiteHelper:
         sql = f"UPDATE {table_name} SET {set_values} WHERE {where}"
 
         # Ensure None values are passed directly, and convert params to a list if necessary
-        cur = self.conn.cursor()
-        try:
-            combined = list(data.values()) + list(params or [])
-            cur.execute(sql, tuple(combined))
-            self.conn.commit()
-        finally:
-            cur.close()
+        with self._lock:
+            cur = self.conn.cursor()
+            try:
+                combined = list(data.values()) + list(params or [])
+                try:
+                    cur.execute(sql, tuple(combined))
+                except sqlite3.OperationalError as e:
+                    msg = str(e).lower()
+                    if "cannot start a transaction within a transaction" in msg:
+                        try:
+                            self.conn.rollback()
+                        except Exception:
+                            pass
+                        cur.execute(sql, tuple(combined))
+                    else:
+                        raise
+                try:
+                    self.conn.commit()
+                except sqlite3.OperationalError as e:
+                    if "no transaction is active" in str(e).lower():
+                        pass
+                    else:
+                        raise
+            finally:
+                cur.close()
 
     def delete(
         self, table_name: str, where: str, params: Optional[Union[tuple, list]] = None
     ) -> None:
         sql = f"DELETE FROM {table_name} WHERE {where}"
-        cur = self.conn.cursor()
-        try:
-            exec_params = tuple(params) if params is not None else ()
-            cur.execute(sql, exec_params)
-            self.conn.commit()
-        finally:
-            cur.close()
+        with self._lock:
+            cur = self.conn.cursor()
+            try:
+                exec_params = tuple(params) if params is not None else ()
+                try:
+                    cur.execute(sql, exec_params)
+                except sqlite3.OperationalError as e:
+                    msg = str(e).lower()
+                    if "cannot start a transaction within a transaction" in msg:
+                        try:
+                            self.conn.rollback()
+                        except Exception:
+                            pass
+                        cur.execute(sql, exec_params)
+                    else:
+                        raise
+                try:
+                    self.conn.commit()
+                except sqlite3.OperationalError as e:
+                    if "no transaction is active" in str(e).lower():
+                        pass
+                    else:
+                        raise
+            finally:
+                cur.close()
 
     def execute_query(
         self, sql: str, params: Optional[Union[tuple, list]] = None
@@ -316,16 +442,47 @@ class SQLiteHelper:
         Returns:
             None
         """
-        cur = self.conn.cursor()
-        try:
-            if params is not None and params != () and params != []:
-                exec_params = tuple(params) if not isinstance(params, dict) else params
-                cur.execute(sql, exec_params)
-            else:
-                cur.execute(sql)
-            self.conn.commit()
-        finally:
-            cur.close()
+        with self._lock:
+            cur = self.conn.cursor()
+            try:
+                if params is not None and params != () and params != []:
+                    exec_params = (
+                        tuple(params) if not isinstance(params, dict) else params
+                    )
+                    try:
+                        cur.execute(sql, exec_params)
+                    except sqlite3.OperationalError as e:
+                        msg = str(e).lower()
+                        if "cannot start a transaction within a transaction" in msg:
+                            try:
+                                self.conn.rollback()
+                            except Exception:
+                                pass
+                            cur.execute(sql, exec_params)
+                        else:
+                            raise
+                else:
+                    try:
+                        cur.execute(sql)
+                    except sqlite3.OperationalError as e:
+                        msg = str(e).lower()
+                        if "cannot start a transaction within a transaction" in msg:
+                            try:
+                                self.conn.rollback()
+                            except Exception:
+                                pass
+                            cur.execute(sql)
+                        else:
+                            raise
+                try:
+                    self.conn.commit()
+                except sqlite3.OperationalError as e:
+                    if "no transaction is active" in str(e).lower():
+                        pass
+                    else:
+                        raise
+            finally:
+                cur.close()
 
     def execute_query_fetch(
         self, sql: str, params: Optional[Union[tuple, list]] = None
@@ -345,35 +502,64 @@ class SQLiteHelper:
             Union[List[Dict[str, Any]], int]: List of row dicts for queries that return rows,
             otherwise the integer affected row count.
         """
-        cur = self.conn.cursor()
-        try:
-            exec_params = tuple(params) if params is not None else ()
-            if exec_params:
-                cur.execute(sql, exec_params)
-            else:
-                cur.execute(sql)
+        with self._lock:
+            cur = self.conn.cursor()
+            try:
+                exec_params = tuple(params) if params is not None else ()
+                if exec_params:
+                    try:
+                        cur.execute(sql, exec_params)
+                    except sqlite3.OperationalError as e:
+                        msg = str(e).lower()
+                        if "cannot start a transaction within a transaction" in msg:
+                            try:
+                                self.conn.rollback()
+                            except Exception:
+                                pass
+                            cur.execute(sql, exec_params)
+                        else:
+                            raise
+                else:
+                    try:
+                        cur.execute(sql)
+                    except sqlite3.OperationalError as e:
+                        msg = str(e).lower()
+                        if "cannot start a transaction within a transaction" in msg:
+                            try:
+                                self.conn.rollback()
+                            except Exception:
+                                pass
+                            cur.execute(sql)
+                        else:
+                            raise
 
-            # If the cursor has a description, there are columns to fetch
-            if cur.description:
-                cols = [d[0] for d in cur.description]
-                rows = cur.fetchall()
-                result = []
-                for r in rows:
-                    if isinstance(r, sqlite3.Row):
-                        result.append(dict(r))
-                    elif isinstance(r, (list, tuple)):
-                        result.append({cols[i]: r[i] for i in range(len(cols))})
-                    elif isinstance(r, dict):
-                        result.append(r)
+                # If the cursor has a description, there are columns to fetch
+                if cur.description:
+                    cols = [d[0] for d in cur.description]
+                    rows = cur.fetchall()
+                    result = []
+                    for r in rows:
+                        if isinstance(r, sqlite3.Row):
+                            result.append(dict(r))
+                        elif isinstance(r, (list, tuple)):
+                            result.append({cols[i]: r[i] for i in range(len(cols))})
+                        elif isinstance(r, dict):
+                            result.append(r)
+                        else:
+                            result.append(r)
+                    return result
+
+                # No description -> no rows (e.g., INSERT/UPDATE/DELETE)
+                try:
+                    self.conn.commit()
+                except sqlite3.OperationalError as e:
+                    if "no transaction is active" in str(e).lower():
+                        pass
                     else:
-                        result.append(r)
-                return result
-
-            # No description -> no rows (e.g., INSERT/UPDATE/DELETE)
-            self.conn.commit()
-            return cur.rowcount
-        finally:
-            cur.close()
+                        raise
+                return cur.rowcount
+            finally:
+                cur.close()
 
     def checksum(self, table: str, columns: Optional[List[str]] = None) -> str:
         """Calculate a checksum for a table by concatenating ordered row values and hashing.
@@ -457,34 +643,42 @@ class SQLiteHelper:
 
         Returns True if the column exists, False otherwise.
         """
-        cur = self.conn.cursor()
-        try:
+        with self._lock:
+            cur = self.conn.cursor()
             try:
-                cur.execute(f"PRAGMA table_info({table_name})")
-            except Exception:
-                # If table does not exist or invalid name, treat as not existing
-                return False
-            rows = cur.fetchall()
-            for row in rows:
-                # sqlite3.Row supports name access or index 1 is the column name
                 try:
-                    name = row["name"]
+                    cur.execute(f"PRAGMA table_info({table_name})")
                 except Exception:
-                    name = row[1] if len(row) > 1 else None
-                if name == column_name:
-                    return True
-            return False
-        finally:
-            cur.close()
+                    # If table does not exist or invalid name, treat as not existing
+                    return False
+                rows = cur.fetchall()
+                for row in rows:
+                    # sqlite3.Row supports name access or index 1 is the column name
+                    try:
+                        name = row["name"]
+                    except Exception:
+                        name = row[1] if len(row) > 1 else None
+                    if name == column_name:
+                        return True
+                return False
+            finally:
+                cur.close()
 
     def truncate_table(self, table_name: str) -> None:
         sql = f"DELETE FROM {table_name}"
-        cur = self.conn.cursor()
-        try:
-            cur.execute(sql)
-            self.conn.commit()
-        finally:
-            cur.close()
+        with self._lock:
+            cur = self.conn.cursor()
+            try:
+                cur.execute(sql)
+                try:
+                    self.conn.commit()
+                except sqlite3.OperationalError as e:
+                    if "no transaction is active" in str(e).lower():
+                        pass
+                    else:
+                        raise
+            finally:
+                cur.close()
 
     def backup_database(self, backup_path: str) -> None:
         """
