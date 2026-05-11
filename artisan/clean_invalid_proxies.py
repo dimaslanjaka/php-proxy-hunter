@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import hashlib
 import os
 from pathlib import Path
 import sys
@@ -14,6 +15,7 @@ from src.func_date import normalize_rfc3339
 from src.func import get_relative_path
 from src.func_console import green, red
 from src.ProxyDB import ProxyDB
+from src.database.SQLiteMarker import SQLiteMarker
 from src.shared import init_db, init_sqlite_db
 
 
@@ -43,15 +45,24 @@ def to_project_relative_path(path: Any) -> str | None:
     return os.path.relpath(os.path.abspath(path), project_root)
 
 
+def make_marker_key(proxy: str, driver: str, db_location: Any) -> str:
+    location = ""
+    if db_location is not None:
+        location = str(db_location)
+    payload = f"{proxy}|{driver}|{location}"
+    return hashlib.md5(payload.encode("utf-8")).hexdigest()
+
+
 def process_proxy(
     db_factory: Callable[[], ProxyDB],
     data: dict[str, Any],
     driver: str,
-):
+) -> str | None:
     db = db_factory()
     try:
         proxy = str(data.get("proxy", ""))
         normalized_proxy = db.normalize_proxy(proxy)
+        marker_key = make_marker_key(proxy, driver, db.db_location)
 
         if proxy != normalized_proxy:
             print(
@@ -80,7 +91,7 @@ def process_proxy(
         if not normalized_proxy:
             print(f"[{driver}] Invalid proxy format, cannot normalize: {red(proxy)}")
             db.remove(proxy)
-            return
+            return None
 
         valid_normalized = is_valid_proxy(normalized_proxy)
         valid_original = is_valid_proxy(proxy)
@@ -107,7 +118,7 @@ def process_proxy(
                     raise FatalDBError(e)
 
                 db.remove(proxy)
-                return
+                return marker_key
 
             print(
                 f"[{driver}] Invalid proxy: "
@@ -115,7 +126,7 @@ def process_proxy(
             )
 
             db.remove(proxy)
-            return
+            return None
 
         # Needs normalization
         if proxy != normalized_proxy:
@@ -134,6 +145,8 @@ def process_proxy(
             except Exception as e:
                 print(f"[{driver}] Failed to update proxy in database: {e}")
                 raise FatalDBError(e)
+
+        return marker_key
     finally:
         close_database(db)
 
@@ -148,21 +161,58 @@ def remover(db: ProxyDB):
     ).strip()
 
     db_factory = lambda: clone_database(db)
+    marker = SQLiteMarker(
+        db_filename="clean_invalid_proxies.sqlite",
+        table_name="cleaned_proxies",
+        key_column="proxy",
+        base_dir="tmp/database",
+    )
 
-    while True:
-        proxies = db.get_all_proxies(page=page, per_page=per_page)
+    try:
+        while True:
+            proxies = db.get_all_proxies(page=page, per_page=per_page)
 
-        if not proxies:
-            break
+            if not proxies:
+                break
 
-        for data in proxies:
-            process_proxy(
-                db_factory=db_factory,
-                data=data,
-                driver=driver,
+            proxy_by_value: dict[str, dict[str, Any]] = {}
+            ordered_marker_keys: list[str] = []
+            for data in proxies:
+                proxy_value = str(data.get("proxy", "")).strip()
+                if not proxy_value or proxy_value in proxy_by_value:
+                    continue
+                proxy_by_value[proxy_value] = data
+                ordered_marker_keys.append(
+                    make_marker_key(proxy_value, driver, db.db_location)
+                )
+
+            pending_proxy_values, already_checked = marker.filter_unseen(
+                ordered_marker_keys
             )
+            if already_checked:
+                print(
+                    f"[{driver}] Skipping {already_checked} recently processed proxies"
+                )
 
-        page += 1
+            for marker_key in pending_proxy_values:
+                proxy_value = next(
+                    key
+                    for key in proxy_by_value
+                    if make_marker_key(key, driver, db.db_location) == marker_key
+                )
+                data = proxy_by_value[proxy_value]
+                marked_proxy = process_proxy(
+                    db_factory=db_factory,
+                    data=data,
+                    driver=driver,
+                )
+                # Mark the proxy as valid for 7 days if it was processed and is valid after processing
+                if marked_proxy and is_valid_proxy(proxy_value):
+                    marker.mark(marked_proxy, valid_until=7)
+
+            page += 1
+    finally:
+        marker.close()
 
 
 def main():
