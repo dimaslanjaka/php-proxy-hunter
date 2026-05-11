@@ -4,7 +4,7 @@ import asyncio
 import os
 from pathlib import Path
 import sys
-from typing import Any
+from typing import Any, Callable
 
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -17,7 +17,33 @@ from src.func_console import green, red
 from src.ProxyDB import ProxyDB
 from src.shared import init_db, init_sqlite_db
 
-CONCURRENT_TASKS = 100
+CONCURRENT_TASKS = 10
+
+
+class FatalDBError(Exception):
+    pass
+
+
+def clone_database(db: ProxyDB) -> ProxyDB:
+    return ProxyDB(
+        db_location=db.db_location,
+        start=True,
+        db_type=db.driver,
+        mysql_host=getattr(db, "mysql_host", "localhost"),
+        mysql_dbname=getattr(db, "mysql_dbname", "php_proxy_hunter"),
+        mysql_user=getattr(db, "mysql_user", "root"),
+        mysql_password=getattr(db, "mysql_password", ""),
+    )
+
+
+async def process_proxy(
+    db_factory: Callable[[], ProxyDB],
+    data: dict[str, Any],
+    driver: str,
+    semaphore: asyncio.Semaphore,
+):
+    async with semaphore:
+        await asyncio.to_thread(process_proxy_sync, db_factory, data, driver)
 
 
 def to_project_relative_path(path: Any) -> str | None:
@@ -30,13 +56,13 @@ def to_project_relative_path(path: Any) -> str | None:
     return os.path.relpath(os.path.abspath(path), project_root)
 
 
-async def process_proxy(
-    db: ProxyDB,
+def process_proxy_sync(
+    db_factory: Callable[[], ProxyDB],
     data: dict[str, Any],
     driver: str,
-    semaphore: asyncio.Semaphore,
 ):
-    async with semaphore:
+    db = db_factory()
+    try:
         proxy = str(data.get("proxy", ""))
         # fix invalid DATE RFC3339 format in last_check if exists
         last_check = data.get("last_check")
@@ -48,17 +74,19 @@ async def process_proxy(
             # Update database if last_check was modified
             if "last_check" in data and data["last_check"] != last_check:
                 try:
-                    await asyncio.to_thread(
-                        db.update_data,
-                        proxy,
-                        data,
-                    )
+                    db.update_data(proxy, data)
                 except Exception as e:
                     print(
                         f"[{driver}] Failed to update last_check for proxy {proxy}: {e}"
                     )
+                    raise FatalDBError(e)
 
         normalized_proxy = db.normalize_proxy(proxy)
+        # when normalized empty, it means it's invalid and cannot be fixed by normalization, delete it
+        if not normalized_proxy:
+            print(f"[{driver}] Invalid proxy format, cannot normalize: {red(proxy)}")
+            db.remove(proxy)
+            return
 
         valid_normalized = is_valid_proxy(normalized_proxy)
         valid_original = is_valid_proxy(proxy)
@@ -79,15 +107,12 @@ async def process_proxy(
                 new_data["proxy"] = extracted_proxy
 
                 try:
-                    await asyncio.to_thread(
-                        db.update_data,
-                        extracted_proxy,
-                        new_data,
-                    )
+                    db.update_data(extracted_proxy, new_data)
                 except Exception as e:
                     print(f"[{driver}] Failed to update proxy in database: {e}")
+                    raise FatalDBError(e)
 
-                await asyncio.to_thread(db.remove, proxy)
+                db.remove(proxy)
                 return
 
             print(
@@ -95,7 +120,7 @@ async def process_proxy(
                 f"{red(proxy)} -> Normalized: {red(normalized_proxy)}"
             )
 
-            await asyncio.to_thread(db.remove, proxy)
+            db.remove(proxy)
             return
 
         # Needs normalization
@@ -105,19 +130,18 @@ async def process_proxy(
                 f"{red(proxy)} -> Normalized: {green(normalized_proxy)}"
             )
 
-            await asyncio.to_thread(db.remove, proxy)
+            db.remove(proxy)
 
             new_data = data.copy()
             new_data["proxy"] = normalized_proxy
 
             try:
-                await asyncio.to_thread(
-                    db.update_data,
-                    normalized_proxy,
-                    new_data,
-                )
+                db.update_data(normalized_proxy, new_data)
             except Exception as e:
                 print(f"[{driver}] Failed to update proxy in database: {e}")
+                raise FatalDBError(e)
+    finally:
+        close_database(db)
 
 
 async def remover(db: ProxyDB):
@@ -131,6 +155,8 @@ async def remover(db: ProxyDB):
 
     semaphore = asyncio.Semaphore(CONCURRENT_TASKS)
 
+    db_factory = lambda: clone_database(db)
+
     while True:
         proxies = await asyncio.to_thread(
             db.get_all_proxies,
@@ -141,17 +167,37 @@ async def remover(db: ProxyDB):
         if not proxies:
             break
 
+        # create tasks so we can cancel pending ones on first exception
         tasks = [
-            process_proxy(
-                db=db,
-                data=data,
-                driver=driver,
-                semaphore=semaphore,
+            asyncio.create_task(
+                process_proxy(
+                    db_factory=db_factory,
+                    data=data,
+                    driver=driver,
+                    semaphore=semaphore,
+                )
             )
             for data in proxies
         ]
 
-        await asyncio.gather(*tasks)
+        # wait until first exception or all done
+        done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
+
+        # if any finished task raised, cancel remaining and re-raise
+        for t in done:
+            if t.cancelled():
+                continue
+            exc = t.exception()
+            if exc is not None:
+                for p in pending:
+                    p.cancel()
+                # ensure pending tasks finish cancellation
+                await asyncio.gather(*pending, return_exceptions=True)
+                raise exc
+
+        # otherwise wait for any pending tasks to finish
+        if pending:
+            await asyncio.gather(*pending)
 
         page += 1
 
