@@ -700,4 +700,15 @@ class ProxyDB
     $result = $this->db->select('proxies', '*', implode(' AND ', $whereClauses), $params, $orderBy, $finalLimit, $offset);
     return $result ?: [];
   }
+
+  /**
+   * Calculate checksum for specified table and columns.
+   *
+   * @param string $table The table name.
+   * @param array|string $columns The columns to include in checksum calculation.
+   * @return mixed
+   */
+  public function checksum($table, $columns) {
+    return $this->db->calculateChecksum($table, $columns);
+  }
 }

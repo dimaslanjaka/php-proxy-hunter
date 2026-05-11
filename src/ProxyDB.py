@@ -976,3 +976,6 @@ class ProxyDB:
                     )
 
         return result
+
+    def checksum(self, table: str, columns: List[str]) -> str:
+        return self.get_db().checksum(table, columns)
