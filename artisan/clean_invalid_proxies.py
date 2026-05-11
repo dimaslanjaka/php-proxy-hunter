@@ -37,10 +37,7 @@ async def process_proxy(
 ):
     async with semaphore:
         proxy = str(data.get("proxy", ""))
-        try:
-            normalized_proxy = db.normalize_proxy(proxy)
-        except ValueError:
-            normalized_proxy = proxy.strip()
+        normalized_proxy = db.normalize_proxy(proxy)
 
         valid_normalized = is_valid_proxy(normalized_proxy)
         valid_original = is_valid_proxy(proxy)
