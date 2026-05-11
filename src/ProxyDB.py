@@ -532,13 +532,21 @@ class ProxyDB:
         proxy: str,
         data: Optional[Dict[str, Any]] = None,
         update_time: bool = True,
+        debug: bool = False,
     ):
+        debug_prefix = f"[{self.driver}]"
         proxy = self.normalize_proxy(proxy)
         if not proxy:
+            if debug:
+                print(f"{debug_prefix} Invalid proxy format, cannot update: {proxy}")
             return
 
         if not self.select(proxy):
-            self.add(proxy)
+            if debug:
+                print(f"{debug_prefix} Proxy not found in database, adding: {proxy}")
+            self.get_db().insert_ignore(
+                "proxies", {"proxy": proxy.strip(), "status": "untested"}
+            )
 
         if data is None:
             data = {}
@@ -551,12 +559,17 @@ class ProxyDB:
             and "last_check" not in data
             and update_time
         ):
+            if debug:
+                print(
+                    f"{debug_prefix} Auto-updating last_check for proxy {proxy} with status {data.get('status')}"
+                )
             data["last_check"] = get_current_rfc3339_time()
 
         if data:
             data = self.clean_type(data)
             data = self.fix_no_such_column(data)
-            # print(data)
+            if debug:
+                print(f"{debug_prefix} Updating proxy {proxy} with data: {data}")
             # use correct placeholder depending on backend
             if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
                 self.get_db().update("proxies", data, "proxy = %s", [proxy.strip()])
