@@ -1,5 +1,79 @@
 [
   {
+    "hash": "5616883bc16aac78a157c9da27933038f0f57988",
+    "date": "2026-05-11T08:13:58+07:00",
+    "message": "refactor(proxy): remove deprecated proxyWorking background flow\n\n- delete proxyWorking.php and proxyWorkingBackground.php\n- remove unused background refresh trigger from WorkingJson page\n- clean up obsolete proxy working command references in batch scripts\n- remove unused noop import",
+    "files": [
+      "artisan/proxyWorking.php",
+      "artisan/proxyWorkingBackground.php",
+      "bin/check-proxy.cmd",
+      "bin/loop-check-proxy.cmd",
+      "src/react/pages/ProxyList/WorkingJson.tsx"
+    ]
+  },
+  {
+    "hash": "0e4d3090e31483a5c96b16a9981fbb1190486d45",
+    "date": "2026-05-11T08:10:53+07:00",
+    "message": "fix(robots.txt): update Disallow rule for embed.php to specify full path",
+    "files": [
+      "robots.txt"
+    ]
+  },
+  {
+    "hash": "c9ab9f4a1aa7e1b3e1c402c514c28d1670e7838b",
+    "date": "2026-05-11T08:10:18+07:00",
+    "message": "feat(proxy-checkers): add functionality to save working proxies to JSON file",
+    "files": [
+      "artisan/proxy_https_checker.py",
+      "artisan/proxy_private_checker.py",
+      "artisan/proxy_socks5_checker.py"
+    ]
+  },
+  {
+    "hash": "db43f9d2d4edc30649a6329092a9e4cf0e4a1b2e",
+    "date": "2026-05-11T08:03:08+07:00",
+    "message": "feat(ProxyDB): add JSON export capability to getWorkingProxies\n\nAdds optional output_file parameter to getWorkingProxies() method across\nall implementations (PHP, JavaScript, Python) to save results as JSON files.\n\nChanges:\n- PHP: Added $outputFile parameter with JSON export and error handling\n- JavaScript: Refactored to use fs-extra, added outputFile parameter\n- Python: Added output_file parameter with pathlib.Path support\n- All: Includes proper directory creation and error logging\n\nThe parameter is optional and defaults to null, maintaining backward\ncompatibility while enabling export of working proxies to JSON format.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/ProxyDB.js",
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "cb58094c4529659c1178657b606a06461f1674c7",
+    "date": "2026-05-11T07:58:42+07:00",
+    "message": "fix(proxy-tools): move ProcessMonitor component to render outside of ProxySubmission",
+    "files": [
+      "src/react/pages/ProxyTools/index.tsx"
+    ]
+  },
+  {
+    "hash": "3eb0098fe770d259c4a8c6756e677024f1c07936",
+    "date": "2026-05-11T07:57:50+07:00",
+    "message": "refactor(php): move embed endpoint into php_backend and update references",
+    "files": [
+      "php_backend/embed.php",
+      "php_backend/index.js",
+      "src/react/pages/ProxyList/WorkingJson.tsx"
+    ]
+  },
+  {
+    "hash": "fbe044e8359b8be5f82b67301cc20c3da84b4aea",
+    "date": "2026-05-11T07:52:31+07:00",
+    "message": "fix(proxy-list): update listTab restore selection on user return\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/react/pages/ProxyList/index.tsx"
+    ]
+  },
+  {
+    "hash": "6284c1d49e84fc4d840fa670e981296460714480",
+    "date": "2026-05-11T07:50:37+07:00",
+    "message": "feat(proxy-list): update table headers to include 'Last Checked' and remove duplicate 'Last Check'",
+    "files": [
+      "src/react/pages/ProxyList/UniqueIpList.tsx"
+    ]
+  },
+  {
     "hash": "59993a05082fcf45722abf079ace2e7056907f4f",
     "date": "2026-05-11T06:42:46+07:00",
     "message": "feat(proxy-tools): add live process monitor with colored usage meters\n\nAdd ANSI meter formatting for CPU and RAM usage in php_backend/processes.php, expose the monitor in Proxy Tools, and add a reusable React component to fetch and display the current process list.\n\nCo-authored-by: Copilot <copilot@github.com>",
@@ -8718,77 +8792,6 @@
     "message": "refactor(ProxySubmission): remove log and status URL handling for cleaner UI",
     "files": [
       "src/react/pages/ProxyList/ProxySubmission.tsx"
-    ]
-  },
-  {
-    "hash": "92ac49f40f0d9bba7f436491db65731165701e38",
-    "date": "2025-11-22T19:19:22+07:00",
-    "message": "feat(php_backend): return logFile URL for HTTP/HTTPS proxy checks\n\n- Add `getFullUrl($output_file)` and include `'logFile' => $embedOutputUrl` in JSON responses for\n  `php_backend/check-http-proxy.php` and `php_backend/check-https-proxy.php` so callers receive the\n  generated log URL after initiating a proxy check.\n- Simplify lock handling by replacing `exit($lockedMsg)` with `exit` to avoid emitting the lock message\n  as the process exit payload.",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "ff170837143654e217c47e375e0ee93dbe4c5e88",
-    "date": "2025-11-22T19:16:49+07:00",
-    "message": "feat(utils/server): add getFullUrl helper and demo test\n\n- Add `src/utils/server/getFullUrl.php`\n  - Introduces `getFullUrl($path)` to build an absolute URL from a filesystem or URL path.\n  - Normalizes paths with `unixPath()`, maps paths relative to `PHP_PROXY_HUNTER_PROJECT_ROOT`, preserves absolute URLs, and returns protocol+host+relative.\n- Add `tests/api/getFullUrl.php`\n  - Simple demo script that prints the full URL for a non-absolute path and for the current file.\n\nThis provides a small utility for resolving project files to public URLs and a quick example script for verification.",
-    "files": [
-      "src/utils/server/getFullUrl.php",
-      "tests/api/getFullUrl.php"
-    ]
-  },
-  {
-    "hash": "6b062954b750b9055f99b86cfc330b2bf114300a",
-    "date": "2025-11-22T18:50:24+07:00",
-    "message": "docs(proxy-list): update Proxy Checker API usage (split HTTP/HTTPS, inline auth)",
-    "files": [
-      "src/react/pages/ProxyList/ApiUsage.tsx"
-    ]
-  },
-  {
-    "hash": "6d3ad5cca544014a3461cb6fb16f4f56e9e47c4d",
-    "date": "2025-11-22T18:09:14+07:00",
-    "message": "feat(proxy-check): replace exit with respond_json and improve proxy check handling\n\n- Remove debug command output from HTTP/HTTPS proxy check scripts\n- Replace manual exit calls with respond_json (which exits internally)\n- Add clearer JSON messages for HTTP/HTTPS proxy check initiation\n- Improve frontend recheck logic with proper success/error message handling\n- Add typed proxy check response in React utils and merge HTTP/HTTPS messages",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php",
-      "src/react/pages/ProxyList/index.tsx",
-      "src/react/utils/proxy.ts"
-    ]
-  },
-  {
-    "hash": "cd0bd0e76fddbe22a1124c7455db3329b9691b42",
-    "date": "2025-11-22T18:03:04+07:00",
-    "message": "fix(proxy): specify protocol in lock file error message for clarity",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "713f8087c3a446148affd1628822c36d4b37329d",
-    "date": "2025-11-22T17:57:44+07:00",
-    "message": "fix(proxy): prevent concurrent execution by checking for existing lock files",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "5a9437ceae2565a8c28004a6e4adf091bd3de4bc",
-    "date": "2025-11-22T17:51:39+07:00",
-    "message": "feat(check-http-proxy): add re-test probe & log retest status\n\nAdd a reTestProxy() helper that probes http/socks4/socks5 via httpbin\nusing browser-like curl options (UA, Accept headers, encoding, follow\nredirects, timeouts). On initial check failure the checker now calls\nreTestProxy(), updates DB status/type if the retest finds a working\nprotocol, and normalizes retest outcomes.\n\nInclude `retest=<alive|dead|not-performed>` in per-proxy log lines so\noperators can see whether a secondary probe ran and what it returned.\n\nNotes:\n- SSL verification is disabled by default for the probe (CURLOPT_SSL_VERIFYPEER=false)\n  to avoid false negatives with intercepting proxies; enable strict SSL\n  checks if desired.\n- No breaking changes to existing successful-check handling.",
-    "files": [
-      "php_backend/check-http-proxy.php"
-    ]
-  },
-  {
-    "hash": "dbcb5f7945eddc335c5bc90d92fc595b3c841979",
-    "date": "2025-11-22T14:18:03+07:00",
-    "message": "fix(executables): avoid caret escapes on Windows by quoting executables\n\nWhen escaping executable paths for shell use, `escapeshellcmd` on Windows can\ninsert caret (`^`) characters which corrupt paths like\n`C:\\xampp\\php\\php.exe` (becoming `C:^\\xampp^\\php^\\php.exe`). Change the\nbehavior of `getPhpExecutable` and `getPythonExecutable` to return a safely\ndouble-quoted path on Windows when escaping is requested, and fall back to\n`escapeshellcmd` on non-Windows platforms.\n\nThis preserves correct quoting for `cmd.exe` while keeping existing escaping",
-    "files": [
-      "src/utils/process/executables.php"
     ]
   }
 ]

@@ -10,7 +10,7 @@ Disallow: /search/label/*
 Disallow: /docs/hexo-renderers/random/*
 Disallow: /admin
 Disallow: /tmp
-Disallow: /embed.php
+Disallow: /php_backend/embed.php
 Allow: /page/safelink.html
 Allow: /page/bot-detect*
 Allow: /search*
