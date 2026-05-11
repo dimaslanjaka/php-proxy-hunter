@@ -3,6 +3,8 @@ import sys
 import re
 from typing import Any, Dict, Iterable, List, Optional, Tuple, Union
 
+from src.func_date import get_yesterday_rfc3339_time
+
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 if PROJECT_ROOT not in sys.path:
     sys.path.append(PROJECT_ROOT)
@@ -34,10 +36,10 @@ def retrieve_proxies(
     """Retrieve proxies from CLI, a file, or the database.
 
     The function resolves CLI arguments by calling ``parse_args()`` internally.
-    It attempts to load proxies in this order: CLI input, a proxy file, an
-    untested set from the DB, then all DB proxies. If ``custom_filter`` is
-    provided it is applied to the produced list of proxy rows before the
-    result is returned.
+    It attempts to load proxies in this order: an explicit ``--proxy_file``
+    value, CLI input, untested or working proxies from the DB, the default
+    proxy file, then all DB proxies. If ``custom_filter`` is provided it is
+    applied to the produced list of proxy rows before the result is returned.
 
     Args:
         db (ProxyDB): Database instance exposing the DB access methods used.
@@ -64,24 +66,19 @@ def retrieve_proxies(
     source_label = "db"
     source_file: Optional[str] = None
 
-    cli_rows = to_proxy_rows(load_proxies_from_cli())
-    if len(cli_rows) != 0:
-        proxies = cli_rows
-        if getattr(args, "proxy_file", None) and args.proxy_file:
-            proxy_file = (
-                args.proxy_file if os.path.exists(args.proxy_file) else proxy_file
-            )
-            source_label = f"file://{proxy_file}"
-            source_file = proxy_file
-        else:
-            source_label = "cli"
-
-    if not proxies:
+    if getattr(args, "proxy_file", None) and args.proxy_file:
+        proxy_file = args.proxy_file if os.path.exists(args.proxy_file) else proxy_file
         file_rows = to_proxy_rows(load_proxies_from_file(proxy_file))
         if file_rows:
             proxies = file_rows
             source_label = f"file://{proxy_file}"
             source_file = proxy_file
+
+    if not proxies:
+        cli_rows = to_proxy_rows(load_proxies_from_cli())
+        if len(cli_rows) != 0:
+            proxies = cli_rows
+            source_label = "cli"
 
     if not proxies:
         # prefer untested when possible
@@ -90,7 +87,11 @@ def retrieve_proxies(
         db_limit = max(limit or 0, 1000)
         rows = (
             db.get_untested_proxies(limit=db_limit, randomize=randomize)
-            or db.get_working_proxies(limit=db_limit, randomize=randomize)
+            or db.get_working_proxies(
+                limit=db_limit,
+                randomize=randomize,
+                last_checked=get_yesterday_rfc3339_time(),
+            )
             or []
         )
 
@@ -102,6 +103,13 @@ def retrieve_proxies(
         proxies = to_proxy_rows(db.get_all_proxies(limit=limit, randomize=randomize))
         source_label = "db"
         source_file = None
+
+    if not proxies:
+        file_rows = to_proxy_rows(load_proxies_from_file(proxy_file))
+        if file_rows:
+            proxies = file_rows
+            source_label = f"file://{proxy_file}"
+            source_file = proxy_file
 
     # apply optional caller filter
     if custom_filter is not None:
