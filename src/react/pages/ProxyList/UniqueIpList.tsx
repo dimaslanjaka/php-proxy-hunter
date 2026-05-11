@@ -488,8 +488,8 @@ export default function UniqueIpList() {
                   <th className="px-3 py-2 whitespace-nowrap">Ports</th>
                   <th className="px-3 py-2 whitespace-nowrap">Types</th>
                   <th className="px-3 py-2 whitespace-nowrap">Location</th>
+                  <th className="px-3 py-2 whitespace-nowrap">Last Checked</th>
                   <th className="px-3 py-2 whitespace-nowrap">Tun2Socks</th>
-                  <th className="px-3 py-2 whitespace-nowrap">Last Check</th>
                   <th className="px-3 py-2 whitespace-nowrap">Actions</th>
                 </tr>
               </thead>
