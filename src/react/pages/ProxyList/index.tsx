@@ -15,7 +15,7 @@ export default function ProxyList() {
 
   const [listTab, setListTab] = React.useState<'server' | 'unique-ip' | 'working-json'>(() => {
     const saved = localStorage.getItem('proxyList_listTab');
-    return saved === 'unique-ip' || saved === 'working-json' ? saved : 'working-json';
+    return saved === 'server' || saved === 'unique-ip' || saved === 'working-json' ? saved : 'working-json';
   });
 
   React.useEffect(() => {
