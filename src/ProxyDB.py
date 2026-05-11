@@ -1,5 +1,6 @@
 import json
 import os
+import re
 import sys
 import time
 from datetime import datetime
@@ -251,8 +252,9 @@ class ProxyDB:
             )
             self.set_meta_value("last_vacuum_time", str(current_time))
 
-    def select(self, proxy: str):
-        proxy = self.normalize_proxy(proxy)
+    def select(self, proxy: Optional[str]):
+        if not proxy:
+            return []
         # both helpers accept select(table, columns, where, params, rand, limit, offset) loosely
         if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
             return self.get_db().select("proxies", "*", "proxy = %s", [proxy.strip()])
@@ -261,6 +263,8 @@ class ProxyDB:
 
     def is_already_added(self, proxy: Optional[str]) -> bool:
         proxy = self.normalize_proxy(proxy)
+        if not proxy:
+            return False
         try:
             if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
                 res = self.get_db().select(
@@ -291,6 +295,8 @@ class ProxyDB:
 
     def mark_as_added(self, proxy: Optional[str]) -> None:
         proxy = self.normalize_proxy(proxy)
+        if not proxy:
+            return
         if self.is_already_added(proxy):
             return
         try:
@@ -319,12 +325,20 @@ class ProxyDB:
         """Normalize and validate a proxy string using extract_proxies()."""
         if proxy is None:
             return ""
-        data = proxy.strip()
-        result = extract_proxies(data)
-        if not result:
-            return data
-        # If there are multiple proxies, return first (PHP throws) — keep simple here
-        return result[0].proxy
+        proxy = proxy.strip()
+        pattern = r"^(\d{1,3}(?:\.\d{1,3}){3}):(\d+)$"
+        match = re.match(pattern, proxy)
+        if not match:
+            # raise ValueError(f"Invalid proxy format: {proxy}")
+            return ""
+        # Normalize the port number (remove leading zeros)
+        ip, port = match.groups()
+        octets = [str(int(octet)) for octet in ip.split(".")]
+        for octet in octets:
+            if not 0 <= int(octet) <= 255:
+                return proxy
+
+        return f"{'.'.join(octets)}:{int(port)}"
 
     def get_all_proxies(
         self,
@@ -412,7 +426,8 @@ class ProxyDB:
                 return []
 
     def remove(self, proxy: Optional[str], delete_from_added: bool = False):
-        proxy = self.normalize_proxy(proxy)
+        if not proxy:
+            return
         if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
             self.get_db().delete("proxies", "proxy = %s", [proxy.strip()])
         else:
@@ -439,6 +454,8 @@ class ProxyDB:
 
     def add(self, proxy: str):
         proxy = self.normalize_proxy(proxy)
+        if not proxy:
+            return []
         # Do not add if present in added_proxies
         try:
             if self.is_already_added(proxy):
@@ -482,6 +499,9 @@ class ProxyDB:
         timezone=None,
         **kwargs,
     ):
+        proxy = self.normalize_proxy(proxy)
+        if not proxy:
+            return
         if not self.select(proxy):
             self.add(proxy)
         data = {}
@@ -513,7 +533,11 @@ class ProxyDB:
         data: Optional[Dict[str, Any]] = None,
         update_time: bool = True,
     ):
-        if not proxy.strip() or not self.select(proxy):
+        proxy = self.normalize_proxy(proxy)
+        if not proxy:
+            return
+
+        if not self.select(proxy):
             self.add(proxy)
 
         if data is None:

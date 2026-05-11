@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import os
 from pathlib import Path
-import re
 import sys
 from typing import Any
 
@@ -30,41 +29,6 @@ def to_project_relative_path(path: Any) -> str | None:
     return os.path.relpath(os.path.abspath(path), project_root)
 
 
-def normalize_proxy(proxy: str) -> str:
-    """
-    Normalize proxy IPs by removing leading zeros from IPv4 octets.
-
-    Example:
-        93.90.42.09:3065 -> 93.90.42.9:3065
-    """
-
-    pattern = r"^(\d{1,3}(?:\.\d{1,3}){3}):(\d+)$"
-    proxy = proxy.strip()
-    match = re.match(pattern, proxy)
-
-    if not match:
-        return proxy
-
-    ip, port = match.groups()
-
-    try:
-        octets = [str(int(octet)) for octet in ip.split(".")]
-    except ValueError:
-        return proxy
-
-    for octet in octets:
-        if not 0 <= int(octet) <= 255:
-            return proxy
-
-    ip_port = f"{'.'.join(octets)}:{port}"
-
-    extract = extract_proxies(ip_port)
-    if extract:
-        return extract[0].proxy
-
-    return proxy
-
-
 async def process_proxy(
     db: ProxyDB,
     data: dict[str, Any],
@@ -73,7 +37,10 @@ async def process_proxy(
 ):
     async with semaphore:
         proxy = str(data.get("proxy", ""))
-        normalized_proxy = normalize_proxy(proxy)
+        try:
+            normalized_proxy = db.normalize_proxy(proxy)
+        except ValueError:
+            normalized_proxy = proxy.strip()
 
         valid_normalized = is_valid_proxy(normalized_proxy)
         valid_original = is_valid_proxy(proxy)
