@@ -1,28 +1,18 @@
-import argparse
-import asyncio
 import os
 import re
 import socket
-import ssl
 import sys
-from typing import Any, Dict, List, Literal, Sequence
+from typing import Literal
 
-import httpx
-import requests
-from bs4 import BeautifulSoup
 from dotenv import find_dotenv, load_dotenv
 from proxy_hunter import extract_proxies, build_request
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
-from artisan.proxy_checker_httpx import test_proxy
-from src.ASNLookup import ASNLookup
 from src.func import get_relative_path
 from src.func_console import green, magenta, red, yellow
 from src.func_date import get_current_rfc3339_time, is_date_rfc3339_hour_more_than
-from src.func_platform import is_debug
-from src.ProxyDB import ProxyDB
 from src.shared import init_db, init_readonly_db
 from src.utils.file.FileLockHelper import FileLockHelper
 from src.utils.parse_args import parse_args
