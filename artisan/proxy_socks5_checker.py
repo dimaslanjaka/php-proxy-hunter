@@ -280,21 +280,21 @@ if __name__ == "__main__":
         try:
             # Build custom filter that applies last-check + dedupe
             def custom_filter(rows: List[dict[str, Any]]) -> List[dict[str, Any]]:
-                rows = [
-                    r
-                    for r in rows
-                    if isinstance(r, dict)
-                    and (
-                        not r.get("last_check")
-                        or is_date_rfc3339_older_than(r.get("last_check"), hours=24)
-                    )
-                ]
-
-                proxy_by_key = {}
+                proxy_by_key: dict[str, dict[str, Any]] = {}
                 for proxy in rows:
+                    if not isinstance(proxy, dict):
+                        continue
+
+                    last_check = proxy.get("last_check")
+                    if last_check and not is_date_rfc3339_older_than(
+                        last_check, hours=24
+                    ):
+                        continue
+
                     value = str(proxy.get("proxy") or "").strip()
                     if not value:
                         continue
+
                     key = normalize_proxy_value(value)
                     proxy_by_key.setdefault(key, proxy)
 

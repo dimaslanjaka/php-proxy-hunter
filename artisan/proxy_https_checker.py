@@ -241,16 +241,16 @@ async def main(args: ParseArgs):
         db = init_readonly_db()
 
     def custom_filter(rows: List[dict[str, Any]]) -> List[dict[str, Any]]:
-        filtered = []
-        for row in rows:
-            if row.get("https", "").lower() == "true":
-                continue
-            last_check = row.get("last_check", "")
-            if not last_check:
-                filtered.append(row)
-            if is_date_rfc3339_older_than(last_check, hours=24):
-                continue
-        return filtered
+        return [
+            row
+            for row in rows
+            if isinstance(row, dict)
+            and row.get("https", "").lower() != "true"
+            and (
+                not row.get("last_check")
+                or is_date_rfc3339_older_than(row.get("last_check"), hours=24)
+            )
+        ]
 
     result: ProxyRetrievalResult = retrieve_proxies(
         db=db, limit=args.limit, custom_filter=custom_filter

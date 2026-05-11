@@ -206,22 +206,21 @@ if __name__ == "__main__":
             # Use retrieve_proxies and provide a custom_filter that applies
             # the "last checked before today" check and dedupes candidates.
             def custom_filter(rows: List[dict[str, Any]]) -> List[dict[str, Any]]:
-                # Include rows that either have no last_check (e.g. loaded from file)
-                # or whose last_check is older than the configured threshold.
-                rows = [
-                    r
-                    for r in rows
-                    if isinstance(r, dict)
-                    and (
-                        not r.get("last_check")
-                        or is_date_rfc3339_older_than(r.get("last_check"), hours=24)
-                    )
-                    and r.get("private") not in ("true", "false")
-                ]
-
                 proxy_by_key: dict[str, dict[str, Any]] = {}
                 ordered_keys: List[str] = []
                 for proxy in rows:
+                    if not isinstance(proxy, dict):
+                        continue
+
+                    if proxy.get("private") in ("true", "false"):
+                        continue
+
+                    last_check = proxy.get("last_check")
+                    if last_check and not is_date_rfc3339_older_than(
+                        last_check, hours=24
+                    ):
+                        continue
+
                     proxy_value = str(proxy.get("proxy") or "").strip()
                     if not proxy_value:
                         continue

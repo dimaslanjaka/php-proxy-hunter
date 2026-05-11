@@ -469,18 +469,15 @@ if __name__ == "__main__":
         try:
             # Retrieve proxies via central retriever (DB/file/CLI handled there)
             def custom_filter(rows: List[dict[str, Any]]) -> List[dict[str, Any]]:
-                # Include rows that either have no last_check (e.g. loaded from file)
-                # or whose last_check is older than the configured threshold.
-                filtered = [
-                    r
-                    for r in rows
-                    if isinstance(r, dict)
+                return [
+                    row
+                    for row in rows
+                    if isinstance(row, dict)
                     and (
-                        not r.get("last_check")
-                        or is_date_rfc3339_older_than(r.get("last_check"), hours=24)
+                        not row.get("last_check")
+                        or is_date_rfc3339_older_than(row.get("last_check"), hours=24)
                     )
                 ]
-                return filtered
 
             db_local = init_db()
             try:
