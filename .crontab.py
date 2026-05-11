@@ -250,18 +250,36 @@ if should_run_job(
     "24-h", ensure_run_daily=True, file_path=CRONTAB_STATE_DIR / "daily-tasks"
 ):
     echo_skip_or_run("24 hours", True)
-    run_command_with_logging(
-        ["bash", "-e", str(CWD / "bin/backup-db")],
-        log_file=CRONTAB_LOG_DIR / "backup-db.log",
-    )
-
-    run_command_with_logging(
-        ["php", str(CWD / "artisan/cleaner.php")],
-        log_file=CRONTAB_LOG_DIR / "php-cleaner.log",
-    )
-    run_command_with_logging(
-        [PYTHON_BIN, str(CWD / "artisan/cleaner.py")],
-        log_file=CRONTAB_LOG_DIR / "python-cleaner.log",
+    run_commands(
+        [
+            [
+                "bash",
+                "-e",
+                str(CWD / "bin/backup-db"),
+                ">",
+                str(CRONTAB_LOG_DIR / "backup-db.log"),
+            ],
+            [
+                "php",
+                str(CWD / "artisan/cleaner.php"),
+                ">",
+                str(CRONTAB_LOG_DIR / "php-cleaner.log"),
+            ],
+            [
+                PYTHON_BIN,
+                str(CWD / "artisan/cleaner.py"),
+                ">",
+                str(CRONTAB_LOG_DIR / "python-cleaner.log"),
+            ],
+            [
+                PYTHON_BIN,
+                str(CWD / "artisan/clean_invalid_proxies.py"),
+                ">",
+                str(CRONTAB_LOG_DIR / "invalid-proxies-cleaner.log"),
+            ],
+        ],
+        background=True,
+        cwd=CWD,
     )
 
 gc.collect()
