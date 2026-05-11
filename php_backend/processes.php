@@ -57,6 +57,65 @@ function format_cpu_usage(float $percent): string {
   return number_format($percent, 1) . '%';
 }
 
+function format_command_with_truncated_args(string $command, int $maxArgChars = 100): string {
+  $command = trim($command);
+  if ($command === '') {
+    return '';
+  }
+
+  $exeDisplay = '';
+  $args       = '';
+
+  if (preg_match('/^"([^"]+)"(?:\s+(.*))?$/', $command, $matches)) {
+    $exeDisplay = '"' . $matches[1] . '"';
+    $args       = isset($matches[2]) ? trim((string)$matches[2]) : '';
+  } else {
+    $parts      = preg_split('/\s+/', $command, 2);
+    $exeDisplay = isset($parts[0]) ? (string)$parts[0] : '';
+    $args       = isset($parts[1]) ? trim((string)$parts[1]) : '';
+  }
+
+  if ($args === '') {
+    return $exeDisplay;
+  }
+
+  // Truncate only argument values (e.g. --str="...") and keep flags/options intact.
+  $args = preg_replace_callback(
+    "/(--[a-zA-Z0-9][a-zA-Z0-9_-]*=)(\"([^\"]*)\"|'([^']*)'|(\\S+))/",
+    function (array $matches) use ($maxArgChars): string {
+      $prefix = $matches[1];
+
+      if (isset($matches[3]) && $matches[3] !== '') {
+        $value = $matches[3];
+        if (strlen($value) > $maxArgChars) {
+          $value = substr($value, 0, $maxArgChars) . '...';
+        }
+
+        return $prefix . '"' . $value . '"';
+      }
+
+      if (isset($matches[4]) && $matches[4] !== '') {
+        $value = $matches[4];
+        if (strlen($value) > $maxArgChars) {
+          $value = substr($value, 0, $maxArgChars) . '...';
+        }
+
+        return $prefix . "'" . $value . "'";
+      }
+
+      $value = $matches[5] ?? '';
+      if (strlen($value) > $maxArgChars) {
+        $value = substr($value, 0, $maxArgChars) . '...';
+      }
+
+      return $prefix . $value;
+    },
+    $args
+  );
+
+  return $exeDisplay . ' ' . $args;
+}
+
 Server::allowCors(true);
 
 if (!is_cli()) {
@@ -177,12 +236,14 @@ if (empty($processes)) {
 
   echo str_repeat('=', 50) . PHP_EOL;
   foreach ($processes as $proc) {
+    $displayCommand = format_command_with_truncated_args((string)$proc['command']);
+
     if ($isWin) {
-      echo "PID: {$proc['pid']}, PPID: {$proc['ppid']}, CPU: " . format_cpu_usage((float)$proc['cpu_percent']) . ', RAM: ' . format_ram_usage((float)$proc['ram_bytes'], $ramBytes) . ", Command: {$proc['command']}" . PHP_EOL;
+      echo "PID: {$proc['pid']}, PPID: {$proc['ppid']}, CPU: " . format_cpu_usage((float)$proc['cpu_percent']) . ', RAM: ' . format_ram_usage((float)$proc['ram_bytes'], $ramBytes) . ", Command: {$displayCommand}" . PHP_EOL;
       continue;
     }
 
-    echo "PID: {$proc['pid']}, PPID: {$proc['ppid']}, CPU: " . format_cpu_usage((float)$proc['cpu_percent']) . ', RAM: ' . format_ram_usage((float)$proc['ram_bytes'], $ramBytes) . ", Command: {$proc['command']}" . PHP_EOL;
+    echo "PID: {$proc['pid']}, PPID: {$proc['ppid']}, CPU: " . format_cpu_usage((float)$proc['cpu_percent']) . ', RAM: ' . format_ram_usage((float)$proc['ram_bytes'], $ramBytes) . ", Command: {$displayCommand}" . PHP_EOL;
   }
 }
 
