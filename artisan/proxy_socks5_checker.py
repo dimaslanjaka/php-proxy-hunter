@@ -157,6 +157,7 @@ def filter_test_socks5_proxies(
             continue
 
         host, port, username, password = parsed
+        print_status("INFO", f"Checking...", proxy)
         result = test_socks5_proxy(host, port, username, password, timeout)
 
         if result["success"]:
@@ -206,6 +207,7 @@ async def filter_test_socks5_proxies_async(
         host, port, username, password = parsed
 
         async with semaphore:
+            print_status("INFO", f"Checking {proxy}...", proxy)
             result = await asyncio.to_thread(
                 test_socks5_proxy, host, port, username, password, timeout
             )
