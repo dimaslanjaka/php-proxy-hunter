@@ -20,7 +20,7 @@ from artisan.proxy_getter import (
 )
 from src.func import get_relative_path
 from src.func_console import cyan, magenta, red, yellow
-from src.func_date import is_date_rfc3339_older_than
+from src.func_date import get_yesterday_rfc3339_time, is_date_rfc3339_older_than
 from src.ProxyDB import ProxyDB
 from src.shared import init_db
 from src.utils.file.FileLockHelper import FileLockHelper
@@ -273,6 +273,13 @@ if __name__ == "__main__":
                         f"[INFO] Attempted removal of tested proxies from {target_file}"
                     )
         finally:
+            output_file = get_relative_path("working.json")
+            db.get_working_proxies(
+                output_file=output_file,
+                last_checked=get_yesterday_rfc3339_time(),
+                limit=1000,
+            )
+            print(f"Saved working proxies to {cyan(output_file)}")
             db.close()
     finally:
         if locker:

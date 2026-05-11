@@ -21,8 +21,12 @@ from artisan.proxy_getter import (
     retrieve_proxies,
     ProxyRetrievalResult,
 )
-from src.utils.parse_args import parse_args
-from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
+from src.utils.parse_args import ParseArgs, parse_args
+from src.func_date import (
+    get_current_rfc3339_time,
+    get_yesterday_rfc3339_time,
+    is_date_rfc3339_older_than,
+)
 from src.shared import init_db, init_readonly_db
 
 current_filename = os.path.basename(__file__)
@@ -230,7 +234,7 @@ async def _worker_check(
             break
 
 
-async def main(args):
+async def main(args: ParseArgs):
     try:
         db = init_db("mysql")
     except Exception:
@@ -274,6 +278,13 @@ async def main(args):
         await asyncio.gather(*tasks)
 
     try:
+        output_file = get_relative_path("working.json")
+        db.get_working_proxies(
+            output_file=output_file,
+            last_checked=get_yesterday_rfc3339_time(),
+            limit=1000,
+        )
+        print(f"Saved working proxies to {cyan(output_file)}")
         db.close()
     except Exception:
         pass

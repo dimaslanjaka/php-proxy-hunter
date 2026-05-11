@@ -19,7 +19,7 @@ from artisan.proxy_getter import (
     ProxyRetrievalResult,
 )
 from src.utils.parse_args import parse_args
-from src.func_date import is_date_rfc3339_older_than
+from src.func_date import get_yesterday_rfc3339_time, is_date_rfc3339_older_than
 from src.shared import init_db
 
 current_filename = os.path.basename(__file__)
@@ -388,6 +388,13 @@ if __name__ == "__main__":
                 else:
                     print_status("INFO", f"Source file not found: {target_file}")
         finally:
+            output_file = get_relative_path("working.json")
+            db.get_working_proxies(
+                output_file=output_file,
+                last_checked=get_yesterday_rfc3339_time(),
+                limit=1000,
+            )
+            print(f"Saved working proxies to {cyan(output_file)}")
             db.close()
     finally:
         if locker:
