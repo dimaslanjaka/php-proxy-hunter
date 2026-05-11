@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-import asyncio
 import os
 from pathlib import Path
 import sys
@@ -16,8 +15,6 @@ from src.func import get_relative_path
 from src.func_console import green, red
 from src.ProxyDB import ProxyDB
 from src.shared import init_db, init_sqlite_db
-
-CONCURRENT_TASKS = 10
 
 
 class FatalDBError(Exception):
@@ -36,16 +33,6 @@ def clone_database(db: ProxyDB) -> ProxyDB:
     )
 
 
-async def process_proxy(
-    db_factory: Callable[[], ProxyDB],
-    data: dict[str, Any],
-    driver: str,
-    semaphore: asyncio.Semaphore,
-):
-    async with semaphore:
-        await asyncio.to_thread(process_proxy_sync, db_factory, data, driver)
-
-
 def to_project_relative_path(path: Any) -> str | None:
     if not path or not isinstance(path, str):
         return path
@@ -56,7 +43,7 @@ def to_project_relative_path(path: Any) -> str | None:
     return os.path.relpath(os.path.abspath(path), project_root)
 
 
-def process_proxy_sync(
+def process_proxy(
     db_factory: Callable[[], ProxyDB],
     data: dict[str, Any],
     driver: str,
@@ -64,6 +51,14 @@ def process_proxy_sync(
     db = db_factory()
     try:
         proxy = str(data.get("proxy", ""))
+        normalized_proxy = db.normalize_proxy(proxy)
+
+        if proxy != normalized_proxy:
+            print(
+                f"[{driver}] Processing proxy: {red(proxy)} -> Normalized: {green(normalized_proxy)}"
+            )
+        else:
+            print(f"[{driver}] Processing proxy: {green(proxy)}")
         # fix invalid DATE RFC3339 format in last_check if exists
         last_check = data.get("last_check")
         if last_check and isinstance(last_check, str):
@@ -81,7 +76,6 @@ def process_proxy_sync(
                     )
                     raise FatalDBError(e)
 
-        normalized_proxy = db.normalize_proxy(proxy)
         # when normalized empty, it means it's invalid and cannot be fixed by normalization, delete it
         if not normalized_proxy:
             print(f"[{driver}] Invalid proxy format, cannot normalize: {red(proxy)}")
@@ -144,7 +138,7 @@ def process_proxy_sync(
         close_database(db)
 
 
-async def remover(db: ProxyDB):
+def remover(db: ProxyDB):
     page = 1
     per_page = 1000
 
@@ -153,56 +147,25 @@ async def remover(db: ProxyDB):
         f"{f'({to_project_relative_path(db.db_location)})' if db.driver == 'sqlite' else ''}"
     ).strip()
 
-    semaphore = asyncio.Semaphore(CONCURRENT_TASKS)
-
     db_factory = lambda: clone_database(db)
 
     while True:
-        proxies = await asyncio.to_thread(
-            db.get_all_proxies,
-            page=page,
-            per_page=per_page,
-        )
+        proxies = db.get_all_proxies(page=page, per_page=per_page)
 
         if not proxies:
             break
 
-        # create tasks so we can cancel pending ones on first exception
-        tasks = [
-            asyncio.create_task(
-                process_proxy(
-                    db_factory=db_factory,
-                    data=data,
-                    driver=driver,
-                    semaphore=semaphore,
-                )
+        for data in proxies:
+            process_proxy(
+                db_factory=db_factory,
+                data=data,
+                driver=driver,
             )
-            for data in proxies
-        ]
-
-        # wait until first exception or all done
-        done, pending = await asyncio.wait(tasks, return_when=asyncio.FIRST_EXCEPTION)
-
-        # if any finished task raised, cancel remaining and re-raise
-        for t in done:
-            if t.cancelled():
-                continue
-            exc = t.exception()
-            if exc is not None:
-                for p in pending:
-                    p.cancel()
-                # ensure pending tasks finish cancellation
-                await asyncio.gather(*pending, return_exceptions=True)
-                raise exc
-
-        # otherwise wait for any pending tasks to finish
-        if pending:
-            await asyncio.gather(*pending)
 
         page += 1
 
 
-async def main():
+def main():
     databases = [
         init_db(),
         init_sqlite_db(get_relative_path("src/database.sqlite")),
@@ -210,15 +173,12 @@ async def main():
     ]
 
     try:
-        await asyncio.gather(*(remover(db) for db in databases))
+        for db in databases:
+            remover(db)
 
     finally:
-        close_tasks = []
-
         for db in databases:
-            close_tasks.append(asyncio.to_thread(close_database, db))
-
-        await asyncio.gather(*close_tasks)
+            close_database(db)
 
 
 def close_database(db: ProxyDB):
@@ -229,4 +189,4 @@ def close_database(db: ProxyDB):
 
 
 if __name__ == "__main__":
-    asyncio.run(main())
+    main()
