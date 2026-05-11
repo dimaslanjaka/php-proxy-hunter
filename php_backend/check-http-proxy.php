@@ -323,7 +323,7 @@ function check($proxy) {
     $proxyPartRaw = format_proxy_display($item);
     $proxyPart    = AnsiColors::colorize(['cyan'], $proxyPartRaw);
     $protocolsArr = !empty($result->workingTypes) ? $result->workingTypes : [];
-    $latencyStr   = !empty($result->latency) ? (round($result->latency, 2) . 's') : '';
+    $latencyStr   = !empty($result->latency) ? (round($result->latency, 2) . 'ms') : '';
     // Determine retest logging value: either set above when retest ran or 'not-performed'
     if ($retestStatus === null) {
       $retestStatus = 'not-performed';

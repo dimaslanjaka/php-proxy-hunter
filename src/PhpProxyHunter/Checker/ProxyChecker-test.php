@@ -40,11 +40,17 @@ foreach ($results as $type => $result) {
 if ($results['public_ip']->isWorking || $results['http_only']->isWorking || $results['https_only']->isWorking) {
   $formattedTypes = strtolower(implode('-', array_unique(array_merge($results['public_ip']->workingTypes, $results['http_only']->workingTypes, $results['https_only']->workingTypes, $results['google']->workingTypes))));
   echo 'Working types: ' . $formattedTypes . "\n";
+  $latencyValues = array_filter([
+    $results['public_ip']->latency,
+    $results['http_only']->latency,
+    $results['https_only']->latency,
+    $results['google']->latency,
+  ], static fn ($value) => $value > 0);
   $proxy_db->updateData($proxy, [
     'https'      => $results['public_ip']->isSSL ? 'true' : 'false',
     'anonymity'  => $results['public_ip']->anonymity ?: $results['http_only']->anonymity,
     'last_check' => date(DATE_RFC3339),
-    'latency'    => max($results['public_ip']->latency, $results['http_only']->latency, $results['https_only']->latency),
+    'latency'    => !empty($latencyValues) ? round(max($latencyValues), 2) : 0,
     'type'       => $formattedTypes,
     'status'     => 'active',
   ]);

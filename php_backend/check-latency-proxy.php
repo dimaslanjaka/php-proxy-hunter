@@ -283,10 +283,10 @@ function check($proxy) {
 
     // Add latency information
     if (!empty($latencies['average'])) {
-      $avgLatency  = round($latencies['average'], 3);
-      $minLatency  = round($latencies['min'] ?? 0, 3);
-      $maxLatency  = round($latencies['max'] ?? 0, 3);
-      $lineParts[] = "latency={$avgLatency}s (min={$minLatency}s, max={$maxLatency}s)";
+      $avgLatency  = round($latencies['average'], 2);
+      $minLatency  = round($latencies['min'] ?? 0, 2);
+      $maxLatency  = round($latencies['max'] ?? 0, 2);
+      $lineParts[] = "latency={$avgLatency}ms (min={$minLatency}ms, max={$maxLatency}ms)";
     }
 
     // Add iteration count
@@ -352,7 +352,7 @@ function measureProxyLatency($proxy, $username = null, $password = null) {
       if ($response !== false && $httpCode >= 200 && $httpCode < 400) {
         // Use curl's built-in total_time (in seconds) as latency
         if (!empty($info['total_time'])) {
-          $latencies[] = $info['total_time'];
+          $latencies[] = $info['total_time'] * 1000; // convert to milliseconds
         }
       }
 
@@ -368,9 +368,9 @@ function measureProxyLatency($proxy, $username = null, $password = null) {
   $max          = $successCount > 0 ? max($latencies) : 0;
 
   return [
-    'average'       => $average,
-    'min'           => $min,
-    'max'           => $max,
+    'average'       => round($average, 2),
+    'min'           => round($min, 2),
+    'max'           => round($max, 2),
     'success_count' => $successCount,
     'total_count'   => $totalCount,
   ];

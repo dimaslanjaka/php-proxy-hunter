@@ -218,8 +218,14 @@ while (true) {
     ];
     $style         = isset($map[$statusLower]) ? $map[$statusLower] : ['magenta'];
     $coloredStatus = AnsiColors::colorize($style, $item['status'] ?? 'unknown');
-    $daysPart      = AnsiColors::colorize(['magenta', 'bold'], (string)$ageInDays);
-    $message       = 'Checking ' . $coloredProxy . ' last checked ' . $daysPart . ' days ago' . ' ' . $statusKey . $coloredStatus;
+    // Compute age in days for this specific item to avoid undefined variable
+    $lastChecked = false;
+    if (!empty($item['last_check'])) {
+      $lastChecked = strtotime((string)$item['last_check']);
+    }
+    $ageInDays = $lastChecked !== false ? round((time() - $lastChecked) / 86400) : 'unknown';
+    $daysPart  = AnsiColors::colorize(['magenta', 'bold'], (string)$ageInDays);
+    $message   = 'Checking ' . $coloredProxy . ' last checked ' . $daysPart . ' days ago' . ' ' . $statusKey . $coloredStatus;
     _log_shared($hashFilename, $message);
 
     $isPortOpen = isPortOpen($item['proxy'], 30);
@@ -268,7 +274,7 @@ while (true) {
       ];
       // Record latency when available from the HTTP check
       if (!empty($httpOnly->latency)) {
-        $data['latency'] = $httpOnly->latency;
+        $data['latency'] = round($httpOnly->latency, 2);
       }
       $proxy_db->updateData($item['proxy'], $data);
       $protocols = !empty($working_protocols) ? implode(',', $working_protocols) : '';
@@ -288,7 +294,7 @@ while (true) {
       ];
       // Record latency when available from the HTTPS check
       if (!empty($httpsOnly->latency)) {
-        $data['latency'] = $httpsOnly->latency;
+        $data['latency'] = round($httpsOnly->latency, 2);
       }
       $proxy_db->updateData($item['proxy'], $data);
       $protocols = !empty($working_protocols) ? implode(',', $working_protocols) : '';
