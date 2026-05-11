@@ -7,11 +7,8 @@ from typing import List, Tuple
 
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
-from proxy_hunter import is_valid_proxy
 from proxy_hunter import extract_proxies
 from src.func import get_relative_path
-from src.func_console import red
-from src.ProxyDB import ProxyDB
 from src.shared import init_db
 from src.utils.file.FileLockHelper import FileLockHelper
 from src.utils.file.remove_string_from_file import remove_string_from_file
@@ -250,22 +247,6 @@ def collect(limit_kb: int | float = 800):
             _global_file_lock = None
 
 
-def clean_invalid_proxies(db: ProxyDB) -> None:
-    proxies = db.get_all_proxies()
-    for data in proxies:
-        proxy_value = data.get("proxy")
-        if not proxy_value:
-            continue
-
-        valid = is_valid_proxy(proxy_value)
-        if not valid:
-            try:
-                db.remove(proxy_value)
-                print(f"Deleted invalid proxy: {red(proxy_value)}")
-            except Exception as e:
-                print(f"Failed to delete invalid proxy {red(proxy_value)}: {e}")
-
-
 if __name__ == "__main__":
     args = parse_args(
         additional=[
@@ -279,4 +260,3 @@ if __name__ == "__main__":
         ]
     )
     collect(args.attr("size_limit", 800))
-    clean_invalid_proxies(init_db())
