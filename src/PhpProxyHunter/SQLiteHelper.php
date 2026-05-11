@@ -12,7 +12,8 @@ use PDO;
  * @package PhpProxyHunter
  */
 
-class SQLiteHelper extends BaseSQL {
+class SQLiteHelper extends BaseSQL
+{
   /** @var PDO|null $pdo */
   public $pdo;
 
@@ -445,7 +446,7 @@ class SQLiteHelper extends BaseSQL {
    * @param array|null $columns
    * @return string|null
    */
-  public function calculateChecksum($table, $columns = null) {
+  public function checksum($table, $columns = null) {
     if (!$this->hasTable($table)) {
       return null;
     }

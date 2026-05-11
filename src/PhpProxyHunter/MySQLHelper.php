@@ -11,7 +11,8 @@ use PDO;
  *
  * @package PhpProxyHunter
  */
-class MySQLHelper extends BaseSQL {
+class MySQLHelper extends BaseSQL
+{
   /** @var PDO|null $pdo */
   public $pdo;
 
@@ -465,7 +466,7 @@ class MySQLHelper extends BaseSQL {
    * @param array|null $columns
    * @return string|null
    */
-  public function calculateChecksum($table, $columns = null) {
+  public function checksum($table, $columns = null) {
     if ($columns === null) {
       $columns = $this->getTableColumns($table);
     }

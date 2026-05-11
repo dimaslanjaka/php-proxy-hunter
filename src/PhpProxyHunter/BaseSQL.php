@@ -10,7 +10,8 @@ namespace PhpProxyHunter;
  *
  * @package PhpProxyHunter
  */
-abstract class BaseSQL {
+abstract class BaseSQL
+{
   /** @var \PDO|null Database connection instance */
   protected $pdo;
 
@@ -183,5 +184,5 @@ abstract class BaseSQL {
    * @param array|null $columns Optional list of columns to include. If null, include all columns.
    * @return string|null Returns the checksum string, or null on failure.
    */
-  abstract public function calculateChecksum($table, $columns);
+  abstract public function checksum($table, $columns);
 }

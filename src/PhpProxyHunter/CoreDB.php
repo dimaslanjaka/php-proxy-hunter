@@ -5,7 +5,8 @@ namespace PhpProxyHunter;
 use PDO;
 use RuntimeException;
 
-class CoreDB extends BaseSQL {
+class CoreDB extends BaseSQL
+{
   /**
    * Path to SQLite database file (if using SQLite) or null
    * @var string|null
@@ -299,7 +300,7 @@ class CoreDB extends BaseSQL {
   public function hasTable($table) {
     return $this->db->hasTable($table);
   }
-  public function calculateChecksum($table, $columns = null) {
-    return $this->db->calculateChecksum($table, $columns);
+  public function checksum($table, $columns = null) {
+    return $this->db->checksum($table, $columns);
   }
 }

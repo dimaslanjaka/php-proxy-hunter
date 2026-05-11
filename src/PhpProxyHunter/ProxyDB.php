@@ -709,6 +709,6 @@ class ProxyDB
    * @return mixed
    */
   public function checksum($table, $columns) {
-    return $this->db->calculateChecksum($table, $columns);
+    return $this->db->checksum($table, $columns);
   }
 }

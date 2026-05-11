@@ -8,7 +8,8 @@ use PhpProxyHunter\CoreDB;
 /**
  * @covers \PhpProxyHunter\CoreDB
  */
-class CoreDBTest extends TestCase {
+class CoreDBTest extends TestCase
+{
   /** @var CoreDB|null */
   private $coreDB = null;
   /** @var string|null */
@@ -144,7 +145,7 @@ class CoreDBTest extends TestCase {
   /**
    * @dataProvider dbProvider
    */
-  public function testCalculateChecksum(string $driver) {
+  public function testChecksum(string $driver) {
     $this->setUpDB($driver);
     try {
       // Insert some rows into the "meta" table
@@ -158,7 +159,7 @@ class CoreDBTest extends TestCase {
       $this->coreDB->query($insertSql, [':key' => 'ck2', ':value' => 'xyz']);
 
       // Run checksum
-      $checksum = $this->coreDB->calculateChecksum('meta');
+      $checksum = $this->coreDB->checksum('meta');
 
       // Assertions
       $this->assertIsString($checksum, 'Checksum should be a string');
