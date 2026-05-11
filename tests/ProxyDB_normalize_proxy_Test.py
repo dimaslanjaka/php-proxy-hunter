@@ -54,6 +54,10 @@ def test_normalize_proxy(proxy_db: ProxyDB):
     normalized_proxy = proxy_db.normalize_proxy(proxy)
     assert normalized_proxy == "174.138.165.126:33508"
 
+    proxy = "n177.26.112.65:5678:"
+    normalized_proxy = proxy_db.normalize_proxy(proxy)
+    assert normalized_proxy == "177.26.112.65:5678"
+
 
 if __name__ == "__main__":
     pytest.main(["-vvv", "-s", __file__])

@@ -334,9 +334,9 @@ class ProxyDB:
         # Remove trailing colon or other non-alphanumeric suffix characters
         proxy = re.sub(r"[:;,\s]+$", "", proxy)
 
-        # Match IP:PORT pattern, allowing leading zeros in port and IP octets
-        pattern = r"^(\d{1,3}(?:\.\d{1,3}){3}):(\d+)$"
-        match = re.match(pattern, proxy)
+        # Find IP:PORT pattern anywhere in the string, allowing leading zeros
+        pattern = r"(\d{1,3}(?:\.\d{1,3}){3}):(\d+)"
+        match = re.search(pattern, proxy)
         if not match:
             return ""
 

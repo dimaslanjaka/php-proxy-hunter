@@ -30,14 +30,24 @@ def extract_proxies(string: Optional[str]) -> List[Proxy]:
         # "1.1.1.1:80n". Try to find the first IPv4/IPv6 + port pair and
         # preserve credentials from the original match.
         proxy_val = str(getattr(p, "proxy", "") or "").strip()
-        # Pattern matches bracketed IPv6 or IPv4 followed by a port (allow 1-5 digits)
+        # Pattern matches bracketed IPv6 or IPv4 followed by a port (allow 1-5 digits, including leading zeros)
         inner_pattern = (
-            r"(\[[0-9a-fA-F:]+\]|(?:\d{1,3}(?:\.\d{1,3}){3}))[:\s]*((?!0)\d{1,5})"
+            r"(\[[0-9a-fA-F:]+\]|(?:\d{1,3}(?:\.\d{1,3}){3}))[:\s]*(\d{1,5})"
         )
         m = re.search(inner_pattern, proxy_val)
         if m:
             host = m.group(1)
             port = m.group(2)
+            # Normalize port by removing leading zeros
+            port = str(int(port)) if port and port != "0" else port
+            # Normalize IP if it's IPv4 (not bracketed IPv6)
+            if not host.startswith("["):
+                try:
+                    # Remove leading zeros from IPv4 octets
+                    octets = host.split(".")
+                    host = ".".join(str(int(octet)) for octet in octets)
+                except (ValueError, AttributeError):
+                    pass
             clean_proxy = f"{host}:{port}"
             candidate = Proxy(
                 proxy=clean_proxy, username=p.username, password=p.password
