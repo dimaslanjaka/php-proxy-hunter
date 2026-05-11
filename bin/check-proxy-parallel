@@ -16,12 +16,7 @@ else
     PHP_PATH="php"
 fi
 
-PYTHON_PATH="python3"
-
-# Use virtualenv Python if available
-if [[ -f "$PROJECT_DIR/venv/bin/python" ]]; then
-    PYTHON_PATH="$PROJECT_DIR/venv/bin/python"
-fi
+PYTHON_PATH="$PROJECT_DIR/bin/py"
 
 echo "CWD $PROJECT_DIR"
 
