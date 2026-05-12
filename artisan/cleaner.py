@@ -85,17 +85,19 @@ def clean_directory(
 def main() -> None:
     parse_args(description="Python Cleaner Script")
 
-    mysql = cast(ProxyDB, init_mysql_db())
-    sqlite = cast(ProxyDB, init_sqlite_db())
+    mysql = init_mysql_db()
+    sqlite = init_sqlite_db()
 
     for label, db in (
         ("MySQL", mysql),
         ("SQLite", sqlite),
     ):
         print(f"[{label}] Proxy counts by status:")
-
-        for item in db.count_by_status():
-            print(f"  {item.get('status') or '(empty)'}: " f"{item.get('count', 0)}")
+        if db:
+            for item in db.count_by_status():
+                print(
+                    f"  {item.get('status') or '(empty)'}: " f"{item.get('count', 0)}"
+                )
 
     dirs = [
         "tmp/logs/crontab",
