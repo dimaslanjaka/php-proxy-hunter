@@ -84,7 +84,7 @@ def process_proxy(db: ProxyDB, data: dict[str, Any], driver: str) -> str | None:
                 raise FatalDBError(e)
 
     if not normalized_proxy:
-        print(f"[{driver}] invalid proxy: {red(proxy)}")
+        print(f"[{driver}] invalid proxy: {red(proxy)} -> {red(normalized_proxy)}")
         db.remove(proxy)
         return None
 
