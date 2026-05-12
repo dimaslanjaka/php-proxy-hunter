@@ -474,5 +474,8 @@
   "js/ts.implementationsCodeLens.showOnAllClassMethods": false,
   "js/ts.implementationsCodeLens.enabled": false,
   "chat.tools.terminal.ignoreDefaultAutoApproveRules": true,
-  "github.copilot.chat.agentDebugLog.fileLogging.enabled": true
+  "github.copilot.chat.agentDebugLog.fileLogging.enabled": true,
+  "chat.agent.enabled": true,
+  "chat.agent.networkFilter": false,
+  "chat.checkpoints.showFileChanges": true
 }
