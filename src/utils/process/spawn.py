@@ -33,6 +33,7 @@ def run_command_with_logging(
     log_file: str | Path | None = None,
     background: bool = True,
     cwd: Path | None = None,
+    append: bool = False,
 ) -> None:
     cmd = [str(c) for c in command]
     env = os.environ.copy()
@@ -63,7 +64,8 @@ def run_command_with_logging(
         if log_file:
             lf = Path(log_file)
             lf.parent.mkdir(parents=True, exist_ok=True)
-            fh = lf.open("a", encoding="utf-8")
+            mode = "a" if append else "w"
+            fh = lf.open(mode, encoding="utf-8")
             write_header(fh)
 
         for line in process.stdout:
@@ -86,8 +88,9 @@ def run_command_with_logging(
 
     lf = Path(log_file)
     lf.parent.mkdir(parents=True, exist_ok=True)
+    mode = "a" if append else "w"
 
-    with lf.open("a", encoding="utf-8") as fh:
+    with lf.open(mode, encoding="utf-8") as fh:
         write_header(fh)
 
         process = subprocess.Popen(
