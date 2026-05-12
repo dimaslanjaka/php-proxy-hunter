@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from datetime import datetime
 import os
 import platform
 import subprocess
@@ -74,11 +75,20 @@ if __name__ == "__main__":
 
     # Example of running multiple commands in background with logging
     outfile = CWD / "tmp/logs/multi_command.log"
+    # Clean up old log file if exists
+    os.remove(outfile) if outfile.exists() else None
+    wait_cmd = (
+        ["C:\\Windows\\System32\\timeout.exe", "/t", "1", "/nobreak", ">", "nul"]
+        if platform.system() == "Windows"
+        else ["sleep", "1"]
+    )
     run_commands(
         [
-            ["echo", "First command"],
-            ["echo", "Second command"],
-            ["echo", "Third command"],
+            ["echo", "First command", ">", str(outfile)],
+            wait_cmd,
+            ["echo", "Second command", ">>", str(outfile)],
+            wait_cmd,
+            ["echo", "Third command", ">>", str(outfile)],
         ],
         cwd=CWD,
         background=True,
