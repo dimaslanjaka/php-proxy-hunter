@@ -193,13 +193,14 @@ class ProxyDB:
                 print(e)
             return False
 
-    def close(self):
+    def close(self, debug: bool = False):
         """Closes the database connection if open."""
         if self.db:
             try:
                 self.db.close()
             except Exception as e:
-                print(f"cannot close database: {e}")
+                if debug:
+                    print(f"cannot close database: {e}")
 
     def get_db(self) -> Union[SQLiteHelper, MySQLHelper]:
         """
@@ -637,6 +638,7 @@ class ProxyDB:
         per_page: Optional[int] = None,
         last_checked: Optional[str] = None,
         output_file: Optional[Union[str, Path]] = None,
+        debug: bool = False,
     ) -> List[Dict[str, Union[str, None]]]:
         """
         Retrieve working (active) proxies with optional limit, ordering and filters.
@@ -776,7 +778,8 @@ class ProxyDB:
                 with open(output_path, "w", encoding="utf-8") as f:
                     json.dump(result, f, indent=2, ensure_ascii=False)
             except Exception as e:
-                print(f"Error writing results to {output_file}: {e}")
+                if debug:
+                    print(f"Error writing results to {output_file}: {e}")
 
         return result
 
@@ -978,6 +981,7 @@ class ProxyDB:
         filePath: str,
         callback: Callable[[Proxy], None],
         limit: Union[int, None] = None,
+        debug: bool = False,
     ) -> None:
         """
         Read a file and parse each line to extract IP, port, username, and password.
@@ -988,7 +992,8 @@ class ProxyDB:
             limit (Optional[int]): Maximum number of lines to parse. If None, parse all lines.
         """
         if not os.path.exists(filePath):
-            print(f"File '{filePath}' does not exist.")
+            if debug:
+                print(f"File '{filePath}' does not exist.")
             return
 
         counter = 0
