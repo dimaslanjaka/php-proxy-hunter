@@ -98,15 +98,16 @@ def init_mysql_db(custom_db_name: Optional[str] = None):
         db_user = os.getenv("MYSQL_USER", "root")
         db_pass = os.getenv("MYSQL_PASS", "")
 
-    return ProxyDB(
+    db = ProxyDB(
         db_location=db_name,
-        start=True,
         db_type="mysql",
         mysql_host=db_host,
         mysql_dbname=db_name,
         mysql_user=db_user,
         mysql_password=db_pass,
     )
+    if db.start_connection():
+        return db
 
 
 def init_sqlite_db(custom_db_name: Optional[str] = None):
@@ -130,11 +131,12 @@ def init_sqlite_db(custom_db_name: Optional[str] = None):
     else:
         db_file = get_relative_path("src/database.sqlite")
 
-    return ProxyDB(
+    db = ProxyDB(
         db_location=db_file,
-        start=True,
         db_type="sqlite",
     )
+    if db.start_connection():
+        return db
 
 
 def init_db(
@@ -150,17 +152,13 @@ def init_db(
     Returns:
         ProxyDB: Initialized database instance
     """
-    try:
-        return init_mysql_db(custom_db_name)
-    except Exception as e:
-        pass
-
-    try:
-        return init_readonly_db()
-    except Exception as e:
-        pass
-
-    return init_sqlite_db(custom_db_name)
+    db = init_mysql_db(custom_db_name)
+    if not db:
+        db = init_readonly_db()
+    if not db:
+        db = init_sqlite_db(custom_db_name)
+    assert db is not None, "Failed to initialize any database"
+    return db
 
 
 def init_readonly_db():
@@ -183,11 +181,12 @@ def init_readonly_db():
 
 
 if __name__ == "__main__":
-    # Specify database type manually here
-    # proxy_db = init_db(db_type="mysql")
-    # working = proxy_db.get_working_proxies(False, 10)
+    # readonly_db = init_readonly_db()
+    # working = readonly_db.get_working_proxies(False, 10)
     # print(working)
 
-    readonly_db = init_readonly_db()
-    working = readonly_db.get_working_proxies(False, 10)
-    print(working)
+    db = init_db()
+    if not db:
+        print("Failed to initialize database.")
+        sys.exit(1)
+    print(f"Database initialized with driver: {db.driver}")

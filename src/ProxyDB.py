@@ -105,8 +105,12 @@ class ProxyDB:
         if start:
             self.start_connection()
 
-    def start_connection(self):
-        """Establishes a connection to the SQLite database and sets up initial configurations."""
+    def start_connection(self, debug: bool = False) -> bool:
+        """Establishes a connection to the SQLite database and sets up initial configurations.
+
+        Returns:
+            bool: True when the connection and initialization succeed, False on error.
+        """
         try:
             # Decide backend
             if self.driver == "mysql":
@@ -182,9 +186,12 @@ class ProxyDB:
                         pass
 
                 self.run_daily_vacuum()
+            return True
         except Exception as e:
             file_append_str(get_nuitka_file("error.txt"), str(e))
-            print(e)
+            if debug:
+                print(e)
+            return False
 
     def close(self):
         """Closes the database connection if open."""
@@ -203,7 +210,13 @@ class ProxyDB:
         """
         if not self.db:
             self.start_connection()
-        assert self.db is not None
+        if not self.db:
+            location_info = (
+                f" (location: {self.db_location})" if self.driver == "sqlite" else ""
+            )
+            raise Exception(
+                f"Database connection could not be established. Driver: {self.driver}{location_info}"
+            )
         return self.db
 
     def get_meta_value(self, key: str) -> Optional[str]:
@@ -411,32 +424,41 @@ class ProxyDB:
             except Exception:
                 return []
 
-    def remove(self, proxy: Optional[str], delete_from_added: bool = False):
+    def remove(
+        self,
+        proxy: Optional[str],
+        delete_from_added: bool = False,
+        debug: bool = False,
+    ):
         if not proxy:
             return
-        if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
-            self.get_db().delete("proxies", "proxy = %s", [proxy.strip()])
-        else:
-            self.get_db().delete("proxies", "proxy = ?", [proxy.strip()])
-        # also remove from added_proxies to allow re-adding if needed
-        if delete_from_added:
-            try:
-                if isinstance(self.db, MySQLHelper) or self.driver == "mysql":
-                    self.get_db().execute_query(
-                        "DELETE FROM added_proxies WHERE proxy = %s", [proxy.strip()]
-                    )
-                else:
-                    self.get_db().execute_query(
-                        "DELETE FROM added_proxies WHERE proxy = ?", [proxy.strip()]
-                    )
-            except Exception:
-                # MySQL may use different placeholders; try with %s
-                try:
-                    self.get_db().execute_query(
-                        "DELETE FROM added_proxies WHERE proxy = %s", [proxy.strip()]
-                    )
-                except Exception:
-                    pass
+
+        proxy = proxy.strip()
+        db = self.get_db()
+
+        placeholder = (
+            "%s"
+            if (isinstance(self.db, MySQLHelper) or self.driver == "mysql")
+            else "?"
+        )
+
+        try:
+            db.delete("proxies", f"proxy = {placeholder}", [proxy])
+        except Exception as e:
+            if debug:
+                print(f"Error removing proxy {proxy}: {e}")
+
+        if not delete_from_added:
+            return
+
+        try:
+            db.execute_query(
+                f"DELETE FROM added_proxies WHERE proxy = {placeholder}",
+                [proxy],
+            )
+        except Exception as e:
+            if debug:
+                print(f"Error removing proxy from added_proxies {proxy}: {e}")
 
     def add(self, proxy: str):
         proxy = self.normalize_proxy(proxy)
