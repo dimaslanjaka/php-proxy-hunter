@@ -24,6 +24,7 @@ from src.utils.process import run_command_with_logging, run_commands
 
 CWD = Path(__file__).resolve().parent
 os.chdir(CWD)
+print(f"Current working directory: {CWD}")
 
 CRONTAB_STATE_DIR = CWD / "tmp/crontab"
 CRONTAB_LOG_DIR = CWD / "tmp/logs/crontab"
@@ -220,27 +221,30 @@ if should_run_job("1-h", ensure_run_daily=True):
                 str(CWD / "artisan/proxy_https_checker.py"),
                 ">",
                 str(CRONTAB_LOG_DIR / "proxy_https_checker.log"),
+                "2>&1",
             ],
             [
                 PYTHON_BIN,
                 str(CWD / "artisan/proxy_socks5_checker.py"),
                 ">",
                 str(CRONTAB_LOG_DIR / "proxy_socks5_checker.log"),
+                "2>&1",
             ],
             [
                 PYTHON_BIN,
                 str(CWD / "artisan/filter_duplicate_ips.py"),
                 ">",
                 str(CRONTAB_LOG_DIR / "filter-duplicate-ips.log"),
+                "2>&1",
             ],
             [
                 PYTHON_BIN,
                 str(CWD / "artisan/filter_open_port.py"),
                 ">",
                 str(CRONTAB_LOG_DIR / "filter_open_port.log"),
+                "2>&1",
             ],
         ],
-        background=True,
         cwd=CWD,
     )
 
@@ -258,27 +262,30 @@ if should_run_job(
                 str(CWD / "bin/backup-db"),
                 ">",
                 str(CRONTAB_LOG_DIR / "backup-db.log"),
+                "2>&1",
             ],
             [
                 "php",
                 str(CWD / "artisan/cleaner.php"),
                 ">",
                 str(CRONTAB_LOG_DIR / "php-cleaner.log"),
+                "2>&1",
             ],
             [
                 PYTHON_BIN,
                 str(CWD / "artisan/cleaner.py"),
                 ">",
                 str(CRONTAB_LOG_DIR / "python-cleaner.log"),
+                "2>&1",
             ],
             [
                 PYTHON_BIN,
                 str(CWD / "artisan/clean_invalid_proxies.py"),
                 ">",
                 str(CRONTAB_LOG_DIR / "invalid-proxies-cleaner.log"),
+                "2>&1",
             ],
         ],
-        background=True,
         cwd=CWD,
     )
 
