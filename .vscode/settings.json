@@ -463,5 +463,15 @@
         "copilot/oswe-vscode-prime"
       ]
     }
-  }
+  },
+  "debug.javascript.codelens.npmScripts": "never",
+  "editor.codeLens": false,
+  "merge-conflict.codeLens.enabled": true,
+  "python.analysis.referencesCodeLens": false,
+  "js/ts.referencesCodeLens.showOnAllFunctions": false,
+  "js/ts.referencesCodeLens.enabled": false,
+  "js/ts.implementationsCodeLens.showOnInterfaceMethods": false,
+  "js/ts.implementationsCodeLens.showOnAllClassMethods": false,
+  "js/ts.implementationsCodeLens.enabled": false,
+  "chat.tools.terminal.ignoreDefaultAutoApproveRules": true
 }
