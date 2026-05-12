@@ -35,6 +35,9 @@ class ProxyDB:
     """
 
     db: Optional[Union[SQLiteHelper, MySQLHelper]] = None
+    description: str = (
+        "Current database connection description (e.g., type, location) for debugging purposes."
+    )
 
     # noinspection PyMethodMayBeStatic
     def _find_mysql_schema_file(self) -> Optional[str]:

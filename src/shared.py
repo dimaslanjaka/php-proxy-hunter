@@ -106,6 +106,7 @@ def init_mysql_db(custom_db_name: Optional[str] = None):
         mysql_user=db_user,
         mysql_password=db_pass,
     )
+    db.description = f"MySQL database '{db_name}' at {db_host} (user: {db_user})"
     if db.start_connection():
         return db
 
@@ -135,6 +136,7 @@ def init_sqlite_db(custom_db_name: Optional[str] = None):
         db_location=db_file,
         db_type="sqlite",
     )
+    db.description = f"SQLite database at {db_file}"
     if db.start_connection():
         return db
 
@@ -176,6 +178,7 @@ def init_readonly_db():
         mysql_user="proxyuser",
         mysql_password="proxypassword",
     )
+    proxy_db.description = "Read-only MySQL database"
 
     return proxy_db
 
