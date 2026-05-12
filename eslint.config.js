@@ -67,7 +67,9 @@ export default [
       '**/public/**',
 
       // Yarn internal folder
-      '**/.yarn/**'
+      '**/.yarn/**',
+
+      'userscripts/**'
     ]
   },
 
