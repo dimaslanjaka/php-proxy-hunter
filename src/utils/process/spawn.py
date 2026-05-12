@@ -10,7 +10,39 @@ import sys
 import threading
 import time
 from pathlib import Path
-from typing import Iterable, Sequence, TextIO
+from typing import Iterable, List, Sequence, TextIO, Union
+
+
+def build_env_path():
+    env = os.environ.copy()
+    project_dir = Path(__file__).parent.parent.parent
+    venv_dir = (
+        project_dir / "venv"
+        if (project_dir / "venv").is_dir()
+        else project_dir / ".venv"
+    )
+    additional_paths: List[Union[Path, str]] = [
+        project_dir / "bin",
+        venv_dir / "bin",
+        venv_dir / "Scripts",
+        project_dir / "vendor" / "bin",
+        project_dir / "node_modules" / ".bin",
+    ]
+    is_windows = platform.system() == "Windows"
+    if is_windows:
+        local_appdata = os.getenv("LOCALAPPDATA")
+        if local_appdata:
+            additional_paths.append(Path(local_appdata) / "nvm")
+            additional_paths.append(
+                r"C:\nvm4w\nodejs;C:\Program Files\Nox\bin;D:\Program Files\Nox\bin;C:\Program Files\Git\cmd;C:\Program Files\Git\usr\bin;C:\laragon\bin\mysql\mysql-8.4.3-winx64\bin;C:\laragon\bin\php\php-8.4.11-Win32-vs17-x64;C:\laragon\bin\git\bin;C:\laragon\bin\python\python-3.13;C:\laragon\bin\memcached\memcached-1.6.8-win64-mingw;D:\Program Files\Microsoft VS Code;C:\Users\Dell\AppData\Local\Programs\Ollama"
+            )
+    separator = ";" if is_windows else ":"
+    for p in additional_paths:
+        if isinstance(p, str):
+            p = Path(p)
+        if p.is_dir():
+            env["PATH"] = f"{p}{separator}{env['PATH']}"
+    return env.get("PATH", os.defpath)
 
 
 def _finalize_log(
@@ -37,6 +69,7 @@ def run_command_with_logging(
 ) -> None:
     cmd = [str(c) for c in command]
     env = os.environ.copy()
+    env.setdefault("PATH", build_env_path())
 
     if cwd:
         os.chdir(cwd)

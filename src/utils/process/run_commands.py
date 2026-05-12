@@ -1,16 +1,19 @@
 from __future__ import annotations
 
-import gc
-from hashlib import md5
 import os
 import platform
-import re
 import subprocess
+from hashlib import md5
 import sys
-import threading
-import time
 from pathlib import Path
-from typing import Iterable, Sequence, TextIO
+from typing import Iterable
+
+# Register project root to sys.path
+PROJECT_ROOT = Path(__file__).resolve().parent.parent.parent.parent
+if str(PROJECT_ROOT) not in sys.path:
+    sys.path.append(str(PROJECT_ROOT))
+
+from src.utils.process.spawn import build_env_path
 
 
 def run_commands(
@@ -20,6 +23,8 @@ def run_commands(
 ) -> None:
     cmds = [list(cmd) for cmd in commands]
     is_windows = platform.system() == "Windows"
+    env = os.environ.copy()
+    env.setdefault("PATH", build_env_path())
 
     # -----------------------------
     # Build script file
@@ -50,15 +55,9 @@ def run_commands(
     # Execute script
     # -----------------------------
     if is_windows:
-        proc = subprocess.Popen(
-            ["cmd", "/c", str(script_path)],
-            cwd=cwd,
-        )
+        proc = subprocess.Popen(["cmd", "/c", str(script_path)], cwd=cwd, env=env)
     else:
-        proc = subprocess.Popen(
-            ["bash", str(script_path)],
-            cwd=cwd,
-        )
+        proc = subprocess.Popen(["bash", str(script_path)], cwd=cwd, env=env)
 
     # -----------------------------
     # Background vs foreground
