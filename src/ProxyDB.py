@@ -323,42 +323,8 @@ class ProxyDB:
 
     def normalize_proxy(self, proxy: Optional[str]) -> str:
         """Normalize and validate a proxy string using extract_proxies()."""
-        if proxy is None:
-            return ""
-        proxy = proxy.strip()
-
-        # Remove URL scheme if present (e.g., "http://", "https://")
-        if "://" in proxy:
-            proxy = proxy.split("://", 1)[1]
-
-        # Remove trailing colon or other non-alphanumeric suffix characters
-        proxy = re.sub(r"[:;,\s]+$", "", proxy)
-
-        # Find IP:PORT pattern anywhere in the string, allowing leading zeros
-        pattern = r"(\d{1,3}(?:\.\d{1,3}){3}):(\d+)"
-        match = re.search(pattern, proxy)
-        if not match:
-            return ""
-
-        # Normalize both IP octets and port (remove leading zeros)
-        ip, port = match.groups()
-        try:
-            # Normalize IP octets: convert to int to remove leading zeros, then back to string
-            octets = [str(int(octet)) for octet in ip.split(".")]
-
-            # Validate that all octets are in valid range (0-255)
-            for octet in octets:
-                if not 0 <= int(octet) <= 255:
-                    return ""
-
-            # Normalize port: convert to int to remove leading zeros, validate range
-            port_num = int(port)
-            if not 1 <= port_num <= 65535:
-                return ""
-
-            return f"{'.'.join(octets)}:{port_num}"
-        except (ValueError, IndexError):
-            return ""
+        proxies = extract_proxies(proxy)
+        return proxies[0].proxy if proxies else ""
 
     def get_all_proxies(
         self,
