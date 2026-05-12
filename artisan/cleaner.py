@@ -3,6 +3,9 @@ from __future__ import annotations
 import os
 import sys
 import time
+from typing import cast
+
+from src.ProxyDB import ProxyDB
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
@@ -31,37 +34,49 @@ def _remove_empty_directory(path: str) -> bool:
     return False
 
 
+def _remove_file_if_expired(path: str, expire_seconds: int) -> None:
+    now = time.time()
+    try:
+        if now - os.stat(path).st_mtime > expire_seconds:
+            print(f"Removing old file: {path}")
+            os.remove(path)
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        print(f"Error removing file {path}: {e}")
+
+
+def _remove_file_if_too_large(path: str, max_kb: int) -> None:
+    try:
+        size_kb = os.path.getsize(path) / 1024
+        if size_kb > max_kb:
+            print(f"Removing oversized file: {path} ({size_kb:.2f} KB)")
+            os.remove(path)
+    except FileNotFoundError:
+        pass
+    except Exception as e:
+        print(f"Error removing oversized file {path}: {e}")
+
+
+def _remove_old_files(base_path: str, expire_seconds: int) -> None:
+    for root, _, files in os.walk(base_path, topdown=False):
+        for name in files:
+            _remove_file_if_expired(os.path.join(root, name), expire_seconds)
+
+
 def clean_directory(
     base_path: str,
     expire_seconds: int = 0,
 ) -> None:
-    now = time.time()
-
     if expire_seconds <= 0:
         expire_seconds = day_to_seconds(7)
 
     if not os.path.exists(base_path):
         return
 
-    for root, dirs, files in os.walk(
-        base_path,
-        topdown=False,
-    ):
-        for name in files:
-            path = os.path.join(root, name)
+    _remove_old_files(base_path, expire_seconds)
 
-            try:
-                if now - os.stat(path).st_mtime > expire_seconds:
-                    print(f"Removing old file: {path}")
-
-                    os.remove(path)
-
-            except FileNotFoundError:
-                continue
-
-            except Exception as e:
-                print(f"Error removing file {path}: {e}")
-
+    for root, dirs, _ in os.walk(base_path, topdown=False):
         for dirname in dirs:
             _remove_empty_directory(os.path.join(root, dirname))
 
@@ -71,8 +86,8 @@ def clean_directory(
 def main() -> None:
     parse_args(description="Python Cleaner Script")
 
-    mysql = init_mysql_db()
-    sqlite = init_sqlite_db()
+    mysql = cast(ProxyDB, init_mysql_db())
+    sqlite = cast(ProxyDB, init_sqlite_db())
 
     for label, db in (
         ("MySQL", mysql),
@@ -110,6 +125,8 @@ def main() -> None:
             user_log_dir,
             day_to_seconds(1),
         )
+
+    _remove_file_if_too_large(get_relative_path("error.txt"), 200)
 
 
 if __name__ == "__main__":
