@@ -5,8 +5,6 @@ import sys
 import time
 from typing import cast
 
-from src.ProxyDB import ProxyDB
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 from artisan.cleaner_func import fetch_md5_hash_dirs
@@ -14,6 +12,7 @@ from src.func import get_relative_path
 from src.func_date import day_to_seconds
 from src.shared import init_mysql_db, init_sqlite_db
 from src.utils.parse_args import parse_args
+from src.ProxyDB import ProxyDB
 
 
 def _remove_empty_directory(path: str) -> bool:
