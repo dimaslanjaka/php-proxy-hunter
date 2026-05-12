@@ -1,0 +1,13 @@
+name: MCP server
+version: 0.0.1
+schema: v1
+mcpServers:
+  - name: Ollama MCP server
+    command: node
+    args:
+      - './mcp-server/ollama.js'
+
+  - name: NVIDIA MCP server
+    command: node
+    args:
+      - './mcp-server/index.js'
