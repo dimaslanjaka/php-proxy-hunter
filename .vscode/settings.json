@@ -292,6 +292,11 @@
       "icon": "terminal-cmd",
       "path": ["${env:windir}\\Sysnative\\cmd.exe", "${env:windir}\\System32\\cmd.exe"]
     },
+    "Short Command Prompt": {
+      "path": ["${env:windir}\\System32\\cmd.exe"],
+      "args": ["/k", "prompt $g"],
+      "icon": "terminal-cmd"
+    },
     "Git Bash": {
       "source": "Git Bash"
     },
