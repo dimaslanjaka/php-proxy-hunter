@@ -24,6 +24,8 @@ else
   echo >&2 "Warning: Git LFS is not installed; skipping git lfs post-commit hook."
 fi
 
-# configure local git merge driver for `.husky/hash.txt` after commit
-git config --local merge.resolve_hash.name "Resolve .husky/hash.txt with custom script" || true
-git config --local merge.resolve_hash.driver "node bin/cfh.cjs %O %A %B" || true
+# configure local git merge driver for `.husky/hash.txt` after commit (run once only)
+if ! git config --local --get merge.resolve_hash.driver >/dev/null 2>&1; then
+  git config --local merge.resolve_hash.name "Resolve .husky/hash.txt with custom script" || true
+  git config --local merge.resolve_hash.driver "node bin/cfh.cjs %O %A %B" || true
+fi
