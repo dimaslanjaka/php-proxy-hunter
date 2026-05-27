@@ -1,0 +1,186 @@
+name: Proxy Checker
+
+on:
+  push:
+    paths:
+      - 'src/**/*.py'
+      - 'data/**/*.py'
+      - '.github/workflows/checker.yml'
+      - 'requirements*'
+      - 'setup*'
+      - 'Taskfile*'
+
+  workflow_dispatch:
+    inputs:
+      max:
+        description: 'The maximum proxies to be checked.'
+        required: true
+        default: '100'
+        type: string
+
+  workflow_call:
+    inputs:
+      max:
+        description: 'The maximum proxies to be checked.'
+        required: true
+        default: '100'
+        type: string
+    secrets:
+      ACCESS_TOKEN:
+        required: true
+
+  schedule:
+    - cron: '0 * * * *'
+
+concurrency:
+  group: proxy-checker-${{ github.ref }}
+  cancel-in-progress: false
+
+jobs:
+  build:
+    if: contains(github.repository, 'php-proxy-hunter')
+
+    strategy:
+      fail-fast: false
+      matrix:
+        os:
+          - ubuntu-latest
+          - windows-latest
+
+    runs-on: ${{ matrix.os }}
+
+    defaults:
+      run:
+        shell: bash
+
+    env:
+      # Browser automation
+      PUPPETEER_SKIP_DOWNLOAD: 'true'
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+
+      # Node.js
+      NODE_OPTIONS: '--max_old_space_size=4096'
+      YARN_ENABLE_IMMUTABLE_INSTALLS: false
+      YARN_ENABLE_GLOBAL_CACHE: false
+      YARN_CHECKSUM_BEHAVIOR: update
+      YARN_CACHE_FOLDER: ${{ github.workspace }}/tmp/yarn-cache
+
+      # Python
+      PIP_LOCAL_CACHE_DIR: ${{ github.workspace }}/tmp/pip
+      NUITKA_CACHE_DIR: ${{ github.workspace }}/tmp/nuitka-cache
+
+      # GitHub auth
+      ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+      GH_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v6
+        with:
+          repository: dimaslanjaka/php-proxy-hunter
+          ref: master
+          token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          lfs: true
+          submodules: recursive
+          fetch-depth: 1
+
+      - name: Setup Python
+        uses: actions/setup-python@v6
+        with:
+          python-version: '3.11'
+          cache: 'pip'
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: 22
+          cache: 'yarn'
+
+      - name: Enable Corepack
+        run: corepack enable
+
+      - name: Install Global Tools
+        run: |
+          npm install -g \
+            rimraf \
+            binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz
+
+      - name: Prepare Submodules
+        run: |
+          git submodule update --init --recursive
+          npx rimraf .git/modules
+          npx submodule-install
+
+      - name: Install Dependencies
+        shell: bash
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+          if [ -f package.json ]; then
+            touch yarn.lock
+            yarn install --inline-builds
+          fi
+
+          bash bin/python-minimal
+
+      - name: Get Cache Directories
+        id: cache-paths
+        run: |
+          echo "pip_cache_dir=$(pip cache dir)" >> "$GITHUB_OUTPUT"
+          echo "npm_cache_dir=$(npm config get cache)" >> "$GITHUB_OUTPUT"
+          echo "yarn_cache_dir=$(yarn cache dir)" >> "$GITHUB_OUTPUT"
+
+      - name: Cache Project Assets
+        uses: actions/cache@v5
+        with:
+          path: |
+            ~/.cache/pip
+            ~/.cache/yarn
+            ~/.npm
+
+            .cache/
+            .yarn/cache
+            .yarn/install-state.gz
+
+            vendor/
+            venv/
+            .venv/
+
+            assets/proxies/
+
+            src/*.sqlite*
+            src/*.mmdb
+
+            **/dist/**
+            **/tmp/**
+
+            ${{ env.PIP_LOCAL_CACHE_DIR }}
+            ${{ env.NUITKA_CACHE_DIR }}
+
+            ${{ steps.cache-paths.outputs.pip_cache_dir }}
+            ${{ steps.cache-paths.outputs.npm_cache_dir }}
+            ${{ steps.cache-paths.outputs.yarn_cache_dir }}
+
+          key: >
+            ${{ runner.os }}-proxy-checker-
+            ${{ hashFiles(
+              'requirements*.txt',
+              'package.json',
+              'yarn.lock',
+              '.husky/hash.txt',
+              'setup.py',
+              'setup.cfg',
+              'pyproject.toml'
+            ) }}
+
+          restore-keys: |
+            ${{ runner.os }}-proxy-checker-
+            ${{ runner.os }}-node-
+            ${{ runner.os }}-php-
+            ${{ runner.os }}-python-
+
+      - name: 'Run Checker on ${{ runner.os }}'
+        run: |
+          bash bin/py artisan/ci-checker.py --limit ${{ github.event.inputs.max }}
