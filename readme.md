@@ -2,8 +2,7 @@
 
 > A cross-platform proxy checker and hunter toolkit built with PHP, Python, and shell scripting.
 
-[![PHP Checker CI](https://img.shields.io/github/actions/workflow/status/dimaslanjaka/php-proxy-hunter/.github%2Fworkflows%2Fchecker-php.yml?branch=master&style=for-the-badge&label=PHP%20Checker&labelColor=blue)](https://github.com/dimaslanjaka/php-proxy-hunter/actions)
-[![Python Checker CI](https://img.shields.io/github/actions/workflow/status/dimaslanjaka/php-proxy-hunter/.github%2Fworkflows%2Fchecker-python.yml?branch=master&style=for-the-badge&label=Python%20Checker&labelColor=blue)](https://github.com/dimaslanjaka/php-proxy-hunter/actions)
+[![Proxy Checker CI](https://img.shields.io/github/actions/workflow/status/dimaslanjaka/php-proxy-hunter/.github%2Fworkflows%2Fchecker.yml?branch=master&style=for-the-badge&label=Python%20Checker&labelColor=blue)](https://github.com/dimaslanjaka/php-proxy-hunter/actions)
 
 ### Live Servers
 
