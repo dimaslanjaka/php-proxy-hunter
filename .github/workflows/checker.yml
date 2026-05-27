@@ -95,6 +95,7 @@ jobs:
         with:
           node-version: 22
           cache: 'yarn'
+          cache-dependency-path: .husky/hash.txt
 
       - name: Enable Corepack
         run: corepack enable
