@@ -362,7 +362,7 @@ function WorkingJson() {
     });
     add_ajax_schedule(createUrl('/php_backend/executor.php?file=/artisan/geoIp.py'), {
       method: 'POST_JSON',
-      data: { uid: userId, proxy: JSON.stringify(proxyData) }
+      data: { uid: userId, proxy: JSON.stringify(proxyData), limit: 100 }
     });
 
     run_ajax_schedule();
