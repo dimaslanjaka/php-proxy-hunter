@@ -74,7 +74,7 @@ jobs:
       GH_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
 
     steps:
-      - name: Checkout Repository
+      - name: '📥 Checkout Repository'
         uses: actions/checkout@v6
         with:
           repository: dimaslanjaka/php-proxy-hunter
@@ -84,35 +84,35 @@ jobs:
           submodules: recursive
           fetch-depth: 1
 
-      - name: Setup Python
+      - name: '🐍 Setup Python'
         uses: actions/setup-python@v6
         with:
           python-version: '3.11'
           cache: 'pip'
 
-      - name: Setup Node.js
+      - name: '🟢 Setup Node.js'
         uses: actions/setup-node@v6
         with:
           node-version: 22
           cache: 'yarn'
           cache-dependency-path: .husky/hash.txt
 
-      - name: Enable Corepack
+      - name: '⚙️ Enable Corepack'
         run: corepack enable
 
-      - name: Install Global Tools
+      - name: '🛠️ Install Global Tools'
         run: |
           npm install -g \
             rimraf \
             binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz
 
-      - name: Prepare Submodules
+      - name: '📦 Prepare Submodules'
         run: |
           git submodule update --init --recursive
           npx rimraf .git/modules
           npx submodule-install
 
-      - name: Install Dependencies
+      - name: '⬇️ Install Dependencies'
         shell: bash
         run: |
           if [ -f requirements.txt ]; then
@@ -183,7 +183,7 @@ jobs:
             echo "PIP_CACHE_DIR=$(pip cache dir)" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Cache Project Assets
+      - name: '🗂️ Cache Project Assets'
         uses: actions/cache@v5
         with:
           path: |
@@ -237,11 +237,11 @@ jobs:
             ${{ runner.os }}-php-
             ${{ runner.os }}-python-
 
-      - name: 'Run Checker on ${{ runner.os }}'
+      - name: '▶️ Run Checker on ${{ runner.os }}'
         run: |
           bash bin/py artisan/ci-checker.py --limit="${{ github.event.inputs.max || '100' }}"
 
-      - name: Checkout gh-pages branch
+      - name: '📥 Checkout gh-pages branch'
         uses: actions/checkout@v6
         with:
           ref: gh-pages
@@ -249,7 +249,7 @@ jobs:
           fetch-depth: 0
           token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
 
-      - name: Upload working.json to gh-pages
+      - name: '📤 Upload working.json to gh-pages'
         shell: bash
         run: |
           if [ ! -f working.json ]; then
