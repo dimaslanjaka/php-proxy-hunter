@@ -89,12 +89,14 @@ if (!empty($file)) {
       $cmd[] = '--proxy=' . escapeshellarg($str);
     }
   }
-  $cmd[] = '--userId=' . escapeshellarg($uid);
-  $cmd[] = '--uid=' . escapeshellarg($uid);
   if (stripos($resolveFile, 'geoIp') !== false) {
     $lockFile = tmp('locks', substr(md5($resolveFile . $uid . $str), 0, 16) . '.lock');
+    $cmd[]    = '--userId=' . escapeshellarg(md5($uid . $str));
+    $cmd[]    = '--uid=' . escapeshellarg(md5($uid . $str));
   } else {
     $lockFile = tmp('locks', substr(md5($resolveFile . $uid), 0, 16) . '.lock');
+    $cmd[]    = '--userId=' . escapeshellarg($uid);
+    $cmd[]    = '--uid=' . escapeshellarg($uid);
   }
   $cmd[] = '--lockFile=' . escapeshellarg($lockFile);
   $cmd[] = '--limit=' . escapeshellarg($limit);
