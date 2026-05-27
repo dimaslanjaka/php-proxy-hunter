@@ -575,8 +575,10 @@ class ProxyDB:
             and update_time
         ):
             if debug:
+                status = data.get("status", "")
                 print(
-                    f"{debug_prefix} Auto-updating last_check for proxy {proxy} with status {data.get('status')}"
+                    f"{debug_prefix} Auto-updating last_check for proxy {proxy} with status "
+                    f"{red(status) if any(x in status for x in ('dead', 'port-closed')) else green(status)}"
                 )
             data["last_check"] = get_current_rfc3339_time()
 
