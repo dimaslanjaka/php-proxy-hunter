@@ -133,7 +133,14 @@
   },
   "editor.codeActionsOnSave": {
     "source.fixAll": "explicit",
-    "source.organizeImports": "never"
+    "source.organizeImports": "never",
+    "source.fixAll.eslint": "explicit",
+    "source.fixAll.ts": "never",
+    "source.addMissingImports.ts": "never",
+    "source.removeUnused.ts": "never",
+    "source.removeUnusedImports": "never",
+    "source.sort.json": "never",
+    "source.sortImports": "never"
   },
   "editor.formatOnPaste": false,
   "editor.formatOnSave": false,
@@ -155,7 +162,12 @@
     "markdown",
     "json",
     "jsonc",
-    "twig"
+    "twig",
+    "css",
+    "glimmer-js",
+    "glimmer-ts",
+    "svelte",
+    "nunjucks"
   ],
   "eslint.validate": [
     "astro",
@@ -170,7 +182,12 @@
     "markdown",
     "json",
     "jsonc",
-    "twig"
+    "twig",
+    "css",
+    "glimmer-js",
+    "glimmer-ts",
+    "svelte",
+    "nunjucks"
   ],
   "eslint.useESLintClass": true,
   "eslint.useFlatConfig": true,
@@ -215,7 +232,6 @@
   "intelephense.environment.phpVersion": "8.0.0",
   "intelephense.diagnostics.enable": true,
   "intelephense.diagnostics.run": "onSave",
-  // "intelephense.environment.documentRoot": "${workspaceFolder}",
   "intelephense.environment.includePaths": ["./src", "./vendor", "${workspaceFolder}/tests"],
   "intelephense.files.exclude": [
     "**/.DS_Store/**",
@@ -262,7 +278,7 @@
     "**/vendor/**": true,
     "**/venv/**": true
   },
-  "terminal.integrated.defaultProfile.windows": "Command Prompt",
+  "terminal.integrated.defaultProfile.windows": "Short PowerShell",
   "terminal.integrated.env.linux": {
     "DEBUG_PKG": "1",
     "ESLINT_USE_FLAT_CONFIG": "true",
@@ -294,7 +310,7 @@
     },
     "Short Command Prompt": {
       "path": ["${env:windir}\\System32\\cmd.exe"],
-      "args": ["/k", "prompt $g"],
+      "args": ["/k", "prompt $g", "prompt $p$_$g"],
       "icon": "terminal-cmd"
     },
     "Git Bash": {
@@ -303,6 +319,11 @@
     "PowerShell": {
       "icon": "terminal-powershell",
       "source": "PowerShell"
+    },
+    "Short PowerShell": {
+      "source": "PowerShell",
+      "args": ["-NoExit", "-Command", "function prompt { \"[$((Get-Item .).Name)]> \" }"],
+      "icon": "terminal-powershell"
     }
   },
   "testing.displayedCoveragePercent": "minimum",
@@ -324,7 +345,6 @@
   "[php]": {
     "editor.defaultFormatter": "junstyle.php-cs-fixer"
   },
-  // --- PHP CS Fixer (auto-formatting) ---
   "php-cs-fixer.executablePath": "${workspaceFolder}/vendor/bin/php-cs-fixer.phar",
   "php-cs-fixer.executablePathWindows": "${workspaceFolder}/vendor/bin/php-cs-fixer.bat",
   "php-cs-fixer.onsave": false,
@@ -348,7 +368,6 @@
   "php-cs-fixer.allowRisky": true,
   "php-cs-fixer.autoFixByBracket": false,
   "php-cs-fixer.ignorePHPVersion": true,
-  // --- PHPCS (linting) ---
   "phpcs.enable": true,
   "phpcs.executablePath": "./vendor/bin/phpcs.bat",
   "phpcs.standard": "./phpcs.xml",
@@ -395,8 +414,6 @@
   "python.analysis.diagnosticsSource": "Pyright",
   "python.analysis.inlayHints.pytestParameters": true,
   "python.createEnvironment.contentButton": "show",
-  // "python.defaultInterpreterPath": "\\venv\\Scripts\\python.exe",
-  // "python.pythonPath": ".\\venv\\Scripts\\python.exe",
   "python.envFile": "${workspaceFolder}/.env",
   "python.terminal.activateEnvInCurrentTerminal": true,
   "python.testing.autoTestDiscoverOnSaveEnabled": false,
