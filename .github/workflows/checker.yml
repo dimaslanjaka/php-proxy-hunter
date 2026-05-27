@@ -236,7 +236,7 @@ jobs:
 
       - name: 'Run Checker on ${{ runner.os }}'
         run: |
-          bash bin/py artisan/ci-checker.py --limit ${{ github.event.inputs.max }}
+          bash bin/py artisan/ci-checker.py --limit="${{ github.event.inputs.max || '100' }}"
 
       - name: Checkout gh-pages branch
         uses: actions/checkout@v6
