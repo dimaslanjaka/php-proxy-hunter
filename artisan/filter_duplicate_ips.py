@@ -76,10 +76,14 @@ async def check_proxy_http(
             "private": is_private,
         }
     except Exception as e:
+        error_text = str(e).lower()
+        is_private = any(marker in error_text for marker in private_markers) or (
+            "authentication methods were rejected" in error_text
+        )
         print(f"Error checking {magenta(proxy)} for {yellow(url)}: {e}")
         return {
             "result": False,
-            "private": False,
+            "private": is_private,
         }
 
 
