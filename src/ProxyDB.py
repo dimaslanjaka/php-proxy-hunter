@@ -652,46 +652,32 @@ class ProxyDB:
         Retrieve working (active) proxies with optional limit, ordering and filters.
 
         Parameters
-        - auto_fix (bool): If True, run `fix_empty_data()` on the results before
-            returning to populate missing geo/webgl/useragent data.
+        - auto_fix (bool): If True, run `fix_empty_data()` on the results before returning to populate missing geo/webgl/useragent data.
         - limit (Optional[int]): Legacy single-argument limit (kept for compatibility).
-        - randomize (bool): When True results are ordered randomly. When False
-            results prefer most-recent rows (`ORDER BY rowid DESC` for SQLite,
-            `ORDER BY id DESC` for MySQL) so recently added/updated proxies
-            appear in limited result sets.
+        - randomize (bool): When True results are ordered randomly. When False results prefer most-recent rows (`ORDER BY rowid DESC` for SQLite, `ORDER BY id DESC` for MySQL) so recently added/updated proxies appear in limited result sets.
         - ssl (Optional[bool]): Filter by the `https` column:
-                - `True`  => return only proxies where `https` represents SSL
-                    (accepted values: "true", "1" — case-insensitive).
-                - `False` => return only non-SSL proxies (NULL, empty string,
-                    "false", "0").
-                - `None`  => no https/ssl filtering (default).
+            - `True`  => return only proxies where `https` represents SSL
+                (accepted values: "true", "1" — case-insensitive).
+            - `False` => return only non-SSL proxies (NULL, empty string,
+                "false", "0").
+            - `None`  => no https/ssl filtering (default).
         - tun2socks (Optional[bool]): Filter by the `tun2socks` column:
-                - `True`  => return only proxies where `tun2socks` is numeric > 0.
-                - `False` => return only proxies where `tun2socks` is NULL/empty
-                    or numeric <= 0.
-                - `None`  => no tun2socks filtering (default).
-        - proxy_type (Optional[str]): Filter by the `type` column using LIKE.
-            Useful for rows storing combined values like
-            `http-socks4-socks4a-socks5-socks5h`.
-        - page (Optional[int]): 1-based page number for pagination. If provided
-            together with `per_page`, it overrides legacy `limit`.
+            - `True`  => return only proxies where `tun2socks` is numeric > 0.
+            - `False` => return only proxies where `tun2socks` is NULL/empty
+                or numeric <= 0.
+            - `None`  => no tun2socks filtering (default).
+        - proxy_type (Optional[str]): Filter by the `type` column using LIKE. Useful for rows storing combined values like `http-socks4-socks4a-socks5-socks5h`.
+        - page (Optional[int]): 1-based page number for pagination. If provided together with `per_page`, it overrides legacy `limit`.
         - per_page (Optional[int]): Number of items per page for pagination.
-        - last_checked (Optional[str]): Filter by `last_check` column (RFC3339
-            date string). When provided, only returns proxies with
-            `last_check <= last_checked`.
-        - output_file (Optional[Union[str, Path]]): If provided, saves the results
-            as JSON to the specified file path.
+        - last_checked (Optional[str]): Filter by `last_check` column (RFC3339 date string). When provided, only returns proxies with `last_check <= last_checked`.
+        - output_file (Optional[Union[str, Path]]): If provided, saves the results as JSON to the specified file path.
 
         Returns
         - List[Dict[str, Union[str, None]]]: List of proxy rows as dictionaries.
 
         Notes
-        - The `https` column is stored as TEXT and may contain different
-            string representations; the method compares lowercase text and
-            common numeric values to be robust.
-        - MySQL and SQLite use different placeholder styles; callers should
-            not need to format SQL themselves — use this method's filter
-            arguments instead of manual WHERE building.
+        - The `https` column is stored as TEXT and may contain different string representations; the method compares lowercase text and common numeric values to be robust.
+        - MySQL and SQLite use different placeholder styles; callers should not need to format SQL themselves — use this method's filter arguments instead of manual WHERE building.
         - Pagination (page/per_page) takes precedence over legacy `limit`.
         """
         if limit is None:
