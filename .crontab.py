@@ -220,6 +220,7 @@ if should_run_job("1-h", ensure_run_daily=True):
             [
                 PYTHON_BIN,
                 str(CWD / "artisan/proxy_https_checker.py"),
+                "--limit=100",
                 ">",
                 str(CRONTAB_LOG_DIR / "proxy_https_checker.log"),
                 "2>&1",
@@ -227,6 +228,7 @@ if should_run_job("1-h", ensure_run_daily=True):
             [
                 PYTHON_BIN,
                 str(CWD / "artisan/proxy_socks5_checker.py"),
+                "--limit=100",
                 ">",
                 str(CRONTAB_LOG_DIR / "proxy_socks5_checker.log"),
                 "2>&1",
@@ -234,6 +236,7 @@ if should_run_job("1-h", ensure_run_daily=True):
             [
                 PYTHON_BIN,
                 str(CWD / "artisan/filter_duplicate_ips.py"),
+                "--limit=100",
                 ">",
                 str(CRONTAB_LOG_DIR / "filter-duplicate-ips.log"),
                 "2>&1",
@@ -241,6 +244,7 @@ if should_run_job("1-h", ensure_run_daily=True):
             [
                 PYTHON_BIN,
                 str(CWD / "artisan/filter_open_port.py"),
+                "--limit=100",
                 ">",
                 str(CRONTAB_LOG_DIR / "filter_open_port.log"),
                 "2>&1",
