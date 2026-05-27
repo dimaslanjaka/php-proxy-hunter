@@ -173,8 +173,6 @@ def cleanup_old_files(
                 continue
 
 
-gc.collect()
-
 if should_run_job("5-m"):
     echo_skip_or_run("5 minutes", True)
     run_command_with_logging(
@@ -182,6 +180,7 @@ if should_run_job("5-m"):
         log_file=CRONTAB_LOG_DIR / "cleanup-blacklist.log",
     )
 
+time.sleep(10)
 gc.collect()
 
 if should_run_job("30-m"):
@@ -197,6 +196,7 @@ if should_run_job("30-m"):
         log_file=CRONTAB_LOG_DIR / "tun2socks.log",
     )
 
+time.sleep(10)
 gc.collect()
 
 if should_run_job(
@@ -210,6 +210,7 @@ if should_run_job(
         log_file=CRONTAB_LOG_DIR / "proxyCollector.log",
     )
 
+time.sleep(10)
 gc.collect()
 
 if should_run_job("1-h", ensure_run_daily=True):
@@ -248,6 +249,7 @@ if should_run_job("1-h", ensure_run_daily=True):
         cwd=CWD,
     )
 
+time.sleep(10)
 gc.collect()
 
 if should_run_job(
@@ -289,6 +291,7 @@ if should_run_job(
         cwd=CWD,
     )
 
+time.sleep(10)
 gc.collect()
 
 if should_run_job(
@@ -313,6 +316,7 @@ if should_run_job(
             text=True,
         )
 
+time.sleep(10)
 gc.collect()
 
 if should_run_job(
