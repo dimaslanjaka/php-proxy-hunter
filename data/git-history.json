@@ -1,5 +1,26 @@
 [
   {
+    "hash": "90c474788261f7f7738669a90847c749183c763c",
+    "date": "2026-05-27T08:45:50+07:00",
+    "message": "feat(workflows): add emoji to checkout steps for better visibility",
+    "files": [
+      ".github/workflows/build-php.yml.txt",
+      ".github/workflows/checker-php2.yml.txt",
+      ".github/workflows/checker-python.yml.txt",
+      ".github/workflows/checker.yml",
+      ".github/workflows/dependent.yml.txt",
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "1680fdd0cd48219ba1eef18fb34627ac2676d652",
+    "date": "2026-05-27T08:33:01+07:00",
+    "message": "feat(checker): include additional file types for proxy assets in workflow",
+    "files": [
+      ".github/workflows/checker.yml"
+    ]
+  },
+  {
     "hash": "7cbe771f4a565d71eef42cf28a5b600ce096de93",
     "date": "2026-05-27T08:31:59+07:00",
     "message": "fix(checker): set default limit for ci-checker script to 100",
@@ -8791,27 +8812,6 @@
     "message": "fix(DefaultDataTable): disable sorting and searching functionality",
     "files": [
       "src/react/pages/examples/tables/DefaultDataTable.tsx"
-    ]
-  },
-  {
-    "hash": "d2dd73a3645074010081ca889a122de90f51332a",
-    "date": "2025-11-28T14:45:12+07:00",
-    "message": "feat(react): add datatable examples with dark theme support\n\n- Add simple-datatables package (v10.2.0) dependency\n- Create DataTables examples page at /examples/tables route\n- Implement DefaultDataTable component with sorting, pagination, and search\n- Add table data as JSON with 21 JavaScript framework entries\n- Import simple-datatables CSS in Tailwind config\n- Add comprehensive dark theme styling for all datatable elements:\n  - Table info text and pagination controls\n  - Pagination list items with active state styling\n  - Datatable top section (dropdown and search inputs)\n  - Proper color contrast and focus states for dark mode",
-    "files": [
-      "package.json",
-      "src/react/index.tsx",
-      "src/react/pages/examples/tables/DefaultDataTable.tsx",
-      "src/react/pages/examples/tables/defaultTableData.json",
-      "src/react/pages/examples/tables/index.tsx",
-      "tailwind.input.css"
-    ]
-  },
-  {
-    "hash": "70debd168dfafdba6fe7bb3a133190abc228d7f6",
-    "date": "2025-11-28T10:56:48+07:00",
-    "message": "fix: update hash format in .husky/hash.txt and adjust output line in cfh.cjs",
-    "files": [
-      "bin/cfh.cjs"
     ]
   }
 ]
