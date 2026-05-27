@@ -33,7 +33,7 @@ async def check_proxy_http(
     url: str = "http://httpforever.com/",
     expected_title: str = "HTTP Forever",
     **kwargs,
-) -> bool:
+) -> Dict[str, bool]:
     """
     Async wrapper: run blocking `build_request` in a thread and validate the page title for HTTP proxies.
 
@@ -45,28 +45,42 @@ async def check_proxy_http(
         **kwargs: Additional keyword arguments forwarded to build_request (e.g., headers, cookies, etc).
 
     Returns:
-        True if the proxy returns the expected title and status code 200, False otherwise.
+        A dict containing:
+        - result: True if the proxy returns the expected title and status code 200.
+        - private: True if the response looks like a private/authenticated proxy page.
     """
+    private_markers = (
+        "not authenticated",
+        "invalid authentication credentials",
+    )
     try:
         response = await asyncio.to_thread(
             build_request, endpoint=url, proxy=proxy, timeout=timeout, **kwargs
         )
         soup = BeautifulSoup(response.text, "html.parser")
         title = str(soup.title.string) if soup.title else ""
+        body_text = " ".join(soup.get_text(" ", strip=True).split())[:100]
+        candidate_text = title.strip() or body_text
+        is_private = any(marker in candidate_text.lower() for marker in private_markers)
         if expected_title.lower() not in title.lower():
-            if title.strip():
-                retrieved_title = title.strip()
-            else:
-                retrieved_title = " ".join(soup.get_text(" ", strip=True).split())[:100]
-                retrieved_title = retrieved_title or "(no title found)"
+            retrieved_title = title.strip() or body_text or "(no title found)"
             print(
                 f"{magenta(proxy)} retrieved page title: {yellow(retrieved_title)} (expected to contain '{yellow(expected_title)}')"
             )
-            return False
-        return getattr(response, "status_code", None) == 200
+            return {
+                "result": False,
+                "private": is_private,
+            }
+        return {
+            "result": getattr(response, "status_code", None) == 200,
+            "private": is_private,
+        }
     except Exception as e:
         print(f"Error checking {magenta(proxy)} for {yellow(url)}: {e}")
-        return False
+        return {
+            "result": False,
+            "private": False,
+        }
 
 
 def get_duplicates_ip_proxy(
@@ -199,6 +213,8 @@ async def run_checks_for_proxies(
                 "type": None,
                 "https": False,
                 "applied": False,
+                "protocol_ok": False,
+                "private": False,
             }
         async with sem:
             original = normalize_proxy_value(entry)
@@ -206,16 +222,18 @@ async def run_checks_for_proxies(
             for proto in protocols:
                 proxy_url = f"{proto}://{original}"
                 applied = False
-                protocol_ok = False
+                http_check = {"result": False, "private": False}
                 supports_https = False
 
-                protocol_ok = await check_proxy_http(
+                http_check = await check_proxy_http(
                     proxy=proxy_url,
                     timeout=timeout,
                     url="http://httpforever.com/",
                     expected_title="HTTP Forever",
                 )
-                if protocol_ok:
+                protocol_result = http_check.get("result", False)
+                is_private = http_check.get("private", False)
+                if protocol_result:
                     supports_https = await check_proxy_https(
                         proxy=proxy_url,
                         timeout=timeout,
@@ -226,13 +244,15 @@ async def run_checks_for_proxies(
                         proxy=proxy_url, timeout=timeout
                     )
 
-                if protocol_ok or applied:
+                if protocol_result or applied:
                     return entry, {
                         "proxy": proxy_val,
                         "type": proto,
                         "https": supports_https,
                         "applied": bool(applied),
-                        "protocol_ok": bool(protocol_ok),
+                        "protocol_ok": bool(protocol_result),
+                        "result": bool(protocol_result),
+                        "private": bool(is_private),
                     }
 
             return entry, {
@@ -241,6 +261,8 @@ async def run_checks_for_proxies(
                 "https": False,
                 "applied": False,
                 "protocol_ok": False,
+                "result": False,
+                "private": False,
             }
 
     tasks = [asyncio.create_task(worker(e)) for e in proxies]
@@ -291,14 +313,12 @@ if __name__ == "__main__":
             working = [
                 entry
                 for entry, res in results
-                if res.get("protocol_ok") or res.get("https") or res.get("applied")
+                if res.get("result") or res.get("https") or res.get("applied")
             ]
             failed = [
                 entry
                 for entry, res in results
-                if not (
-                    res.get("protocol_ok") or res.get("https") or res.get("applied")
-                )
+                if not (res.get("result") or res.get("https") or res.get("applied"))
             ]
 
             # map proxy string -> successful protocol for updates
@@ -340,6 +360,7 @@ if __name__ == "__main__":
                     }
                     if proto:
                         data_update["type"] = proto
+                    data_update["private"] = "true" if entry.get("private") else "false"
                     if entry.get("https"):
                         data_update["https"] = "true"
                     try:
