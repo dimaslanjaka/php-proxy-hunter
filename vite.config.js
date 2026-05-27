@@ -28,8 +28,8 @@ const distPath = path.resolve(__dirname, 'dist/react');
 const gitCommitHash = execSync('git rev-parse --short HEAD').toString().trim();
 
 // Load .env file (dotenv)
-const sampleCfg = dotenv.config({ path: path.resolve(__dirname, '.env.example') });
-const dotCfg = dotenv.config({ override: true });
+const sampleCfg = dotenv.config({ path: path.resolve(__dirname, '.env.example'), override: false, quiet: true });
+const dotCfg = dotenv.config({ override: true, quiet: true });
 const isGithubCI = process.env.GITHUB_ACTIONS === 'true';
 
 /** Prepare VITE_ prefixed env variables for define

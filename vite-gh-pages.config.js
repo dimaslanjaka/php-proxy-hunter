@@ -12,7 +12,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const isGithubCI = process.env.GITHUB_ACTIONS === 'true';
-const sampleCfg = dotenv.config({ path: path.resolve(__dirname, '.env.example') });
+const sampleCfg = dotenv.config({ path: path.resolve(__dirname, '.env.example'), override: false, quiet: true });
 
 if (isGithubCI) {
   // In GitHub CI, ensure all variables from .env.example are set, using defaults if not provided in secrets

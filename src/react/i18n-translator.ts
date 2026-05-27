@@ -12,7 +12,7 @@ import source from './locales/id.json' with { type: 'json' };
 import { fileURLToPath } from 'url';
 import { array_shuffle } from '../utils/array';
 
-dotenv.config();
+dotenv.config({ override: true, quiet: true });
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);

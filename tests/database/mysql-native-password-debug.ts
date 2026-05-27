@@ -1,6 +1,7 @@
 import mariadb from 'mariadb';
 import dotenv from 'dotenv';
-dotenv.config();
+
+dotenv.config({ override: true, quiet: true });
 
 async function updateUserAuthPlugin() {
   const connection = await mariadb.createConnection({
