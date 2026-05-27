@@ -133,40 +133,49 @@ async def main(args):
     results = await run_checks_for_proxies(args)
     db = init_readonly_db()
 
-    for entry, result in results:
-        proxy_val = str(result.get("proxy") or "").strip()
-        if not proxy_val:
-            continue
+    try:
+        for entry, result in results:
+            proxy_val = str(result.get("proxy") or "").strip()
+            if not proxy_val:
+                continue
 
-        update_data = {"status": result.get("status") or "dead"}
-        update_data["private"] = "true" if result.get("private") else "false"
-        if result.get("status") == "active":
-            if result.get("type"):
-                update_data["type"] = result.get("type")
-            if result.get("https"):
-                update_data["https"] = "true"
-            if result.get("private"):
-                update_data["private"] = "true"
+            update_data = {"status": result.get("status") or "dead"}
+            update_data["private"] = "true" if result.get("private") else "false"
+            if result.get("status") == "active":
+                if result.get("type"):
+                    update_data["type"] = result.get("type")
+                if result.get("https"):
+                    update_data["https"] = "true"
+                if result.get("private"):
+                    update_data["private"] = "true"
 
-        try:
-            db.update_data(
-                proxy=proxy_val,
-                data=update_data,
-                update_time=True,
-                debug=True,
-            )
-        except Exception as e:
-            print(f"Error updating proxy {proxy_val}: {e}")
+            try:
+                db.update_data(
+                    proxy=proxy_val,
+                    data=update_data,
+                    update_time=True,
+                    debug=True,
+                )
+            except Exception as e:
+                print(f"Error updating proxy {proxy_val}: {e}")
 
-    print(f"Checked {len(results)} proxies")
+        print(f"Checked {len(results)} proxies")
 
-    # Count working proxies
-    working_count = 0
-    for entry, result in results:
-        if result.get("result") or result.get("https") or result.get("applied"):
-            working_count += 1
+        # Count working proxies
+        working_count = 0
+        for entry, result in results:
+            if result.get("result") or result.get("https") or result.get("applied"):
+                working_count += 1
 
-    print(f"Working proxies: {working_count}")
+        print(f"Working proxies: {working_count}")
+    finally:
+        output_file = get_relative_path("working.json")
+        db.get_working_proxies(
+            output_file=output_file,
+            last_checked=get_yesterday_rfc3339_time(),
+            limit=1000,
+        )
+        print(f"Saved working proxies to {cyan(output_file)}")
 
 
 if __name__ == "__main__":
