@@ -91,10 +91,10 @@ if __name__ == "__main__":
             proxy_by_key[key] = p
             ordered_keys.append(key)
 
-        cleaned_keys, pending_keys, already_checked = marker.filter_unseen(ordered_keys)
-        proxies = [proxy_by_key[k] for k in pending_keys]
+        unseen = marker.filter_unseen(ordered_keys)
+        proxies = [proxy_by_key[k] for k in unseen.pending]
         print(
-            f"[MARKER] pending={len(proxies)}, already_checked={already_checked}, total_unique={len(cleaned_keys)}"
+            f"[MARKER] pending={len(proxies)}, already_checked={unseen.already_checked}, total_unique={len(unseen.cleaned)}"
         )
 
         random.shuffle(proxies)

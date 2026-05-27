@@ -1,10 +1,23 @@
 import os
 import re
+import sys
+from dataclasses import dataclass, field
 from datetime import datetime, timedelta, timezone
-from typing import Iterable, List, Optional, Set, Tuple, Union
+from typing import Iterable, List, Optional, Set, Union
 
-from src.SQLiteHelper import SQLiteHelper
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.append(PROJECT_ROOT)
+
 from src.func import get_relative_path
+from src.SQLiteHelper import SQLiteHelper
+
+
+@dataclass
+class UnseenResult:
+    cleaned: Set[str] = field(default_factory=set)
+    pending: Set[str] = field(default_factory=set)
+    already_checked: int = 0
+
 
 _IDENTIFIER_RE = re.compile(r"^[A-Za-z_][A-Za-z0-9_]*$")
 
@@ -118,7 +131,7 @@ class SQLiteMarker:
 
     def filter_unseen(
         self, values: Iterable[str], as_of: Optional[str] = None
-    ) -> Tuple[Set[str], List[str], int]:
+    ) -> UnseenResult:
         """Deduplicate values and split them into cleaned, pending, and seen items.
 
         Args:
@@ -126,27 +139,28 @@ class SQLiteMarker:
             as_of: Optional RFC3339 timestamp used to ignore expired markers.
 
         Returns:
-            A tuple of ``(cleaned, pending, skipped_count)`` where ``cleaned`` is
-            the deduplicated input, ``pending`` contains unseen values, and
-            ``skipped_count`` is the number of existing values.
+            An ``UnseenResult`` containing the deduplicated input, unseen values,
+            and the number of already existing values.
         """
         cleaned: Set[str] = set()
-        ordered: List[str] = []
+        ordered: Set[str] = set()
 
         for v in values:
             v = str(v).strip()
             if not v or v in cleaned:
                 continue
             cleaned.add(v)
-            ordered.append(v)
+            ordered.add(v)
 
         if not ordered:
-            return set(), [], 0
+            return UnseenResult()
 
         existing = self.get_existing(ordered, as_of)
-        pending = [v for v in ordered if v not in existing]
+        pending = ordered - existing
 
-        return cleaned, pending, len(existing)
+        return UnseenResult(
+            cleaned=cleaned, pending=pending, already_checked=len(existing)
+        )
 
     def _resolve_valid_until(
         self, valid_until: Optional[Union[str, int]]

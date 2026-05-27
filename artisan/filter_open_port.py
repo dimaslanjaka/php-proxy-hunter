@@ -118,17 +118,15 @@ async def process_proxies_async(
             proxy_by_value[proxy_str] = proxy
             ordered_proxy_values.append(proxy_str)
 
-        cleaned_proxy_values, pending_proxy_values, already_checked = (
-            marker.filter_unseen(ordered_proxy_values)
-        )
-        valid_proxies = [proxy_by_value[proxy] for proxy in pending_proxy_values]
+        unseen = marker.filter_unseen(ordered_proxy_values)
+        valid_proxies = [proxy_by_value[proxy] for proxy in unseen.pending]
         if not valid_proxies:
             return {
                 "open": 0,
                 "closed": 0,
                 "updated": 0,
                 "errors": 0,
-                "already_checked": already_checked,
+                "already_checked": unseen.already_checked,
             }
 
         tasks = [
@@ -140,7 +138,7 @@ async def process_proxies_async(
             "closed": 0,
             "updated": 0,
             "errors": 0,
-            "already_checked": already_checked,
+            "already_checked": unseen.already_checked,
         }
 
         # Log results as they complete, not after all finish
