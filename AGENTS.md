@@ -30,11 +30,53 @@ This is a React application with:
 
 ## Developer workflows (project-specific)
 
-- Preferred bootstrap is Task: `task install-nodejs`, `task install-python`, `task install-php` (see `Taskfile.yml`).
-- On Windows, Python commands are expected through `bin/py.cmd` wrapper (auto-creates/activates `venv`).
-- Python deps are generated+installed via `requirements_install.py` (do not hand-edit generated `requirements.txt` unless necessary).
-- Frontend build path is Vite to `dist/react` (`npm run build:react`), while Node bundles use Rollup configs (`rollup.project.js`, `rollup.php.js`, `rollup.whatsapp.js`).
-- Local PHP app start is `npm start` -> `php -S 0.0.0.0:4000`.
+* Preferred bootstrap uses Task commands:
+
+  * `task install-nodejs`
+  * `task install-python`
+  * `task install-php`
+    (see `Taskfile.yml`)
+
+* Python execution (runtime):
+
+  * **Windows:** `bin/py.cmd`
+  * **Unix:** `bin/py`
+
+* Python minimal bootstrap (dependency installer only):
+
+  * **Windows:** `bin/python-minimal.cmd`
+  * **Unix:** `bin/python-minimal`
+  * Purpose:
+
+    * Used **only for installing Python dependencies**
+    * Used by `requirements_install.py`
+    * Not a runtime Python launcher
+    * Not interchangeable with `bin/py` / `bin/py.cmd`
+
+* Python dependencies:
+
+  * Generated and installed via `requirements_install.py`
+  * Do **not** manually edit generated `requirements.txt` unless necessary
+  * Dependency installation may rely on `python-minimal`, but runtime does not
+
+* Frontend build pipeline:
+
+  * React output: `dist/react`
+  * Build command: `npm run build:react`
+  * Uses Vite
+
+* Node.js bundle builds:
+
+  * Rollup configs:
+
+    * `rollup.project.js`
+    * `rollup.php.js`
+    * `rollup.whatsapp.js`
+
+* Local PHP development server:
+
+  * Start command: `npm start`
+  * Runs: `php -S 0.0.0.0:4000`
 
 ## Testing and checks
 
