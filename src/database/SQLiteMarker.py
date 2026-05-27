@@ -79,6 +79,15 @@ class SQLiteMarker:
     def get_existing(
         self, values: Iterable[str], as_of: Optional[str] = None
     ) -> Set[str]:
+        """Return the subset of values that already exist in the marker table.
+
+        Args:
+            values: Candidate marker values to check.
+            as_of: Optional RFC3339 timestamp used to ignore expired markers.
+
+        Returns:
+            A set containing the values that are already present and not expired.
+        """
         normalized = [str(v).strip() for v in values if str(v).strip()]
 
         if not normalized:
@@ -109,24 +118,35 @@ class SQLiteMarker:
 
     def filter_unseen(
         self, values: Iterable[str], as_of: Optional[str] = None
-    ) -> Tuple[List[str], int]:
-        cleaned: List[str] = []
-        seen: Set[str] = set()
+    ) -> Tuple[Set[str], List[str], int]:
+        """Deduplicate values and split them into cleaned, pending, and seen items.
+
+        Args:
+            values: Candidate marker values to filter.
+            as_of: Optional RFC3339 timestamp used to ignore expired markers.
+
+        Returns:
+            A tuple of ``(cleaned, pending, skipped_count)`` where ``cleaned`` is
+            the deduplicated input, ``pending`` contains unseen values, and
+            ``skipped_count`` is the number of existing values.
+        """
+        cleaned: Set[str] = set()
+        ordered: List[str] = []
 
         for v in values:
             v = str(v).strip()
-            if not v or v in seen:
+            if not v or v in cleaned:
                 continue
-            seen.add(v)
-            cleaned.append(v)
+            cleaned.add(v)
+            ordered.append(v)
 
-        if not cleaned:
-            return [], 0
+        if not ordered:
+            return set(), [], 0
 
-        existing = self.get_existing(cleaned, as_of)
-        pending = [v for v in cleaned if v not in existing]
+        existing = self.get_existing(ordered, as_of)
+        pending = [v for v in ordered if v not in existing]
 
-        return pending, len(existing)
+        return cleaned, pending, len(existing)
 
     def _resolve_valid_until(
         self, valid_until: Optional[Union[str, int]]

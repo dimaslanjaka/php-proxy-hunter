@@ -176,7 +176,7 @@ def remover(db: ProxyDB):
                 proxy_by_marker[k] = data
                 ordered.append(k)
 
-            pending, skipped = marker.filter_unseen(ordered)
+            cleaned, pending, skipped = marker.filter_unseen(ordered)
 
             if skipped:
                 print(f"[{driver}] skipped {skipped} proxies already processed")

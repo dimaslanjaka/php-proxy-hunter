@@ -118,8 +118,8 @@ async def process_proxies_async(
             proxy_by_value[proxy_str] = proxy
             ordered_proxy_values.append(proxy_str)
 
-        pending_proxy_values, already_checked = marker.filter_unseen(
-            ordered_proxy_values
+        cleaned_proxy_values, pending_proxy_values, already_checked = (
+            marker.filter_unseen(ordered_proxy_values)
         )
         valid_proxies = [proxy_by_value[proxy] for proxy in pending_proxy_values]
         if not valid_proxies:
