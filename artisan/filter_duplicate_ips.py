@@ -54,8 +54,9 @@ async def check_proxy_http(
         soup = BeautifulSoup(response.text, "html.parser")
         title = str(soup.title.string) if soup.title else ""
         if expected_title.lower() not in title.lower():
+            retrieved_title = title.strip() or "(no title found)"
             print(
-                f"{magenta(proxy)} returned unexpected title: {yellow(title)} (expected to contain '{yellow(expected_title)}')"
+                f"{magenta(proxy)} retrieved page title: {yellow(retrieved_title)} (expected to contain '{yellow(expected_title)}')"
             )
             return False
         return getattr(response, "status_code", None) == 200
