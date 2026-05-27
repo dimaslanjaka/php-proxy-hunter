@@ -21,6 +21,7 @@ from src.func_date import get_current_rfc3339_time
 from src.geoPlugin import get_geo_ip
 from src.SQLiteHelper import SQLiteHelper
 from src.MySQLHelper import MySQLHelper
+from src.func_console import blue, cyan, green, magenta, red, white, yellow, orange
 
 
 class ProxyDB:
@@ -546,7 +547,9 @@ class ProxyDB:
         update_time: bool = True,
         debug: bool = False,
     ):
-        debug_prefix = f"[{self.driver}]"
+        debug_prefix = (
+            f"[{magenta('mysql') if self.driver == 'mysql' else blue('sqlite')}]"
+        )
         proxy = self.normalize_proxy(proxy)
         if not proxy:
             if debug:
