@@ -17,10 +17,6 @@ from src.database.SQLiteMarker import SQLiteMarker
 from src.shared import init_db, init_sqlite_db
 
 
-class FatalDBError(Exception):
-    pass
-
-
 def to_project_relative_path(path: Any) -> str | None:
     if not path:
         return path
@@ -63,6 +59,26 @@ def configure_sqlite(db: ProxyDB):
         print(f"[sqlite] PRAGMA error: {e}")
 
 
+def log_db_error(driver: str, action: str, error: Exception):
+    print(f"[{driver}] {action} failed: {error}")
+
+
+def safe_update_data(db: ProxyDB, proxy: str, data: dict[str, Any], driver: str):
+    try:
+        payload = data.copy()
+        payload.pop("id", None)
+        db.update_data(proxy, payload)
+    except Exception as e:
+        log_db_error(driver, f"update {proxy}", e)
+
+
+def safe_remove(db: ProxyDB, proxy: str, driver: str):
+    try:
+        db.remove(proxy)
+    except Exception as e:
+        log_db_error(driver, f"remove {proxy}", e)
+
+
 def process_proxy(db: ProxyDB, data: dict[str, Any], driver: str) -> str | None:
     proxy = str(data.get("proxy", "")).strip()
 
@@ -77,15 +93,11 @@ def process_proxy(db: ProxyDB, data: dict[str, Any], driver: str) -> str | None:
 
         if fixed and fixed != last_check:
             data["last_check"] = fixed
-            try:
-                db.update_data(proxy, data)
-            except Exception as e:
-                print(f"[{driver}] last_check update failed: {e}")
-                raise FatalDBError(e)
+            safe_update_data(db, proxy, data, driver)
 
     if not normalized_proxy:
         print(f"[{driver}] invalid proxy: {red(proxy)} -> {red(normalized_proxy)}")
-        db.remove(proxy)
+        safe_remove(db, proxy, driver)
         return None
 
     valid_n = is_valid_proxy(normalized_proxy)
@@ -102,32 +114,24 @@ def process_proxy(db: ProxyDB, data: dict[str, Any], driver: str) -> str | None:
             new_data = data.copy()
             new_data["proxy"] = extracted_proxy
 
-            try:
-                db.update_data(extracted_proxy, new_data)
-            except Exception as e:
-                print(f"[{driver}] update failed: {e}")
-                raise FatalDBError(e)
+            safe_update_data(db, extracted_proxy, new_data, driver)
 
-            db.remove(proxy)
+            safe_remove(db, proxy, driver)
             return marker_key
 
         print(f"[{driver}] invalid: {red(proxy)} -> {red(normalized_proxy)}")
-        db.remove(proxy)
+        safe_remove(db, proxy, driver)
         return None
 
     if proxy != normalized_proxy:
         print(f"[{driver}] normalized: {red(proxy)} -> {green(normalized_proxy)}")
 
-        db.remove(proxy)
+        safe_remove(db, proxy, driver)
 
         new_data = data.copy()
         new_data["proxy"] = normalized_proxy
 
-        try:
-            db.update_data(normalized_proxy, new_data)
-        except Exception as e:
-            print(f"[{driver}] normalize update failed: {e}")
-            raise FatalDBError(e)
+        safe_update_data(db, normalized_proxy, new_data, driver)
 
     return marker_key
 
