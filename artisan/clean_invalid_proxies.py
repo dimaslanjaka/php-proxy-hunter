@@ -15,6 +15,10 @@ from src.func_console import green, red
 from src.ProxyDB import ProxyDB
 from src.database.SQLiteMarker import SQLiteMarker
 from src.shared import init_db, init_sqlite_db
+from src.utils.file.FileLockHelper import FileLockHelper
+
+current_filename = os.path.basename(__file__)
+locker: FileLockHelper | None = None
 
 
 def to_project_relative_path(path: Any) -> str | None:
@@ -219,4 +223,14 @@ def main():
 
 
 if __name__ == "__main__":
-    main()
+    locker = FileLockHelper(get_relative_path(f"tmp/locks/{current_filename}.lock"))
+
+    if not locker.lock():
+        print("Another instance is running. Exiting.")
+        sys.exit(0)
+
+    try:
+        main()
+    finally:
+        if locker:
+            locker.unlock()
