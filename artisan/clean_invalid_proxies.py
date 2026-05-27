@@ -179,7 +179,7 @@ def remover(db: ProxyDB):
             pending, skipped = marker.filter_unseen(ordered)
 
             if skipped:
-                print(f"[{driver}] skipped {skipped}")
+                print(f"[{driver}] skipped {skipped} proxies already processed")
 
             for k in pending:
                 data = proxy_by_marker.get(k)
