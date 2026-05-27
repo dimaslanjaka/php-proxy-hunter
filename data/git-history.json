@@ -1,5 +1,31 @@
 [
   {
+    "hash": "cd3bef68ad9200b57ded2e0df920ef4751c33330",
+    "date": "2026-05-27T09:03:43+07:00",
+    "message": "fix(proxy): add default limit to proxy data submission for geoIp resolution",
+    "files": [
+      "src/react/pages/ProxyList/ServerSide.tsx",
+      "src/react/pages/ProxyList/UniqueIpList.tsx",
+      "src/react/pages/ProxyList/WorkingJson.tsx"
+    ]
+  },
+  {
+    "hash": "fc89f61a142a4c3852d3aaf114df78b76f5b27b6",
+    "date": "2026-05-27T09:00:40+07:00",
+    "message": "fix(executor): hash userId and uid for geoIp resolution to enhance security",
+    "files": [
+      "php_backend/executor.php"
+    ]
+  },
+  {
+    "hash": "7f82870524676ec200643373fc0fe3799d4a540b",
+    "date": "2026-05-27T08:59:05+07:00",
+    "message": "fix(executor): update lock file generation logic for geoIp resolution",
+    "files": [
+      "php_backend/executor.php"
+    ]
+  },
+  {
     "hash": "90c474788261f7f7738669a90847c749183c763c",
     "date": "2026-05-27T08:45:50+07:00",
     "message": "feat(workflows): add emoji to checkout steps for better visibility",
@@ -8783,35 +8809,6 @@
       "src/react/pages/examples/tables/SortingDataTable.tsx",
       "src/react/pages/examples/tables/index.tsx",
       "tailwind.input.css"
-    ]
-  },
-  {
-    "hash": "ab5f72b9cf602c3b5e290085da967a7e4f02c2ac",
-    "date": "2025-11-28T16:50:12+07:00",
-    "message": "feat(tables): add searchable DataTable component and related styling\n\n- Introduce `SearchDataTable` component using simple-datatables\n- Add `searchTableData.json` with sample company data\n- Register new example in tables index page\n- Enhance Tailwind datatable styles (header, cells, hover states)",
-    "files": [
-      "src/react/pages/examples/tables/SearchDataTable.tsx",
-      "src/react/pages/examples/tables/index.tsx",
-      "src/react/pages/examples/tables/searchTableData.json",
-      "tailwind.input.css"
-    ]
-  },
-  {
-    "hash": "f00f4863ce4c6169965fd5bb9dd484b2e79aaca7",
-    "date": "2025-11-28T16:07:28+07:00",
-    "message": "feat(react): add sorting datatable example with blue sort indicators\n\n- Create SortingDataTable component with column sorting functionality\n- Add SortingDataTable to DataTables examples page\n- Implement blue-colored sort buttons and arrow indicators for visibility\n- Add datatable sorter CSS with light and dark theme support\n- Style sorter buttons with blue colors (#2563eb on light, #60a5fa on dark)\n- Add blue arrow indicators (::before and ::after pseudo-elements)\n- Style sortable table headers with proper background and border colors\n- Include responsive hover states for sort buttons in both themes",
-    "files": [
-      "src/react/pages/examples/tables/SortingDataTable.tsx",
-      "src/react/pages/examples/tables/index.tsx",
-      "tailwind.input.css"
-    ]
-  },
-  {
-    "hash": "0b892d679687e825892205c0b974b66fc978cb7c",
-    "date": "2025-11-28T16:05:22+07:00",
-    "message": "fix(DefaultDataTable): disable sorting and searching functionality",
-    "files": [
-      "src/react/pages/examples/tables/DefaultDataTable.tsx"
     ]
   }
 ]
