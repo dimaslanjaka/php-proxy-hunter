@@ -1,5 +1,16 @@
 [
   {
+    "hash": "86e867367cbfa2abd156f6b7ebca22930144f798",
+    "date": "2026-05-27T09:16:20+07:00",
+    "message": "chore(env): suppress dotenv warnings and explicit override behavior\n\n- Add `quiet: true` to all dotenv.config calls to silence missing file warnings\n- Explicitly set `override: false` when loading `.env.example`\n- Explicitly set `override: true` when loading `.env",
+    "files": [
+      "src/react/i18n-translator.ts",
+      "tests/database/mysql-native-password-debug.ts",
+      "vite-gh-pages.config.js",
+      "vite.config.js"
+    ]
+  },
+  {
     "hash": "cd3bef68ad9200b57ded2e0df920ef4751c33330",
     "date": "2026-05-27T09:03:43+07:00",
     "message": "fix(proxy): add default limit to proxy data submission for geoIp resolution",
@@ -8796,19 +8807,6 @@
     "message": "feat(index.php): add check to serve dist/react/index.html if it exists",
     "files": [
       "index.php"
-    ]
-  },
-  {
-    "hash": "42208493c4f17febdd3fb4bd0466aa5334ba1f25",
-    "date": "2025-11-28T17:56:54+07:00",
-    "message": "feat(react): add separate routes for datatable examples with improved styling\n\n- Add individual routes for Default, Sorting, and Search DataTable pages\n- Import separate table components (DefaultDataTable, SortingDataTable, SearchDataTable)\n- Convert index.tsx to landing page with card-based navigation links\n- Update DataTable components to include full-page layout with headers and back buttons\n- Enable sorting and searching in DefaultDataTable component\n- Add interactive card links with icons and hover effects in tables index\n- Improve datatable controls styling with gradient backgrounds and enhanced focus states\n- Add smooth transitions and shadows to datatable input elements\n- Implement responsive design for datatable dropdown and search sections\n- Add dark mode support for all datatable UI elements",
-    "files": [
-      "src/react/index.tsx",
-      "src/react/pages/examples/tables/DefaultDataTable.tsx",
-      "src/react/pages/examples/tables/SearchDataTable.tsx",
-      "src/react/pages/examples/tables/SortingDataTable.tsx",
-      "src/react/pages/examples/tables/index.tsx",
-      "tailwind.input.css"
     ]
   }
 ]
