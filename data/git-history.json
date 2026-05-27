@@ -1,5 +1,53 @@
 [
   {
+    "hash": "84fa0017f9ccfc4a991dbfacccd8c5adbb38bbc5",
+    "date": "2026-05-28T04:32:41+07:00",
+    "message": "feat(database): replace filter_unseen tuple return with UnseenResult dataclass\n\n- Introduce `UnseenResult` dataclass (cleaned, pending, already_checked)\n- Change `SQLiteMarker.filter_unseen` return type from tuple to structured object\n- Replace tuple unpacking in callers with `result.pending`, `result.cleaned`, `result.already_checked`\n- Update internal logic to use set-based `ordered` and `pending` computation\n- Refactor scripts and tests to match new API shape and semantics\n- Rename `skipped`/`pending_*` usages to `already_checked` and `pending`\n\nBREAKING CHANGE: `filter_unseen` no longer returns a tuple; it now returns an `UnseenResult` object",
+    "files": [
+      "artisan/clean_invalid_proxies.py",
+      "artisan/filter_open_port.py",
+      "artisan/geoIp.py",
+      "src/database/SQLiteMarker.py",
+      "tests/database/SQLiteMarker_test.py"
+    ]
+  },
+  {
+    "hash": "9d6f8441e2389cf2d07345efa7852c35394755e3",
+    "date": "2026-05-28T04:21:41+07:00",
+    "message": "feat(marker): expand filter_unseen to return cleaned set and improve visibility of processed values\n\n- update SQLiteMarker.filter_unseen to return (cleaned, pending, skipped_count)\n- introduce deduplicated cleaned set for tracking input normalization\n- update all callers to handle new return structure\n- fix incorrect usage of total_unique by using cleaned values in logs\n- add docstring for get_existing and filter_unseen methods\n- update tests to assert cleaned set behavior and new return signature\n- improve clarity of marker filtering pipeline across artisan scripts",
+    "files": [
+      "artisan/clean_invalid_proxies.py",
+      "artisan/filter_open_port.py",
+      "artisan/geoIp.py",
+      "src/database/SQLiteMarker.py",
+      "tests/database/SQLiteMarker_test.py"
+    ]
+  },
+  {
+    "hash": "c5431634855928d2d227ddec1e2c3257d56e2806",
+    "date": "2026-05-28T04:14:15+07:00",
+    "message": "fix(remover): enhance log message to specify number of skipped proxies already processed",
+    "files": [
+      "artisan/clean_invalid_proxies.py"
+    ]
+  },
+  {
+    "hash": "2beb61f5f86b78bcdc0ff5e75e7db728704233a2",
+    "date": "2026-05-28T04:04:21+07:00",
+    "message": "fix(locking): implement file locking to prevent multiple instances of the script",
+    "files": [
+      "artisan/clean_invalid_proxies.py"
+    ]
+  },
+  {
+    "hash": "5d06ad96321cc5ad20b1c2a173032b7c8956e328",
+    "date": "2026-05-28T04:02:32+07:00",
+    "message": "fix(cleanup): log database errors instead of throwing\n\nRemove FatalDBError and wrap proxy update/remove operations in safe helpers that log failures and continue. Also strip the primary key from update payloads to avoid SQLite UNIQUE constraint errors when cleaning invalid proxies.",
+    "files": [
+      "artisan/clean_invalid_proxies.py"
+    ]
+  },
+  {
     "hash": "86e867367cbfa2abd156f6b7ebca22930144f798",
     "date": "2026-05-27T09:16:20+07:00",
     "message": "chore(env): suppress dotenv warnings and explicit override behavior\n\n- Add `quiet: true` to all dotenv.config calls to silence missing file warnings\n- Explicitly set `override: false` when loading `.env.example`\n- Explicitly set `override: true` when loading `.env",
@@ -8761,52 +8809,6 @@
     "message": "feat(react): add data-sortable and min-width styling to table headers\n\n- Modify all header cells to include data-sortable=\"true\" attribute\n- Apply min-w-[200px] class to all headers for consistent minimum width\n- Clear inline styles from headers for cleaner rendering\n- Improve table header appearance and sorting functionality",
     "files": [
       "src/react/pages/examples/tables/AdvancedDataTable.tsx"
-    ]
-  },
-  {
-    "hash": "427c259384143b6629d24810d8a631ff618a5925",
-    "date": "2025-11-29T06:51:50+07:00",
-    "message": "feat(react): add advanced data table with financial data and filtering\n\n- Create AdvancedDataTable component with sort icons and per-column filtering\n- Add advancedTableData.json with 15 companies financial information\n- Implement tableRender for dynamic filter input row injection\n- Add column-specific styling for Description column (400px min-width)\n- Update routes and navigation for new /examples/tables/advanced page\n- Enhance datatable CSS with text wrapping and border-collapse for better rendering\n- Adjust grid layout for tables examples from 3 columns to responsive 2-4 columns",
-    "files": [
-      "src/react/index.tsx",
-      "src/react/pages/examples/tables/AdvancedDataTable.tsx",
-      "src/react/pages/examples/tables/advancedTableData.json",
-      "src/react/pages/examples/tables/index.tsx",
-      "tailwind.input.css"
-    ]
-  },
-  {
-    "hash": "70d2d8e1ea9dd04f0449b117e041abae8a0619f0",
-    "date": "2025-11-28T19:07:42+07:00",
-    "message": "fix(ui): simplify table overflow wrapper structure\n\n- Remove unnecessary negative margin classes (-mx-6 sm:mx-0) that caused full card overflow\n- Remove redundant inline-block wrapper with min-w-full and align-middle\n- Simplify to single overflow-x-auto div directly wrapping table element\n- Fix table scrolling to only affect data table, not entire card container\n- Improve layout consistency with Flowbite datatable documentation pattern",
-    "files": [
-      "src/react/pages/examples/tables/SearchDataTable.tsx"
-    ]
-  },
-  {
-    "hash": "4b8bf2cf7344da4516d08982a58f6d8a3f7b0f81",
-    "date": "2025-11-28T19:01:30+07:00",
-    "message": "feat(ui): make SearchDataTable responsive for mobile devices\n\n- Improve table wrapper with negative margins for full-width scroll on mobile\n- Add inline-block container with min-w-full for proper table layout\n- Add responsive CSS rules for .datatable-container with touch scrolling support\n- Add mobile-optimized styles for table font size and padding (0.75rem)\n- Stack search and filter controls vertically on screens <= 768px\n- Make search input full-width on mobile devices\n- Reduce pagination font size on mobile for better space utilization\n- Set datatable to 100% width with auto table-layout for responsiveness",
-    "files": [
-      "src/react/pages/examples/tables/SearchDataTable.tsx",
-      "tailwind.input.css"
-    ]
-  },
-  {
-    "hash": "a3a45c72c51319d71282532f6fa2cd73bf69457c",
-    "date": "2025-11-28T18:52:28+07:00",
-    "message": "feat: add clean scripts and reorganize npm scripts\n\n- Add \"clean\" and \"clean:react\" scripts to remove dist/react directory\n- Reorganize scripts in alphabetical order for better maintainability\n- Move \"postinstall\" script to proper alphabetical position\n- Disable emptyOutDir in vite.config.js to preserve output directory during builds",
-    "files": [
-      "package.json",
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "172f71a9388784f974beadb59a8b0537b2ed75b6",
-    "date": "2025-11-28T18:02:56+07:00",
-    "message": "feat(index.php): add check to serve dist/react/index.html if it exists",
-    "files": [
-      "index.php"
     ]
   }
 ]
