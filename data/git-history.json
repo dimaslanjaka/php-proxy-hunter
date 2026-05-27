@@ -1,5 +1,721 @@
 [
   {
+    "hash": "23848488f235181b82e14fb51e3a7e0d03988c6e",
+    "date": "2026-05-27T07:55:07+07:00",
+    "message": "feat: add AGENTS guide for project overview and developer workflows",
+    "files": [
+      "AGENTS.md"
+    ]
+  },
+  {
+    "hash": "0e4ee0e52678832c076232a2a18880cc097ceb1f",
+    "date": "2026-05-27T07:54:32+07:00",
+    "message": "fix(readme.md): update CI badge to unify PHP and Python checker workflows",
+    "files": [
+      "readme.md"
+    ]
+  },
+  {
+    "hash": "848f85e60f732626791d42178fe9aaea0333daca",
+    "date": "2026-05-27T07:54:02+07:00",
+    "message": "fix(checker.yml): add cache-dependency-path for Husky in Node.js setup",
+    "files": [
+      ".github/workflows/checker.yml"
+    ]
+  },
+  {
+    "hash": "c879002d95e8ec49976570cd3ef1a679202872fe",
+    "date": "2026-05-27T07:52:39+07:00",
+    "message": "refactor(vite-plugin): use ESM __dirname helper in serveDistAssetsPlugin\n\n- Add get__dirname() helper function for ESM directory resolution\n- Replace hardcoded __dirname variable with get__dirname() call",
+    "files": [
+      "vite-plugin.js"
+    ]
+  },
+  {
+    "hash": "c4adb49ada211bf30a695d2a38f18870691d1df9",
+    "date": "2026-05-27T07:39:11+07:00",
+    "message": "fix(package.json): update package URLs for dependencies to latest versions",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "07d9f1b410c8d68855876d7a065a034c030d6381",
+    "date": "2026-05-27T07:38:38+07:00",
+    "message": "fix(cmd-here.bat): enable UTF-8 support in new command window",
+    "files": [
+      "cmd-here.bat"
+    ]
+  },
+  {
+    "hash": "269fa700e06c64aeda34556e1a84dbe6309a0c6e",
+    "date": "2026-05-27T07:37:47+07:00",
+    "message": "ci: add unified proxy checker workflow and script\n\n- Add checker.yml workflow for scheduled and manual proxy validation\n- Implement artisan/ci-checker.py to test untested proxies and update DB\n- Disable old checker-php.yml and checker-python.yml by renaming to .txt\n- Configure workflow to run on multiple OS with dependency caching",
+    "files": [
+      ".github/workflows/checker-php2.yml.txt",
+      ".github/workflows/checker-python.yml.txt",
+      ".github/workflows/checker.yml",
+      "artisan/ci-checker.py"
+    ]
+  },
+  {
+    "hash": "85238f4bab12b2ab2003df0e2cd6d43090bb708d",
+    "date": "2026-05-27T07:31:34+07:00",
+    "message": "fix(proxy-db): enhance status logging with color coding for better visibility",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "ed9b97c43bd2149fad6666829ba217aa5452cd56",
+    "date": "2026-05-27T07:28:53+07:00",
+    "message": "fix(proxy): detect private proxies from exception messages\n\n- Update exception handler in check_proxy_http to analyze error text\n- Flag proxies as private if they throw authentication rejection errors\n- Ensure accurate private flagging even when HTTP requests fail",
+    "files": [
+      "artisan/filter_duplicate_ips.py"
+    ]
+  },
+  {
+    "hash": "2243c13040684e454a2b39ed57c123a4b314ed58",
+    "date": "2026-05-27T07:26:38+07:00",
+    "message": "fix(proxy-db): enhance debug prefix colorization for database type",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "1f5473420e6f369e7b28c213774f6cf07e1b8432",
+    "date": "2026-05-27T07:24:03+07:00",
+    "message": "feat(proxy): detect private proxies during HTTP validation\n\n- Modify `check_proxy_http` to return a dict with `result` and `private` flags\n- Add detection for private/authenticated proxy markers in response body\n- Update filtering logic to rely on the explicit `result` flag\n- Include `private` status in the final data update output",
+    "files": [
+      "artisan/filter_duplicate_ips.py"
+    ]
+  },
+  {
+    "hash": "ffe41ae4374059d39c97d83f01b3c13dd4455f37",
+    "date": "2026-05-27T07:12:48+07:00",
+    "message": "fix(proxy-check): enhance title retrieval logic for better handling of missing titles",
+    "files": [
+      "artisan/filter_duplicate_ips.py"
+    ]
+  },
+  {
+    "hash": "9ecafe567033cd5cfa99e334b4bdc1769fa2fde6",
+    "date": "2026-05-27T07:10:29+07:00",
+    "message": "fix(proxy-check): improve title logging for unexpected proxy responses",
+    "files": [
+      "artisan/filter_duplicate_ips.py"
+    ]
+  },
+  {
+    "hash": "bd31ea9d8be92a63452d4748c933a028f5e3abf0",
+    "date": "2026-05-27T07:07:14+07:00",
+    "message": "refactor(crontab): add sleep delay before garbage collection\n\n- Remove early gc.collect() call before the 5-minute job\n- Introduce 10-second sleep before each gc.collect() to space out execution",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
+    "hash": "e9531baf7ae619922c84f02a7b9926c009b75ce6",
+    "date": "2026-05-27T06:24:13+07:00",
+    "message": "fix(post-commit): add check for existing merge driver configuration",
+    "files": []
+  },
+  {
+    "hash": "29d2fa78f415d331b8561358a88ba206a50a1d78",
+    "date": "2026-05-15T14:03:17+07:00",
+    "message": "Add Short Command Prompt configuration",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "2cf83bb55e149462538f26ffaba4eb827f21abee",
+    "date": "2026-05-12T14:07:45+07:00",
+    "message": "feat(settings): enable chat agent and configure related options",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "46c715e3aa3f8b8ecb182eec295c709e74177d31",
+    "date": "2026-05-12T14:03:26+07:00",
+    "message": "chore(lint-staged): migrate config to JS and ignore userscripts\n\n- replace `.lintstagedrc.json` with `lint-staged.config.js`\n- add reusable userscripts file filter helper\n- exclude `userscripts/**` from ESLint ignore patterns\n- use dynamic lint-staged commands for filtered files",
+    "files": [
+      ".lintstagedrc.json",
+      "eslint.config.js",
+      "lint-staged.config.js"
+    ]
+  },
+  {
+    "hash": "9dd73b460d70dff167e62866b9b85768db58dc03",
+    "date": "2026-05-12T14:02:00+07:00",
+    "message": "feat(userscript): add TypeScript-based universal proxy parser build system\n\n- add Rollup userscript build configuration with TypeScript support\n- add Windows build script for bundling and testing userscripts\n- add Puppeteer + Tampermonkey test runner for local userscript debugging\n- add universal userscript metadata and bundled output generation\n- implement modular proxy parsers for multiple proxy provider sites\n- add DOM-based IP:PORT extraction utilities and parsing helpers\n- add proxy upload pipeline with chunked requests and retry handling\n- add encrypted localStorage deduplication for sent proxy data\n- add floating UI button for manual proxy parsing and export\n- add automatic DOM change monitoring and proxy auto-submission\n- add utility helpers for encryption, IP extraction, and line splitting\n- add support for free.proxy-sale.com and additional proxy sources\n- add @rollup/plugin-typescript dependency",
+    "files": [
+      "bin/build-uc.cmd",
+      "package.json",
+      "rollup.userscript.js",
+      "src/userscripts/parser/addProxyFun.ts",
+      "src/userscripts/parser/extractIpPortFromBody.ts",
+      "src/userscripts/parser/findIPv4Addresses.ts",
+      "src/userscripts/parser/freeProxySale.ts",
+      "src/userscripts/parser/parse_all.ts",
+      "src/userscripts/parser/parse_first_and_second_row.ts",
+      "src/userscripts/parser/parse_first_row_ip_port.ts",
+      "src/userscripts/parser/parse_hideme_jquery.ts",
+      "src/userscripts/parser/parse_prem_proxy.ts",
+      "src/userscripts/parser/parse_proxy_db_net.ts",
+      "src/userscripts/parser/parse_proxylistplus.ts",
+      "src/userscripts/parser/parse_second_and_third_row.ts",
+      "src/userscripts/parser/splitStringByLines.ts",
+      "src/userscripts/test.js",
+      "src/userscripts/universal.meta.js",
+      "src/userscripts/universal.user.ts",
+      "src/userscripts/utils/createButton.ts",
+      "src/userscripts/utils/encryption.ts",
+      "src/userscripts/utils/extractIpPortPairs.ts",
+      "userscripts/universal.user.js"
+    ]
+  },
+  {
+    "hash": "b1e4f20c0f1d7753359097c5fe327c5914718732",
+    "date": "2026-05-12T11:37:58+07:00",
+    "message": "feat(process): add new terminal support to run_commands\n\n- replace `background` option with `new_terminal` configuration\n- add `new_terminal_auto_close` support for terminal lifecycle control\n- support launching commands in separate terminal windows on Windows and Linux\n- detect available Linux terminal emulators automatically\n- add fallback execution when no terminal emulator is available\n- simplify example usage in `__main__`\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/utils/process/run_commands.py"
+    ]
+  },
+  {
+    "hash": "70d5d2dadc8b236d0675389d95be99cd8d3650ab",
+    "date": "2026-05-12T11:37:12+07:00",
+    "message": "fix(main): remove unnecessary type casting and add null check for database",
+    "files": [
+      "artisan/cleaner.py"
+    ]
+  },
+  {
+    "hash": "42de5017363e3e0bdf243ab656b360fec28309b5",
+    "date": "2026-05-12T11:29:08+07:00",
+    "message": "chore(crontab): improve command logging and output redirection\n\n- print current working directory during crontab startup\n- redirect stderr to stdout for cron job log files using `2>&1`\n- remove unused `background=True` option from run_commands calls\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      ".crontab.py"
+    ]
+  },
+  {
+    "hash": "74cf121470b36a2a0f1a1612ab00d6d241982e19",
+    "date": "2026-05-12T11:15:43+07:00",
+    "message": "feat(process): add reusable run_command utility\n\n- add `run_command` helper for executing subprocess commands\n- support string and iterable command inputs\n- support background execution with output redirection\n- stream stdout/stderr when no output file is provided\n- export `run_command` from process package\n- remove unused `datetime` import from run_commands\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/utils/process/__init__.py",
+      "src/utils/process/run_command.py",
+      "src/utils/process/run_commands.py"
+    ]
+  },
+  {
+    "hash": "e16895a0432b9a801674b6bee4a676383c9d4939",
+    "date": "2026-05-12T10:39:39+07:00",
+    "message": "feat(settings): enable file logging for GitHub Copilot chat agent debug",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "6e475b6bc22bb3c6e918dbe5f254759a2dfb1e0b",
+    "date": "2026-05-12T10:38:54+07:00",
+    "message": "feat(run_commands): enhance command logging with output redirection and wait commands\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/utils/process/run_commands.py"
+    ]
+  },
+  {
+    "hash": "3c8f40648eb9c01cb2b10f1ce7d55c13273e7e96",
+    "date": "2026-05-12T10:16:42+07:00",
+    "message": "refactor(process): clean up imports and improve environment path handling\n\n- Remove unused imports in `run_commands.py`\n- Register project root to `sys.path` in `run_commands.py`\n- Implement `build_env_path` in `spawn.py` to dynamically construct the system PATH\n- Integrate `build_env_path` into `run_commands.py` and `spawn.py` for consistent environment execution\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/utils/process/run_commands.py",
+      "src/utils/process/spawn.py"
+    ]
+  },
+  {
+    "hash": "224f5010b672053dda9f60e874637d8bf027c039",
+    "date": "2026-05-12T10:05:12+07:00",
+    "message": "fix(imports): restore ProxyDB import in cleaner.py",
+    "files": [
+      "artisan/cleaner.py"
+    ]
+  },
+  {
+    "hash": "118c5546d10f2d5b1cb4a0c54d782b35c7f70112",
+    "date": "2026-05-12T10:01:09+07:00",
+    "message": "feat(process): add append parameter to run_command_with_logging to control output file mode\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/utils/process/spawn.py"
+    ]
+  },
+  {
+    "hash": "3b0141b75a3f2966edfb3187e8ab7635d3e2d8e5",
+    "date": "2026-05-12T09:53:08+07:00",
+    "message": "chore(vscode): disable unnecessary CodeLens features and refine editor settings\n\n- disable JavaScript and TypeScript CodeLens references and implementations\n- disable npm script CodeLens and global editor CodeLens rendering\n- keep merge conflict CodeLens enabled for conflict resolution\n- ignore default auto-approve rules for terminal chat tools",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "939ea244ccc0b120cedcd04486b03d9fdbb30036",
+    "date": "2026-05-12T09:52:31+07:00",
+    "message": "feat(prompts): add reusable prompt templates for changelog and commit generation\n\n- add changelog generator prompt for transforming conventional commits into user-facing release notes\n- add conventional commit generator prompt based on staged git diffs\n- add python optimization prompt focused on readability, memory efficiency, and Black formatting",
+    "files": [
+      ".github/prompts/changelog-generator.prompt.md",
+      ".github/prompts/conventional-commit.prompt.md",
+      ".github/prompts/python-optimize.prompt.md"
+    ]
+  },
+  {
+    "hash": "33abc72ca24906bb1d09e15ae8feaea4dcc3976b",
+    "date": "2026-05-12T09:46:40+07:00",
+    "message": "refactor(artisan): improve cleaner.py file removal logic and add type casting\n\n- Extract file removal logic into helper functions `_remove_file_if_expired`, `_remove_file_if_too_large`, and `_remove_old_files`\n- Add size-based cleanup for `error.txt` (max 200KB)\n- Use `typing.cast` for `ProxyDB` instances in `main()`\n- Import `ProxyDB` from `src.ProxyDB`\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/cleaner.py"
+    ]
+  },
+  {
+    "hash": "f44cd87896b811ff031c69ab6c532226a9e54e0c",
+    "date": "2026-05-12T09:36:50+07:00",
+    "message": "feat(config): add example configuration files for agents and MCP servers",
+    "files": [
+      ".continue/agents/config.yaml",
+      ".continue/mcpServers/servers.yaml"
+    ]
+  },
+  {
+    "hash": "5cfd107dd0a6e40171276d999ab04c7694c28124",
+    "date": "2026-05-12T09:33:32+07:00",
+    "message": "feat(ProxyDB): add description attribute for database connection details",
+    "files": [
+      "src/ProxyDB.py",
+      "src/shared.py"
+    ]
+  },
+  {
+    "hash": "f2a37a70e7f7bfeb9e16679e992c590ebc7fd86e",
+    "date": "2026-05-12T09:23:22+07:00",
+    "message": "feat(proxy-db): add optional debug flag to methods for conditional logging\n\n- Extend `close`, `get_active_proxies`, `export_to_file`, and `parse_file` methods with a `debug: bool = False` parameter.\n- Wrap existing `print` statements in `if debug:` checks to enable conditional debug output.\n- Update method signatures and internal calls accordingly.",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "7498bb439dfe6559a746ee46f5d2f046b85bbaaa",
+    "date": "2026-05-12T09:12:42+07:00",
+    "message": "refactor(db): improve connection handling and simplify proxy removal\n\n- make start_connection return bool status\n- add optional debug logging for DB operations\n- improve database initialization fallback flow\n- raise explicit error when DB connection cannot be established\n- simplify proxy removal logic and reduce duplicate code\n- reuse DB instance and SQL placeholders consistently\n- avoid silent failures during database initialization\n- update example usage in shared.py\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/ProxyDB.py",
+      "src/shared.py"
+    ]
+  },
+  {
+    "hash": "c805bf80ecb56a2622a3649899ee4f151e6dfabf",
+    "date": "2026-05-12T08:53:55+07:00",
+    "message": "refactor(ProxyDB): simplify normalize_proxy by using extract_proxies",
+    "files": [
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "60f33cffb079758dd8c46b31824cda288b19efdb",
+    "date": "2026-05-12T08:51:30+07:00",
+    "message": "test(proxy-hunter-python): refactor proxy extractor tests to use parametrization",
+    "files": [
+      "packages/proxy-hunter-python/tests/test_proxy_extractor.py"
+    ]
+  },
+  {
+    "hash": "2ddd46e44dddf658089c35a1040791b77f9df00c",
+    "date": "2026-05-12T08:35:47+07:00",
+    "message": "fix(process_proxy): enhance invalid proxy logging to show normalized proxy",
+    "files": [
+      "artisan/clean_invalid_proxies.py"
+    ]
+  },
+  {
+    "hash": "6b770b9cdfe52a516ce64ebe2a72d2b23f88a91b",
+    "date": "2026-05-11T18:10:16+07:00",
+    "message": "fix(proxy): normalize proxy IP and port by removing leading zeros\n\n- Allow IP:PORT patterns to be found anywhere in input via re.search\n- Remove leading zeros from IPv4 octets (e.g., 044.026.021.044 -> 44.26.21.44)\n- Remove leading zeros from ports (e.g., 0796 -> 796)\n- Handle malformed proxies with prefixed characters (e.g., n177.26.112.65:5678)\n- Add comprehensive test coverage for proxy normalization\n\nFixes extraction of proxies with leading zeros and prefixed characters in both\nProxyDB.normalize_proxy and extract_proxies functions.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/utils/extractor/proxies/extract_proxies.py",
+      "packages/proxy-hunter-python/tests/test_proxy_extractor.py",
+      "src/ProxyDB.py",
+      "tests/ProxyDB_normalize_proxy_Test.py"
+    ]
+  },
+  {
+    "hash": "444288d0ff8430c27820ce9e080db4a7422e2875",
+    "date": "2026-05-11T17:53:47+07:00",
+    "message": "refactor(database/SQLiteMarker): add SQLite PRAGMA tuning and simplify marker handling\n\n- add _configure_sqlite() to enable WAL mode and performance-related PRAGMAs\n- simplify variable naming and loop logic across methods (value/row handling)\n- streamline get_existing and filter_unseen implementations\n- remove redundant comments and docstrings\n- tighten mark() implementation and reduce duplication in SQL parameter handling\n- simplify context manager __exit__ signature",
+    "files": [
+      "src/database/SQLiteMarker.py"
+    ]
+  },
+  {
+    "hash": "4408266e2b4b1d5163bfe8b976cb45fc521ea97e",
+    "date": "2026-05-11T17:47:38+07:00",
+    "message": "feat(clean_invalid_proxies): refactor proxy processing and remove DB cloning\n\n- remove clone_database and reuse shared ProxyDB instance\n- add configure_sqlite() for PRAGMA initialization\n- simplify process_proxy() logic and reduce nested conditions\n- improve marker handling using proxy->marker mapping\n- reduce unnecessary temporary factory DB creation per call\n- clean up formatting and remove verbose multi-line prints\n- optimize loop structure in remover()\n- consolidate database closing logic into single helper\n- improve readability and reduce redundant variables",
+    "files": [
+      "artisan/clean_invalid_proxies.py"
+    ]
+  },
+  {
+    "hash": "77510577fd93efe852f18d663b4f20d616f6cfec",
+    "date": "2026-05-11T17:18:45+07:00",
+    "message": "feat(artisan): implement SQLite marker for clean_invalid_proxies.py\n\n- Add SQLiteMarker to track processed proxies and avoid redundant work\n- Implement md5 hashing for marker keys combining proxy, driver, and db_location\n- Set a 7-day expiration for markers to allow periodic re-validation\n- Update process_proxy to return the marker key of the resulting proxy\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/clean_invalid_proxies.py"
+    ]
+  },
+  {
+    "hash": "7c970bd0abb499b73e99145b4177e835fac221a2",
+    "date": "2026-05-11T17:02:26+07:00",
+    "message": "test(SQLiteHelper): add comprehensive unit tests for SQLiteHelper functionality",
+    "files": [
+      "tests/SQLiteHelper_Test.py"
+    ]
+  },
+  {
+    "hash": "87c7e587a9038e06dcbffa40114f951451ce2157",
+    "date": "2026-05-11T17:01:43+07:00",
+    "message": "refactor(clean-invalid-proxies): simplify proxy processing by removing async handling and improving readability\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/clean_invalid_proxies.py"
+    ]
+  },
+  {
+    "hash": "3b14c4358fc6ffb2997b53eba5d2d2e5a95a1d7e",
+    "date": "2026-05-11T16:52:28+07:00",
+    "message": "refactor(clean-invalid-proxies): isolate DB access per task and improve error handling\n\nReduce concurrent task count and create dedicated database instances for\neach proxy-processing task to improve thread safety and connection\nisolation. Add fatal database error propagation, task cancellation on\nfirst failure, and guaranteed database cleanup.\n\nAlso improve invalid proxy handling by removing entries that cannot be\nnormalized and simplifying synchronous database operations.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/clean_invalid_proxies.py"
+    ]
+  },
+  {
+    "hash": "66a1d7ef0e48b18a3895dee352ffa7125dc09aaf",
+    "date": "2026-05-11T16:51:25+07:00",
+    "message": "fix(proxydb): improve proxy normalization and MySQL value sanitization\n\nEnhance proxy normalization to support URL schemes, trailing delimiters,\nleading zeros, and stricter IP/port validation. Also sanitize complex\nvalues before MySQL updates by converting lists/dicts to JSON strings\nand decoding bytes safely.\n\nAdd test coverage for additional proxy normalization edge cases.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/ProxyDB.py",
+      "tests/ProxyDB_normalize_proxy_Test.py"
+    ]
+  },
+  {
+    "hash": "43219ca1c1a150337642eef5bca5dbfcd649cdc4",
+    "date": "2026-05-11T16:50:12+07:00",
+    "message": "fix(sqlite): improve thread safety and transaction recovery\n\nAdd reentrant locking to serialize SQLite access across threads and\nhandle transaction-related OperationalError cases more gracefully.\nIncludes rollback-and-retry logic, safer commit handling, and broader\nlocking coverage for CRUD and query execution methods.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/SQLiteHelper.py"
+    ]
+  },
+  {
+    "hash": "141a299d48a132274d75f23bd3da035640d73e57",
+    "date": "2026-05-11T16:49:15+07:00",
+    "message": "fix(mysql): improve reconnect detection and connection validation\n\nHandle MySQL errno 1043 and \"bad handshake\" errors as disconnects.\nAlso validate reconnected sessions with ping() to ensure the\nconnection is usable before continuing queries.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/MySQLHelper.py"
+    ]
+  },
+  {
+    "hash": "1a6e58cb73c386460080c99a2392c78307621995",
+    "date": "2026-05-11T14:03:15+07:00",
+    "message": "fix(python): normalize RFC3339 timestamps and persist cleaned last_check\n\nAdd a shared `normalize_rfc3339` utility in `src/func_date.py` to:\n- accept compact offsets (e.g. `+0700` -> `+07:00`)\n- handle trailing `Z` as UTC\n- parse with `datetime.fromisoformat`\n- apply system timezone for naive timestamps and normalize aware timestamps\n\nUse this helper in `artisan/clean_invalid_proxies.py` to sanitize `last_check`\nbefore validation flow and update the database when the normalized value differs.\n\nchore(func_date): extend __main__ examples for timezone and normalization output\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/clean_invalid_proxies.py",
+      "src/func_date.py"
+    ]
+  },
+  {
+    "hash": "ff4599756b3cb407eedab5bbc1eb2dc09405c5f4",
+    "date": "2026-05-11T13:50:23+07:00",
+    "message": "fix(proxy-db): add debug logging support to update_data\n\nIntroduce optional debug output in ProxyDB.update_data to trace\ninvalid proxies, auto-added entries, timestamp updates, and data\nmutations. Enable debug logging in proxy HTTPS checker update calls\nfor easier troubleshooting during proxy status updates.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxy_https_checker.py",
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "f81a3937d872489128bc2d79b6d3468ee8ac1ba4",
+    "date": "2026-05-11T13:48:21+07:00",
+    "message": "fix(date): normalize RFC3339 timestamps to include colonized timezone offsets\n\nReplace strftime formatting with isoformat(timespec=\"seconds\") in\nget_current_rfc3339_time() and get_yesterday_rfc3339_time() to ensure\nconsistent RFC3339 formatting with colonized offsets (+07:00 instead of +0700).\n\nThis fixes an issue where timestamps with compact timezone offsets were\nmisread by database sort operations, causing recently checked proxies\nto not appear on the proxy list due to incorrect ordering.\n\nAlso update test fixture to use the correct RFC3339 format.",
+    "files": [
+      "src/func_date.py"
+    ]
+  },
+  {
+    "hash": "fe5fdd3a0e4337d040d6b142cc262c8daefadc53",
+    "date": "2026-05-11T13:35:44+07:00",
+    "message": "fix(processes): truncate long CLI argument values in process command output\n\nAdd command formatting to shorten only option values (for --key=value patterns)\nto 100 characters while preserving executable paths and flags. Update process\nlogging to use the formatted command string on both Windows and Unix-like paths.\n\nThis prevents oversized output from large argument payloads (e.g. --str=...).\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "php_backend/processes.php"
+    ]
+  },
+  {
+    "hash": "d406503901b50681ed5017277400ecc7690b0a32",
+    "date": "2026-05-11T13:25:53+07:00",
+    "message": "refactor: rename `calculateChecksum` method to `checksum`",
+    "files": [
+      "src/PhpProxyHunter/BaseSQL.php",
+      "src/PhpProxyHunter/CoreDB.php",
+      "src/PhpProxyHunter/MySQLHelper.php",
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/PhpProxyHunter/SQLiteHelper.php",
+      "tests/PhpProxyHunter/CoreDBTest.php"
+    ]
+  },
+  {
+    "hash": "817f504d43fe6866e9b1681b02ed86e36bbd78ca",
+    "date": "2026-05-11T13:22:51+07:00",
+    "message": "feat(SQLiteHelper, MySQLHelper): add insert_ignore and insert_replace methods for database operations\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "src/MySQLHelper.py",
+      "src/SQLiteHelper.py"
+    ]
+  },
+  {
+    "hash": "2c89811352b12aae88d8c32e79015478d3ed01ba",
+    "date": "2026-05-11T13:05:21+07:00",
+    "message": "fix(process_proxy): remove try/catch in proxy normalization",
+    "files": [
+      "artisan/clean_invalid_proxies.py"
+    ]
+  },
+  {
+    "hash": "4834d92407971be8eb63e6fd8dd184522e597259",
+    "date": "2026-05-11T13:03:01+07:00",
+    "message": "feat: vps backend deployment shortcut",
+    "files": [
+      "bin/deploy.cmd",
+      "bin/prepare-deploy.cmd"
+    ]
+  },
+  {
+    "hash": "fd7a1d0ad3fd9319c7074b8477a14c5bf348fdee",
+    "date": "2026-05-11T12:56:52+07:00",
+    "message": "fix(proxy-db): normalize IPv4 proxy ports correctly\n\nRemove the local proxy normalization helper, delegate cleanup to ProxyDB.normalize_proxy, and short-circuit invalid normalized values. Add a regression test for leading-zero IPv4 octets and ports.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/clean_invalid_proxies.py",
+      "src/ProxyDB.py",
+      "tests/ProxyDB_normalize_proxy_Test.py"
+    ]
+  },
+  {
+    "hash": "f40f7af99933cd6c4ce1c9c9aa31d48d009bdea6",
+    "date": "2026-05-11T12:35:10+07:00",
+    "message": "refactor(clean-invalid-proxies): migrate proxy cleanup workflow to asyncio\n\n- add asyncio-based concurrent proxy processing\n- process multiple databases concurrently with asyncio.gather\n- offload blocking database operations using asyncio.to_thread\n- introduce semaphore-based concurrency limiting\n- split proxy handling into reusable async process_proxy function\n- add async main entrypoint with asyncio.run\n- improve proxy normalization error handling\n- add project-relative SQLite path formatter for cleaner logs\n- simplify imports and remove unused modules\n- add graceful async database closing helper\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/clean_invalid_proxies.py"
+    ]
+  },
+  {
+    "hash": "830d116b7cbd1456fdac638c98b0b73ef6e0abbb",
+    "date": "2026-05-11T12:27:19+07:00",
+    "message": "refactor(remover): include driver information in log messages",
+    "files": [
+      "artisan/clean_invalid_proxies.py"
+    ]
+  },
+  {
+    "hash": "12376fbec7c1e2374e7045816900c93828236e62",
+    "date": "2026-05-11T12:23:38+07:00",
+    "message": "refactor(clean_invalid_proxies): extract remover logic and support multiple SQLite databases\n\n- extract proxy cleanup process into reusable `remover()` function\n- add support for cleaning additional SQLite databases\n- improve database connection lifecycle handling\n- ensure all database connections are closed in `finally`\n- add error logging when database closing fails",
+    "files": [
+      "artisan/clean_invalid_proxies.py"
+    ]
+  },
+  {
+    "hash": "4be0fb2c7ccceda17504b2cc1b439391bff59c9f",
+    "date": "2026-05-11T12:19:05+07:00",
+    "message": "refactor(artisan): add pagination for memory-efficient proxy cleaning\n\nReplace monolithic db.get_all_proxies() call with paginated loop that\nprocesses proxies in 1000-item batches. This reduces memory footprint\nwhen dealing with large proxy databases.\n\n- Implement pagination with page=1, per_page=1000\n- Remove unused parse_args import and CLI argument parsing\n- Add proper database connection cleanup on exit\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/clean_invalid_proxies.py"
+    ]
+  },
+  {
+    "hash": "6bc0cc0ccbafb5470569dbace2671c72b85d682c",
+    "date": "2026-05-11T12:06:05+07:00",
+    "message": "fix(clean_invalid_proxies): add error handling for database updates",
+    "files": [
+      "artisan/clean_invalid_proxies.py"
+    ]
+  },
+  {
+    "hash": "86fb26b7cb607a9dfafd0c4458927a34a048c7c1",
+    "date": "2026-05-11T11:57:14+07:00",
+    "message": "feat(crontab): batch daily maintenance commands and add invalid proxy cleaner\n\n- replace three daily `run_command_with_logging` calls with a single `run_commands` batch in `.crontab.py`\n- keep per-task log redirection for backup-db, php cleaner, and python cleaner\n- add `artisan/clean_invalid_proxies.py` and schedule it in the daily task batch\n- implement proxy normalization/removal flow to clean malformed or invalid proxies in DB\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      ".crontab.py",
+      "artisan/clean_invalid_proxies.py"
+    ]
+  },
+  {
+    "hash": "fa0f38f0d826b4ce0b67c23c352be72c9e605cd2",
+    "date": "2026-05-11T11:39:47+07:00",
+    "message": "refactor: remove invalid proxy cleanup from cleaner scripts\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/cleaner.py",
+      "artisan/proxyCollector.py"
+    ]
+  },
+  {
+    "hash": "450bb3fe09ae56950cc5b9f4202bb77d0509c36a",
+    "date": "2026-05-11T11:34:37+07:00",
+    "message": "fix(proxy-hunter-python): reject malformed IPv4-like proxy hosts in is_valid_proxy\n\n- reject dotted numeric hosts that are not valid IPv4 addresses (for example 999.999.999.999)\n- reject prefixed IPv4-like hostname patterns (for example n46.101.95.183)\n- add comprehensive pytest coverage for is_valid_proxy across IPv4, IPv6, hostnames, ports, credentials, whitespace, and edge cases\n- include regression tests for malformed numeric and prefixed IPv4-like inputs expected to be invalid\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/utils/index_utils.py",
+      "packages/proxy-hunter-python/tests/is_valid_proxy.py"
+    ]
+  },
+  {
+    "hash": "be355336dd9bdbf0e521851891cd03cbf503ccde",
+    "date": "2026-05-11T11:17:13+07:00",
+    "message": "refactor(artisan): prioritize --proxy_file in retrieve_proxies\n\nReorder proxy source fallback chain to give explicit --proxy_file argument\nhighest priority, followed by CLI input, then DB-backed proxies, default\nproxies.txt, and finally all proxies.\n\nChanges:\n- Check for explicit --proxy_file first before attempting CLI parsing\n- Move default proxies.txt file fallback to after DB-backed proxies\n- Add date filtering (last 24 hours) to working proxies query\n- Import get_yesterday_rfc3339_time for date filtering\n- Update docstring to reflect new retrieval precedence\n\nNew retrieval order:\n1. Explicit --proxy_file argument\n2. CLI input (--single-proxy, --proxy-string)\n3. Untested or working DB proxies\n4. Default proxies.txt file\n5. All DB proxies\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxy_getter.py"
+    ]
+  },
+  {
+    "hash": "41fb1fe265ce931ba9f394003c2dc83c5c98b8d1",
+    "date": "2026-05-11T11:15:34+07:00",
+    "message": "fix(bin): centralize python environment handling via shared wrapper scripts\n\nReplace hardcoded python interpreter paths and virtualenv detection logic in\nplatform-specific launcher scripts with centralized wrapper scripts that provide\nconsistent environment handling across all platforms.\n\n- Use bin/py wrapper in check-proxy-parallel (shell script)\n- Use bin/py.cmd wrapper in check-proxy-parallel.cmd (batch script)\n- Remove redundant venv path detection and python interpreter fallbacks\n- Fix variable quoting and start command syntax in batch script\n- Set default NUM_INSTANCES from 5 to 3",
+    "files": [
+      "bin/check-proxy-parallel",
+      "bin/check-proxy-parallel.cmd"
+    ]
+  },
+  {
+    "hash": "caf213164f89a8ada2afe63d4da4daadc5a11794",
+    "date": "2026-05-11T11:00:58+07:00",
+    "message": "refactor(check-proxy): update Python path to use custom script\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "bin/check-proxy.cmd"
+    ]
+  },
+  {
+    "hash": "9fd793d3ad5f706ec97df8950f88a4eb32a33e4a",
+    "date": "2026-05-11T10:57:35+07:00",
+    "message": "refactor(artisan): streamline proxy custom filters\n\nOptimize custom_filter implementations across proxy checkers by removing temporary lists, combining filtering with deduplication where applicable, and simplifying the selection logic.\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxy_https_checker.py",
+      "artisan/proxy_private_checker.py",
+      "artisan/proxy_socks5_checker.py",
+      "artisan/proxy_tun2socks_stability.py"
+    ]
+  },
+  {
+    "hash": "08656ce2afc9eafee2909fc789d5909cc460ec3d",
+    "date": "2026-05-11T10:27:25+07:00",
+    "message": "fix(cmd-here): add missing path for Microsoft VS Code in custom PATH variable",
+    "files": [
+      "cmd-here.bat"
+    ]
+  },
+  {
+    "hash": "138f342d9c9369bed5180b594efc0990d8dd7b03",
+    "date": "2026-05-11T10:26:42+07:00",
+    "message": "refactor(mcp): move Ollama model configuration to environment file\n\n- add OLLAMA_MODEL to .env.example with deepseek-r1 default\n- remove hardcoded OLLAMA_MODEL env override from VSCode MCP config\n- centralize Ollama model selection through dotenv configuration",
+    "files": [
+      ".env.example",
+      ".vscode/mcp.json"
+    ]
+  },
+  {
+    "hash": "668d10762fa1c96d13cc1cc192ca35c582402b48",
+    "date": "2026-05-11T10:24:32+07:00",
+    "message": "feat(mcp): add configuration for Ollama server and allowed models",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "b4ae2f378e5184bcd8da1b3b1fbb24363bd224b2",
+    "date": "2026-05-11T10:14:14+07:00",
+    "message": "feat(proxy-db): add checksum method for table and column validation",
+    "files": [
+      "src/PhpProxyHunter/ProxyDB.php",
+      "src/ProxyDB.py"
+    ]
+  },
+  {
+    "hash": "8165bd65729cdbc8124115c59436b0ad178b505a",
+    "date": "2026-05-11T10:06:36+07:00",
+    "message": "feat(proxy-list): improve cache invalidation with data checksum\n\n- Add data checksum calculation to cache key for better invalidation\n- Refactor cache name generation to always include checksum\n- Append request hash to cache name if provided\n- Sanitize cache filename to prevent path issues\n- Include checksum and cache name in response payload",
+    "files": [
+      "php_backend/proxy-list.php"
+    ]
+  },
+  {
+    "hash": "85b58a236c58b9e4f9971203291d3799dbfdf6f6",
+    "date": "2026-05-11T10:03:40+07:00",
+    "message": "feat(mcp): enhance Ollama MCP server stability and configuration\n\n- add configurable OLLAMA_MODEL environment support\n- improve MCP stdout/stderr handling and logging clarity\n- rename error helper to sendError for consistency\n- add robust initialization state validation\n- improve tool registry structure and schema descriptions\n- add uncaught exception and unhandled rejection handlers\n- improve OpenAI client configuration documentation\n- add fallback API key support for Ollama compatibility\n- enhance JSON-RPC request parsing and error handling\n- refactor MCP stdio loop for readability and maintainability\n- improve tool call variable naming consistency\n- add startup model logging for debugging\n- return safe optional-chained completion content",
+    "files": [
+      "mcp-server/ollama.js"
+    ]
+  },
+  {
+    "hash": "96b614a5e091162b0ab7f4ae86ee56458b39609e",
+    "date": "2026-05-11T09:28:52+07:00",
+    "message": "refactor(db): split database initialization into dedicated mysql/sqlite helpers\n\n- add init_mysql_db() and init_sqlite_db() helpers\n- simplify init_db() to auto-detect and fallback between drivers\n- remove explicit \"mysql\" argument from database initialization calls\n- update artisan scripts and migrations to use new init_db() behavior\n- improve database fallback handling with readonly and sqlite fallback\n- clarify shared.py docstrings and initialization responsibilities",
+    "files": [
+      "artisan/blacklist_remover.py",
+      "artisan/cleaner.py",
+      "artisan/filter_duplicate_ips.py",
+      "artisan/filter_open_port.py",
+      "artisan/proxy-classifier-lookup.py",
+      "artisan/proxyCollector.py",
+      "artisan/proxy_https_checker.py",
+      "artisan/proxy_private_checker.py",
+      "artisan/proxy_socks5_checker.py",
+      "artisan/proxy_ssl_test.py",
+      "artisan/proxy_tun2socks_checker.py",
+      "artisan/proxy_tun2socks_stability.py",
+      "src/migrations/migrate.py",
+      "src/shared.py"
+    ]
+  },
+  {
+    "hash": "7ea3b9d5ebc59f3f941d7ae175f9099bf153d9be",
+    "date": "2026-05-11T08:58:34+07:00",
+    "message": "refactor(proxy_ssl_test): remove unused imports to clean up the code",
+    "files": [
+      "artisan/proxy_ssl_test.py"
+    ]
+  },
+  {
+    "hash": "95c5bc85275334a9c7d2b1776a665104510cb176",
+    "date": "2026-05-11T08:51:15+07:00",
+    "message": "feat(vite): add serveDistAssetsPlugin to serve pre-built dist assets\n\nAdd a new Vite plugin that serves pre-built assets from dist/react/{assets,data,config}\nduring development. This allows the dev server to resolve requests for fingerprinted\nfiles that already exist in the built dist directory, preventing 404 errors.\n\n- Supports /assets/, /data/, and /config/ request prefixes\n- Includes MIME type detection for common asset types (JS, CSS, JSON, images, fonts)\n- Gracefully falls through to next handler if file not found",
+    "files": [
+      "vite-plugin.js",
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "73b7865c10f7d4fb5a037f7c819995ff03fec1b5",
+    "date": "2026-05-11T08:50:06+07:00",
+    "message": "feat(proxy): add logging for proxy checks in filter_test_socks5_proxies\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "artisan/proxy_socks5_checker.py"
+    ]
+  },
+  {
+    "hash": "0194fbe5db291fe87c7112985f57600c24087270",
+    "date": "2026-05-11T08:46:47+07:00",
+    "message": "fix: normalize proxy latency to milliseconds and clean up proxy checks\n\n- format HTTP/HTTPS and latency checker output in ms\n- convert measured latency values from seconds to milliseconds\n- round stored latency values for consistency\n- remove dead latency writes from proxy type detection\n- fix undefined age-in-days handling in old proxy checker\n- include Google latency when saving proxy test results\n\nCo-authored-by: Copilot <copilot@github.com>",
+    "files": [
+      "php_backend/check-http-proxy.php",
+      "php_backend/check-https-proxy.php",
+      "php_backend/check-latency-proxy.php",
+      "php_backend/check-old-proxy.php",
+      "php_backend/check-proxy-type.php",
+      "src/PhpProxyHunter/Checker/ProxyChecker-test.php"
+    ]
+  },
+  {
     "hash": "5616883bc16aac78a157c9da27933038f0f57988",
     "date": "2026-05-11T08:13:58+07:00",
     "message": "refactor(proxy): remove deprecated proxyWorking background flow\n\n- delete proxyWorking.php and proxyWorkingBackground.php\n- remove unused background refresh trigger from WorkingJson page\n- clean up obsolete proxy working command references in batch scripts\n- remove unused noop import",
@@ -8098,700 +8814,6 @@
     "message": "fix(check): remove redundant HTTPS status assignment in proxy check",
     "files": [
       "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "7adb96cb496b1752204093c3577ba4382cb110de",
-    "date": "2025-11-28T05:52:30+07:00",
-    "message": "fix: require both username and password for proxy authentication",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "e489f908575d4eaa9383251e9fc3e84b2f21fecb",
-    "date": "2025-11-28T05:24:07+07:00",
-    "message": "refactor: use getPhpExecutable function to determine PHP binary for cross-platform compatibility",
-    "files": [
-      "artisan/proxyWorking.php"
-    ]
-  },
-  {
-    "hash": "9f689312fd0000cf401794dfab4d349f03b9bb9a",
-    "date": "2025-11-27T22:01:28+07:00",
-    "message": "refactor: replace hardcoded paths with FOLDER_CONFIG constant in node_backend files\n\n- Import FOLDER_CONFIG and FOLDER_LOG constants from Function.ts in testConnection.ts\n- Replace all hardcoded './baileys_auth_info' paths with FOLDER_CONFIG constant\n- Replace all hardcoded './baileys_auth_info/log' paths with FOLDER_LOG constant\n- Use path.join() for constructing nested paths consistently\n- Apply same refactoring to waConnect3.ts for path consistency\n- Improve maintainability by centralizing folder path configuration",
-    "files": [
-      "node_backend/test/testConnection.ts",
-      "node_backend/waConnect3.ts"
-    ]
-  },
-  {
-    "hash": "4d6093a357a3f97874dffc18593bf0e3e77793b5",
-    "date": "2025-11-27T12:43:09+07:00",
-    "message": "fix(waConnect): generate smaller QR code for better display",
-    "files": [
-      "node_backend/waConnect.ts"
-    ]
-  },
-  {
-    "hash": "1abba466b06e2a4fd76d1a5d13c8cd851fe9b251",
-    "date": "2025-11-27T12:07:47+07:00",
-    "message": "ci(composer): ensure autoloader regeneration on every workflow run\n\n- Separate composer download into dedicated step that always runs\n- Remove cache condition from PHP dependencies installation\n- Add dump-autoload command to regenerate autoloader even when vendor exists\n- Fixes issue where buildCurl() function was undefined due to stale autoloader",
-    "files": [
-      ".github/workflows/checker-php.yml"
-    ]
-  },
-  {
-    "hash": "0bdb9847256caf9d65d09384706229d6577e5e02",
-    "date": "2025-11-27T11:47:58+07:00",
-    "message": "refactor: remove duplicate reTestProxy from check-https-proxy.php\n\n- Remove reTestProxy function from check-https-proxy.php to avoid code duplication\n- Use shared reTestProxy function from checker-runner.php instead\n- Consolidate proxy retesting logic across all proxy checker modules",
-    "files": [
-      "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "bb6523a80f7235297bd94a4b990c7094aecc388d",
-    "date": "2025-11-27T11:38:33+07:00",
-    "message": "refactor: move reTestProxy to checker-runner and add port retest logic\n\n- Move reTestProxy function from check-http-proxy.php to checker-runner.php for code reuse\n- Add proxy retest logic to check-proxy-type.php when port detection returns false\n- Implement resilience against false positives by retesting closed ports\n- Update database with 'untested' status if port is actually open on retest\n- Log retest status (alive/dead) for better debugging and monitoring\n- Improve proxy validation workflow across HTTP and type detection checkers",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-proxy-type.php",
-      "php_backend/checker-runner.php"
-    ]
-  },
-  {
-    "hash": "bafa8252858ed12490312743b226c0d3cf3cee72",
-    "date": "2025-11-27T11:30:31+07:00",
-    "message": "fix(php_backend): align hash filename extraction with check-proxy-type.php\n\n- Simplify hash filename generation by removing intermediate $baseHash variable\n- Use basename($file, '.txt') directly as $hashFilename\n- Remove unnecessary concatenation with script name for non-empty hash values\n- Add fallback comment for clarity\n- Ensures consistent hash extraction across all proxy checker scripts",
-    "files": [
-      "php_backend/check-http-proxy.php"
-    ]
-  },
-  {
-    "hash": "7595686b546c4cfece5fda111654c04eed95143e",
-    "date": "2025-11-27T11:21:33+07:00",
-    "message": "fix(func.php): streamline CLI user ID validation by using empty check",
-    "files": [
-      "func.php"
-    ]
-  },
-  {
-    "hash": "cc2761a11b0ff274201d5131ed9ad8c1a99dce9e",
-    "date": "2025-11-27T11:16:22+07:00",
-    "message": "refactor(auth): prioritize email over user_id and simplify CLI user ID parsing\n\n- Update web-server branch to prioritize email → user_id → session_id\n- Clean up comments and improve readability\n- Replace null-coalescing operator with PHP 7–compatible checks\n- Simplify CLI argument extraction and validation\n- Add final call comment for setUserId()",
-    "files": [
-      "func.php"
-    ]
-  },
-  {
-    "hash": "1c38ac516c6c485f37004524c3b5352a17783c62",
-    "date": "2025-11-27T11:13:54+07:00",
-    "message": "fix(ProxyDB): implement chunked pagination in iterateAllProxies to prevent memory exhaustion\n\nRefactor iterateAllProxies() method to fetch proxies in configurable chunks (default 1000 rows per batch) instead of loading all results into memory at once. This prevents fatal memory exhaustion errors when iterating over large proxy databases.\n\n- Add $chunkSize parameter with default value of 1000\n- Use LIMIT and OFFSET to fetch data in batches\n- Process each batch immediately before fetching the next\n- Add comprehensive PHPDoc documentation\n- Improve loop termination logic with empty result check\n\nFixes memory exhaustion when proxies table contains millions of records.",
-    "files": [
-      "src/PhpProxyHunter/ProxyDB.php"
-    ]
-  },
-  {
-    "hash": "60bc22aef2f5afd684d782dba568ace21aa742f5",
-    "date": "2025-11-27T11:12:04+07:00",
-    "message": "fix(php_backend): remove unused variable and fix hash prefix in http proxy log\n\n- Remove unnecessary $logFilename variable assignment\n- Use $hashFilename directly in substr() to correctly extract 6-char hash prefix\n- Align logging format with check-proxy-type.php and check-https-proxy.php\n- Fixes log output from \"[CLI][user] check-\" to \"[CLI][user] 6fc6f2\"",
-    "files": [
-      "php_backend/check-http-proxy.php"
-    ]
-  },
-  {
-    "hash": "9916d214c510fcb774c47b59733e5efb63000803",
-    "date": "2025-11-27T11:05:04+07:00",
-    "message": "refactor(artisan/proxyCollector.php): optimize and remove restart logic\n\n- Add comprehensive PHPDoc documentation explaining script purpose and functionality\n- Fix header spacing in Content-Type declaration\n- Remove auto-restart logic:\n  * Remove sleep(30) and restart_script() call when lock file exists\n  * Delete countFilesAndRepeatScriptIfNeeded() function\n  * Delete restart_script() function\n  * Simplify to direct exit when lock file exists\n- Remove redundant $db variable assignment, use $proxy_db directly (11 instances)\n- Update all closure parameter bindings to use $proxy_db instead of $db\n- Improve PHPDoc for blacklist_remover():\n  * Remove PHP 7.1+ type hints (\\PDO)\n  * Simplify parameter descriptions\n  * Remove @see references\n- Streamline code flow by eliminating restart loops\n- Reduce code complexity and improve maintainability",
-    "files": [
-      "artisan/proxyCollector.php"
-    ]
-  },
-  {
-    "hash": "7a014d7332e63c32f84840cb92dfec94ef98a8b5",
-    "date": "2025-11-27T11:01:40+07:00",
-    "message": "feat(crontab): update hourly job commands to include new parameters for enhanced functionality",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "2886fbf44253a5c1455242993be2a885f881c039",
-    "date": "2025-11-27T10:41:26+07:00",
-    "message": "feat(.crontab.sh, php_backend/*): add proxy checker scripts to hourly cron job and improve documentation\n\n- Add hourly cron scheduling for three proxy checker scripts:\n  * check-http-proxy.php: HTTP protocol validation\n  * check-https-proxy.php: HTTPS/SSL protocol validation\n  * check-proxy-type.php: Proxy type detection\n- Create tmp/logs/crontab directory for log output storage\n- Add comprehensive PHPDoc documentation to all three checker scripts\n- Remove PHP 7.1+ type hints (string $proxy) for PHP 7.0 compatibility\n- Improve code clarity with detailed function descriptions\n- Enable logging for proxy validation and type detection in cron jobs",
-    "files": [
-      ".crontab.sh",
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php",
-      "php_backend/check-proxy-type.php"
-    ]
-  },
-  {
-    "hash": "bae7df2052eccb1d97a996423c0ea2b9a573ba1b",
-    "date": "2025-11-27T10:38:17+07:00",
-    "message": "refactor(artisan/proxyChecker.php): optimize and ensure PHP 7.0 compatibility\n\n- Add comprehensive PHPDoc documentation for file and function usage\n- Replace PHP 8.0+ str_contains() with strpos() !== false\n- Replace PHP 8.0+ str_starts_with() with strpos($str, 'prefix') === 0\n- Replace PHP 7.4+ arrow functions (fn =>) with regular function closures\n- Replace array destructuring syntax with explicit array access for PHP 7.0 compatibility\n- Improve code readability with clear variable assignment\n- Maintain functionality while ensuring broad PHP version compatibility",
-    "files": [
-      "artisan/proxyChecker.php"
-    ]
-  },
-  {
-    "hash": "2cbaa703d53fcf327509d21335d755d15f00c73d",
-    "date": "2025-11-27T10:35:34+07:00",
-    "message": "feat(crontab): add logging for filterPorts and filterPortsDuplicate in hourly job",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "c370a1947c8cf612a86bc89dd10ed15a7108bf2a",
-    "date": "2025-11-27T10:34:02+07:00",
-    "message": "refactor(artisan/filterPortsDuplicate.php): optimize and ensure PHP 7.0 compatibility\n\n- Add comprehensive PHPDoc documentation for file and functions\n- Remove redundant variable assignment (`$db = $proxy_db`)\n- Use `$proxy_db` directly throughout code\n- Replace all `$db->` calls with `$proxy_db->` references\n- Remove PHP 7.1+ type hints from function parameters for PHP 7.0 compatibility\n- Update function signatures to remove parameter and return type declarations\n- Remove `@throws` PHPDoc tag as it's incompatible with PHP 7.0 approach\n- Add PHPDoc documentation to `write_working()` function\n- Improve code consistency and reduce unnecessary variable indirection",
-    "files": [
-      "artisan/filterPortsDuplicate.php"
-    ]
-  },
-  {
-    "hash": "c1067ddf767af514cd27bd5f5e73b61f02d7c921",
-    "date": "2025-11-27T10:30:55+07:00",
-    "message": "refactor(artisan/filterPorts.php): optimize and ensure PHP 7.0 compatibility\n\n- Add comprehensive PHPDoc comments for file, functions, and parameters\n- Remove PHP 7.1+ return type hints (`: void`) for PHP 7.0 compatibility\n- Fix header spacing in Content-Type\n- Replace hardcoded limit (100) with configurable `$max_checks` parameter\n- Remove unnecessary array_map() and MultipleIterator usage\n- Simplify proxy processing logic with direct foreach loops\n- Remove redundant variable assignment (`$db = $proxy_db`)\n- Use `$proxy_db` directly throughout code\n- Only clean empty lines from file when using file fallback (avoid unnecessary I/O)\n- Eliminate duplicate database calls and consolidate proxy processing\n- Remove unused `$isAdmin` variable assignment\n- Improve code efficiency and reduce memory footprint",
-    "files": [
-      "artisan/filterPorts.php"
-    ]
-  },
-  {
-    "hash": "b4f707601dbf4d6bec0e78464e06c105a6f95057",
-    "date": "2025-11-27T10:14:51+07:00",
-    "message": "fix(filterPorts): update lock file naming to include user ID for uniqueness",
-    "files": [
-      "artisan/filterPorts.php"
-    ]
-  },
-  {
-    "hash": "45a62668d12ff74aeb24085ecde90a8309167971",
-    "date": "2025-11-27T10:08:38+07:00",
-    "message": "refactor(crontab): run log_command in background with improved logging\n\n- Modify log_command function to execute commands asynchronously using & operator\n- Add inline comment explaining background execution behavior\n- Replace || true error suppression with & background operator\n- Wrap all 24-hour maintenance tasks with log_command for consistent logging:\n  - Database backup now logged to backup-db.log\n  - Old backups cleanup logged to cleanup-backups.log\n  - Old logs cleanup logged to cleanup-logs.log\n- Comment out check-proxy-parallel log_command for 3-hour job\n- Ensures cron script continues without blocking on long-running tasks",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "291297878ab025fc2f19ead4bc245c9afa8095f5",
-    "date": "2025-11-27T10:01:34+07:00",
-    "message": "fix(crontab): enhance logging for scheduled jobs in crontab script",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "278efdb1a67d503251d1ddd4a04d6e4a51f712b8",
-    "date": "2025-11-27T09:59:10+07:00",
-    "message": "fix: update shell script execution settings in code runner configuration",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "0435b39e00f9ca7bc8448c34c8913a697d1faaad",
-    "date": "2025-11-27T08:47:15+07:00",
-    "message": "feat: add Facebook App ID and secret to environment configuration",
-    "files": [
-      ".env.example"
-    ]
-  },
-  {
-    "hash": "398b457370bf27efb56fed3c696f51f44601b826",
-    "date": "2025-11-27T08:43:08+07:00",
-    "message": "fix(crontab): support fractional hours and improve sh compatibility\n\n- Replace bash-only [[ ]] syntax with POSIX [ ] for cross-shell compatibility\n- Use awk to handle fractional hour values (e.g., 0.5) in interval calculations\n- Remove local keyword from subshell to prevent parsing issues\n- Add status messages to cron jobs for better logging visibility",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "7c581f7f8782bbc7ca0cec28c92d3bb55869b72b",
-    "date": "2025-11-26T05:07:53+07:00",
-    "message": "feat(LogViewer): add proxy type detection tab with polling support\n\n- Add fetchProxyTypeDetectionResult() function to fetch type detection logs\n- Extend activeTab state type to include 'type' option\n- Add typeLog state variable for storing type detection results\n- Implement useEffect hook for polling proxy type detection results (3s interval)\n- Add \"Type detection\" tab button to the tab navigation\n- Add type detection panel with log display and empty state messaging\n- Support concurrent polling for https, http, and type detection tabs",
-    "files": [
-      "src/react/pages/ProxyList/LogViewer.tsx"
-    ]
-  },
-  {
-    "hash": "f217221b406a21e2133564c898c3b7cb2d4a21e5",
-    "date": "2025-11-26T05:01:22+07:00",
-    "message": "fix: unify lock file management across all proxy checker endpoints\n\n- Implement stale lock detection in web mode (2-minute threshold)\n  * Check lock file age before blocking requests\n  * Allow stale locks to be automatically removed\n  * Prevent false \"another process running\" errors\n\n- Fix lock file path mismatch between web and CLI modes\n  * Web mode: /tmp/locks/check-*-proxy/userid.lock\n  * CLI mode: Use same lock path from --lockFile argument\n  * Fallback: Create lock at /tmp/locks/ for standalone CLI usage\n  * Result: Single unified lock file per request\n\n- Suppress scheduler cleanup logging\n  * Wrap delete_path() with error control operator (@)\n  * Prevents scheduler cleanup messages from appearing in user logs\n  * Maintains clean output for log viewer UI\n\n- Standardize lock directory across all checkers\n  * Changed from /tmp/runners/ to /tmp/locks/\n  * Consistent lock storage location\n  * Applies to: check-http-proxy.php, check-https-proxy.php, check-proxy-type.php\n\n- Improve lock management robustness\n  * Eliminate duplicate lock file creation\n  * Ensure CLI respects web mode lock file path\n  * Support both web-initiated and standalone CLI execution\n  * Better handling of concurrent process prevention",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php",
-      "php_backend/check-proxy-type.php"
-    ]
-  },
-  {
-    "hash": "16dca9eb1c00cda8b33277be9bf42b82d725e379",
-    "date": "2025-11-25T18:53:01+07:00",
-    "message": "fix: update log messages to reflect proxy type detection",
-    "files": [
-      "php_backend/check-proxy-type.php"
-    ]
-  },
-  {
-    "hash": "55df31a17380ea84af3705fc0f295f7f80f9e844",
-    "date": "2025-11-25T18:49:49+07:00",
-    "message": "refactor: separate proxy check functions and add type detection\n\n- Extract checkProxyHttps() as private async function\n  * Isolate HTTPS proxy validation logic\n  * Add explicit Promise<CheckProxyResponse> return type\n\n- Extract checkProxyHttp() as private async function\n  * Isolate HTTP proxy validation logic\n  * Add explicit Promise<CheckProxyResponse> return type\n\n- Add checkProxyType() exported function\n  * New endpoint for proxy type detection\n  * Calls /php_backend/check-proxy-type.php\n  * Returns structured detection results\n\n- Refactor checkProxy() to compose individual checks\n  * Call all three check functions in sequence\n  * Aggregate error states from all responses\n  * Combine messages from all three checks\n  * Include type detection in error reporting\n\n- Improve code organization and reusability\n  * Each check can now be used independently\n  * Easier to test individual proxy validation methods\n  * Better separation of concerns",
-    "files": [
-      "src/react/utils/proxy.ts"
-    ]
-  },
-  {
-    "hash": "ed0cd5274785ad60bc2b7fd4bc21fd60a6413a22",
-    "date": "2025-11-25T18:46:55+07:00",
-    "message": "feat: add proxy type detection backend and improve proxy checker\n\n- Add ProxyTypeDetector class with multi-protocol detection support\n  * Detect HTTP, HTTPS, SOCKS4, SOCKS4a, SOCKS5, SOCKS5h protocols\n  * Support for proxy authentication (username/password)\n  * Robust error handling for unstable connections\n  * Return structured result array with validation details\n\n- Add check-proxy-type.php endpoint for CLI and web modes\n  * Support both HTTP API and command-line execution\n  * Implement process locking to prevent concurrent execution\n  * Add time limits for non-admin users (120 seconds)\n  * Provide detailed logging for all detection attempts\n  * Skip recently checked proxies (within 5 hours)\n\n- Improve proxy detection workflow\n  * Validate proxy format before socket operations\n  * Check port accessibility before protocol detection\n  * Return detailed detection results (protocol, port status, validity)\n  * Mark invalid/dead proxies for cleanup\n  * Update proxy status based on detection results\n\n- Enhance error resilience\n  * Suppress warnings on failed socket write operations\n  * Handle gracefully when remote host closes connection\n  * Continue testing next proxy type on connection failure",
-    "files": [
-      "php_backend/check-proxy-type.php",
-      "src/PhpProxyHunter/Checker/ProxyTypeDetector.php",
-      "src/utils/process/php_exec.php"
-    ]
-  },
-  {
-    "hash": "396c79b289dfc1bcb12d2bccfbbe53aaec700270",
-    "date": "2025-11-25T16:54:10+07:00",
-    "message": "fix(ProxyCheckerGoogle): correct log message format for proxy checks",
-    "files": [
-      "src/PhpProxyHunter/Checker/ProxyCheckerGoogle.php"
-    ]
-  },
-  {
-    "hash": "c27c03e1e0103582e9f59661d8e1012470facb16",
-    "date": "2025-11-25T16:20:05+07:00",
-    "message": "feat: add ProxyCheckerHttpsOnly class and refactor HTTPS proxy checking\n\n- Create new ProxyCheckerHttpsOnly class to check proxies for HTTPS protocol support\n  - Tests against https://www.mozilla.org/en-US/about/ with \"Learn about Mozilla\" title validation\n  - Supports multiple protocols (http, socks4, socks5, socks4a, socks5h)\n  - Measures latency and handles authentication\n\n- Refactor check-https-proxy.php to use ProxyCheckerHttpsOnly class\n  - Replace inline cURL logic with standardized checker pattern\n  - Simplify proxy skipping logic\n  - Add retest functionality to confirm dead proxies\n  - Include authentication support in checker options\n  - Improve logging with retest status (alive|dead|not-performed)\n  - Update reTestProxy function to test against new HTTPS URL\n\n- Update ProxyChecker-test.php to include HTTPS testing\n  - Add ProxyCheckerHttpsOnly import\n  - Rename 'full_check' to 'public_ip' for clarity\n  - Add 'https_only' checker to results\n  - Update working status conditions to include HTTPS results\n  - Include HTTPS results in latency calculation and working types merge",
-    "files": [
-      "php_backend/check-https-proxy.php",
-      "src/PhpProxyHunter/Checker/ProxyChecker-test.php",
-      "src/PhpProxyHunter/Checker/ProxyCheckerHttpsOnly.php"
-    ]
-  },
-  {
-    "hash": "fb170c90e9d331e0ee9482ee7226c783ce89f7b8",
-    "date": "2025-11-25T16:06:59+07:00",
-    "message": "feat(check-https-proxy): add detailed failure reasons to proxy dead logs\n\nAdd specific failure reasons when proxies are marked as dead to improve\ndebugging and logging visibility. Each protocol test now logs the exact\nreason for failure (connection error, invalid response code, suspicious\nheaders, missing title, etc.).\n\nChanges:\n- Track failure reason for each protocol test attempt\n- Differentiate between Azenv detection and other SSL dead causes\n- Include HTTP response codes when available\n- Capture and log CURL error details with error numbers and messages\n- Add summary reason to final log line (no-valid-ssl-protocols or connection-failed)\n- Improve log output consistency with per-protocol and summary formats\n\nThis aligns with the logging patterns already used in check-http-proxy.php.",
-    "files": [
-      "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "d02504931eb717ac58f53494bc74dbf46fd7cabc",
-    "date": "2025-11-23T17:27:02+07:00",
-    "message": "fix: update runner script extension to .sh for Unix systems",
-    "files": [
-      "artisan/filterPortsBackground.php",
-      "artisan/proxyWorking.php",
-      "artisan/proxyWorkingBackground.php",
-      "cidr-information/checkPorts.php",
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php",
-      "proxyCheckerBackground.php",
-      "proxyRespawner.php",
-      "scanPorts.php"
-    ]
-  },
-  {
-    "hash": "08782abb9d64f7fab7bd43cd1af6a96c4cc63a1c",
-    "date": "2025-11-23T17:24:59+07:00",
-    "message": "fix(cleaner.php): update file exclusion logic to allow specific patterns while continuing deletion for others",
-    "files": [
-      "artisan/cleaner.php"
-    ]
-  },
-  {
-    "hash": "92944442dfa4b16fce10eeee5738572ace103c1c",
-    "date": "2025-11-23T17:09:32+07:00",
-    "message": "fix(.crontab.sh): log output of php cleaner script to a log file",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "66689cb51cd8f1cb721fb26a4200f7c7151dc37e",
-    "date": "2025-11-23T17:08:43+07:00",
-    "message": "fix(cleaner.php): suppress errors during file removal in cleanup process",
-    "files": [
-      "artisan/cleaner.php"
-    ]
-  },
-  {
-    "hash": "a9ef0d598502739e4dcd9977f84b461069cfedd3",
-    "date": "2025-11-23T17:06:24+07:00",
-    "message": "refactor(artisan): make cleaner.php iterate nested subdirectories recursively\n\n- Extract directory cleaning logic into cleanDirectoryRecursive() function\n- Add recursive traversal to process nested subdirectories\n- Use global $oneWeekAgo variable instead of function parameter\n- Improve directory validation with is_dir() check\n- Add proper handling for realpath() validation\n- Skip . and .. directory entries explicitly",
-    "files": [
-      "artisan/cleaner.php"
-    ]
-  },
-  {
-    "hash": "5d3df6220cd7e9bb290a1336846cfed27b4afc9f",
-    "date": "2025-11-23T17:03:50+07:00",
-    "message": "fix(cleaner.php): add checks to skip specific files and patterns during cleanup",
-    "files": [
-      "artisan/cleaner.php"
-    ]
-  },
-  {
-    "hash": "2c1b21b876549b4cf15de72f01e9fa80258f5fe2",
-    "date": "2025-11-23T17:00:37+07:00",
-    "message": "fix(.crontab.sh): add database backup and cleanup script execution for daily job",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "330ea6e24ee1f7aaea52db33155cfb44e23c76b1",
-    "date": "2025-11-23T16:59:09+07:00",
-    "message": "fix(.crontab.sh): add cleanup for old log files older than 30 days",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "1883c03456eb77e3b90df9f9ed62c41e56fea2c6",
-    "date": "2025-11-23T16:55:47+07:00",
-    "message": "fix(clear-caches): remove obsolete tmp logs cleanup section",
-    "files": [
-      "bin/clear-caches"
-    ]
-  },
-  {
-    "hash": "31639dbf28dbe5467bca55bb219bd30f2e1e02f9",
-    "date": "2025-11-23T16:52:28+07:00",
-    "message": "fix(proxyCollector): remove unnecessary require statement for func-proxy.php",
-    "files": [
-      "artisan/proxyCollector.php"
-    ]
-  },
-  {
-    "hash": "a76e42ae75e3a3cdd9d740d744ad8e6983e0175b",
-    "date": "2025-11-23T16:52:03+07:00",
-    "message": "fix(.crontab.sh): update 30-minute job to include proxyCollector calls and comment out logging for python jobs",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "6e01415f154022b972252823a779dff514a95265",
-    "date": "2025-11-23T16:49:33+07:00",
-    "message": "fix(crontab): update schedule for custom crontab script to run every 30 minutes",
-    "files": [
-      ".crontab.txt"
-    ]
-  },
-  {
-    "hash": "bb718aefe0704de5309a0b3cd879bb6e73c0fa39",
-    "date": "2025-11-23T16:45:12+07:00",
-    "message": "fix(ProxyCheckerHttpOnly): correct protocol formatting in log message",
-    "files": [
-      "src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php"
-    ]
-  },
-  {
-    "hash": "08b6aeda2a6d2c7431749869f5bb0ccd1570cd89",
-    "date": "2025-11-23T16:10:52+07:00",
-    "message": "feat(.crontab.sh): add logging and error suppression for cron jobs\n\n- Add log_command() function to capture stdout/stderr with timestamps\n- Auto-create log directories when logging commands\n- Log djm check_proxies, djm filter_dups, and djm sync_proxies commands\n- Suppress errors with || true for php artisan commands\n- Include exit codes in logs for debugging\n- Add blank line separators between log entries for better readability",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "e16c0ec3454cbfc79fde646b353dce7ddd4e0627",
-    "date": "2025-11-23T16:02:46+07:00",
-    "message": "fix(crontab): clarify helper function description for job scheduling",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "4d6c8886bcdedb1e7396091b359a38bf15873e82",
-    "date": "2025-11-23T15:59:54+07:00",
-    "message": "fix: improve shell compatibility in .crontab.sh script\n\n- Replace ${BASH_SOURCE[0]} with $0 for better sh compatibility\n- Change 'source' command to '.' for POSIX compliance\n- Replace [[ ]] with [ ] for improved portability\n- Update string comparison operators from == to = for sh compatibility\n\nFixes issues when running script with sh interpreter:\n- Bad substitution error on ${BASH_SOURCE[0]}\n- \"source: not found\" error",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "a4f4cacc023fb6a920e1484ee119a8e1e1b7fcb0",
-    "date": "2025-11-23T15:57:46+07:00",
-    "message": "fix(crontab): add skipping messages for scheduled jobs and reorder 6-hour job",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "2276733f0ee0f62142760e348ffd121f46b06745",
-    "date": "2025-11-23T15:53:06+07:00",
-    "message": "fix(composer): change minimum stability from beta to dev",
-    "files": [
-      "composer.json"
-    ]
-  },
-  {
-    "hash": "0f9403584cd0e2fe69f35cde310933214db0e4ca",
-    "date": "2025-11-23T15:46:39+07:00",
-    "message": "fix(MySQLHelper): add automatic connection loss detection and recovery\n\nAdd resilient connection handling to prevent MySQL timeout errors (error 4031)\nduring long-running operations. Implements automatic reconnection with retry logic\nfor database operations.\n\nBREAKING CHANGE: None. Changes are backward compatible.\n\n- Store connection parameters for automatic reconnection\n- Add isConnectionAlive() to validate active connections\n- Add isConnectionLossError() to detect connection loss errors (4031, 2006, 2013, HY000, 08006, 08003)\n- Add reconnect() for automatic reconnection to MySQL\n- Add withConnectionRetry() wrapper for transparent operation retry\n- Wrap select(), update(), execute(), insert() with retry logic\n- Handle all major MySQL connection timeout scenarios\n\nFixes: SQLSTATE[HY000] error 4031 - \"Client disconnected by server due to inactivity\"\n\nAffected operations:\n- select(): Critical for proxy lookups\n- update(): Essential for saving proxy check results\n- execute(): Custom SQL queries\n- insert(): Adding new proxies\n\nPerformance impact: Zero overhead in normal operations, 50-200ms recovery on connection loss.",
-    "files": [
-      "src/PhpProxyHunter/MySQLHelper.php"
-    ]
-  },
-  {
-    "hash": "0952c4909be7ca1bc9b28d51f0c5cc474d53c16a",
-    "date": "2025-11-23T15:35:38+07:00",
-    "message": "fix(instructions): update compatibility guidelines for PHP 7.0 regarding type hints",
-    "files": [
-      ".github/instructions/php.instructions.md"
-    ]
-  },
-  {
-    "hash": "aa84948034519c1e40f24025d8da8f846a5a6404",
-    "date": "2025-11-23T15:32:43+07:00",
-    "message": "fix(scheduler): remove type hint for callable in register method for compatibility",
-    "files": [
-      "src/PhpProxyHunter/Scheduler.php"
-    ]
-  },
-  {
-    "hash": "5e4c6364081475ab1e21a22a519d0307797d0e30",
-    "date": "2025-11-23T12:24:39+07:00",
-    "message": "fix(hideArrayData): remove type hints and list unpacking for PHP 7.0 compatibility\n\n- Remove explicit type declarations (array, callable) from function parameters\n- Replace list unpacking syntax with traditional array index assignment\n- Keep type information in PHPDoc comments for IDE support\n- Ensures compatibility with PHP 7.0 while maintaining code documentation",
-    "files": [
-      "src/utils/data/hideArrayData.php"
-    ]
-  },
-  {
-    "hash": "83134f15aabd79635087b930b82e1cfefaf941c1",
-    "date": "2025-11-23T07:28:08+07:00",
-    "message": "refactor(session): centralize logout logic using Session::clearSessions and improve cookie clearing\n\n- Replace manual session/cookie cleanup in logout.php with Session::clearSessions(true)\n- Update HTML logout link to root path\n- Simplify php_backend/logout.php by using respond_json helper\n- Enhance Session::clearSessions to support optional cookie clearing and ensure session start\n- Improve overall consistency and reduce duplicated logout logic",
-    "files": [
-      "logout.php",
-      "php_backend/logout.php",
-      "src/PhpProxyHunter/Session.php"
-    ]
-  },
-  {
-    "hash": "b755a3e831d361bfda55b8506e3ab10da42a5094",
-    "date": "2025-11-23T07:20:49+07:00",
-    "message": "fix(session): improve session folder permission handling",
-    "files": [
-      "src/PhpProxyHunter/Session.php"
-    ]
-  },
-  {
-    "hash": "6d43336cd47f24eaf8a074291a76528685ae7353",
-    "date": "2025-11-23T07:18:55+07:00",
-    "message": "refactor: rename is_session_started method to isSessionStarted",
-    "files": [
-      "src/PhpProxyHunter/Session.php"
-    ]
-  },
-  {
-    "hash": "2a149df23e1ff343f13ba15845d84051d342ee0a",
-    "date": "2025-11-23T07:17:46+07:00",
-    "message": "refactor: remove FileSessionHandler class\n\nthese class cannot be applied between php 7.0 - 8.0",
-    "files": [
-      "src/FileSessionHandler.php"
-    ]
-  },
-  {
-    "hash": "fae3751d483ca1b5c1275627603303aca00ce1e1",
-    "date": "2025-11-23T07:13:26+07:00",
-    "message": "fix(instructions): remove guideline against using global variables",
-    "files": [
-      ".github/instructions/php.instructions.md"
-    ]
-  },
-  {
-    "hash": "b85afde62e52d674d5e3651d919e05fb7db7de4d",
-    "date": "2025-11-23T05:03:21+07:00",
-    "message": "feat(php): add return type declarations for PHP 7.0+ compatibility\n\nRemove PHP 7.1+ void return types and PHP 7.4 property type declarations\nfrom src/ directory to ensure PHP 7.0 compatibility while adding proper\ntype hints where supported by PHP 7.0.\n\nChanges:\n- Remove `: void` return type from functions (void introduced in PHP 7.1)\n- Remove property type declarations from FileLockHelper (PHP 7.4+ feature)\n- Add `: string`, `: bool`, `: array` return types (supported in PHP 7.0)\n- Add parameter type declarations (supported in PHP 7.0)\n- Update phpdoc array<key, value> type hints for better documentation\n- Remove duplicate phpdoc comments\n- Improve code formatting and consistency\n\nBREAKING CHANGE: All return type declarations are now stripped of `void`\ntype hint to maintain PHP 7.0 compatibility. Functions still return nothing\nbut without explicit type declaration.",
-    "files": [
-      "src/FileSessionHandler.php",
-      "src/PhpProxyHunter/FileLockHelper.php",
-      "src/PhpProxyHunter/ProxyDB.php",
-      "src/PhpProxyHunter/Server.php",
-      "src/database/env.php",
-      "src/utils/file/index.php",
-      "src/utils/file/mkdir.php",
-      "src/utils/file/path.php",
-      "src/utils/file/reader.php",
-      "src/utils/file/sanitizer.php",
-      "src/utils/server/respond.php",
-      "src/utils/string/index.php"
-    ]
-  },
-  {
-    "hash": "b248fc6b9e1bbd04c65259c63b574a77a7ca4e8e",
-    "date": "2025-11-23T04:51:35+07:00",
-    "message": "refactor: implement centralized captcha verification system\n\n- Add is_captcha_verified() and requires_captcha_verification() utility functions\n- Replace duplicate captcha verification checks with centralized function calls\n- Update multiple background scripts to use new captcha verification system\n- Improve code consistency and maintainability across access control points",
-    "files": [
-      "artisan/filterPortsBackground.php",
-      "artisan/proxyCheckerStarter.php",
-      "artisan/proxyWorkingBackground.php",
-      "cidr-information/checkPorts.php",
-      "geoIpBackground.php",
-      "proxyCheckerBackground.php",
-      "proxyRespawner.php",
-      "src/database/env.php"
-    ]
-  },
-  {
-    "hash": "f2ecd49fa8135362cc1d6cab0eba1120388dfaae",
-    "date": "2025-11-23T04:46:15+07:00",
-    "message": "feat: add maxRequests setting for GitHub Copilot chat agent",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "5884cfaf8a04fbf29553a87b9371b32d3a923289",
-    "date": "2025-11-23T04:39:07+07:00",
-    "message": "fix(proxy): remove captcha session check for improved access control",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "34564f78449d2fee8f08d4a8e3e76f562d68763a",
-    "date": "2025-11-23T04:38:26+07:00",
-    "message": "feat: add authentication and authorization utilities\n\n- Implement requires_admin() function for admin privilege validation\n- Add is_authenticated() function for user authentication checks\n- Implement requires_authentication() function for access control\n- Add comprehensive PHPDoc documentation for new functions\n- Refactor authentication checks to use new utility functions\n- Improve code formatting and comments in environment parser",
-    "files": [
-      "src/database/env.php",
-      "tests/run-python.php"
-    ]
-  },
-  {
-    "hash": "46bd4a80ae1cc3469b2d05b6742c6a05c0750d11",
-    "date": "2025-11-23T04:31:57+07:00",
-    "message": "feat: enhance user session management with email-based identification\n\n- Add fallback to session email for user ID generation when user_id is not available\n- Store both user ID and email in session during OAuth finalization\n- Implement email validation utility function\n- Improve session persistence across authentication flows",
-    "files": [
-      "func.php",
-      "php_backend/google-oauth.php",
-      "src/utils/string/validator.php"
-    ]
-  },
-  {
-    "hash": "1f872870893244de3bec94b050e628abe6d45981",
-    "date": "2025-11-23T04:31:07+07:00",
-    "message": "refactor(proxy): remove list.php for codebase cleanup and improved maintainability",
-    "files": [
-      "list.php"
-    ]
-  },
-  {
-    "hash": "69351c6b095a69eb8950c7ca9ed725d2e81032d2",
-    "date": "2025-11-23T04:23:23+07:00",
-    "message": "fix(proxy): remove user ID setting from request parsing for improved security",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "728b3a433d904c48737286be7512bbb954190152",
-    "date": "2025-11-23T04:22:33+07:00",
-    "message": "fix(proxy): enhance error messages with log file URLs for concurrent process checks",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-https-proxy.php"
-    ]
-  },
-  {
-    "hash": "53b3465551da19944fb73ad23cb042dfcb41f5b2",
-    "date": "2025-11-23T04:16:22+07:00",
-    "message": "fix(proxy): improve error handling and message construction in checkProxy function",
-    "files": [
-      "src/react/utils/proxy.ts"
-    ]
-  },
-  {
-    "hash": "d4b7f9198b9e179b557ee12dc8f9de52e68f839c",
-    "date": "2025-11-23T04:14:06+07:00",
-    "message": "fix(proxyTypeColors): add missing HTTPS color class mapping",
-    "files": [
-      "src/react/utils/proxyTypeColors.ts"
-    ]
-  },
-  {
-    "hash": "d51d03adaba694b700a6cb6c51164b8111ae14cc",
-    "date": "2025-11-23T04:13:21+07:00",
-    "message": "feat(react): refactor proxy type badge colors and add Tailwind color palettes\n\n- Extract proxy type color mappings to dedicated utility module (proxyTypeColors.ts)\n- Refactor ProxyList badge rendering to use centralized color class helper\n- Simplify badge color assignment logic by removing long if-else chains\n- Add socks4a and socks5h proxy type color support with standard Tailwind colors\n- Expand all custom Tailwind colors to full 50-900 shade palettes\n- Colors: clifford, ocean, forest, sunset, sky, sand, berry, cyan, magenta, polkador, skip, silver, mutedGray, lightGray, amber\n\nBREAKING CHANGE: Custom color names (berry, sunset) now have proper Tailwind palettes",
-    "files": [
-      "src/react/pages/ProxyList/index.tsx",
-      "src/react/utils/proxyTypeColors.ts",
-      "tailwind.config.js"
-    ]
-  },
-  {
-    "hash": "082aaac233631200b6980df2b230517faaf072b7",
-    "date": "2025-11-23T03:58:15+07:00",
-    "message": "refactor: update reTestProxy to use object parameter and improve compatibility\n\n- Simplify function signature to accept Proxy object\n- Improve PHP 7.0 compatibility with array() syntax\n- Update calling code accordingly",
-    "files": [
-      "php_backend/check-http-proxy.php"
-    ]
-  },
-  {
-    "hash": "d6dfb0f4229df8a2f5288b7f59ecf9050785983c",
-    "date": "2025-11-23T03:47:51+07:00",
-    "message": "feat: enhance proxy checking with additional protocols and authentication support\n\n- Add support for SOCKS4a and SOCKS5h proxy protocols\n- Implement proxy authentication in retest function\n- Refactor reTestProxy to use shared buildCurl utility\n- Improve error messaging in ProxyCheckerHttpOnly\n- Update timeout and connection configurations",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "src/PhpProxyHunter/Checker/ProxyCheckerHttpOnly.php",
-      "src/PhpProxyHunter/utils/buildCurl.php"
-    ]
-  },
-  {
-    "hash": "81f6dbfcb65ccd3f3f8bed5cc7d803189b2663d3",
-    "date": "2025-11-23T03:45:06+07:00",
-    "message": "fix(proxy-list): distinguish socks4a and socks5h badges with unique colors\n\n- Assign berry color scheme to socks4a badges\n- Assign sunset color scheme to socks5h badges\n- Add amber color to Tailwind palette",
-    "files": [
-      "src/react/pages/ProxyList/index.tsx",
-      "tailwind.config.js"
-    ]
-  },
-  {
-    "hash": "375898c41e0b75c2a3fee22cb54ff3f69a4d0acf",
-    "date": "2025-11-23T03:30:24+07:00",
-    "message": "docs(instructions): clarify project setup and emphasize modern PHP practices",
-    "files": [
-      ".github/instructions/php.instructions.md"
-    ]
-  },
-  {
-    "hash": "d26531486fe2bf7b9455fdc837e139fdb49f0ec9",
-    "date": "2025-11-23T02:55:55+07:00",
-    "message": "feat(snackbar): preserve newlines & notify on proxy submission\n\n- Render snackbar messages with `whitespace-pre-line` so \"\\n\" displays as line breaks.\n- Import and use `useSnackbar` in `ProxySubmission.tsx` to show success/danger notifications:\n  - Show a danger snackbar on submit failure.\n  - After `checkProxy`, show success or danger snackbar based on response; show danger on check errors.\n- Simplify `checkProxy` message assembly by removing explicit `[HTTPS]`/`[HTTP]` prefixes when concatenating messages.",
-    "files": [
-      "src/react/components/Snackbar.tsx",
-      "src/react/pages/ProxyList/ProxySubmission.tsx",
-      "src/react/utils/proxy.ts"
-    ]
-  },
-  {
-    "hash": "f92aa94e668eec38faea559b03d6fe9d9052babd",
-    "date": "2025-11-23T02:28:55+07:00",
-    "message": "refactor(proxy-submission): simplify proxy submission flow and integrate ReactFormSaver onRestore\n\n- remove unused proxy extraction and checking logic\n- replace manual restore logic with ReactFormSaver onRestore callback\n- clean up submit handler and drop local ProxyData state\n- streamline fetch call for proxy-add backend",
-    "files": [
-      "src/react/pages/ProxyList/ProxySubmission.tsx"
-    ]
-  },
-  {
-    "hash": "ad403a493c86686560b31c25940ed98c78e3e18b",
-    "date": "2025-11-23T02:11:23+07:00",
-    "message": "feat(proxy-check): include logFile in error response for better debugging",
-    "files": [
-      "src/react/utils/proxy.ts"
-    ]
-  },
-  {
-    "hash": "803fa5c37f3695a8f01781e05ed3975f4c688f65",
-    "date": "2025-11-23T02:00:31+07:00",
-    "message": "refactor(ProxySubmission): remove log and status URL handling for cleaner UI",
-    "files": [
-      "src/react/pages/ProxyList/ProxySubmission.tsx"
     ]
   }
 ]
