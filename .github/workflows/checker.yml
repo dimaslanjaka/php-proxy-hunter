@@ -126,12 +126,61 @@ jobs:
 
           bash bin/python-minimal
 
-      - name: Get Cache Directories
-        id: cache-paths
+      - name: '🌎 Set environment variables'
+        id: set-env
+        shell: bash
         run: |
-          echo "pip_cache_dir=$(pip cache dir)" >> "$GITHUB_OUTPUT"
-          echo "npm_cache_dir=$(npm config get cache)" >> "$GITHUB_OUTPUT"
-          echo "yarn_cache_dir=$(yarn cache dir)" >> "$GITHUB_OUTPUT"
+          echo "${HOME}/.local/bin" >> $GITHUB_PATH
+          echo "${GITHUB_WORKSPACE}/bin" >> $GITHUB_PATH
+          echo "${GITHUB_WORKSPACE}/node_modules/.bin" >> $GITHUB_PATH
+          echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_ENV
+          echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_OUTPUT
+          echo "GITHUB_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
+          echo "GITHUB_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+          echo "GITHUB_COMMIT_URL=https://github.com/${{github.repository}}/commit/$(echo $GITHUB_SHA)" >> $GITHUB_ENV
+          echo "GITHUB_COMMIT_URL=https://github.com/${{github.repository}}/commit/$(echo $GITHUB_SHA)" >> $GITHUB_OUTPUT
+          echo "GITHUB_RUNNER_URL=https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}" >> $GITHUB_ENV
+          echo "GITHUB_RUNNER_URL=https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}" >> $GITHUB_OUTPUT
+          echo "CACHE_NPM=$(npm config get cache)" >> $GITHUB_ENV
+          echo "CACHE_NPM=$(npm config get cache)" >> $GITHUB_OUTPUT
+
+          YARN_CURRENT=$(yarn -v)
+          YARN_VERSION_MAJOR=$(echo "$YARN_CURRENT" | cut -d. -f1)
+          echo "CURRENT_YARN_VERSION=$YARN_CURRENT" >> "$GITHUB_ENV"
+          echo "CURRENT_YARN_VERSION=$YARN_CURRENT" >> "$GITHUB_OUTPUT"
+
+          if [ "$YARN_VERSION_MAJOR" -ge 2 ]; then
+            # Yarn Berry (v2/v3/v4)
+            CACHE_YARN=$(yarn config get cacheFolder)
+
+          else
+            # Yarn v1 (Classic)
+            CACHE_YARN=$(yarn cache dir)
+          fi
+
+          echo "CACHE_YARN=$CACHE_YARN" >> "$GITHUB_ENV"
+          echo "CACHE_YARN=$CACHE_YARN" >> "$GITHUB_OUTPUT"
+          echo "architecture=$(getconf LONG_BIT)" >> $GITHUB_ENV
+          if [ -f "package-lock.json" ]; then
+              echo "PACKAGE-MANAGER=npm" >> $GITHUB_OUTPUT
+              echo "PACKAGE-MANAGER=npm" >> $GITHUB_ENV
+          else
+              echo "PACKAGE-MANAGER=yarn" >> $GITHUB_OUTPUT
+              echo "PACKAGE-MANAGER=yarn" >> $GITHUB_ENV
+          fi
+          unameOut="$(uname -s)"
+          case "${unameOut}" in
+              Linux*)     machine=linux;;
+              Darwin*)    machine=mac;;
+              CYGWIN*)    machine=cygwin;;
+              MINGW*)     machine=mingw;;
+              *)          machine="unknown:${unameOut}"
+          esac
+          echo "machine=$machine" >> $GITHUB_OUTPUT
+          echo "machine=$machine" >> $GITHUB_ENV
+          if command -v pip >/dev/null 2>&1; then
+            echo "PIP_CACHE_DIR=$(pip cache dir)" >> "$GITHUB_OUTPUT"
+          fi
 
       - name: Cache Project Assets
         uses: actions/cache@v5
@@ -160,9 +209,9 @@ jobs:
             ${{ env.PIP_LOCAL_CACHE_DIR }}
             ${{ env.NUITKA_CACHE_DIR }}
 
-            ${{ steps.cache-paths.outputs.pip_cache_dir }}
-            ${{ steps.cache-paths.outputs.npm_cache_dir }}
-            ${{ steps.cache-paths.outputs.yarn_cache_dir }}
+            ${{ steps.set-env.outputs.PIP_CACHE_DIR }}
+            ${{ steps.set-env.outputs.CACHE_YARN }}
+            ${{ steps.set-env.outputs.CACHE_NPM }}
 
           key: >
             ${{ runner.os }}-proxy-checker-
