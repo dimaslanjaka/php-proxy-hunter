@@ -202,6 +202,9 @@ jobs:
             assets/proxies/
             **/*.txt
             working.json
+            **/*.pem
+            **/*.key
+            **/*.crt
 
             src/*.sqlite*
             src/*.mmdb
