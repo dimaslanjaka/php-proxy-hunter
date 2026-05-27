@@ -10,6 +10,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 /**
+ * Equivalent of __dirname for ESM modules. Returns the directory of the current module file.
+ * @returns
+ */
+function get__dirname() {
+  return path.dirname(fileURLToPath(import.meta.url));
+}
+
+/**
  * Vite plugin to manually trigger HMR updates via HTTP endpoint.
  * Allows programmatic/manual triggering of file change detection.
  * This works by actually touching/modifying the file to trigger the file watcher.
@@ -308,7 +316,7 @@ export function copyFontsPlugin() {
  * @returns {import('vite').Plugin}
  */
 export function serveDistAssetsPlugin() {
-  const distBase = path.join(__dirname, 'dist/react');
+  const distBase = path.join(get__dirname(), 'dist/react');
   const allowedPrefixes = ['/assets/', '/data/', '/config/'];
   return {
     name: 'serve-dist-assets',
