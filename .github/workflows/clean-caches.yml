@@ -120,4 +120,4 @@ jobs:
           GH_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
         shell: cmd
         run: |
-          call "${{ github.workspace }}/bin/clear-github-actions-cache.cmd"
+          npx -y binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz clean-github-actions-caches --owner dimaslanjaka --repo php-proxy-hunter --token %GH_TOKEN% --confirm
