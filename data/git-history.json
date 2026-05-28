@@ -1,5 +1,22 @@
 [
   {
+    "hash": "08c0a4feab9deb82afa55a75b5f2655c09bc59fe",
+    "date": "2026-05-28T05:17:19+07:00",
+    "message": "docs(agents): clarify developer workflow and separate python runtime vs bootstrap\n\n- Restructure developer workflows section for better readability\n- Explicitly separate Python runtime execution (bin/py) from minimal bootstrap installer (bin/python-minimal)\n- Clarify that python-minimal is only used for dependency installation via requirements_install.py\n- Improve consistency and formatting of bootstrap, frontend build, Node.js build, and PHP server sections\n- Add explicit warnings that python-minimal is not interchangeable with runtime Python launcher",
+    "files": [
+      "AGENTS.md"
+    ]
+  },
+  {
+    "hash": "d1457cfe06ab3e7840e01d031edd157c8490ecf0",
+    "date": "2026-05-28T04:57:11+07:00",
+    "message": "chore(vscode, deps): refactor editor settings formatting and replace ESLint/Prettier stack\n\n- reformat VSCode settings.json for consistency (arrays, indentation, multi-line configs)\n- add additional language support for editor tooling (css, svelte, nunjucks, glimmer)\n- extend ESLint validation scope in VSCode settings\n- replace ESLint core packages and TypeScript ESLint plugins with @dimaslanjaka/eslint-base-config\n- remove eslint, prettier, and related plugins from devDependencies\n- update static-blog-generator dependency reference to include new eslint base config source\n- switch terminal profile to \"Short PowerShell\" and add custom prompt configuration",
+    "files": [
+      ".vscode/settings.json",
+      "package.json"
+    ]
+  },
+  {
     "hash": "84fa0017f9ccfc4a991dbfacccd8c5adbb38bbc5",
     "date": "2026-05-28T04:32:41+07:00",
     "message": "feat(database): replace filter_unseen tuple return with UnseenResult dataclass\n\n- Introduce `UnseenResult` dataclass (cleaned, pending, already_checked)\n- Change `SQLiteMarker.filter_unseen` return type from tuple to structured object\n- Replace tuple unpacking in callers with `result.pending`, `result.cleaned`, `result.already_checked`\n- Update internal logic to use set-based `ordered` and `pending` computation\n- Refactor scripts and tests to match new API shape and semantics\n- Rename `skipped`/`pending_*` usages to `already_checked` and `pending`\n\nBREAKING CHANGE: `filter_unseen` no longer returns a tuple; it now returns an `UnseenResult` object",
@@ -8793,22 +8810,6 @@
     "message": "refactor(php_backend): filter recently-checked proxies during categorization\n\nMove the age-based filtering logic from the main processing loop to the\nitem categorization phase. This prevents unnecessary iterations over\nproxies that were checked within the last day, improving performance by\neliminating redundant loop cycles.\n\n- Filter items with age < 1 day during categorization\n- Remove redundant age checks and logging from main loop\n- Simplify main loop by only processing items that need checking",
     "files": [
       "php_backend/check-old-proxy.php"
-    ]
-  },
-  {
-    "hash": "9384d937c1bdd16db20302961987095f827de54b",
-    "date": "2025-11-29T07:13:21+07:00",
-    "message": "fix(waConnect): comment out browser and mobile options in socket configuration",
-    "files": [
-      "node_backend/waConnect.ts"
-    ]
-  },
-  {
-    "hash": "955245f4abafcaba568b4072e3ee36f8ddba494f",
-    "date": "2025-11-29T06:56:05+07:00",
-    "message": "feat(react): add data-sortable and min-width styling to table headers\n\n- Modify all header cells to include data-sortable=\"true\" attribute\n- Apply min-w-[200px] class to all headers for consistent minimum width\n- Clear inline styles from headers for cleaner rendering\n- Improve table header appearance and sorting functionality",
-    "files": [
-      "src/react/pages/examples/tables/AdvancedDataTable.tsx"
     ]
   }
 ]
