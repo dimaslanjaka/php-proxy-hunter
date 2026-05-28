@@ -1,1 +1,0 @@
-import{f as t}from"./20260528-040909-vendor-mdast-util-from-markdown.C6gYINv4.js";function n(n){const s=this;s.parser=function(o){return t(o,{...s.data("settings"),...n,extensions:s.data("micromarkExtensions")||[],mdastExtensions:s.data("fromMarkdownExtensions")||[]})}}export{n as r};
