@@ -1,69 +1,59 @@
-name: Proxy Checker
+# =========================================
+# Build Release Workflow
+# -----------------------------------------
+# Automates building, packaging, and releasing
+# -----------------------------------------
+# Source repo:
+#   https://github.com/dimaslanjaka/nodejs-package-types/blob/main/.github/workflows/build-release.yml
+# Raw file:
+#   https://raw.githubusercontent.com/dimaslanjaka/nodejs-package-types/main/.github/workflows/build-release.yml
+# Download/Update workflow:
+#   curl -L https://github.com/dimaslanjaka/nodejs-package-types/raw/main/.github/workflows/build-release.yml > .github/workflows/build-release.yml
+#   or
+#   Invoke-WebRequest "https://github.com/dimaslanjaka/nodejs-package-types/raw/main/.github/workflows/build-release.yml" -OutFile ".github/workflows/build-release.yml"
+# =========================================
+
+name: Build Release
 
 on:
   push:
-    paths:
-      - 'src/**/*.py'
-      - 'data/**/*.py'
-      - '.github/workflows/checker.yml'
-      - 'requirements*'
-      - 'setup*'
-      - 'Taskfile*'
-
+    paths-ignore:
+      - '**/*.tgz'
+      - '**/*.gz'
+      - '**/*.tar.gz'
+      - '**/dist/**'
+      - '**/release/**'
+      - '**/releases/**'
+      - '**/_auto*/**'
+      - '**/.husky/**'
+      - '**/garbage-collector/**'
+      - '**/codeql/**'
+      - '.github/workflows/tester.yml'
+      - '**/*.log'
+      - '**/*.txt'
+      - '**/*.zip'
   workflow_dispatch:
-    inputs:
-      max:
-        description: 'The maximum proxies to be checked.'
-        required: true
-        default: '100'
-        type: string
 
-  workflow_call:
-    inputs:
-      max:
-        description: 'The maximum proxies to be checked.'
-        required: true
-        default: '100'
-        type: string
-    secrets:
-      ACCESS_TOKEN:
-        required: true
-
-  schedule:
-    - cron: '0 * * * *'
-
+# run single job
 concurrency:
-  group: proxy-checker-${{ github.ref }}
+  group: build-release
   cancel-in-progress: false
 
 jobs:
-  build:
-    if: contains(github.repository, 'php-proxy-hunter')
-
-    strategy:
-      fail-fast: false
-      matrix:
-        os:
-          - ubuntu-latest
-          - windows-latest
-
-    runs-on: ${{ matrix.os }}
-
-    defaults:
-      run:
-        shell: bash
-
+  build-release:
+    name: build release
     env:
       # Browser automation
-      PUPPETEER_SKIP_DOWNLOAD: 'true'
-      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: '1'
+      PUPPETEER_SKIP_DOWNLOAD: "true"
+      PLAYWRIGHT_SKIP_BROWSER_DOWNLOAD: "1"
 
       # Node.js
-      NODE_OPTIONS: '--max_old_space_size=4096'
+      NODE_OPTIONS: "--max_old_space_size=8192" #8192 4096 --expose-gc
       YARN_ENABLE_IMMUTABLE_INSTALLS: false
       YARN_ENABLE_GLOBAL_CACHE: false
       YARN_CHECKSUM_BEHAVIOR: update
       YARN_CACHE_FOLDER: ${{ github.workspace }}/tmp/yarn-cache
+      NODE_VERSION: "24.16.0"
 
       # Python
       PIP_LOCAL_CACHE_DIR: ${{ github.workspace }}/tmp/pip
@@ -73,58 +63,66 @@ jobs:
       ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
       GH_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
 
+    runs-on: ubuntu-latest
+
     steps:
-      - name: '📥 Checkout Repository'
-        uses: actions/checkout@v6
+      - name: '🔄 Checkout repository and submodules'
+        uses: actions/checkout@v4
         with:
-          repository: dimaslanjaka/php-proxy-hunter
-          ref: master
           token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
-          lfs: true
           submodules: recursive
-          fetch-depth: 1
 
-      - name: '🐍 Setup Python'
-        uses: actions/setup-python@v6
-        with:
-          python-version: '3.11'
-          cache: 'pip'
+      - name: '⚙️ Set EOL git configs'
+        continue-on-error: true
+        run: |
+          git config core.eol lf
+          git config core.autocrlf input
+          git checkout-index --force --all
 
-      - name: '🟢 Setup Node.js'
-        uses: actions/setup-node@v6
+      - name: '🟢 Initialize Node.js'
+        uses: actions/setup-node@v4
         with:
-          node-version: 22
+          NODE_VERSION: ${{ env.NODE_VERSION }}
           cache: 'yarn'
-          cache-dependency-path: .husky/hash.txt
+          cache-dependency-path: ./package.json
 
-      - name: '⚙️ Enable Corepack'
-        run: corepack enable
+      - name: '🧁 Setup Bun'
+        uses: oven-sh/setup-bun@v2
+        with:
+          bun-version: 'latest'
+          registries: |
+            https://registry.npmjs.org/
+            @dimaslanjaka:https://npm.pkg.github.com/|$ACCESS_TOKEN
 
-      - name: '🛠️ Install Global Tools'
+      - name: '🧰 Enable Corepack & prepare Yarn'
         run: |
-          npm install -g \
-            rimraf \
-            binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz
+          corepack enable
+          # npm uninstall -g yarn
+          corepack prepare yarn@4.13.0 --activate
+          curl -L https://raw.githubusercontent.com/dimaslanjaka/nodejs-package-types/refs/heads/main/.yarnrc-template.yml -o .yarnrc.yml
+          yarn set version 4.13.0
 
-      - name: '📦 Prepare Submodules'
-        run: |
-          git submodule update --init --recursive
-          npx rimraf .git/modules
-          npx submodule-install
-
-      - name: '⬇️ Install Dependencies'
+      - name: '🔁 Pull & update submodules recursively'
+        continue-on-error: true
         shell: bash
         run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
+          if [ -f ".gitmodules" ] && [ -s ".gitmodules" ]; then
+            git submodule update --init --recursive
+            git submodule update --recursive --remote
+            git pull -X theirs
+            echo "init submodules"
+            git submodule init
+            git submodule foreach "git submodule init"
+            echo "sync submodules"
+            git submodule sync
+            git submodule foreach "git submodule sync"
+            echo "update submodules"
+            npx -y rimraf .git/modules
+            npx -y binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz submodule-install
+          else
+            echo "No submodules found or .gitmodules is empty, skipping update."
+            exit 0
           fi
-
-          if [ -f package.json ]; then
-            touch yarn.lock
-            yarn install --inline-builds
-          fi
-
-          bash bin/python-minimal
 
       - name: '🌎 Set environment variables'
         id: set-env
@@ -137,11 +135,10 @@ jobs:
           echo "GITHUB_SHA_SHORT=$(echo $GITHUB_SHA | cut -c 1-6)" >> $GITHUB_OUTPUT
           echo "GITHUB_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_ENV
           echo "GITHUB_BRANCH=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
-          # Use runtime env vars to avoid long workflow expressions
-          echo "GITHUB_COMMIT_URL=https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}" >> $GITHUB_ENV
-          echo "GITHUB_COMMIT_URL=https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}" >> $GITHUB_OUTPUT
-          echo "GITHUB_RUNNER_URL=https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}/checks/${GITHUB_RUN_ID}" >> $GITHUB_ENV
-          echo "GITHUB_RUNNER_URL=https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}/checks/${GITHUB_RUN_ID}" >> $GITHUB_OUTPUT
+          echo "GITHUB_COMMIT_URL=https://github.com/${{github.repository}}/commit/$(echo $GITHUB_SHA)" >> $GITHUB_ENV
+          echo "GITHUB_COMMIT_URL=https://github.com/${{github.repository}}/commit/$(echo $GITHUB_SHA)" >> $GITHUB_OUTPUT
+          echo "GITHUB_RUNNER_URL=https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}" >> $GITHUB_ENV
+          echo "GITHUB_RUNNER_URL=https://github.com/${{github.repository}}/commit/${{github.sha}}/checks/${{github.run_id}}" >> $GITHUB_OUTPUT
           echo "CACHE_NPM=$(npm config get cache)" >> $GITHUB_ENV
           echo "CACHE_NPM=$(npm config get cache)" >> $GITHUB_OUTPUT
 
@@ -183,106 +180,202 @@ jobs:
             echo "PIP_CACHE_DIR=$(pip cache dir)" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: '🗂️ Cache Project Assets'
-        uses: actions/cache@v5
+      - name: '💾 Restore cache'
+        uses: actions/cache@v4
+        id: cache
         with:
           path: |
-            ~/.cache/pip
-            ~/.cache/yarn
-            ~/.npm
-
-            .cache/
-            .yarn/cache
-            .yarn/install-state.gz
-
-            vendor/
-            venv/
-            .venv/
-
-            assets/proxies/
-            **/*.txt
-            working.json
-            **/*.pem
-            **/*.key
-            **/*.crt
-
-            src/*.sqlite*
-            src/*.mmdb
-
-            **/dist/**
-            **/tmp/**
-
-            ${{ env.PIP_LOCAL_CACHE_DIR }}
-            ${{ env.NUITKA_CACHE_DIR }}
-
-            ${{ steps.set-env.outputs.PIP_CACHE_DIR }}
+            **/.yarn
+            **/release*
+            **/yarn.lock
+            **/node_modules
+            **/tmp
+            **/dist
+            **/lib
+            **/package-lock.json
             ${{ steps.set-env.outputs.CACHE_YARN }}
             ${{ steps.set-env.outputs.CACHE_NPM }}
-
-          key: >
-            ${{ runner.os }}-proxy-checker-
-            ${{ hashFiles(
-              'requirements*.txt',
-              'package.json',
-              'yarn.lock',
-              '.husky/hash.txt',
-              'setup.py',
-              'setup.cfg',
-              'pyproject.toml'
-            ) }}
-
+          key: ${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('**/yarn.lock', '**/package-lock.json', 'src/**/*.{js,ts,cjs,mjs}', 'rollup*.*', 'tsconfig*.json') }}
           restore-keys: |
-            ${{ runner.os }}-proxy-checker-
-            ${{ runner.os }}-node-
-            ${{ runner.os }}-php-
-            ${{ runner.os }}-python-
+            ${{ runner.os }}-${{ env.NODE_VERSION }}-${{ hashFiles('**/yarn.lock', '**/package-lock.json', 'src/**/*.{js,ts,cjs,mjs}', 'rollup*.*', 'tsconfig*.json') }}
+            ${{ runner.os }}-
 
-      - name: '▶️ Run Checker on ${{ runner.os }}'
-        run: |
-          bash bin/py artisan/ci-checker.py --limit="${{ github.event.inputs.max || '100' }}"
+      - name: '🌐 Install global packages'
+        run: npm i -g typescript ts-node gulp-cli hexo-cli webpack-cli
+        if: steps.cache.outputs.cache-hit != 'true'
 
-      - name: '📥 Checkout gh-pages branch'
-        uses: actions/checkout@v6
-        with:
-          ref: gh-pages
-          path: gh-pages
-          fetch-depth: 0
-          token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
-
-      - name: '📤 Upload working.json to gh-pages'
+      - name: '📥 Install dependencies'
         shell: bash
         run: |
-          if [ ! -f working.json ]; then
-            echo "working.json not found"
-            exit 0
+          set -o pipefail
+
+          if [ -f "package-lock.json" ]; then
+            npm install --legacy-peer-deps \
+              || npm install --verbose \
+              || npm install --no-shrinkwrap --update-binary
+          else
+            if [[ "${{ steps.set-env.outputs.CURRENT_YARN_VERSION }}" =~ ^[2-9] ]]; then
+              LOG_FILE="$(mktemp)"
+
+              corepack yarn install 2>&1 | tee "$LOG_FILE" \
+                || corepack yarn install --inline-builds 2>&1 | tee -a "$LOG_FILE" \
+                || {
+                  echo
+                  echo "===== LAST YARN LOGS ====="
+                  tail -n 100 "$LOG_FILE"
+
+                  echo
+                  echo "===== YARN VERSION ====="
+                  yarn -v
+
+                  echo
+                  echo "===== YARN CONFIG ====="
+                  yarn config -v
+
+                  exit 1
+                }
+            else
+              corepack yarn install || corepack yarn install --verbose
+            fi
           fi
 
-          cp working.json gh-pages/working.json
+      - name: '📝 Dump environment info'
+        shell: bash
+        run: |
+          echo "branch      : ${{ steps.set-env.outputs.GITHUB_BRANCH }}"
+          echo "commit msg  : ${{ github.event.head_commit.message }}"
+          echo "commit hash : ${{ steps.set-env.outputs.GITHUB_SHA_SHORT }}"
+          echo "commit url  : ${{ steps.set-env.outputs.GITHUB_COMMIT_URL }}"
+          echo "runner url  : ${{ steps.set-env.outputs.GITHUB_RUNNER_URL }}"
+          echo "cache npm   : ${{ steps.set-env.outputs.CACHE_NPM }}"
+          echo "cache yarn  : ${{ steps.set-env.outputs.CACHE_YARN }}"
+          echo "package mgr : "${{ steps.set-env.outputs.PACKAGE-MANAGER }}""
 
-          cd gh-pages
-
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
-          git add working.json
-
-          if git diff --cached --quiet; then
-            echo "No changes detected"
-            exit 0
+      - name: '📚 List the state of node modules'
+        if: ${{ steps.cache.outputs.cache-hit != 'true' }}
+        shell: bash
+        continue-on-error: true
+        run: |
+          if [ -f "package-lock.json" ]; then
+            npm list
+          else
+            if [[ "${{ steps.set-env.outputs.CURRENT_YARN_VERSION }}" =~ ^[2-9] ]]; then
+              corepack yarn info --all
+            else
+              yarn list
+            fi
           fi
 
-          TIMESTAMP=$(date -u +"%Y-%m-%dT%H:%M:%SZ")
+      - name: '🧹 Clean project'
+        shell: bash
+        run: |
+          if [ -f "package-lock.json" ]; then
+            npm run clean --if-present
+          else
+            if jq -e '.scripts.clean' package.json > /dev/null; then
+              corepack yarn run clean
+            else
+              echo "[skip] clean not found"
+            fi
+          fi
 
-          # Fallbacks using GitHub-provided env vars if set-env didn't export them
-          GITHUB_SHA_SHORT=${GITHUB_SHA_SHORT:-${GITHUB_SHA:0:6}}
-          GITHUB_BRANCH=${GITHUB_BRANCH:-${GITHUB_REF#refs/heads/}}
-          GITHUB_COMMIT_URL=${GITHUB_COMMIT_URL:-"https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"}
-          GITHUB_RUNNER_URL=${GITHUB_RUNNER_URL:-"https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}/checks/${GITHUB_RUN_ID}"}
+      - name: '🔨 Build project'
+        shell: bash
+        run: |
+          if [ -f "package-lock.json" ]; then
+            npm run build
+          else
+            if jq -e '.scripts.build' package.json > /dev/null; then
+              corepack yarn run build
+            else
+              echo "[skip] build not found"
+            fi
+          fi
 
-          SUBJECT="feat(working): updated at ${TIMESTAMP}"
+      - name: '📦 Pack project'
+        shell: bash
+        run: |
+          if [ -f "package-lock.json" ]; then
+            npm run pack --if-present
+          else
+            if jq -e '.scripts.pack' package.json > /dev/null; then
+              corepack yarn run pack --if-present
+            else
+              echo "[skip] pack not found"
+            fi
+          fi
 
-          BODY=$(printf "%s\n\nsha: %s\nbranch: %s\ncommit: %s\nrunner: %s\n" \
-            "Updated working.json" "${GITHUB_SHA_SHORT}" "${GITHUB_BRANCH}" "${GITHUB_COMMIT_URL}" "${GITHUB_RUNNER_URL}")
+      - name: '🗑️ Remove packageManager from package.json'
+        shell: bash
+        run: |
+          # Remove packageManager from package.json if it exists
+          # Prefer jq if available, otherwise use Node.js (cross-platform)
+          if command -v jq >/dev/null 2>&1; then
+            jq 'del(.packageManager)' package.json > temp.json && mv temp.json package.json
+            # Ensure package.json ends with a single empty line
+            awk 'NR==1{print $0} NR>1{print $0} END{print ""}' package.json > temp.json && mv temp.json package.json
+          else
+            node -e "let f='package.json';let j=require('./'+f);delete j.packageManager;require('fs').writeFileSync(f,JSON.stringify(j,null,2)+'\n');"
+          fi
 
-          git commit -m "$SUBJECT" -m "$BODY"
-          git push origin gh-pages
+      # https://github.com/marketplace/actions/verify-changed-files
+      - name: '🕵️‍♂️ Check for changes in build artifacts'
+        id: changes
+        uses: tj-actions/verify-changed-files@v20
+        with:
+          files: |
+            release*/**/*.tgz
+            dist
+            lib
+            !node_modules
+            !tmp
+
+      - shell: bash
+        name: '📋 Show changed files'
+        run: |
+          echo "Changed files: ${{ steps.changes.outputs.changed_files }}"
+
+      - name: '👤 Configure git user/email'
+        if: steps.changes.outputs.files_changed == 'true'
+        continue-on-error: true
+        run: |
+          git config --global user.name 'github-actions[bot]'
+          git config --global user.email '41898282+github-actions[bot]@users.noreply.github.com'
+      - name: '➕ Add build files to git'
+        if: steps.changes.outputs.files_changed == 'true'
+        continue-on-error: true
+        run: |
+          git config set advice.addIgnoredFile false
+          git add release || true
+          git add releases || true
+          git add dist || true
+          git add lib || true
+      - name: '⬇️ Pull latest before push'
+        run: git pull -X theirs
+        if: steps.changes.outputs.files_changed == 'true'
+      - name: '🚀 Push changes to remote'
+        if: steps.changes.outputs.files_changed == 'true'
+        shell: bash
+        run: |
+          if [ $(git diff --cached --name-only | wc -l) -gt "0" ]; then
+            echo "Staged files and their sizes:"
+            for file in $(git diff --cached --name-only); do
+              if [ -f "$file" ]; then
+                size_bytes=$(stat -c%s "$file")
+                size_mb=$((size_bytes / 1024 / 1024))
+                echo "${size_mb}MB $file"
+                if [ "$size_mb" -gt 30 ]; then
+                  echo "Error: $file exceeds 30MB ($size_mb MB). Aborting push."
+                  echo "Listing contents of $file:\n\n"
+                  tar -tzvf "$file"
+                  exit 1
+                fi
+              fi
+            done
+            git commit -m "chore: update build from ${{ env.GITHUB_COMMIT_URL }}" -m "commit hash: ${{ env.GITHUB_SHA_SHORT }}" -m "commit url: ${{ env.GITHUB_COMMIT_URL }}" -m "runner: ${{ env.GITHUB_RUNNER_URL }}"
+            git push
+          fi
+
+      - name: '🧹 Clean GitHub Actions cache (npx)'
+        run: npx clean-github-actions-cache
+        continue-on-error: true
