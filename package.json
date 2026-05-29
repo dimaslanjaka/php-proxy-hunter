@@ -11,6 +11,11 @@
     "email": "dimaslanjaka@gmail.com",
     "url": "https://webmanajemen.com"
   },
+  "files": [
+    "./dist",
+    "./bin",
+    "./artisan"
+  ],
   "repository": {
     "url": "https://github.com/dimaslanjaka/php-proxy-hunter",
     "type": "git"
