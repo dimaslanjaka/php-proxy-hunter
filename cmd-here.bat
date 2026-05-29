@@ -9,4 +9,4 @@ set "CUSTOM_PATH=%LOCALAPPDATA%\nvm;C:\nvm4w\nodejs;C:\Program Files\Nox\bin;D:\
 
 REM Open a new cmd window with UTF-8 enabled, the custom PATH and current directory
 REM Note: the console font must support the glyphs (use Cascadia Code PL / a Nerd Font)
-start "" cmd.exe /K "chcp 65001 >nul && set PATH=%CUSTOM_PATH% && set LANG=en_US.UTF-8 && set PYTHONUTF8=1 && cd /d %CD%"
+start "" cmd.exe /K "chcp 65001 >nul && set PATH=%CUSTOM_PATH% && cd /d %CD%"
