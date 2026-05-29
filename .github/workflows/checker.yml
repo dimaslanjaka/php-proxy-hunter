@@ -225,10 +225,8 @@ jobs:
             ${{ hashFiles(
               'requirements*.txt',
               'package.json',
-              'yarn.lock',
               '.husky/hash.txt',
-              'setup.py',
-              'setup.cfg',
+              'setup.*',
               'pyproject.toml'
             ) }}
 
@@ -237,6 +235,7 @@ jobs:
             ${{ runner.os }}-node-
             ${{ runner.os }}-php-
             ${{ runner.os }}-python-
+            ${{ runner.os }}-
 
       - name: '▶️ Run Checker on ${{ runner.os }}'
         run: |
