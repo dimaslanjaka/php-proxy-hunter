@@ -1,5 +1,69 @@
 [
   {
+    "hash": "08d05d42beae8acebaf1814a352b20138d6166a4",
+    "date": "2026-05-29T08:30:22+07:00",
+    "message": "Update clean-caches.yml",
+    "files": [
+      ".github/workflows/clean-caches.yml"
+    ]
+  },
+  {
+    "hash": "4f8aa924596b6fce5233c4fcd270bef9f4ee4c1a",
+    "date": "2026-05-29T08:29:30+07:00",
+    "message": "Refactor GitHub Actions workflow for cache management\n\nRemoved commented-out submodule update steps and unnecessary cache setup. Updated cache clean command to use the current repository and SHA.",
+    "files": [
+      ".github/workflows/clean-caches.yml"
+    ]
+  },
+  {
+    "hash": "3c2827d1d66f95c0d96134e1f0e60ad1cc175094",
+    "date": "2026-05-29T07:41:19+07:00",
+    "message": "fix(checker.yml): remove yarn.lock from cache key generation",
+    "files": [
+      ".github/workflows/checker.yml"
+    ]
+  },
+  {
+    "hash": "56552b893d0475e09a5945032000f6cbced40227",
+    "date": "2026-05-29T07:39:05+07:00",
+    "message": "fix(cmd-here.bat): remove unnecessary environment variable settings in startup command",
+    "files": [
+      "cmd-here.bat"
+    ]
+  },
+  {
+    "hash": "d1fc80be99669bfbd9a321d6ab66b74a2d227ad7",
+    "date": "2026-05-29T07:38:32+07:00",
+    "message": "fix(package): add missing files entry in package.json",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "e7d8920bb13aa6afb591ea7ecf251358f07d6ef6",
+    "date": "2026-05-29T07:36:45+07:00",
+    "message": "fix(ci): invalid workflow",
+    "files": [
+      ".github/workflows/checker.yml"
+    ]
+  },
+  {
+    "hash": "5e6545ddad2ba2d8c988c4d6b3fb825279f2de57",
+    "date": "2026-05-29T07:27:06+07:00",
+    "message": "Update cache key for workflow to use package files",
+    "files": [
+      ".github/workflows/clean-caches.yml"
+    ]
+  },
+  {
+    "hash": "494f015c2fae25c461b2d3351ea9a50ee57fd7f4",
+    "date": "2026-05-29T05:47:12+07:00",
+    "message": "Refactor Build Release Workflow in checker.yml\n\nUpdated the workflow to build and release, modifying job configurations and steps for improved functionality.",
+    "files": [
+      ".github/workflows/checker.yml"
+    ]
+  },
+  {
     "hash": "08c0a4feab9deb82afa55a75b5f2655c09bc59fe",
     "date": "2026-05-28T05:17:19+07:00",
     "message": "docs(agents): clarify developer workflow and separate python runtime vs bootstrap\n\n- Restructure developer workflows section for better readability\n- Explicitly separate Python runtime execution (bin/py) from minimal bootstrap installer (bin/python-minimal)\n- Clarify that python-minimal is only used for dependency installation via requirements_install.py\n- Improve consistency and formatting of bootstrap, frontend build, Node.js build, and PHP server sections\n- Add explicit warnings that python-minimal is not interchangeable with runtime Python launcher",
@@ -8746,70 +8810,6 @@
     "message": "fix(proxydb): auto mark proxy as added after update",
     "files": [
       "src/ProxyDB.py"
-    ]
-  },
-  {
-    "hash": "d6780c5224ec7eecb4cb72bf9e8fd37551ab2903",
-    "date": "2025-11-29T15:17:06+07:00",
-    "message": "fix(proxydb): update path for MySQL schema file retrieval",
-    "files": [
-      "src/ProxyDB.py"
-    ]
-  },
-  {
-    "hash": "2f3793e7647ddcdf2faff604b9f54b205bac3b43",
-    "date": "2025-11-29T15:16:40+07:00",
-    "message": "refactor(frontend): batch background requests with credential support\n\nRefactor ProxyList background scheduler to batch multiple proxy requests into single\nJSON calls and support proxy authentication credentials in IP:PORT@USER:PASS format.\n\nChanges:\n- Replace per-proxy POST_FORM requests with single batched POST_JSON request\n- Collect all candidates (up to 5) and send as JSON array in one call\n- Add IP:PORT@USER:PASS format support for both geoIpBackground and latency checks\n- Only include credentials if both username and password exist and are not \"-\"\n- Reduce backend request overhead by batching geo location updates\n- Add candidatesLatencyUpdate detection for proxies with missing latency values\n- Filter latency candidates: null, empty string, '0', 'N/A', or '-'\n- Integrate latency checker with same background scheduling pattern as geo updates\n- Maintain randomized selection of 5 candidates to prevent backend overload",
-    "files": [
-      "src/react/pages/ProxyList/index.tsx"
-    ]
-  },
-  {
-    "hash": "f708aa50e76592fa027cf30604dc244252b29cc4",
-    "date": "2025-11-29T14:55:27+07:00",
-    "message": "feat(latency-checker): add new latency proxy checker with web and CLI support",
-    "files": [
-      "php_backend/check-latency-proxy.php"
-    ]
-  },
-  {
-    "hash": "eb7af5f2705597523164457efca883ec2316a303",
-    "date": "2025-11-29T14:03:23+07:00",
-    "message": "feat(proxy-checker): merge HTTP and HTTPS protocol detection results\n\n- Execute both HTTP and HTTPS proxy checks upfront\n- Merge working protocol types from both checks into a single set\n- Store merged protocols in database 'type' field for both HTTP and HTTPS results\n- Add protocol information to log messages for improved visibility\n- Refactor database updates to use structured data array for clarity\n\nThis ensures proxies are correctly tagged with all working protocols\nregardless of whether they work via HTTP, HTTPS, or both protocols.",
-    "files": [
-      "php_backend/check-old-proxy.php"
-    ]
-  },
-  {
-    "hash": "30492591003b67e65ddcdadae853f75a7057d8bd",
-    "date": "2025-11-29T10:30:24+07:00",
-    "message": "fix(crontab): correct log file name for check-old-proxy job",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "59053fd0e699daf5b716ca4ce0e7eda6c238b7c0",
-    "date": "2025-11-29T10:28:57+07:00",
-    "message": "feat(check-old-proxy): add type hint for HTTPS-only checker result",
-    "files": [
-      "php_backend/check-old-proxy.php"
-    ]
-  },
-  {
-    "hash": "d9eb58bd255224faff9e11b1b2121123445e89ca",
-    "date": "2025-11-29T10:27:00+07:00",
-    "message": "feat(crontab): add logging for 30 minutes job execution and enhance proxy collection",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "dda62ecf183fb866d93be8ac7ecd6f76f857110f",
-    "date": "2025-11-29T09:15:10+07:00",
-    "message": "refactor(php_backend): filter recently-checked proxies during categorization\n\nMove the age-based filtering logic from the main processing loop to the\nitem categorization phase. This prevents unnecessary iterations over\nproxies that were checked within the last day, improving performance by\neliminating redundant loop cycles.\n\n- Filter items with age < 1 day during categorization\n- Remove redundant age checks and logging from main loop\n- Simplify main loop by only processing items that need checking",
-    "files": [
-      "php_backend/check-old-proxy.php"
     ]
   }
 ]

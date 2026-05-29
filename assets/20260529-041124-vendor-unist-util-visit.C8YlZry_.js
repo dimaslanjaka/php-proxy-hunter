@@ -1,0 +1,1 @@
+import{v as n}from"./20260529-041124-vendor-unist-util-visit-parents.CdiE6cx3.js";function t(t,i,o,e){let f,r,s;"function"==typeof i&&"function"!=typeof o?(r=void 0,s=i,f=o):(r=i,s=o,f=e),n(t,r,function(n,t){const i=t[t.length-1],o=i?i.children.indexOf(n):void 0;return s(n,o,i)},f)}export{t as v};
