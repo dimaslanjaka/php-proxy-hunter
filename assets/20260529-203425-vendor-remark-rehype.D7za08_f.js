@@ -1,1 +1,0 @@
-import{t as n}from"./20260529-203425-vendor-mdast-util-to-hast.DM5Igsxj.js";function t(t,r){return t&&"run"in t?async function(i,o){const u=n(i,{file:o,...r});await t.run(u,o)}:function(i,o){return n(i,{file:o,...t||r})}}export{t as r};
