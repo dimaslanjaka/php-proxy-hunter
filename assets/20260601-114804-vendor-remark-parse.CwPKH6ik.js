@@ -1,0 +1,1 @@
+import{f as t}from"./20260601-114804-vendor-mdast-util-from-markdown.CtzClMBG.js";function n(n){const s=this;s.parser=function(o){return t(o,{...s.data("settings"),...n,extensions:s.data("micromarkExtensions")||[],mdastExtensions:s.data("fromMarkdownExtensions")||[]})}}export{n as r};
