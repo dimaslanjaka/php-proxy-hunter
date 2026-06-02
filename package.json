@@ -70,7 +70,7 @@
     "ansi-to-html": "^0.7.2",
     "axios": "^1.13.2",
     "axios-cache-interceptor": "1",
-    "axios-cookiejar-support": "^6.0.4",
+    "axios-cookiejar-support": "^7.0.0",
     "baileys": "*",
     "better-sqlite3": "^12.4.1",
     "bluebird": "^3.7.2",
