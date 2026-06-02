@@ -108,7 +108,7 @@
     "pino": "^10.1.0",
     "pino-pretty": "^13.1.2",
     "proxies-grabber": "^1.1.4",
-    "proxy-agent": "^6.5.0",
+    "proxy-agent": "^8.0.1",
     "puppeteer": "24.30",
     "puppeteer-extra": "^3.3.6",
     "q": "^1.5.1",
