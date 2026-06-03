@@ -1,0 +1,59 @@
+# yaml-language-server: $schema=https://unpkg.com/meta-json-schema@1.19.26/schemas/clash-verge-merge-json-schema.json
+
+mixed-port: 7897
+allow-lan: false
+mode: rule
+log-level: info
+ipv6: false
+
+tun:
+  enable: true
+  stack: mixed
+  auto-route: true
+  auto-detect-interface: true
+  strict-route: true
+  dns-hijack:
+    - any:53
+    - tcp://any:53
+
+dns:
+  enable: true
+  enhanced-mode: fake-ip
+  nameserver:
+    - https://1.1.1.1/dns-query
+    - https://8.8.8.8/dns-query
+
+proxies:
+  - name: p1
+    type: socks5
+    server: 134.122.1.61
+    port: 10808
+    udp: true
+    # username: your_username
+    # password: your_password
+
+  - name: p2
+    type: socks5
+    server: 174.77.111.198
+    port: 49547
+    udp: true
+
+proxy-groups:
+  - name: MANUAL
+    type: select
+    proxies:
+      - p1
+      - p2
+
+  - name: AUTO
+    type: fallback
+    proxies:
+      - p1
+      - p2
+    url: https://www.gstatic.com/generate_204
+    interval: 300
+    timeout: 5000
+    lazy: true
+
+rules:
+  - MATCH,AUTO
