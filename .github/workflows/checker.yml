@@ -249,26 +249,25 @@ jobs:
         uses: actions/checkout@v6
         with:
           ref: gh-pages
-          path: gh-pages
+          path: .deploy_git
           fetch-depth: 0
           token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
 
-      - name: '📤 Upload working.json to gh-pages'
+      - name: '📋 Copy built files to .deploy_git'
+        run: |
+          mkdir -p .deploy_git/configs/
+          cp tmp/proxies/*.yml tmp/proxies/*.yaml .deploy_git/configs/ 2>/dev/null || echo "No yaml/yml files to copy"
+          cp working.json .deploy_git/ || echo "No working.json to copy"
+
+      - name: '📤 Commit and push to gh-pages'
         shell: bash
         run: |
-          if [ ! -f working.json ]; then
-            echo "working.json not found"
-            exit 0
-          fi
-
-          cp working.json gh-pages/working.json
-
-          cd gh-pages
+          cd .deploy_git
 
           git config user.name "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
-          git add working.json
+          git add working.json configs/
 
           if git diff --cached --quiet; then
             echo "No changes detected"
@@ -283,10 +282,10 @@ jobs:
           GITHUB_COMMIT_URL=${GITHUB_COMMIT_URL:-"https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}"}
           GITHUB_RUNNER_URL=${GITHUB_RUNNER_URL:-"https://github.com/${GITHUB_REPOSITORY}/commit/${GITHUB_SHA}/checks/${GITHUB_RUN_ID}"}
 
-          SUBJECT="feat(working): updated at ${TIMESTAMP}"
+          SUBJECT="chore(deploy): update working.json and proxy configs at ${TIMESTAMP}"
 
           BODY=$(printf "%s\n\nsha: %s\nbranch: %s\ncommit: %s\nrunner: %s\n" \
-            "Updated working.json" "${GITHUB_SHA_SHORT}" "${GITHUB_BRANCH}" "${GITHUB_COMMIT_URL}" "${GITHUB_RUNNER_URL}")
+            "Updated working.json and proxy configs" "${GITHUB_SHA_SHORT}" "${GITHUB_BRANCH}" "${GITHUB_COMMIT_URL}" "${GITHUB_RUNNER_URL}")
 
           git commit -m "$SUBJECT" -m "$BODY"
           git push origin gh-pages
