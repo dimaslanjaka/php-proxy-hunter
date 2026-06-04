@@ -105,7 +105,7 @@ jobs:
         run: |
           git submodule update --init --recursive
           npx rimraf .git/modules
-          npx -y binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz submodule-install
+          npx -y --package=binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz binary-collections submodule-install
 
       - name: '⬇️ Install Dependencies'
         shell: bash
