@@ -68,7 +68,7 @@ for (const [key, value] of Object.entries(dotCfg.parsed || {})) {
   }
 }
 
-export const viteConfig = defineConfig({
+const _viteConfig = defineConfig({
   root: '.',
   // Inject all VITE_ env variables and git commit hash
   define: viteEnv,
@@ -281,4 +281,5 @@ export const viteConfig = defineConfig({
   }
 });
 
-export default viteConfig;
+export { _viteConfig as viteConfig };
+export default _viteConfig;
