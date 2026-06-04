@@ -85,7 +85,7 @@ jobs:
     if: contains(github.repository, 'php-proxy-hunter') || contains(github.repository, 'android-traffic-exchange')
     runs-on: ubuntu-latest
     steps:
-      - name: Check VITE secrets presence
+      - name: '🔍 Check VITE secrets presence'
         run: |
           if [ -z "$VITE_BACKEND_HOSTNAME_DEV" ]; then echo "VITE_BACKEND_HOSTNAME_DEV is NOT set"; else echo "VITE_BACKEND_HOSTNAME_DEV is set"; fi
           if [ -z "$VITE_BACKEND_HOSTNAME_PROD" ]; then echo "VITE_BACKEND_HOSTNAME_PROD is NOT set"; else echo "VITE_BACKEND_HOSTNAME_PROD is set"; fi
@@ -106,7 +106,7 @@ jobs:
           repository: dimaslanjaka/php-proxy-hunter
           fetch-depth: 0
 
-      - name: Set up Node.js
+      - name: '🟢 Set up Node.js'
         uses: actions/setup-node@v6
         with:
           node-version: '24'
@@ -153,38 +153,39 @@ jobs:
             ${{ runner.os }}-python-
             ${{ runner.os }}-
 
-      - name: Install Dependencies
+      - name: '📦 Install Dependencies'
         if: steps.cache.outputs.cache-hit != 'true'
         run: |
           corepack enable
           yarn install
 
-      - name: Initialize Github Actions
+      - name: '⚙️ Initialize Github Actions'
         id: php-github-actions-init
         env:
           GITHUB_OUTPUT: $GITHUB_OUTPUT
         run: |
           node setup.js
 
-      - name: Build Project
+      - name: '🔨 Build Project'
         run: yarn build
 
-      - name: Build React app
+      - name: '⚛️ Build React app'
         run: yarn build:gh-pages
 
-      - name: Copy built files to .deploy_git
+      - name: '📋 Copy built files to .deploy_git'
         run: |
-          cp tmp/proxies/clash-verge.yaml .deploy_git/ || echo "No clash-verge.yaml to copy"
+          mkdir -p .deploy_git/configs/
+          cp tmp/proxies/*.yml tmp/proxies/*.yaml .deploy_git/configs/ 2>/dev/null || echo "No yaml/yml files to copy"
           cp working.json .deploy_git/ || echo "No working.json to copy"
 
-      - name: Build commit message
+      - name: '✏️ Build commit message'
         id: commitmsg
         run: |
           LATEST_COMMIT=$(git rev-parse HEAD)
           COMMIT_URL="https://github.com/${{ github.repository }}/commit/$LATEST_COMMIT"
           echo "message=chore: deploy to gh-pages from $COMMIT_URL" >> $GITHUB_OUTPUT
 
-      - name: Commit and push to gh-pages
+      - name: '🚀 Commit and push to gh-pages'
         working-directory: .deploy_git
         env:
           ACCESS_TOKEN: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
