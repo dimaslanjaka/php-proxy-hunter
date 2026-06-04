@@ -101,26 +101,6 @@ jobs:
       - name: '⚙️ Enable Corepack'
         run: corepack enable
 
-      - name: '📦 Prepare Submodules'
-        run: |
-          git submodule update --init --recursive
-          npx rimraf .git/modules
-          npx -y --package=binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz binary-collections submodule-install
-
-      - name: '⬇️ Install Dependencies'
-        shell: bash
-        run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
-
-          if [ -f package.json ]; then
-            touch yarn.lock
-            yarn install --inline-builds
-          fi
-
-          bash bin/python-minimal
-
       - name: '🌎 Set environment variables'
         id: set-env
         shell: bash
@@ -178,6 +158,26 @@ jobs:
           echo "${HOME}/.npm-global/bin" >> $GITHUB_PATH
           echo "CACHE_NPM_USER_GLOBAL=${HOME}/.npm-global" >> $GITHUB_ENV
           echo "CACHE_NPM_USER_GLOBAL=${HOME}/.npm-global" >> $GITHUB_OUTPUT
+
+      - name: '📦 Prepare Submodules'
+        run: |
+          git submodule update --init --recursive
+          npx rimraf .git/modules
+          npx -y --package=binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz binary-collections submodule-install
+
+      - name: '⬇️ Install Dependencies'
+        shell: bash
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+          if [ -f package.json ]; then
+            touch yarn.lock
+            yarn install --inline-builds
+          fi
+
+          bash bin/python-minimal
 
       - name: '🗂️ Cache Project Assets'
         uses: actions/cache@v5
