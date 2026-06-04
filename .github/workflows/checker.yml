@@ -89,17 +89,20 @@ jobs:
         uses: actions/setup-python@v6
         with:
           python-version: '3.11'
-          cache: 'pip'
 
       - name: '🟢 Setup Node.js'
         uses: actions/setup-node@v6
         with:
           node-version: ${{ env.NODE_VERSION }}
-          cache: 'yarn'
-          cache-dependency-path: .husky/hash.txt
 
       - name: '⚙️ Enable Corepack'
         run: corepack enable
+
+      - name: '📦 Prepare Submodules'
+        run: |
+          git submodule update --init --recursive
+          npx rimraf .git/modules
+          npx --legacy-peer-deps -y binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz submodule-install
 
       - name: '🌎 Set environment variables'
         id: set-env
@@ -159,26 +162,6 @@ jobs:
           echo "CACHE_NPM_USER_GLOBAL=${HOME}/.npm-global" >> $GITHUB_ENV
           echo "CACHE_NPM_USER_GLOBAL=${HOME}/.npm-global" >> $GITHUB_OUTPUT
 
-      - name: '📦 Prepare Submodules'
-        run: |
-          git submodule update --init --recursive
-          npx rimraf .git/modules
-          npx -y --package=binary-collections@https://raw.githubusercontent.com/dimaslanjaka/bin/master/releases/bin.tgz binary-collections submodule-install
-
-      - name: '⬇️ Install Dependencies'
-        shell: bash
-        run: |
-          if [ -f requirements.txt ]; then
-            pip install -r requirements.txt
-          fi
-
-          if [ -f package.json ]; then
-            touch yarn.lock
-            yarn install --inline-builds
-          fi
-
-          bash bin/python-minimal
-
       - name: '🗂️ Cache Project Assets'
         uses: actions/cache@v5
         with:
@@ -186,10 +169,10 @@ jobs:
             ~/.cache/pip
             ~/.cache/yarn
             ~/.npm
+            ~/.yarn
 
             .cache/
-            .yarn/cache
-            .yarn/install-state.gz
+            .yarn/
 
             vendor/
             venv/
@@ -231,6 +214,20 @@ jobs:
             ${{ runner.os }}-php-
             ${{ runner.os }}-python-
             ${{ runner.os }}-
+
+      - name: '⬇️ Install Dependencies'
+        shell: bash
+        run: |
+          if [ -f requirements.txt ]; then
+            pip install -r requirements.txt
+          fi
+
+          if [ -f package.json ]; then
+            touch yarn.lock
+            corepack yarn install --inline-builds
+          fi
+
+          bash bin/python-minimal
 
       - name: '▶️ Run Checker on ${{ runner.os }}'
         run: |
