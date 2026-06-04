@@ -14,6 +14,14 @@ from src.SQLiteHelper import SQLiteHelper
 
 @dataclass
 class UnseenResult:
+    """Result of filtering marker values into seen and unseen items.
+
+    Attributes:
+        cleaned: Deduplicated set of all input values (no duplicates).
+        pending: Subset of ``cleaned`` that were not found in the marker store.
+        already_checked: Number of values already present (and not expired).
+    """
+
     cleaned: Set[str] = field(default_factory=set)
     pending: Set[str] = field(default_factory=set)
     already_checked: int = 0
@@ -32,6 +40,14 @@ class SQLiteMarker:
         key_column: str = "marker",
         base_dir: str = "tmp/database",
     ):
+        """Initialize the marker store, creating the backing table if needed.
+
+        Args:
+            db_filename: SQLite file name (e.g. ``"my_markers.sqlite"``).
+            table_name: Name of the markers table (default ``"markers"``).
+            key_column: Column name for the marker value (default ``"marker"``).
+            base_dir: Directory relative to project root where the DB is stored.
+        """
         self.table_name = self._validate_identifier(table_name)
         self.key_column = self._validate_identifier(key_column)
 
@@ -52,8 +68,8 @@ class SQLiteMarker:
         self._ensure_expires_column()
         self._configure_sqlite()
 
-    # moved here
-    def _configure_sqlite(self):
+    def _configure_sqlite(self) -> None:
+        """Apply performance-oriented SQLite PRAGMAs to the connection."""
         try:
             self.db.execute_query("PRAGMA journal_mode=WAL")
             self.db.execute_query("PRAGMA synchronous=NORMAL")
@@ -64,17 +80,30 @@ class SQLiteMarker:
             print(f"[sqlite] PRAGMA error: {e}")
 
     def _validate_identifier(self, value: str) -> str:
+        """Validate that *value* is a safe SQL identifier and return it.
+
+        Raises:
+            ValueError: If *value* is not a valid bare SQL identifier.
+        """
         if not _IDENTIFIER_RE.match(value):
             raise ValueError(f"Invalid SQL identifier: {value}")
         return value
 
     def _ensure_expires_column(self) -> None:
+        """Add the ``expires_at`` column if it does not exist (schema migration)."""
         if not self.db.column_exists(self.table_name, "expires_at"):
             self.db.execute_query(
                 f"ALTER TABLE {self.table_name} ADD COLUMN expires_at TEXT"
             )
 
     def _normalize_rfc3339(self, value: str) -> str:
+        """Parse *value* as an RFC3339 timestamp and return a normalized, UTC-aware ISO 8601 string.
+
+        Handles ``Z`` suffix and naive datetimes by assuming UTC.
+
+        Raises:
+            ValueError: If *value* is empty or cannot be parsed.
+        """
         text = str(value).strip()
         if not text:
             raise ValueError("RFC3339 value is required")
@@ -165,6 +194,14 @@ class SQLiteMarker:
     def _resolve_valid_until(
         self, valid_until: Optional[Union[str, int]]
     ) -> Optional[str]:
+        """Convert *valid_until* into a UTC ISO 8601 string or ``None``.
+
+        An integer is interpreted as days from now. A string must be an
+        RFC3339-compatible timestamp (see :meth:`_normalize_rfc3339`).
+
+        Returns:
+            The computed expiry timestamp, or ``None`` if no expiry was set.
+        """
         if valid_until is None:
             return None
 
@@ -176,6 +213,16 @@ class SQLiteMarker:
         return self._normalize_rfc3339(valid_until)
 
     def mark(self, value: str, valid_until: Optional[Union[str, int]] = None) -> None:
+        """Record *value* in the marker store with an optional expiry.
+
+        If the value already exists its ``created_at`` and ``expires_at``
+        are updated. This is an upsert — no error is raised on duplicates.
+
+        Args:
+            value: The marker value (e.g. a proxy string).
+            valid_until: Either an integer for days from now, or an RFC3339
+                timestamp string. ``None`` (default) means never expire.
+        """
         value = str(value).strip()
         if not value:
             return
@@ -202,10 +249,13 @@ class SQLiteMarker:
         )
 
     def close(self):
+        """Close the underlying SQLite database connection."""
         self.db.close()
 
     def __enter__(self):
+        """Enter runtime context and return self."""
         return self
 
     def __exit__(self, *_):
+        """Exit runtime context and close the database connection."""
         self.close()
