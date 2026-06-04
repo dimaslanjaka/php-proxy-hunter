@@ -141,22 +141,26 @@ class SQLiteMarker:
             else datetime.now(timezone.utc).isoformat()
         )
 
-        placeholders = ",".join("?" for _ in normalized)
+        CHUNK_SIZE = 900
+        existing: Set[str] = set()
 
-        sql = (
-            f"SELECT {self.key_column} FROM {self.table_name} "
-            f"WHERE {self.key_column} IN ({placeholders}) "
-            f"AND (expires_at IS NULL OR expires_at > ?)"
-        )
+        for i in range(0, len(normalized), CHUNK_SIZE):
+            chunk = normalized[i : i + CHUNK_SIZE]
+            placeholders = ",".join("?" for _ in chunk)
+            sql = (
+                f"SELECT {self.key_column} FROM {self.table_name} "
+                f"WHERE {self.key_column} IN ({placeholders}) "
+                f"AND (expires_at IS NULL OR expires_at > ?)"
+            )
+            rows = self.db.execute_query_fetch(sql, [*chunk, as_of_value])
+            if isinstance(rows, list):
+                existing.update(
+                    str(r.get(self.key_column))
+                    for r in rows
+                    if isinstance(r, dict) and r.get(self.key_column)
+                )
 
-        rows = self.db.execute_query_fetch(sql, [*normalized, as_of_value])
-        rows = rows if isinstance(rows, list) else []
-
-        return {
-            str(r.get(self.key_column))
-            for r in rows
-            if isinstance(r, dict) and r.get(self.key_column)
-        }
+        return existing
 
     def filter_unseen(
         self, values: Iterable[str], as_of: Optional[str] = None
