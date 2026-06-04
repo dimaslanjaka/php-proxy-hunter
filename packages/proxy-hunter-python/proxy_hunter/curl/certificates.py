@@ -225,6 +225,9 @@ if not last_merged_certificates_path.exists() or __name__ == "__main__":
         "httpbin.org",
         "www.httpbin.org",
         "yahoo.com",
+        "opencode.ai",
+        "chatgpt.com",
+        "z.ai",
     ]
     unique_domains = list(set(domains))
 
