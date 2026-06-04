@@ -31,6 +31,7 @@ urlextract
 psutil
 pycountry
 selenium<4.41.0
+pyyaml
 
 # development dependencies
 pytest

@@ -90,3 +90,8 @@ from .utils import (
 )
 from .utils.extractor.proxies.extract_proxies import extract_proxies
 from .utils.extractor.proxies.extract_proxies_from_file import extract_proxies_from_file
+from .utils.clash_verge import (
+    generate_clash_verge_config_yaml as clash_verge_generate_yaml,
+    parse_proxy_endpoint as clash_verge_parse_proxy_endpoint,
+    unique_proxy_name as clash_verge_unique_proxy_name,
+)

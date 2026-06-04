@@ -151,6 +151,11 @@ jobs:
       - name: Build React app
         run: yarn build:gh-pages
 
+      - name: Copy built files to .deploy_git
+        run: |
+          cp clash-verge.yaml .deploy_git/
+          cp working.json .deploy_git/
+
       - name: Build commit message
         id: commitmsg
         run: |

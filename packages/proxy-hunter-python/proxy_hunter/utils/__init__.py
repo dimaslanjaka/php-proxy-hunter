@@ -59,3 +59,8 @@ from .list import flatten_and_clean
 from .regex_utils import find_substring_from_regex, is_matching_regex
 from .dict_helper import dict_updater
 from .config import ConfigDB
+from .clash_verge import (
+    generate_clash_verge_config_yaml as clash_verge_generate_yaml,
+    parse_proxy_endpoint as clash_verge_parse_proxy_endpoint,
+    unique_proxy_name as clash_verge_unique_proxy_name,
+)
