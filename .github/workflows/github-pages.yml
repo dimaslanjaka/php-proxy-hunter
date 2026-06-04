@@ -110,17 +110,21 @@ jobs:
         uses: actions/setup-node@v6
         with:
           node-version: '24'
-          cache: 'yarn'
-          cache-dependency-path: .husky/hash.txt
 
       - name: '🗂️ Cache Project Assets'
         uses: actions/cache@v5
         id: cache
         with:
           path: |
-            ~/.yarn
             ~/.cache/pip
             ~/.cache/yarn
+            ~/.npm
+            ~/.yarn
+            .cache/
+            .yarn/
+            vendor/
+            venv/
+            .venv/
             **/node_modules/**
             **/tmp/**
             **/dist/**
@@ -129,16 +133,14 @@ jobs:
             **/*.key
             **/*.crt
             working.json
-            **/.yarn
-            **/.cache
             public/
-            .venv/
-            venv/
-            vendor/
             src/*.sqlite*
             src/*.mmdb
+            assets/proxies/
+            **/*.txt
+
           key: >
-            ${{ runner.os }}-proxy-checker-
+            ${{ runner.os }}-pages-
             ${{ hashFiles(
               'requirements*.txt',
               'package.json',
@@ -148,9 +150,7 @@ jobs:
             ) }}
           restore-keys: |
             ${{ runner.os }}-proxy-checker-
-            ${{ runner.os }}-node-
-            ${{ runner.os }}-php-
-            ${{ runner.os }}-python-
+            ${{ runner.os }}-pages-
             ${{ runner.os }}-
 
       - name: '📦 Install Dependencies'

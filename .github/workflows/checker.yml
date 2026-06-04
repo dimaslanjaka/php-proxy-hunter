@@ -170,26 +170,24 @@ jobs:
             ~/.cache/yarn
             ~/.npm
             ~/.yarn
-
             .cache/
             .yarn/
-
             vendor/
             venv/
             .venv/
-
-            assets/proxies/
-            **/*.txt
-            working.json
+            **/node_modules/**
+            **/tmp/**
+            **/dist/**
+            **/*.lock
             **/*.pem
             **/*.key
             **/*.crt
-
+            working.json
+            public/
             src/*.sqlite*
             src/*.mmdb
-
-            **/dist/**
-            **/tmp/**
+            assets/proxies/
+            **/*.txt
 
             ${{ env.PIP_LOCAL_CACHE_DIR }}
             ${{ env.NUITKA_CACHE_DIR }}
