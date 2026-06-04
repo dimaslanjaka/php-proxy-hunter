@@ -1,6 +1,6 @@
-import path from 'path';
 import { spawnSync } from 'child_process';
-import { fileURLToPath, pathToFileURL } from 'url';
+import path from 'path';
+import { fileURLToPath } from 'url';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -27,6 +27,6 @@ export function buildTailwind() {
   console.log('Tailwind CSS build completed successfully. Output CSS path:', outputCss);
 }
 
-if (import.meta.url === pathToFileURL(process.argv[1]).href) {
+if (process.argv.some((arg) => arg.endsWith('tailwind.build.js'))) {
   buildTailwind();
 }

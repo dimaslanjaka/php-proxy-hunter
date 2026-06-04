@@ -5,7 +5,6 @@ import path from 'upath';
 import { fileURLToPath } from 'url';
 import { build } from 'vite';
 import routes from './src/react/routes.json' with { type: 'json' };
-import viteConfig from './vite-gh-pages.config.js';
 import { copyIndexHtml } from './vite-plugin.js';
 
 // Fixes __dirname for ESM modules
@@ -13,13 +12,14 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 // Safely resolve the Vite build output directory; provide a sensible default
-const buildOutDir = (viteConfig && viteConfig.build && viteConfig.build.outDir) || path.join(__dirname, 'dist/react');
+const buildOutDir = path.join(__dirname, 'dist/react');
 
 /**
  * Builds the project for GitHub Pages and deploys it.
  * @returns {Promise<void>}
  */
 export async function buildForGithubPages() {
+  const viteConfig = (await import('./vite-gh-pages.config.js')).default;
   // Clean the output directory
   if (fs.existsSync(buildOutDir)) {
     fs.rmSync(buildOutDir, { recursive: true, force: true });
