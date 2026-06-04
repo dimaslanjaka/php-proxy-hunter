@@ -292,7 +292,7 @@ async def main(args):
         working_proxies = db.get_working_proxies(
             output_file=output_file, last_checked=get_yesterday_rfc3339_time()
         )
-        clash_output_file = get_relative_path("clash-verge.yaml")
+        clash_output_file = get_relative_path("tmp/proxies/clash-verge.yaml")
 
         clash_result = clash_verge_generate_yaml(
             working_proxies=working_proxies or [],

@@ -153,7 +153,7 @@ jobs:
 
       - name: Copy built files to .deploy_git
         run: |
-          cp clash-verge.yaml .deploy_git/
+          cp tmp/proxies/clash-verge.yaml .deploy_git/
           cp working.json .deploy_git/
 
       - name: Build commit message
