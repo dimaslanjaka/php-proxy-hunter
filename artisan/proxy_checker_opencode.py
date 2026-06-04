@@ -420,5 +420,11 @@ async def main():
         marker.close()
 
 
-if __name__ == "__main__":
+def cli() -> None:
+    import asyncio
+
     asyncio.run(main())
+
+
+if __name__ == "__main__":
+    cli()
