@@ -192,24 +192,6 @@
   "eslint.useESLintClass": true,
   "eslint.useFlatConfig": true,
   "files.autoSave": "onWindowChange",
-  "files.exclude": {
-    "**/.DS_Store": true,
-    "**/.cache/**": true,
-    "**/.git": true,
-    "**/.hg": true,
-    "**/.idea/**": true,
-    "**/.svn": true,
-    "**/Thumbs.db": true,
-    "**/bas/": true,
-    "**/data/fingerprints": true,
-    "**/data/profiles": true,
-    "**/data/run": true,
-    "**/dist": false,
-    "**/.venv": true,
-    "**/.yarn": true,
-    "**/node_modules": true,
-    "**/vendor": true
-  },
   "files.readonlyInclude": {
     "**/*.sqlite*": true
   },
@@ -224,6 +206,8 @@
     "**/config/**": true,
     "**/databases/**": true,
     "**/node_modules/**": true,
+    "**/.deploy_*/**": true,
+    "**/__*/**": true,
     "src/database.sqlite*": true
   },
   "git.autoStash": true,
