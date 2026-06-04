@@ -113,24 +113,45 @@ jobs:
           cache: 'yarn'
           cache-dependency-path: .husky/hash.txt
 
-      - name: Init cache
+      - name: '🗂️ Cache Project Assets'
         uses: actions/cache@v5
         id: cache
         with:
           path: |
             ~/.yarn
+            ~/.cache/pip
+            ~/.cache/yarn
             **/node_modules/**
             **/tmp/**
             **/dist/**
-            **/yarn.lock
-            **/public/**
+            **/*.lock
+            **/*.pem
+            **/*.key
+            **/*.crt
+            working.json
             **/.yarn
             **/.cache
             public/
-          key: ${{ runner.os }}-node-${{ hashFiles('.husky/hash.txt') }}
+            .venv/
+            venv/
+            vendor/
+            src/*.sqlite*
+            src/*.mmdb
+          key: >
+            ${{ runner.os }}-proxy-checker-
+            ${{ hashFiles(
+              'requirements*.txt',
+              'package.json',
+              '.husky/hash.txt',
+              'setup.*',
+              'pyproject.toml'
+            ) }}
           restore-keys: |
-            ${{ runner.os }}-node-${{ hashFiles('.husky/hash.txt') }}
+            ${{ runner.os }}-proxy-checker-
             ${{ runner.os }}-node-
+            ${{ runner.os }}-php-
+            ${{ runner.os }}-python-
+            ${{ runner.os }}-
 
       - name: Install Dependencies
         if: steps.cache.outputs.cache-hit != 'true'
