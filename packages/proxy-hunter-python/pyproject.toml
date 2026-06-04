@@ -7,31 +7,28 @@ name = "proxy_hunter"
 version = "1.0"
 description = "Proxy hunter utility in Python"
 readme = { file = "readme.md", content-type = "text/markdown" }
-authors = [
-    { name = "Dimas Lanjaka", email = "dimaslanjaka@gmail.com" }
-]
+authors = [{ name = "Dimas Lanjaka", email = "dimaslanjaka@gmail.com" }]
 keywords = ["proxy", "checker"]
-classifiers = [
-    "License :: OSI Approved :: MIT License"
-]
+classifiers = ["License :: OSI Approved :: MIT License"]
 dependencies = [
-    "pycurl",
-    "netaddr",
-    "colorama",
-    "chardet",
-    "requests",
-    "brotli",
-    "ipaddress",
-    "pytest",
-    "urlextract",
-    "filelock",
-    "proxy-checker",
-    "beautifulsoup4",
-    "httpx",
-    "pySocks",
-    "mysql-connector-python",
-    "cryptography",
-    "certifi"
+  "asyncio",
+  "pycurl",
+  "netaddr",
+  "colorama",
+  "chardet",
+  "requests",
+  "brotli",
+  "ipaddress",
+  "pytest",
+  "urlextract",
+  "filelock",
+  "proxy-checker",
+  "beautifulsoup4",
+  "httpx",
+  "pySocks",
+  "mysql-connector-python",
+  "cryptography",
+  "certifi",
 ]
 
 [project.urls]
@@ -43,10 +40,10 @@ include-package-data = true
 [tool.setuptools.packages.find]
 where = ["."]
 include = [
-    "proxy_hunter",
-    "proxy_hunter.curl",
-    "proxy_hunter.utils",
-    "proxy_hunter.scrappers"
+  "proxy_hunter",
+  "proxy_hunter.curl",
+  "proxy_hunter.utils",
+  "proxy_hunter.scrappers",
 ]
 
 [tool.pytest.ini_options]

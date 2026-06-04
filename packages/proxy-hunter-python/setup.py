@@ -32,6 +32,7 @@ setuptools.setup(
         "mysql-connector-python",
         "cryptography",
         "certifi",
+        "asyncio",
     ],
     test_suite="tests",
     author="Dimas Lanjaka",
