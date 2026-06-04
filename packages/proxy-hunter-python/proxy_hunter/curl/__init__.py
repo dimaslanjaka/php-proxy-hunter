@@ -1,6 +1,7 @@
 from .certificates import last_merged_certificates_path, merge_certificates
 from .DebugSession import DebugSession
 from .func_useragent import get_pc_useragent, random_windows_ua
+from .httpx_asyncio import ProxyCheckHTTPXResult, check_http_proxy, check_socks5_proxy
 from .prox_check import is_prox
 from .proxy_utils import (
     ProxyCheckResult,

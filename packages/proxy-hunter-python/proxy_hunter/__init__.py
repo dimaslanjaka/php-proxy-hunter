@@ -2,9 +2,12 @@ from .check_host import check_host
 from .cidr2ips import list_ips_from_cidr
 from .curl import (
     DebugSession,
+    ProxyCheckHTTPXResult,
     ProxyCheckResult,
     build_request,
+    check_http_proxy,
     check_proxy,
+    check_socks5_proxy,
     generate_netscape_cookie_jar,
     get_device_ip,
     get_pc_useragent,
