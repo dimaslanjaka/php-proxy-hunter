@@ -1,5 +1,260 @@
 [
   {
+    "hash": "61caade660aaf0483ed83b87662f36709ca4947f",
+    "date": "2026-06-04T21:26:35+07:00",
+    "message": "fix: break circular dependency in vite.config and fix tailwind build arg checking",
+    "files": [
+      "tailwind.build.js",
+      "vite-gh-pages.js"
+    ]
+  },
+  {
+    "hash": "65c0764bf7bbcd0fb0918fa61a5c98937155fbb0",
+    "date": "2026-06-04T15:13:21+07:00",
+    "message": "chore(vscode): add redhat.vscode-yaml to recommended extensions",
+    "files": [
+      ".vscode/extensions.json"
+    ]
+  },
+  {
+    "hash": "b9449fdd06313af5ec2a32e444de3bff826b544a",
+    "date": "2026-06-04T15:12:00+07:00",
+    "message": "feat: re-queue expired known-working proxies for re-check",
+    "files": [
+      "artisan/proxy-checker-opencode.py"
+    ]
+  },
+  {
+    "hash": "811e03b3238bc2a9a0f23c11d4a6c5176f77317d",
+    "date": "2026-06-04T14:30:27+07:00",
+    "message": "fix(vite): avoid TDZ error in esbuild temp config bundle",
+    "files": [
+      "vite.config.js"
+    ]
+  },
+  {
+    "hash": "48b187dfd6b2828d7d7940a7515e886055e07714",
+    "date": "2026-06-04T14:24:34+07:00",
+    "message": "chore(checker): sync set-env from remote action, remove global tools step, fix cache paths",
+    "files": [
+      ".github/workflows/checker.yml"
+    ]
+  },
+  {
+    "hash": "c058547bf34d6a77bde9d50b935380b98cb5b464",
+    "date": "2026-06-04T14:16:45+07:00",
+    "message": "refactor(checker): align gh-pages deploy with .deploy_git convention and copy proxy configs",
+    "files": [
+      ".github/workflows/checker.yml"
+    ]
+  },
+  {
+    "hash": "363e99f9d4d038db7f3e2d73238ec110d7f2ecbc",
+    "date": "2026-06-04T14:11:26+07:00",
+    "message": "feat: add opencode proxy checker script and register in CI workflow",
+    "files": [
+      ".github/workflows/checker.yml",
+      "artisan/proxy-checker-opencode.py"
+    ]
+  },
+  {
+    "hash": "c4d66a8bbab77f2e68095288058e2ac8282b21f7",
+    "date": "2026-06-04T14:06:45+07:00",
+    "message": "chore(github-pages): add step icons and copy all proxy configs to .deploy_git/configs/",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "5778e13ef8b822459e7b280b03057e841d091298",
+    "date": "2026-06-04T13:56:31+07:00",
+    "message": "fix: disable windows-latest in CI matrix for proxy checker workflow",
+    "files": [
+      ".github/workflows/checker.yml"
+    ]
+  },
+  {
+    "hash": "d57644f2170aaabf097ccab1c5bc4eaca04c0507",
+    "date": "2026-06-04T13:54:03+07:00",
+    "message": "fix: simplify lint-staged command in pre-commit hook",
+    "files": []
+  },
+  {
+    "hash": "a120fb3b821217a06adc4467681d3a4a93dec393",
+    "date": "2026-06-04T13:52:41+07:00",
+    "message": "chore(deps): update npm dependencies",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "b55fa143d9a4e188cad5f3029b556062bc1edd80",
+    "date": "2026-06-04T13:52:11+07:00",
+    "message": "fix: replace Long.Long type with Long in Replier.ts",
+    "files": [
+      "node_backend/Replier.ts"
+    ]
+  },
+  {
+    "hash": "774d9cb0961f14eb2af97fa294701c9a3b48a847",
+    "date": "2026-06-04T13:43:55+07:00",
+    "message": "ci: update node-version to 24 in github-pages and clean-caches workflows",
+    "files": [
+      ".github/workflows/clean-caches.yml",
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "9c933bce0db0f53640a75b9efa04ff305167c7bb",
+    "date": "2026-06-04T13:40:59+07:00",
+    "message": "fix: update cron schedule to run every 6 hours",
+    "files": [
+      ".github/workflows/checker.yml"
+    ]
+  },
+  {
+    "hash": "eaeb18559af351c0bc9a6b11177d1976443bea22",
+    "date": "2026-06-04T13:38:35+07:00",
+    "message": "ci(github-pages): extend cache paths with pip, venv, vendor, sqlite and geoip databases",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "6ec4355b6fba1c725b4115c6a4cae41e8f0f492b",
+    "date": "2026-06-04T13:33:42+07:00",
+    "message": "fix(github-pages): add error handling for missing files during deployment",
+    "files": [
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "950f21be7f6721eef245cb2236290a550134b8fb",
+    "date": "2026-06-04T13:30:25+07:00",
+    "message": "chore(vscode): reformat settings, add PowerShell 7 and Oh My Posh terminal profiles",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "a2123728e0c63f3a46fa3d283c8aa54bfd56a96e",
+    "date": "2026-06-04T13:29:44+07:00",
+    "message": "fix: move clash-verge.yaml output to tmp/proxies/ directory",
+    "files": [
+      ".github/workflows/github-pages.yml",
+      "artisan/ci-checker-clash-verge.py"
+    ]
+  },
+  {
+    "hash": "3666974fb6695a14c4b024e9ba6d098b6145ab41",
+    "date": "2026-06-04T13:29:09+07:00",
+    "message": "chore(opencode): add agent definitions for JS/TS, Python and staged commit",
+    "files": [
+      ".opencode/agents/modify-js-ts.agent.md",
+      ".opencode/agents/python-editor.agent.md",
+      ".opencode/agents/staged-file-commiter.agent.md",
+      ".opencode/opencode.jsonc"
+    ]
+  },
+  {
+    "hash": "dc958d587f58977afd1ab094d20261b1cbbd8098",
+    "date": "2026-06-04T13:27:06+07:00",
+    "message": "fix(database): chunk IN clause in SQLiteMarker.get_existing to avoid SQLite variable limit",
+    "files": [
+      "src/database/SQLiteMarker.py"
+    ]
+  },
+  {
+    "hash": "4553d43da264ebcfc721105b8eab43e24911048f",
+    "date": "2026-06-04T13:26:05+07:00",
+    "message": "chore(deps): update resolutions for various dependencies",
+    "files": [
+      "package.json"
+    ]
+  },
+  {
+    "hash": "8cd36c7e43496b2989c21d6221fcc8c6f74b56a9",
+    "date": "2026-06-04T13:01:18+07:00",
+    "message": "docs(database): add missing pydocs to SQLiteMarker",
+    "files": [
+      "src/database/SQLiteMarker.py"
+    ]
+  },
+  {
+    "hash": "b30dbcd3371cc44be3ef33c119f4e238d0f929e0",
+    "date": "2026-06-04T12:36:21+07:00",
+    "message": "test: enhance httpx_asyncio_direct with HTML page title extraction\n\n- add print_proxy_result helper showing page title from HTML responses\n- switch test endpoint to opencode.ai\n- document beautifulsoup4 dependency in comment",
+    "files": [
+      "packages/proxy-hunter-python/tests/httpx_asyncio_direct.py"
+    ]
+  },
+  {
+    "hash": "33d179fdd5ba35c48fed20413a4cab7b6c42b556",
+    "date": "2026-06-04T12:30:50+07:00",
+    "message": "chore(deps): add asyncio dependency to pyproject.toml and setup.py\n\n- add asyncio to project dependencies\n- normalize indentation in pyproject.toml arrays",
+    "files": [
+      "packages/proxy-hunter-python/pyproject.toml",
+      "packages/proxy-hunter-python/setup.py"
+    ]
+  },
+  {
+    "hash": "e1a2a1a5d4cb7ec5fd88c23430e13572bf22557d",
+    "date": "2026-06-04T12:27:15+07:00",
+    "message": "test: add comprehensive extract_proxies test suite\n\n- cover None, empty, and whitespace inputs\n- test standard IPv4:PORT, multiple proxies, IPv6 bracketed\n- test noisy input sanitization and leading zero normalization\n- test whitespace-separated ip:port, JSON-like formats\n- test invalid proxies filtering\n- test credentials extraction and custom data formats",
+    "files": [
+      "packages/proxy-hunter-python/tests/extract_proxies_test.py"
+    ]
+  },
+  {
+    "hash": "e1aad9896a6eff6827a244a553b59065122e8303",
+    "date": "2026-06-04T12:25:59+07:00",
+    "message": "feat(curl): add async httpx proxy checker with custom SSL support\n\n- add ProxyCheckHTTPXResult dataclass with latency, status_code, protocol fields\n- add check_http_proxy and check_socks5_proxy async functions\n- support custom SSL verification via verify parameter (bool or PEM path)\n- export ProxyCheckHTTPXResult, check_http_proxy, check_socks5_proxy from proxy_hunter package\n- add direct usage test script verifying both HTTP and SOCKS5 checks",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/curl/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/curl/httpx_asyncio.py",
+      "packages/proxy-hunter-python/tests/httpx_asyncio_direct.py"
+    ]
+  },
+  {
+    "hash": "edbf10d9d885ad4d863ba8d653f2cccdde0d649c",
+    "date": "2026-06-04T11:34:47+07:00",
+    "message": "feat(certificates): add new domains to the certificate initialization list",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/certificates.py"
+    ]
+  },
+  {
+    "hash": "9859c11da204408bf68830071ac16a451918407f",
+    "date": "2026-06-04T10:15:00+07:00",
+    "message": "refactor(sqlite): improve platform-specific installer flow\n\n- replace heuristic platform and architecture matching with explicit SQLite target names\n- throw errors when download metadata or matching sqlite-tools archives are unavailable\n- use HEAD requests to compare remote and local archive sizes before downloading\n- create download and bin directories with fs.ensureDir\n- skip extraction when the SQLite binary already exists\n- use native archive extraction commands for zip and tar.gz files\n- generate sqlite3.cmd shim for Windows CLI usage",
+    "files": [
+      "scripts/sqlite-installer.js"
+    ]
+  },
+  {
+    "hash": "e7281dbf15bddead50dc8ea6c74c94384c1a1052",
+    "date": "2026-06-04T10:02:02+07:00",
+    "message": "feat(proxy): generate Clash Verge config from working proxies\n\nAdd a new CI checker script that stops proxy checks once a working proxy\nis found, exports working proxies without limits, and generates a\nClash Verge YAML config from active HTTPS-capable proxies.\n\nExpose Clash Verge YAML helper utilities from the proxy_hunter package,\nincluding proxy endpoint parsing and unique proxy naming. Also copy the\ngenerated working.json and clash-verge.yaml files into the GitHub Pages\ndeployment directory.\n\nAdd PyYAML to Python requirements for YAML config generation.",
+    "files": [
+      ".github/workflows/github-pages.yml",
+      "artisan/ci-checker-clash-verge.py",
+      "packages/proxy-hunter-python/proxy_hunter/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/utils/clash_verge.py",
+      "requirements-base.txt",
+      "requirements-minimal.txt"
+    ]
+  },
+  {
+    "hash": "a66b6cc1ce20887e2cd0da93996c38c83c5fcc6e",
+    "date": "2026-06-04T09:28:35+07:00",
+    "message": "feat(config): add initial clash-verge-proxy configuration file",
+    "files": [
+      "clash-verge-proxy.yml"
+    ]
+  },
+  {
     "hash": "08d05d42beae8acebaf1814a352b20138d6166a4",
     "date": "2026-05-29T08:30:22+07:00",
     "message": "Update clean-caches.yml",
@@ -8564,252 +8819,6 @@
     "message": "fix(proxyHandler): ensure replier is optional in help command response",
     "files": [
       "node_backend/whatsapp_handlers/proxy.ts"
-    ]
-  },
-  {
-    "hash": "3a8ff7139a506504f641f95edeee18dc88b860bf",
-    "date": "2025-12-02T13:17:52+07:00",
-    "message": "feat(PortFinderGui): add tabbed input interface for proxy management\n\n- Replace single textarea with tab widget containing three tabs:\n  * Manual Input: for entering proxies manually\n  * Untested Proxies: fetch untested proxies from database\n  * Working Proxies: fetch working proxies from database\n- Add fetch_untested_proxies() and fetch_working_proxies() methods\n- Update run_scan() to use active tab's data for port scanning\n- Implement tab persistence using settings (portfinder_input_tab)\n- Replace _autosave_text() with _autosave_manual_text()\n- Update all settings keys to reflect individual tab state\n- Add traceback import for error handling\n- Mirror proxyCheckerGui.py tab structure and behavior",
-    "files": [
-      "python_app/PortFinderGui.py"
-    ]
-  },
-  {
-    "hash": "a86da0f7df63044b1aa9ca143fcbd4a45df01daa",
-    "date": "2025-12-02T13:12:10+07:00",
-    "message": "feat(proxyChecker): emit status updates during proxy checking",
-    "files": [
-      "python_app/proxyCheckerGui.py"
-    ]
-  },
-  {
-    "hash": "e597d2deae2d91c74643bd6d6721fcf26306bfe6",
-    "date": "2025-12-02T13:11:18+07:00",
-    "message": "refactor(proxyCheckerGui): implement sequential proxy checking with QThread\n\n- Replace ThreadPoolExecutor (20 concurrent workers) with sequential QThread-based checking\n- Add CheckerWorkerThread class for proper PySide6 threading model\n- Move proxy extraction to background thread to prevent UI freezing\n- Reduce thread priority on Unix systems to prevent audio interruptions\n- Split request notifications into separate try-except blocks for better error handling\n- Create fresh database connection per proxy check to avoid connection issues\n- Add \"Extracting proxies...\" status message before parsing\n- Add \"No proxies found\" status message when extraction returns empty list\n- Refactor run_checker() into _parse_and_start_check() for better separation of concerns\n- Remove deprecated setDaemon() call\n- Add 50ms sleep between proxy checks to allow audio/UI thread execution\n- Improve code documentation with docstrings\n\nFixes: Audio interruptions during proxy checking, \"Cannot operate on a closed database\" errors",
-    "files": [
-      "python_app/proxyCheckerGui.py"
-    ]
-  },
-  {
-    "hash": "8407b7a0b759104729e83b554eb58c55347b3e91",
-    "date": "2025-12-02T13:01:08+07:00",
-    "message": "feat(ui): add tabbed proxy input with progress tracking and stop button\n\nAdd tabbed interface with three proxy input sources: Manual Input, Untested\nProxies, and Working Proxies. Each tab includes fetch buttons to populate\nfrom database.\n\nImplement real-time progress tracking with elapsed time and ETA display.\nAdd Stop button to cancel ongoing proxy checks with proper thread cleanup.\n\nReorganize imports to top-level per PEP 8. Add status_signal for UI updates\nfrom background threads. Fix tab widget handling to directly access textarea\nwidgets instead of container widgets.\n\nFeatures:\n- Inline Check/Stop buttons with proper enable/disable states\n- Progress label showing: checked/total, active threads, elapsed, ETA\n- Cancellable executor with immediate shutdown on stop\n- Tab-based proxy input with independent state persistence\n- Improved error handling and thread safety",
-    "files": [
-      "python_app/proxyCheckerGui.py"
-    ]
-  },
-  {
-    "hash": "459246849be94ff4d96901f2628d3a4c6a1aa3db",
-    "date": "2025-12-02T12:51:32+07:00",
-    "message": "feat(ui): add tabbed interface for proxy checker with database fetch buttons\n\nRefactor proxy input UI to use QTabWidget with three tabs:\n- Manual Input: for entering proxies manually\n- Untested Proxies: displays untested proxies from database with fetch button\n- Working Proxies: displays working proxies from database with fetch button\n\nAdd fetch_untested_proxies() and fetch_working_proxies() methods to populate\ntabs from database. Update run_checker() to process proxies from active tab\nonly and persist tab-specific state independently.\n\nIncludes QHBoxLayout and QTabWidget imports from PySide6.QtWidgets.",
-    "files": [
-      "python_app/proxyCheckerGui.py"
-    ]
-  },
-  {
-    "hash": "21bf133c4c229b0db6dde2e4c85900b91900c5de",
-    "date": "2025-12-02T12:50:56+07:00",
-    "message": "feat(proxy): expand untested proxy query to include port-open statuses\n\nInclude 'port-open' and 'open-port' status conditions in get_untested_proxies()\nquery alongside existing 'untested' and empty status checks. This allows the\nmethod to fetch proxies with additional status variants indicating open ports.",
-    "files": [
-      "src/ProxyDB.py"
-    ]
-  },
-  {
-    "hash": "cd0fc5495288015b2f7f3a52e99d3f4ea694cb9d",
-    "date": "2025-12-02T07:23:02+07:00",
-    "message": "feat(PortFinderGui): integrate ProxyDB for persistent open port storage\n\n- Import ProxyDB and get_relative_path from src modules\n- Initialize shared ProxyDB instance with thread-safe lock in PortFinder.__init__\n- Store discovered open ports in DB with status \"port-open\" during scanning\n- Add thread-safe DB writes in _add_result when ports are detected as open\n- Check existing port entries to avoid duplicate status updates\n- Implement closeEvent to properly close DB connection on window exit\n- Include comprehensive error handling for DB operations in worker threads",
-    "files": [
-      "python_app/PortFinderGui.py"
-    ]
-  },
-  {
-    "hash": "a41e998d6cad57617b5f63002a9c60d3148d0258",
-    "date": "2025-12-02T07:19:58+07:00",
-    "message": "refactor(proxydb): rename `type_` to `proxy_type` and add kwargs support for type fields\n\n- Replace `type_` parameter with `proxy_type`\n- Add `**kwargs` handling for `type` and `type_` keys\n- Preserve backward compatibility for alternate type arguments",
-    "files": [
-      "src/ProxyDB.py"
-    ]
-  },
-  {
-    "hash": "652b5bd98e972f9599ba1fbdc8d60ef5d673e286",
-    "date": "2025-12-02T06:12:06+07:00",
-    "message": "fix(portfinder): tighten tab layout spacing and cap tab height\n\n- Reduce outer `QVBoxLayout` margins/spacing to remove excessive top/bottom whitespace when window is maximized.\n- Add horizontal padding to Range and Custom tab layouts (`setContentsMargins(8,2,8,2)`) so controls do not sit against the tab border.\n- Limit the tab widget height (`setMaximumHeight(80)`) to keep the tab area compact on large windows.\n- Small defensiveness: wrap layout adjustments in try/except to avoid crashes on environments with differing Qt behavior.\n- Reorganize and add imports (threading, ThreadPoolExecutor, datetime, proxy_hunter imports and reordering of PySide6 imports) for clarity and to support background scanning code.",
-    "files": [
-      "python_app/PortFinderGui.py"
-    ]
-  },
-  {
-    "hash": "da6fb0086ae2090bd213e0d97362a9f7ca06becf",
-    "date": "2025-12-02T06:03:11+07:00",
-    "message": "feat(portfinder): add Range/Custom tab input and custom port parsing\n\n- Add `QTabWidget` with two tabs: `Range` (port_from / port_to spinboxes) and\n  `Custom` (single-line `custom_ports` input).\n- Persist and restore UI state: `portfinder_port_mode`, `portfinder_from`,\n  `portfinder_to`, and `portfinder_custom_ports`.\n- Implement custom ports parsing (comma-separated values and ranges like\n  `8000-8100`) to build a `ports_list`.\n- Pass `ports_list` into `_scan_background` and iterate over `ports_list`\n  instead of a spinbox-only range.\n- Restore autosave behavior for range spinboxes and improve status emission.\n\nBREAKING CHANGE: `_scan_background` signature changed to\n`(ips, ports_list, port_from, port_to)`.",
-    "files": [
-      "python_app/PortFinderGui.py"
-    ]
-  },
-  {
-    "hash": "29c4f14fd1f10581220fe8cd0218be6a1c01fca7",
-    "date": "2025-12-02T05:42:07+07:00",
-    "message": "refactor(portfinder): use extractor.extract_ips for direct IP parsing\n\n- import `extract_ips` and remove unused `extract_proxies` and `as_completed`\n- replace Proxy-object parsing with a direct `extract_ips(text)` call to obtain unique IPs\n- simplify input handling and reduce reliance on Proxy parsing logic; keep behavior on parse errors",
-    "files": [
-      "python_app/PortFinderGui.py"
-    ]
-  },
-  {
-    "hash": "7633529a0c320fa5567d325fb342dd9712840dd1",
-    "date": "2025-12-02T05:39:43+07:00",
-    "message": "feat(portfinder): add abort control, \"show only open\" option, and textual progress\n\n- add `QCheckBox` to toggle \"Show only open ports\" and persist state under\n  `portfinder_only_open`\n- replace numeric progress bar with a textual `progress_label`; add\n  `status_signal` and ETA/elapsed calculations using timezone-aware datetimes\n- implement cooperative cancellation:\n  - add `Abort` button (inline with Scan), `threading.Event` cancel token,\n    track `ThreadPoolExecutor` and `Future` list, attempt to cancel pending\n    futures on abort, skip processing callbacks when cancelled\n- change task submission to use per-task done callbacks (attach `add_done_callback`)\n  instead of collecting large futures dict + `as_completed` loop to reduce\n  memory/CPU pressure and avoid UI freezes\n- throttle UI status updates (update textual status every N results) to reduce\n  main-thread load\n- reset/track progress counters (`_total_tasks`, `_completed`, `_open_count`,\n  `_start_time`) and emit informative status messages while generating tasks\n  and during scanning\n- only insert rows into the result table when allowed by the \"only open\"\n  filter; always update progress counters so status remains accurate\n- keep autosave/restore behavior for inputs; set buttons inline layout\n\nNo API breaking changes; improves responsiveness and adds manual abort support.",
-    "files": [
-      "python_app/PortFinderGui.py"
-    ]
-  },
-  {
-    "hash": "f2811e32bb6327d18cbccb4c8710fa1b13c1eb5d",
-    "date": "2025-12-02T05:20:22+07:00",
-    "message": "feat(launch): add configurations for Proxy Checker and Port Finder GUIs",
-    "files": [
-      ".vscode/launch.json"
-    ]
-  },
-  {
-    "hash": "9d1e0743acb51bf75328cecb5521334b086e3cad",
-    "date": "2025-12-02T05:19:13+07:00",
-    "message": "feat(PortFinder): implement port scanning GUI",
-    "files": [
-      "python_app/PortFinderGui.py"
-    ]
-  },
-  {
-    "hash": "82bd9fcdba1c6734ffcbbfa73db5f9a7437c6146",
-    "date": "2025-12-02T05:06:33+07:00",
-    "message": "feat(proxy-checker): geolocate active proxies missing country\n\nImport `get_geo_ip2` from `src.geoPlugin` and call it when a proxy is marked\n`active` and its `country` field is empty or `\"-\"`. Map the returned\n`GeoIpResult` into the `Proxy` object only for the UI-expected fields\n(`country`, `city`) to avoid assigning numeric/unknown attributes (e.g.\nlatitude/longitude) that trigger static type checker warnings. Exceptions\nduring geo lookup are caught and logged.",
-    "files": [
-      "python_app/proxyCheckerGui.py"
-    ]
-  },
-  {
-    "hash": "579c166607e1d992c06a1a1ae846f4c7e2c61dea",
-    "date": "2025-12-01T17:10:34Z",
-    "message": "build(deps): bump actions/checkout from 5 to 6\n\nBumps [actions/checkout](https://github.com/actions/checkout) from 5 to 6.\n- [Release notes](https://github.com/actions/checkout/releases)\n- [Changelog](https://github.com/actions/checkout/blob/main/CHANGELOG.md)\n- [Commits](https://github.com/actions/checkout/compare/v5...v6)\n\n---\nupdated-dependencies:\n- dependency-name: actions/checkout\n  dependency-version: '6'\n  dependency-type: direct:production\n  update-type: version-update:semver-major\n...\n\nSigned-off-by: dependabot[bot] <support@github.com>",
-    "files": [
-      ".github/workflows/checker-php.yml",
-      ".github/workflows/checker-python.yml",
-      ".github/workflows/clean-caches.yml",
-      ".github/workflows/github-pages.yml"
-    ]
-  },
-  {
-    "hash": "b545135cf4ddef5c34edbd9675cc060d80dc625a",
-    "date": "2025-12-01T11:12:52+07:00",
-    "message": "feat(login): add Facebook login support\n\n- Add `react-facebook-login` and `@types/react-facebook-login` to `package.json`.\n- Integrate `FacebookLogin` component into `src/react/pages/Login.tsx`.\n  - Add `componentClicked` and `responseFacebook` handlers.\n  - Render Facebook login button when `import.meta.env.VITE_FACEBOOK_APP_ID` is set; show disabled fallback otherwise.\n  - Leave backend exchange as a commented placeholder (send response to `/php_backend/facebook-login.php`).\n- Expose `VITE_FACEBOOK_APP_ID` and `VITE_FACEBOOK_APP_SECRET` in `types/vite-env.d.ts`.\n\nNotes:\n- Set `VITE_FACEBOOK_APP_ID` in your `.env` (and restart Vite) to enable the button.",
-    "files": [
-      "package.json",
-      "src/react/pages/Login.tsx",
-      "types/vite-env.d.ts"
-    ]
-  },
-  {
-    "hash": "a4f826aad973eff078bf577d753a035dda0199f4",
-    "date": "2025-11-30T10:50:47+07:00",
-    "message": "feat: enable terminal shell integration and adjust suggestion settings",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "7c3b6afd5edb26b6b91ee5aeb048bb4ad545467c",
-    "date": "2025-11-30T10:19:08+07:00",
-    "message": "fix: ensure default host value is set correctly in google-oauth.php",
-    "files": [
-      "php_backend/google-oauth.php"
-    ]
-  },
-  {
-    "hash": "360ca601b01f8150441c4b6fe06a2a352a65ebeb",
-    "date": "2025-11-30T10:18:14+07:00",
-    "message": "refactor: replace jsonResponse with respond_json for consistency",
-    "files": [
-      "php_backend/google-oauth.php"
-    ]
-  },
-  {
-    "hash": "d2a1d2cc961f0921e1eb18853c7579142d791350",
-    "date": "2025-11-29T19:52:37+07:00",
-    "message": "feat: add sitemap.xml to .gitignore",
-    "files": [
-      ".gitignore"
-    ]
-  },
-  {
-    "hash": "5fb1b63786b205618c6bd455037aec07715fff1c",
-    "date": "2025-11-29T19:52:07+07:00",
-    "message": "feat(vite): add manual HMR trigger and optimize file watching\n\n- Added `manualHmrPlugin` with `/api/trigger-hmr` endpoint for programmatic HMR\n- Limited Vite watcher to relevant TSX-related files\n- Ignored unrelated file types (JS/TS variants, text, Python, PHP)\n- Excluded `packages` directory from watching\n- Reduced watch scope to improve dev server performance",
-    "files": [
-      "vite-plugin.js",
-      "vite.config.js"
-    ]
-  },
-  {
-    "hash": "79151c1ceb7a7d27a97d975eb3c606609b77e854",
-    "date": "2025-11-29T17:37:50+07:00",
-    "message": "feat: upload generated sitemaps during VPS deployment\n\n- Add sitemap.txt and sitemap.xml upload to UI-only deploy flow\n- Add sitemap.txt and sitemap.xml upload to full deploy flow\n- Include error handling with graceful fallback if sitemaps are missing\n- Upload sitemaps from .deploy_git directory to remote server root",
-    "files": [
-      "bin/deploy-vps.mjs"
-    ]
-  },
-  {
-    "hash": "f36387e7cb9cba81f41bd9abb07a399b36404c7b",
-    "date": "2025-11-29T17:36:41+07:00",
-    "message": "feat: integrate sitemap generation into vite build plugin\n\n- Import generateSitemapTxt and generateSitemapXml from vite-gh-pages module\n- Generate both text and XML sitemaps during production build closeBundle hook\n- Pass __dirname as target directory for sitemap file output",
-    "files": [
-      "vite-plugin.js"
-    ]
-  },
-  {
-    "hash": "28e6f40b5b7956c7e74b2845841c6cea6ce0bddb",
-    "date": "2025-11-29T17:36:00+07:00",
-    "message": "feat: add sitemap generation for SEO optimization\n\n- Add generateSitemapXml() function to create XML sitemap with canonical URLs\n- Add generateSitemapTxt() function to create plain text sitemap\n- Add escapeXml() helper function to safely escape XML special characters\n- Integrate sitemap generation into both buildForGithubPages() and deploy() flows\n- Generate sitemaps automatically during the build and deployment process\n- Support optional target directory parameter for flexible sitemap location",
-    "files": [
-      "vite-gh-pages.js"
-    ]
-  },
-  {
-    "hash": "ee286f0d452624f3a31ff869e31c8c4f86377cd1",
-    "date": "2025-11-29T16:20:19+07:00",
-    "message": "ci(crontab): add Python proxy collector to cron schedule and deprecate PHP versions\n\n- Add new 5-minute cron job to run Python artisan/proxyCollector.py with batch-size=50\n- Comment out legacy PHP proxy collector jobs (proxyCollector.php and proxyCollector2.php)\n- Keep existing 30-minute job structure with check-old-proxy.php\n- Use proper cron interval calculation (0.0833 for 5 minutes) with should_run_job check",
-    "files": [
-      ".crontab.sh"
-    ]
-  },
-  {
-    "hash": "6dfb60077ef0140b21b43ba32f58c37842adbba8",
-    "date": "2025-11-29T16:19:36+07:00",
-    "message": "feat(src): add shared.py module for database initialization\n\n- Create new shared.py module with init_db() function\n- Support both SQLite and MySQL database backends\n- Load environment configuration from .env file\n- Handle production database credentials with fallback to default config\n- Include helper function to initialize ProxyDB with proper connection settings\n- Add inline documentation and test example in __main__ block",
-    "files": [
-      "src/shared.py"
-    ]
-  },
-  {
-    "hash": "9f7cce0e28add7777b0c9fa16238f5acaf1afab2",
-    "date": "2025-11-29T16:15:25+07:00",
-    "message": "feat(artisan): add proxyCollector script with batch processing and CLI args\n\n- Create new proxyCollector.py script for processing proxy files\n- Implement batch processing of proxy lines (configurable via --batch-size)\n- Add support for random file selection with --random flag\n- Integrate FileLockHelper for concurrent execution prevention\n- Add graceful signal handling (CTRL+C, SIGTERM) with lock cleanup\n- Validate and filter username/password before database insertion\n- Support both file collection discovery and selective processing\n- Use global constants for lock and asset directory paths",
-    "files": [
-      "artisan/proxyCollector.py"
-    ]
-  },
-  {
-    "hash": "7de7f200f8e8326df6d9d5451fc3444af0e5ea4a",
-    "date": "2025-11-29T16:12:23+07:00",
-    "message": "feat(file-lock): implement robust file-based locking for process synchronization",
-    "files": [
-      "src/utils/file/FileLockHelper.py"
-    ]
-  },
-  {
-    "hash": "1d10e7599f4a861a1e94e4e3cd85d4b3f2598b80",
-    "date": "2025-11-29T15:51:25+07:00",
-    "message": "fix(proxydb): auto mark proxy as added after update",
-    "files": [
-      "src/ProxyDB.py"
     ]
   }
 ]

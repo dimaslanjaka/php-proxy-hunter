@@ -1,0 +1,1 @@
+function t(t){if(t)throw t}export{t};

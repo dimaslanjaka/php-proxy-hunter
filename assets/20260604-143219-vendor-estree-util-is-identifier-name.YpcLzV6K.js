@@ -1,0 +1,1 @@
+var t=/^[$_\p{ID_Start}][$_\u{200C}\u{200D}\p{ID_Continue}]*$/u,u=/^[$_\p{ID_Start}][-$_\u{200C}\u{200D}\p{ID_Continue}]*$/u,_={};function n(n,r){return((r||_).jsx?u:t).test(n)}export{n as t};
