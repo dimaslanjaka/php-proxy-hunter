@@ -20,7 +20,7 @@ export default class Replier {
    * sender whatsapp name
    */
   senderName: string;
-  timestamp?: number | Long.Long | null;
+  timestamp?: number | Long | null;
   dateRFC3339: string;
   /**
    * is sender phone number has admin privileges
