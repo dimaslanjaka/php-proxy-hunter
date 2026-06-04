@@ -241,6 +241,10 @@ jobs:
         run: |
           bash bin/py artisan/ci-checker.py --limit="${{ github.event.inputs.max || '100' }}"
 
+      - name: '▶️ Run Opencode Checker on ${{ runner.os }}'
+        run: |
+          bash bin/py artisan/proxy-checker-opencode.py --limit="${{ github.event.inputs.max || '100' }}"
+
       - name: '📥 Checkout gh-pages branch'
         uses: actions/checkout@v6
         with:
