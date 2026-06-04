@@ -201,6 +201,49 @@ async def main():
     proxies = db.get_working_proxies()
     proxies.extend(db.get_untested_proxies())
 
+    # Load known working proxies and check for expiration, adding expired ones to the queue
+    working_proxies_file = get_relative_path("tmp/proxies/ai-working-proxies.json")
+    if os.path.exists(working_proxies_file):
+        try:
+            with open(working_proxies_file) as f:
+                data = json.load(f)
+                if isinstance(data, list):
+                    existing_proxies = {
+                        str(p.get("proxy", "")).strip()
+                        for p in proxies
+                        if p.get("proxy")
+                    }
+                    for item in data:
+                        proxy_str = None
+                        last_check = None
+                        if isinstance(item, dict):
+                            proxy_str = item.get("proxy")
+                            last_check = item.get("last_check")
+                        elif isinstance(item, str):
+                            proxy_str = item
+
+                        if proxy_str:
+                            proxy_str = proxy_str.strip()
+                            if proxy_str not in existing_proxies:
+                                if not last_check:
+                                    db_rows = db.select(proxy_str)
+                                    if db_rows:
+                                        last_check = db_rows[0].get("last_check")
+
+                                if not last_check or is_date_rfc3339_older_than(
+                                    last_check, DEAD_MARK_HOURS
+                                ):
+                                    db_rows = db.select(proxy_str)
+                                    if db_rows:
+                                        proxies.append(db_rows[0])
+                                    else:
+                                        proxies.append(
+                                            {"proxy": proxy_str, "status": "untested"}
+                                        )
+                                    existing_proxies.add(proxy_str)
+        except Exception as e:
+            print(f"Error checking expiration for known working proxies: {e}")
+
     # Initialize marker to skip recently-dead proxies
     marker = SQLiteMarker(
         db_filename="proxy_checker_ai.sqlite",
@@ -219,14 +262,17 @@ async def main():
         ]
 
         # Load known working proxies from persistent file
-        working_proxies_file = get_relative_path("tmp/proxies/ai-working-proxies.json")
         known_working: Set[str] = set()
         if os.path.exists(working_proxies_file):
             try:
                 with open(working_proxies_file) as f:
                     data = json.load(f)
                     if isinstance(data, list):
-                        known_working = set(data)
+                        for item in data:
+                            if isinstance(item, dict) and item.get("proxy"):
+                                known_working.add(str(item.get("proxy")).strip())
+                            elif isinstance(item, str):
+                                known_working.add(item.strip())
             except (json.JSONDecodeError, OSError):
                 pass
         if known_working:
