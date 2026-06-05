@@ -105,7 +105,7 @@ if [ "$RUN_YARN" -eq 1 ]; then
     if [ $IS_VPS -eq 1 ]; then
       echo "Installing production dependencies only for VPS."
       yarn workspaces focus --production || {
-        echo "Yarn install failed."
+        echo "Yarn install production failed."
       }
     else
       echo "Installing all dependencies."
