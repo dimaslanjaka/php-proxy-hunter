@@ -1,19 +1,11 @@
 name: Deploy GitHub Pages
 
 on:
+  workflow_run:
+    workflows: ['Proxy Checker']
+    types:
+      - completed
   workflow_dispatch:
-  push:
-    paths:
-      - 'src/**/*'
-      - 'tests/**/*'
-      - '.github/workflows/github-pages.yml'
-      - '**/vite*'
-      - '**/tailwind*'
-      - '**/rollup*'
-      - '**/postcss*'
-      - 'setup*'
-  schedule:
-    - cron: '0 */6 * * *'
 permissions:
   contents: write
 
@@ -171,6 +163,14 @@ jobs:
 
       - name: '⚛️ Build React app'
         run: yarn build:gh-pages
+
+      - name: '📥 Download proxy artifacts from checker workflow'
+        if: github.event_name == 'workflow_run'
+        uses: actions/download-artifact@v4
+        with:
+          name: proxy-files
+          github-token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
 
       - name: '📋 Copy built files to .deploy_git'
         run: |

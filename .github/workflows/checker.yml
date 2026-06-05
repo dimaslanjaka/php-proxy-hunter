@@ -235,6 +235,16 @@ jobs:
         run: |
           bash bin/py artisan/proxy_checker_opencode.py --limit="${{ github.event.inputs.max || '100' }}"
 
+      - name: '📦 Upload proxy artifacts'
+        uses: actions/upload-artifact@v4
+        with:
+          name: proxy-files
+          path: |
+            tmp/proxies/*.yml
+            tmp/proxies/*.yaml
+            working.json
+          retention-days: 1
+
       - name: '📥 Checkout gh-pages branch'
         uses: actions/checkout@v6
         with:
