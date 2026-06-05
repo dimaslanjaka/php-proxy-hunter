@@ -3,10 +3,10 @@ import os
 import sys
 import asyncio
 import random
-from typing import Any, Dict, List, Optional, Set
+from typing import Any, Dict, List, Optional
 
 from bs4 import BeautifulSoup
-from proxy_hunter import build_request, get_device_ip, read_file, write_json
+from proxy_hunter import build_request, read_file, write_json
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
@@ -14,17 +14,20 @@ sys.path.append(PROJECT_ROOT)
 from src.ProxyDB import ProxyDB
 from src.func import get_relative_path
 from src.func_console import cyan, red, magenta, green, yellow
-from src.utils.file import remove_string_from_file
 from src.utils.file.FileLockHelper import FileLockHelper
-from artisan.proxy_getter import (
-    normalize_proxy_value,
-    retrieve_proxies,
-    ProxyRetrievalResult,
-)
+from artisan.proxy_getter import normalize_proxy_value
 from artisan.proxy_https_checker import check_proxy_applied, check_proxy_https
 from src.utils.parse_args import parse_args
-from src.func_date import get_current_rfc3339_time, is_date_rfc3339_older_than
+from src.func_date import get_current_rfc3339_time
 from src.shared import init_db, init_readonly_db
+
+# Markers that indicate a proxy requires authentication (private proxy)
+_PRIVATE_MARKERS = (
+    "not authenticated",
+    "invalid authentication credentials",
+    "proxy authentication required",
+    "authentication methods were rejected",
+)
 
 
 async def check_proxy_http(
@@ -49,19 +52,18 @@ async def check_proxy_http(
         - result: True if the proxy returns the expected title and status code 200.
         - private: True if the response looks like a private/authenticated proxy page.
     """
-    private_markers = (
-        "not authenticated",
-        "invalid authentication credentials",
-    )
     try:
         response = await asyncio.to_thread(
             build_request, endpoint=url, proxy=proxy, timeout=timeout, **kwargs
         )
-        soup = BeautifulSoup(response.text, "html.parser")
+        page_text = getattr(response, "text", "") or ""
+        soup = BeautifulSoup(page_text, "html.parser")
         title = str(soup.title.string) if soup.title else ""
-        body_text = " ".join(soup.get_text(" ", strip=True).split())[:100]
+        body_text = soup.get_text(" ", strip=True)[:100]
         candidate_text = title.strip() or body_text
-        is_private = any(marker in candidate_text.lower() for marker in private_markers)
+        is_private = any(
+            marker in candidate_text.lower() for marker in _PRIVATE_MARKERS
+        )
         if expected_title.lower() not in title.lower():
             retrieved_title = title.strip() or body_text or "(no title found)"
             print(
@@ -77,9 +79,7 @@ async def check_proxy_http(
         }
     except Exception as e:
         error_text = str(e).lower()
-        is_private = any(marker in error_text for marker in private_markers) or (
-            "authentication methods were rejected" in error_text
-        )
+        is_private = any(marker in error_text for marker in _PRIVATE_MARKERS)
         print(f"Error checking {magenta(proxy)} for {yellow(url)}: {e}")
         return {
             "result": False,
@@ -226,7 +226,6 @@ async def run_checks_for_proxies(
             for proto in protocols:
                 proxy_url = f"{proto}://{original}"
                 applied = False
-                http_check = {"result": False, "private": False}
                 supports_https = False
 
                 http_check = await check_proxy_http(
