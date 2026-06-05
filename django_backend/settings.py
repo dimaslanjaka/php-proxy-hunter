@@ -14,7 +14,6 @@ import os
 import sys
 from datetime import datetime, timedelta
 
-import dotenv
 import huey
 from proxy_hunter import delete_path, is_vps, resolve_parent_folder, write_file
 
@@ -27,10 +26,10 @@ from userscripts.parse_userscript import extract_domains_from_userscript
 # Build paths inside the project like this: os.path.join(BASE_DIR, ...)
 BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
+from src.func import load_external_env
+
 # Load environment variables from .env
-dotenv_file = os.path.join(BASE_DIR, ".env")
-if os.path.isfile(dotenv_file):
-    dotenv.load_dotenv(dotenv_file)
+load_external_env()
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/2.1/howto/deployment/checklist/

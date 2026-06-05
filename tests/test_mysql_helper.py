@@ -2,18 +2,13 @@ import os
 import sys
 import pytest
 
-
 # Add parent directory to the Python path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
 
-from src.func import get_relative_path
-from dotenv import load_dotenv
+from src.func import get_relative_path, load_external_env
 
-# Resolve .env located in the parent directory of the tests folder reliably
-env_path = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".env"))
-if os.path.isfile(env_path):
-    load_dotenv(dotenv_path=env_path, override=True)
+load_external_env()
 
 from src.MySQLHelper import MySQLHelper
 
@@ -33,7 +28,6 @@ print(
     f"MYSQL_PASS={MYSQL_PASS}, "
     f"MYSQL_DB={MYSQL_DB}, "
     f"MYSQL_PORT={MYSQL_PORT}, "
-    f"ENV_PATH={env_path if os.path.isfile(env_path) else '(not found)'}"
 )
 
 

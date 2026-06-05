@@ -4,8 +4,8 @@ import socket
 import sys
 from typing import Literal
 
-from dotenv import find_dotenv, load_dotenv
 from proxy_hunter import extract_proxies, build_request
+from src.func import load_external_env
 
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
@@ -17,8 +17,7 @@ from src.shared import init_db, init_readonly_db
 from src.utils.file.FileLockHelper import FileLockHelper
 from src.utils.parse_args import parse_args
 
-env_file = find_dotenv(filename=".env", usecwd=True)
-load_dotenv(env_file)
+load_external_env()
 
 current_filename = os.path.basename(__file__)
 # Parse arguments to allow --fileLock override for the module-level lock

@@ -13,8 +13,7 @@ import time
 from pathlib import Path
 from typing import Iterable, Sequence, TextIO
 
-from dotenv import load_dotenv
-
+from src.func import load_external_env
 from src.utils.process.resources_usage import (
     check_system_resources,
     get_system_usage,
@@ -94,7 +93,7 @@ def build_path() -> str:
 
 os.environ["PATH"] = build_path()
 
-load_dotenv(dotenv_path=CWD / ".env", override=True, verbose=False, encoding="utf-8")
+load_external_env()
 
 
 def should_run_job(

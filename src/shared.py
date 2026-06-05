@@ -12,17 +12,9 @@ from typing import Optional
 # Add parent directory to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-# Load environment variables from .env file
-try:
-    from dotenv import load_dotenv
+from src.func import load_external_env
 
-    env_file = os.path.join(os.path.dirname(__file__), "..", ".env")
-    if os.path.exists(env_file):
-        load_dotenv(env_file)
-except ImportError:
-    pass
-except Exception as e:
-    print(f"Error loading .env: {e}")
+load_external_env()
 
 from src.ProxyDB import ProxyDB
 from src.func import get_relative_path

@@ -1,14 +1,13 @@
 import os
 import sys
 import pytest
-from dotenv import find_dotenv, load_dotenv
 
 # Make src importable
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(ROOT)
 
 from src.ProxyDB import ProxyDB
-
+from src.func import load_external_env
 
 # ---------------------------------------
 #  Environment loading (sessionwide)
@@ -18,9 +17,7 @@ from src.ProxyDB import ProxyDB
 @pytest.fixture(scope="session", autouse=True)
 def load_env():
     """Load .env exactly once per session."""
-    env_file = find_dotenv(filename=".env", usecwd=True)
-    print(f"[pytest] Loading env file: {env_file}")
-    load_dotenv(env_file)
+    load_external_env()
 
 
 # ---------------------------------------

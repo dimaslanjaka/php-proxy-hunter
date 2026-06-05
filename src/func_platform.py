@@ -4,16 +4,12 @@ import platform
 import socket
 import sys
 
-import dotenv
-
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 
-from src.func import get_relative_path
+from src.func import get_relative_path, load_external_env
 
 # Load environment variables from .env
-dotenv_file = get_relative_path(".env")
-if os.path.isfile(dotenv_file):
-    dotenv.load_dotenv(dotenv_file)
+load_external_env()
 
 
 def import_windows_packages():
