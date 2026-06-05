@@ -1,10 +1,11 @@
 import json
 import os
+from pathlib import Path
 import random
 import subprocess
 import sys
 from typing import List, Optional, Union
-
+from dotenv import load_dotenv
 from proxy_hunter import write_file
 
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
@@ -12,11 +13,20 @@ sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
 # set Timezone
 os.environ["TZ"] = "Asia/Jakarta"
 
+
 # determine if application is a script file or frozen exe
-if getattr(sys, "frozen", False):
+def is_frozen() -> bool:
+    return bool(getattr(sys, "frozen", False))
+
+
+if is_frozen():
     __CWD__ = os.path.dirname(os.path.realpath(sys.executable))
 elif __file__:
     __CWD__ = os.getcwd()
+
+
+def is_shiv() -> bool:
+    return ".shiv" in str(Path(__file__).resolve())
 
 
 def is_nuitka() -> bool:
@@ -49,6 +59,32 @@ def get_nuitka_file(file_path: str) -> str:
     return os.path.join(root_dir, file_path)
 
 
+def get_runtime_cwd() -> Path:
+    """
+    Equivalent to Node.js process.cwd().
+    Best for user files: .env, working.json, tmp, logs, output files.
+    """
+    return Path.cwd().resolve()
+
+
+def get_app_dir() -> Path:
+    """
+    Directory of executable/.pyz/script.
+
+    - PyInstaller: folder of exe
+    - Nuitka onefile: folder of executable
+    - Shiv: folder of .pyz
+    - Normal script: folder of script
+    """
+    if is_frozen() or is_nuitka():
+        return Path(sys.argv[0]).resolve().parent
+
+    if sys.argv and sys.argv[0].endswith(".pyz"):
+        return Path(sys.argv[0]).resolve().parent
+
+    return Path(__file__).resolve().parent
+
+
 def get_relative_path(*args: str) -> str:
     """
     Get the relative path from the current working directory (CWD).
@@ -67,6 +103,17 @@ def get_relative_path(*args: str) -> str:
         )
         # debug_log(os.path.dirname(sys.argv[0]), os.path.join(*args))
     return result
+
+
+def get_app_relative_path(*parts: str) -> str:
+    """
+    Path relative to app/.pyz/exe location.
+
+    Good for loading external .env beside the .pyz:
+    dist/cli/proxy-checker-opencode.pyz
+    dist/cli/.env
+    """
+    return str(get_app_dir().joinpath(*parts).resolve())
 
 
 def tmp(nuitka: bool = False) -> str:
@@ -104,6 +151,18 @@ def resolve_relative_path(data: Optional[str] = None, *args: Union[str, bytes]) 
         write_file(relative, data)
 
     return relative
+
+
+def load_external_env() -> None:
+    candidates = [
+        Path(get_relative_path(".env")),
+        Path(get_app_relative_path(".env")),
+    ]
+
+    for env_file in candidates:
+        if env_file.is_file():
+            load_dotenv(env_file, override=False)
+            return
 
 
 # debug_log(f"PC name: {get_pc_name()}")
