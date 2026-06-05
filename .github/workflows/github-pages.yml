@@ -175,7 +175,8 @@ jobs:
       - name: '📋 Copy built files to .deploy_git'
         run: |
           mkdir -p .deploy_git/configs/
-          cp tmp/proxies/*.yml tmp/proxies/*.yaml .deploy_git/configs/ 2>/dev/null || echo "No yaml/yml files to copy"
+          cp tmp/proxies/*.yml .deploy_git/configs/ 2>/dev/null || echo "No yml files to copy"
+          cp tmp/proxies/*.yaml .deploy_git/configs/ 2>/dev/null || echo "No yaml files to copy"
           cp working.json .deploy_git/ || echo "No working.json to copy"
 
       - name: '✏️ Build commit message'
