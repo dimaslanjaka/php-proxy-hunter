@@ -1,5 +1,41 @@
 [
   {
+    "hash": "2e479a61848ae952ab292571153be5c62284df3a",
+    "date": "2026-06-05T08:44:35+07:00",
+    "message": "fix(import): import ProxyDB class directly instead of module",
+    "files": [
+      "artisan/ci-checker.py",
+      "artisan/filter_duplicate_ips.py",
+      "artisan/proxy_https_checker.py"
+    ]
+  },
+  {
+    "hash": "c78f9addb6923158ec8cbd28da62d3e565c6d658",
+    "date": "2026-06-05T08:38:54+07:00",
+    "message": "feat(ci): share proxy files via artifacts between workflows",
+    "files": [
+      ".github/workflows/checker.yml",
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "814abf0758938faba012f4fa52d714dd7796999b",
+    "date": "2026-06-05T08:38:43+07:00",
+    "message": "fix(ci): separate yml and yaml copy steps to prevent silent failures",
+    "files": [
+      ".github/workflows/checker.yml",
+      ".github/workflows/github-pages.yml"
+    ]
+  },
+  {
+    "hash": "775b75c094957d64f739843ca662ac254e22ccbb",
+    "date": "2026-06-05T08:29:20+07:00",
+    "message": "Fix badge label in README\n\nUpdated badge label from 'Python Checker' to 'Proxy Checker'.",
+    "files": [
+      "readme.md"
+    ]
+  },
+  {
     "hash": "321b55e7e598969c802198399e3cbb99eb733588",
     "date": "2026-06-05T08:20:03+07:00",
     "message": "fix(post-merge): improve error message for yarn installation failure",
@@ -8792,39 +8828,6 @@
       "data/curlhaxx_cacert.pem",
       "src/PhpProxyHunter/utils/cacert.pem",
       "src/func_certificate.py"
-    ]
-  },
-  {
-    "hash": "69f1e9d119bd13afb86fd4bae8644de11cbcbfcb",
-    "date": "2025-12-04T10:24:21+07:00",
-    "message": "refactor(get-ca): rename create function to create_certificate for clarity",
-    "files": [
-      "data/get-ca.py"
-    ]
-  },
-  {
-    "hash": "bd789f66589ac5822346092f43cc997d8fff3a1b",
-    "date": "2025-12-04T09:54:43+07:00",
-    "message": "feat(proxy): record latency during proxy checks when available",
-    "files": [
-      "php_backend/check-proxy-type.php"
-    ]
-  },
-  {
-    "hash": "627c60e3ce70e1396b60cee07c841d434ea220c9",
-    "date": "2025-12-04T09:40:00+07:00",
-    "message": "fix(settings): update PHP version for Intelephense environment to 7.0",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "d2b0d464759a15a1de578a6302c5b7316dac1226",
-    "date": "2025-12-04T09:37:16+07:00",
-    "message": "feat(proxy): record latency for HTTP and HTTPS checks",
-    "files": [
-      "php_backend/check-http-proxy.php",
-      "php_backend/check-old-proxy.php"
     ]
   }
 ]
