@@ -12,7 +12,7 @@
     "url": "https://webmanajemen.com"
   },
   "bin": {
-    "py": "./dist/cli/python-wrapper.cjs"
+    "py": "./dist/cli/python-wrapper-cli.cjs"
   },
   "files": [
     "./dist/cli/**/*",
