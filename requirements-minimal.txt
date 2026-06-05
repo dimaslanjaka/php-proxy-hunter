@@ -11,7 +11,7 @@ charset-normalizer==3.4.4
 colorama
 filelock
 geoip2
-httpx
+httpx[socks]
 lxml
 mysql-connector-python
 netaddr

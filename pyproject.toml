@@ -2,6 +2,49 @@
 requires = ["setuptools>=64", "wheel"]
 build-backend = "setuptools.build_meta"
 
+[project]
+name = "php-proxy-hunter"
+version = "0.1.0"
+requires-python = ">=3.10"
+dependencies = [
+    "httpx[socks]",
+    "beautifulsoup4",
+    "pyyaml"
+]
+
+[project.scripts]
+proxy-checker-opencode = "artisan.proxy_checker_opencode:cli"
+
+[tool.setuptools.packages.find]
+where = [
+  ".",
+  "packages/proxy-hunter-python",
+  "packages/proxy-checker-python",
+  "packages/rsa-utility",
+  "packages/selenium-stealth",
+]
+include = [
+  "artisan*",
+  "src*",
+  "data*",
+  "proxy_hunter*",
+  "proxy_checker*",
+  "rsa_utility*",
+  "selenium_stealth*",
+]
+exclude = [
+  "tests*",
+  "tmp*",
+  "dist*",
+  "build*",
+  "venv*",
+  ".venv*",
+]
+namespaces = false
+
+[tool.setuptools.package-data]
+data = ["*.json", "*.txt", "*.yaml", "*.yml", "*.sql", "*.csv", "*.tsv", "*.ini", "*.cfg", "*.md"]
+
 [tool.pyright]
 pythonVersion = "3.11"
 pythonPlatform = "Windows"
@@ -54,19 +97,18 @@ target-version = ["py311"]
 required-version = "26"
 include = '\.pyi?$'
 
-# Formatting behavior
 skip-string-normalization = false
 skip-magic-trailing-comma = false
 preview = false
 unstable = false
 
-# File collection
 extend-exclude = '''
 (
   ^/foo.py
   | .*_pb2.py
 )
 '''
+
 force-exclude = '''
 (
   ^/generated/

@@ -2,6 +2,7 @@ pytest
 pytest-cov
 isort
 pylance
+shiv
 -r requirements-base.txt
 -e packages/proxy-checker-python
 -e packages/proxy-hunter-python
