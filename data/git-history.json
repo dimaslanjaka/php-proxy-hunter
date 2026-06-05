@@ -1,5 +1,27 @@
 [
   {
+    "hash": "321b55e7e598969c802198399e3cbb99eb733588",
+    "date": "2026-06-05T08:20:03+07:00",
+    "message": "fix(post-merge): improve error message for yarn installation failure",
+    "files": []
+  },
+  {
+    "hash": "40215ba6c4486c8818c5fd496d391b350ee7e036",
+    "date": "2026-06-05T08:18:00+07:00",
+    "message": "feat(build): add rollup config for CLI wrapper",
+    "files": [
+      "rollup.cli.js"
+    ]
+  },
+  {
+    "hash": "23b6ab0b1a5b020f758fe33d5c9222f067c630a8",
+    "date": "2026-06-05T07:37:34+07:00",
+    "message": "fix(prepare-deploy): update pull command to use --no-rebase for merging into python branch",
+    "files": [
+      "bin/prepare-deploy.cmd"
+    ]
+  },
+  {
     "hash": "6497aa7afc34305e9991de04cc318f01dd809faf",
     "date": "2026-06-05T07:30:49+07:00",
     "message": "refactor(dotenv): centralize .env loading via load_external_env()",
@@ -8803,30 +8825,6 @@
     "files": [
       "php_backend/check-http-proxy.php",
       "php_backend/check-old-proxy.php"
-    ]
-  },
-  {
-    "hash": "4a43a031d1b7723b04b15124328e9eedbc8495f0",
-    "date": "2025-12-04T09:33:08+07:00",
-    "message": "feat(curl): add executeCurl function for executing cURL requests with latency measurement",
-    "files": [
-      "src/PhpProxyHunter/utils/buildCurl.php"
-    ]
-  },
-  {
-    "hash": "46592eae89b0970f04118d10cf665baddb6deea0",
-    "date": "2025-12-04T09:27:38+07:00",
-    "message": "feat(buildCurl): ensure unique HTTP headers by name in cURL requests",
-    "files": [
-      "src/PhpProxyHunter/utils/buildCurl.php"
-    ]
-  },
-  {
-    "hash": "835c6fcfb7203cf7fa5a4295d5d538649bd6952e",
-    "date": "2025-12-03T22:14:07+07:00",
-    "message": "chore(crontab): remove obsolete flags from proxy and port filtering jobs\n\nCleaned up cron job commands by dropping deprecated/unused flags\n(--max, --admin, --delete) from various proxy and port checking scripts\nto streamline execution.",
-    "files": [
-      ".crontab.sh"
     ]
   }
 ]
