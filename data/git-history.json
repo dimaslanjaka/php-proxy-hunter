@@ -1,5 +1,31 @@
 [
   {
+    "hash": "60c3f89107d19bf3fdb09fd4777e27f69fab616a",
+    "date": "2026-06-05T08:59:36+07:00",
+    "message": "refactor(curl): convert ProxyCheckResult to dataclass with docstring",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/ProxyCheckResult.py"
+    ]
+  },
+  {
+    "hash": "6d01c39ec497e9d37365a2918c6e65a2744bea78",
+    "date": "2026-06-05T08:56:24+07:00",
+    "message": "refactor(curl): extract ProxyCheckResult into its own module",
+    "files": [
+      "packages/proxy-hunter-python/proxy_hunter/curl/ProxyCheckResult.py",
+      "packages/proxy-hunter-python/proxy_hunter/curl/__init__.py",
+      "packages/proxy-hunter-python/proxy_hunter/curl/proxy_utils.py"
+    ]
+  },
+  {
+    "hash": "e8687f704130599d4a503870565ddecfa90e6d6d",
+    "date": "2026-06-05T08:49:57+07:00",
+    "message": "refactor(filter_duplicate_ips): optimize check_proxy_http and clean up imports",
+    "files": [
+      "artisan/filter_duplicate_ips.py"
+    ]
+  },
+  {
     "hash": "2e479a61848ae952ab292571153be5c62284df3a",
     "date": "2026-06-05T08:44:35+07:00",
     "message": "fix(import): import ProxyDB class directly instead of module",
@@ -8801,33 +8827,6 @@
     "files": [
       "func-proxy.php",
       "src/PhpProxyHunter/utils/anonymity.php"
-    ]
-  },
-  {
-    "hash": "e28e54ca65628fbc4ad7c73d636c9bf8afbec390",
-    "date": "2025-12-04T10:29:21+07:00",
-    "message": "fix(settings): update PHP version for Intelephense environment to 8.2.0",
-    "files": [
-      ".vscode/settings.json"
-    ]
-  },
-  {
-    "hash": "ae9bf4e671fde35274962aa3271d16945fb4d0d2",
-    "date": "2025-12-04T10:28:59+07:00",
-    "message": "fix(buildCurl): update CAINFO path to use relative directory for cacert.pem",
-    "files": [
-      "src/PhpProxyHunter/utils/buildCurl.php"
-    ]
-  },
-  {
-    "hash": "4389f062fc90a3c946fd2163c16f3f9b85a5344e",
-    "date": "2025-12-04T10:26:23+07:00",
-    "message": "feat: add functionality to write unique certificates for PHP in merge_pem function\n\n- Enhanced the merge_pem function to also generate a unique certificates file for PHP.\n- The new output file is located at src/PhpProxyHunter/utils/cacert.pem.",
-    "files": [
-      "data/cacert.pem",
-      "data/curlhaxx_cacert.pem",
-      "src/PhpProxyHunter/utils/cacert.pem",
-      "src/func_certificate.py"
     ]
   }
 ]
