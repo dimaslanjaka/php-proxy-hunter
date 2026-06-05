@@ -174,6 +174,9 @@ def generate_clash_verge_config_yaml(
     Path(output_file).parent.mkdir(parents=True, exist_ok=True)
 
     with open(output_file, "w", encoding="utf-8") as file:
+        file.write(
+            "# yaml-language-server: $schema=https://unpkg.com/meta-json-schema@1.19.26/schemas/clash-verge-merge-json-schema.json\n"
+        )
         yaml.safe_dump(
             config,
             file,
