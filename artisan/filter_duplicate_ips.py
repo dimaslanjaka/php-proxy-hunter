@@ -11,7 +11,7 @@ from proxy_hunter import build_request, get_device_ip, read_file, write_json
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 sys.path.append(PROJECT_ROOT)
 
-from src import ProxyDB
+from src.ProxyDB import ProxyDB
 from src.func import get_relative_path
 from src.func_console import cyan, red, magenta, green, yellow
 from src.utils.file import remove_string_from_file
