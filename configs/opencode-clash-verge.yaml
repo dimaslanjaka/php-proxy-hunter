@@ -23,10 +23,10 @@ proxies:
   type: http
   server: 115.136.121.54
   port: 9050
-- name: http-78.13.215.130-34827
+- name: http-40.192.120.123-8533
   type: http
-  server: 78.13.215.130
-  port: 34827
+  server: 40.192.120.123
+  port: 8533
 - name: http-95.40.79.184-374
   type: http
   server: 95.40.79.184
@@ -38,14 +38,14 @@ proxy-groups:
   interval: 300
   proxies:
   - http-115.136.121.54-9050
-  - http-78.13.215.130-34827
+  - http-40.192.120.123-8533
   - http-95.40.79.184-374
 - name: PROXY
   type: select
   proxies:
   - AUTO
   - http-115.136.121.54-9050
-  - http-78.13.215.130-34827
+  - http-40.192.120.123-8533
   - http-95.40.79.184-374
   - DIRECT
 rules:
