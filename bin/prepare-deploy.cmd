@@ -22,8 +22,8 @@ if /I "%CURRENT_BRANCH%"=="master" (
     REM Switch to python branch
     call git checkout python
 
-    REM Pull master into python without committing
-    call git pull origin master --no-commit
+    REM Pull master into python (merge, no rebase)
+    call git pull origin master --no-rebase
 
 ) else (
     echo Skipped: current branch is "%CURRENT_BRANCH%", not "master".
