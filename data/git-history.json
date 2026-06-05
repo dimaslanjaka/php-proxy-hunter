@@ -1,5 +1,102 @@
 [
   {
+    "hash": "a9455bf32192beef34a3332f9b3c069edabb4f00",
+    "date": "2026-06-05T07:25:26+07:00",
+    "message": "feat(config): add runtime path helpers and external dotenv loading\n\nAdd runtime-aware path resolution utilities for bundled and compiled Python\nexecutions.\n\nChanges include:\n- add frozen application detection helper\n- add shiv runtime detection helper\n- add process.cwd()-style runtime path helper\n- add app-relative path helper for script, pyz, exe, and Nuitka execution\n- support resolving files relative to the .pyz or executable directory\n- add external .env loading from current working directory or app directory\n- import pathlib and python-dotenv for safer cross-platform path handling",
+    "files": [
+      "src/func.py"
+    ]
+  },
+  {
+    "hash": "760be406c0347a106116e347cc50fab0582fb340",
+    "date": "2026-06-05T07:22:02+07:00",
+    "message": "chore(vscode): sort settings.json keys alphabetically",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "4c61a8c9072d824d46b5950780c4ca08d528d61b",
+    "date": "2026-06-05T07:12:11+07:00",
+    "message": "feat(cli): add shiv-bundled proxy checker CLI\n\nAdd packaging and build support for distributing the Python proxy checker as a\nsingle runnable pyz file.\n\nChanges include:\n- add npm bin entry for the Python wrapper\n- add CLI build script for Rollup and shiv output\n- package CLI output under dist/cli and assets under dist/assets\n- configure pyproject metadata for php-proxy-hunter\n- add console entry point for proxy-checker-opencode\n- enable setuptools package discovery for artisan, src, data, and local packages\n- include runtime package data for data files such as JSON, YAML, SQL, CSV, and config files\n- add package init files for data and src.database\n- simplify src package initialization to avoid wildcard side effects\n- enable SOCKS support for httpx in minimal requirements\n- add cross-platform Node.js Python wrapper for venv detection and execution\n- update clean scripts for CLI, Rollup, React, and build artifacts",
+    "files": [
+      "data/__init__.py",
+      "package.json",
+      "pyproject.toml",
+      "requirements-dev.txt",
+      "requirements-minimal.txt",
+      "src/__init__.py",
+      "src/cli/python-wrapper.cjs",
+      "src/database/__init__.py"
+    ]
+  },
+  {
+    "hash": "28bfef3530d5a9a9ecb52c551cb1bbf85a109bd7",
+    "date": "2026-06-05T06:42:07+07:00",
+    "message": "refactor(artisan): wrap asyncio.run in cli() entrypoint",
+    "files": [
+      "artisan/proxy_checker_opencode.py"
+    ]
+  },
+  {
+    "hash": "2231857adc2a743ef0271f76696a9f77a0bcf802",
+    "date": "2026-06-05T06:41:13+07:00",
+    "message": "fix(artisan): rename proxy-checker-opencode.py to snake_case",
+    "files": [
+      ".github/workflows/checker.yml",
+      "artisan/proxy_checker_opencode.py"
+    ]
+  },
+  {
+    "hash": "57703bad0d482e67fca092ba99a866d071818bbe",
+    "date": "2026-06-05T06:32:11+07:00",
+    "message": "chore(vscode): clean up files.exclude and add readonly entries",
+    "files": [
+      ".vscode/settings.json"
+    ]
+  },
+  {
+    "hash": "7455b8212e89ae07906efbe042831799917339ef",
+    "date": "2026-06-05T06:29:51+07:00",
+    "message": "feat(build): add checksum-based packages build script",
+    "files": [
+      "package.json",
+      "scripts/build-packages.mjs"
+    ]
+  },
+  {
+    "hash": "9972c4d3fcaadbd97c5482f22b8828ecf6516be0",
+    "date": "2026-06-05T05:41:58+07:00",
+    "message": "refactor(ci): remove submodule installation workflow",
+    "files": [
+      ".github/workflows/submodule.yml.txt"
+    ]
+  },
+  {
+    "hash": "cd8e60cfaab5dd25f5ca4c84ba358b31b9441cf5",
+    "date": "2026-06-05T04:17:05+07:00",
+    "message": "ci(submodule): harden workflow with debug output and explicit script paths",
+    "files": [
+      ".github/workflows/submodule.yml"
+    ]
+  },
+  {
+    "hash": "0b0f575a042b38b71636041ea8c4e3ca53915ca1",
+    "date": "2026-06-05T04:13:26+07:00",
+    "message": "feat: test ci submodule",
+    "files": [
+      ".github/workflows/submodule.yml"
+    ]
+  },
+  {
+    "hash": "8abf05fbb71b8e05fa29a5a6aa126df15f3a8b9b",
+    "date": "2026-06-05T04:08:51+07:00",
+    "message": "chore(deps-dev): add pylance to requirements-dev.txt",
+    "files": [
+      "requirements-dev.txt"
+    ]
+  },
+  {
     "hash": "22a762c5b944d5666ec37ea3f9edff9569958afd",
     "date": "2026-06-04T21:59:06+07:00",
     "message": "fix(workflows): deduplicate cache paths, unify across checker and github-pages",
@@ -8721,103 +8818,6 @@
     "message": "fix(bin): make `bin/kills` robust and cross-platform\n\n- Rewrote `bin/kills` to detect Windows-like (CYGWIN/MINGW/MSYS) vs Unix-like\n  environments and handle each appropriately.\n- On Windows: use `taskkill /F /IM <proc>` with a `wmic` fallback for termination.\n- On Unix: prefer `pgrep -f` and fall back to `ps | awk` to collect PIDs, and only\n  call `kill -9` when PIDs are present (avoids invoking `kill` with no args).\n- Added helper functions (`kill_by_name_unix`, `kill_by_name_windows`), logging,\n  and safer error handling (`set -u`, ignore missing tools).\n- Removes fragile `ps | grep | xargs kill` usage that produced `kill` help output.\n\nPrevents accidental `kill` usage/help spam and makes process cleanup reliable\nacross environments.",
     "files": [
       "bin/kills"
-    ]
-  },
-  {
-    "hash": "c45556c39d165e11619502f5aded2e02d4c0ea40",
-    "date": "2025-12-03T22:04:32+07:00",
-    "message": "refactor(utils/curl): remove unnecessary promisify calls for tough-cookie v4+\n\ntough-cookie v4+ methods return Promises when no callback is supplied, so\nusing `promisify` is redundant. Updated `getCookieString` and `setCookie`\nto use bound methods directly and added clarifying comment.",
-    "files": [
-      "src/utils/curl.js"
-    ]
-  },
-  {
-    "hash": "ab2934076ec91fd41af9032b2fb98c8f9817957e",
-    "date": "2025-12-03T16:14:16+07:00",
-    "message": "feat(backup-db): ensure backup directory creation with proper permissions",
-    "files": [
-      "bin/backup-db"
-    ]
-  },
-  {
-    "hash": "264307f9d49ee55832be877b425e44a5ea25a317",
-    "date": "2025-12-03T16:13:29+07:00",
-    "message": "feat(backup-db): add .htaccess and index.html for backup directory protection",
-    "files": [
-      "bin/backup-db"
-    ]
-  },
-  {
-    "hash": "f9d74b7278fca323d22a70deb6223d679c257dbf",
-    "date": "2025-12-03T16:12:22+07:00",
-    "message": "feat(bin/backup-db): prefer project-root env and secure MySQL backups\n\n- replace `CWD` with `SCRIPT_DIR` and introduce `PROJECT_ROOT` (use\n  project-root `tmp`, `src`, `backups`)\n- load `.env` from project root first, fallback to script dir\n- date-stamp sqlite dumps and add clear filenames:\n  `python_database_backup_YYYY-MM-DD.sql` and\n  `php_database_backup_YYYY-MM-DD.sql`\n- normalize MySQL env names (`MYSQL_PASS` -> `MYSQL_PASSWORD`,\n  `MYSQL_DBNAME` -> `MYSQL_DATABASE`)\n- add fallbacks to production variables (`*_PRODUCTION`) and pick\n  `MYSQL_HOST_PRODUCTION` when present\n- avoid exposing password on the command line by writing a temporary\n  MySQL defaults file and calling `mysqldump --defaults-extra-file=...`\n- change MySQL backup filename to `mysql-backup-YYYY-MM-DD.sql`\n- improve missing-vars message to list required env variables",
-    "files": [
-      "bin/backup-db"
-    ]
-  },
-  {
-    "hash": "6b9c3e1c23f36ef32753c5181a74bc98f542acba",
-    "date": "2025-12-03T15:46:27+07:00",
-    "message": "feat(proxyListGui): add buttons to open Proxy Checker and Port Finder\n\n- Add imports for `ProxyChecker` and `PortFinder`.\n- Add \"Open Proxy Checker\" and \"Open Port Finder\" buttons to the top row.\n- Implement `show_proxy_checker()` and `show_port_finder()` to lazily create and show windows.\n- Keep persistent window references (`_proxy_checker_window`, `_portfinder_window`) so child windows are not garbage-collected.",
-    "files": [
-      "python_app/proxyListGui.py"
-    ]
-  },
-  {
-    "hash": "cf1c3bdd08714ff5888c55765777715a79cdc202",
-    "date": "2025-12-03T15:03:24+07:00",
-    "message": "feat(proxyListGui): adjust table column behavior for better width management",
-    "files": [
-      "python_app/proxyListGui.py"
-    ]
-  },
-  {
-    "hash": "9d868848c29ccd427339e3c3d52e358e5141608d",
-    "date": "2025-12-03T15:00:19+07:00",
-    "message": "feat(proxyListGui): implement ProxyList GUI for managing proxies with status filtering",
-    "files": [
-      "python_app/proxyListGui.py"
-    ]
-  },
-  {
-    "hash": "f0ce5ce21164c7d3d92ff02884bc00c2797e1b7b",
-    "date": "2025-12-03T14:52:32+07:00",
-    "message": "feat(time): extract time_ago into reusable util and reuse in templatetag\n\n- Extract time-ago formatting logic into `src/utils/date/timeAgo.py`.\n  - `time_ago` accepts `datetime` or string; tries `datetime.fromisoformat` then falls back to `dateutil.parser.parse` when available.\n  - Handles naive datetimes by using `settings.TIME_ZONE` when Django is configured, otherwise falls back to UTC.\n  - Returns human-readable strings like \"X days Y hours ago\", \"just now\", or \"-\" for empty input.\n  - Adds a `__main__` demo/test runner so the module can be executed standalone without Django.\n- Replace the inline implementation in `django_backend/apps/core/templatetags/time_filters.py`\n  with a thin template-filter wrapper that imports and calls the new `time_ago` util.\n- Add tests `tests/utils/date/timeAgo_test.py` (pytest) that use timezone-aware datetimes and\n  include a small sys.path helper so the test module can be run directly.\n- Improves code reuse, separates concerns, and makes the time-ago logic easier to test and maintain.",
-    "files": [
-      "django_backend/apps/core/templatetags/time_filters.py",
-      "src/utils/date/timeAgo.py",
-      "tests/utils/date/timeAgo_test.py"
-    ]
-  },
-  {
-    "hash": "88e34707a2ac84611d1725fe3315f6db7e79ec0a",
-    "date": "2025-12-03T14:33:15+07:00",
-    "message": "feat(python_app): add full Nuitka build pipeline and Python path resolver\n\n- Introduce new build scripts:\n  - PortFinderGui-build.js\n  - proxyCheckerGui-build.js\n  - build.js (generic proxyCheckerGui builder)\n- Add config.js for centralized project, venv, and metadata configuration\n- Add install.js to automate Nuitka installation (with version/tarball/git options)\n- Add prepare.js for copying assets and preparing build directories\n- Add pythonFinder.js implementing dynamic Python site-packages discovery and PYTHONPATH generation\n- Set up build environment variables, venv paths, cache directory, and Qt plugin inclusion\n- Support wildcard expansion and virtual environment detection for robust dependency resolution",
-    "files": [
-      "python_app/PortFinderGui-build.js",
-      "python_app/build.js",
-      "python_app/config.js",
-      "python_app/install.js",
-      "python_app/prepare.js",
-      "python_app/proxyCheckerGui-build.js",
-      "python_app/pythonFinder.js"
-    ]
-  },
-  {
-    "hash": "66bdc135872ed710f3fc84f31442b87a95b7e953",
-    "date": "2025-12-03T13:09:56+07:00",
-    "message": "refactor(geo): only uses GeoLite2-City database file near executable folder",
-    "files": [
-      "src/geoPlugin.py"
-    ]
-  },
-  {
-    "hash": "b5019122db5e6a08f210dea2330e3339749cc1ee",
-    "date": "2025-12-03T13:08:47+07:00",
-    "message": "feat(dependencies): add cpy package for file copying functionality",
-    "files": [
-      "package.json",
-      "packages/baileys"
     ]
   }
 ]
