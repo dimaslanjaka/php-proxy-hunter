@@ -45,6 +45,7 @@ webdriver-manager @ https://github.com/SergeyPirogov/webdriver_manager/archive/1
 werkzeug
 zstandard
 paramiko
+python-neo-lzf @ git+https://github.com/FledgeXu/python-neo-lzf.git
 pyyaml
 httpx
 httpx-socks
