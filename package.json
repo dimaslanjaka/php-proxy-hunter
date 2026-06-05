@@ -12,7 +12,8 @@
     "url": "https://webmanajemen.com"
   },
   "bin": {
-    "py": "./dist/cli/python-wrapper-cli.cjs"
+    "py": "./dist/cli/python-wrapper-cli.cjs",
+    "proxy-checker-opencode": "./dist/cli/proxy-checker-opencode.cjs"
   },
   "files": [
     "./dist/cli/**/*",
