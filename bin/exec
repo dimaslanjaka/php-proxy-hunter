@@ -1,0 +1,18 @@
+#!/usr/bin/env sh
+set -eu
+
+SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+PY_WRAPPER="$SCRIPT_DIR/py"
+RUN_PY="$SCRIPT_DIR/exec.py"
+
+if [ ! -x "$PY_WRAPPER" ]; then
+  echo "[ERROR] Python wrapper not found or not executable: $PY_WRAPPER" >&2
+  exit 1
+fi
+
+if [ ! -f "$RUN_PY" ]; then
+  echo "[ERROR] Runner script not found: $RUN_PY" >&2
+  exit 1
+fi
+
+exec "$PY_WRAPPER" "$RUN_PY" "$@"
