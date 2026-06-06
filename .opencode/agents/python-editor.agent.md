@@ -34,13 +34,13 @@ After every edit, always validate the changed Python file with Python compile ch
 Use:
 
 ```bash
-python -m py_compile path/to/file.py
+bin/py -m py_compile path/to/file.py
 ```
 
 or, on Windows:
 
 ```bash
-py -m py_compile path/to/file.py
+bin/py.cmd -m py_compile path/to/file.py
 ```
 
 ## Validation Rules
@@ -69,7 +69,7 @@ When finished, respond with:
 
 ## Validation
 
-- `python -m py_compile path/to/file.py`
+- `bin/py(.cmd) -m py_compile path/to/file.py`
 - Result: passed
 ```
 
