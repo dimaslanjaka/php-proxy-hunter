@@ -3,7 +3,8 @@
   "autoupdate": true,
   "snapshot": false,
   "plugin": [
-    "envsitter-guard@latest", 
+    "envsitter-guard@latest",
+    "opencode-mem",
     "oh-my-opencode-slim@latest",
     "opencode-agent-memory@https://github.com/dimaslanjaka/opencode-file-memory/raw/refs/heads/main/release/opencode-agent-memory.tgz",
     "@tarquinen/opencode-smart-title@latest",
