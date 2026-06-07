@@ -23,10 +23,11 @@ proxies:
   type: http
   server: 115.136.121.54
   port: 9050
-- name: http-178.156.224.42-3128
-  type: http
-  server: 178.156.224.42
-  port: 3128
+- name: socks5-202.79.27.12-1080
+  type: socks5
+  server: 202.79.27.12
+  port: 1080
+  udp: true
 - name: http-40.192.120.123-8533
   type: http
   server: 40.192.120.123
@@ -42,7 +43,7 @@ proxy-groups:
   interval: 300
   proxies:
   - http-115.136.121.54-9050
-  - http-178.156.224.42-3128
+  - socks5-202.79.27.12-1080
   - http-40.192.120.123-8533
   - http-95.40.79.184-374
 - name: PROXY
@@ -50,7 +51,7 @@ proxy-groups:
   proxies:
   - AUTO
   - http-115.136.121.54-9050
-  - http-178.156.224.42-3128
+  - socks5-202.79.27.12-1080
   - http-40.192.120.123-8533
   - http-95.40.79.184-374
   - DIRECT
