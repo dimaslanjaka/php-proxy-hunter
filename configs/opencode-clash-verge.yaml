@@ -19,15 +19,15 @@ dns:
   - https://1.1.1.1/dns-query
   - https://8.8.8.8/dns-query
 proxies:
+- name: socks5-103.179.189.15-10001
+  type: socks5
+  server: 103.179.189.15
+  port: 10001
+  udp: true
 - name: http-115.136.121.54-9050
   type: http
   server: 115.136.121.54
   port: 9050
-- name: socks5-152.53.144.223-1080
-  type: socks5
-  server: 152.53.144.223
-  port: 1080
-  udp: true
 - name: http-40.192.120.123-8533
   type: http
   server: 40.192.120.123
@@ -42,16 +42,16 @@ proxy-groups:
   url: https://www.gstatic.com/generate_204
   interval: 300
   proxies:
+  - socks5-103.179.189.15-10001
   - http-115.136.121.54-9050
-  - socks5-152.53.144.223-1080
   - http-40.192.120.123-8533
   - http-95.40.79.184-374
 - name: PROXY
   type: select
   proxies:
   - AUTO
+  - socks5-103.179.189.15-10001
   - http-115.136.121.54-9050
-  - socks5-152.53.144.223-1080
   - http-40.192.120.123-8533
   - http-95.40.79.184-374
   - DIRECT
