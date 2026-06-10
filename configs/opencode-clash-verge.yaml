@@ -23,11 +23,10 @@ proxies:
   type: http
   server: 115.136.121.54
   port: 9050
-- name: socks5-121.169.46.116-1090
-  type: socks5
-  server: 121.169.46.116
-  port: 1090
-  udp: true
+- name: http-186.96.111.214-999
+  type: http
+  server: 186.96.111.214
+  port: 999
 - name: http-40.192.120.123-8533
   type: http
   server: 40.192.120.123
@@ -43,7 +42,7 @@ proxy-groups:
   interval: 300
   proxies:
   - http-115.136.121.54-9050
-  - socks5-121.169.46.116-1090
+  - http-186.96.111.214-999
   - http-40.192.120.123-8533
   - http-95.40.79.184-374
 - name: PROXY
@@ -51,7 +50,7 @@ proxy-groups:
   proxies:
   - AUTO
   - http-115.136.121.54-9050
-  - socks5-121.169.46.116-1090
+  - http-186.96.111.214-999
   - http-40.192.120.123-8533
   - http-95.40.79.184-374
   - DIRECT
