@@ -166,7 +166,7 @@ jobs:
 
       - name: '📥 Download proxy artifacts from checker workflow'
         if: github.event_name == 'workflow_run'
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v8
         with:
           name: proxy-files
           github-token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
