@@ -90,6 +90,7 @@ addopts = "-ra -v"
 testpaths = ["tests"]
 python_files = ["test_*.py", "*_test.py"]
 cache_dir = "tmp/pytest"
+asyncio_mode = "auto"
 
 [tool.black]
 line-length = 88

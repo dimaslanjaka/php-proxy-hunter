@@ -2,6 +2,12 @@
   "version": "0.2.0",
   "configurations": [
     {
+      "name": "Run App Proxy",
+      "type": "node-terminal",
+      "request": "launch",
+      "command": "py ${workspaceFolder}/src/pyside6/app_proxy/__main__.py"
+    },
+    {
       "name": "Run Proxy Checker GUI",
       "type": "debugpy",
       "request": "launch",

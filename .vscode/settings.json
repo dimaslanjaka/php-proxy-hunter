@@ -41,9 +41,7 @@
       "source.organizeImports": "never"
     },
     "editor.defaultFormatter": "ms-python.black-formatter",
-    "editor.formatOnSave": false,
-    "editor.insertSpaces": true,
-    "editor.tabSize": 4
+    "editor.formatOnSave": false
   },
   "[shellscript]": {
     "files.eol": "\n",

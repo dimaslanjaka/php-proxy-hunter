@@ -92,12 +92,14 @@ tmp/
 !/requirements-base.txt
 !/requirements-dev.txt
 !/requirements-minimal.txt
+!/requirements-app*.txt
 /requirements.txt
 /profiles
 /profiles.json
 /build
 /local_storage.json
-**/__*
+**/__pycache__/
+**/*.pyc
 !**/__init__.py
 .venv/
 venv/

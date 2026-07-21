@@ -12,8 +12,8 @@
     "url": "https://webmanajemen.com"
   },
   "bin": {
-    "py": "./dist/cli/python-wrapper-cli.cjs",
-    "proxy-checker-opencode": "./dist/cli/proxy-checker-opencode.cjs"
+    "proxy-checker-opencode": "./dist/cli/proxy-checker-opencode.cjs",
+    "py": "./dist/cli/python-wrapper-cli.cjs"
   },
   "files": [
     "./dist/cli/**/*",
@@ -246,9 +246,9 @@
     "typescript": "~5.8.0",
     "libsignal": "git+https://github.com/whiskeysockets/libsignal-node.git",
     "@types/hexo": "https://github.com/dimaslanjaka/hexo/raw/65bbfe29d65b55320eb61bd263f16e1519c6c1b0/releases/hexo.tgz",
-    "binary-collections": "https://github.com/dimaslanjaka/bin/raw/28a1a868fb0bc5069baab4b2441d521713772c50/releases/bin.tgz",
-    "cross-spawn": "https://github.com/dimaslanjaka/node-cross-spawn/raw/eb82c8e0e60ce425fdf6e89cd53f4391bb8c77cd/release/cross-spawn.tgz",
-    "git-command-helper": "https://github.com/dimaslanjaka/git-command-helper/raw/7a28dad83c17abfc4b6ccd2b7327c39ff67adfe5/release/git-command-helper.tgz",
+    "binary-collections": "https://github.com/dimaslanjaka/bin/raw/9109bb8eebac9816797723b3518197e921c82311/releases/bin.tgz",
+    "cross-spawn": "https://github.com/dimaslanjaka/node-cross-spawn/raw/e48db3235351bbcb9394b21766b2d477cc6b7dd2/release/cross-spawn.tgz",
+    "git-command-helper": "https://github.com/dimaslanjaka/git-command-helper/raw/4f144f2cfb5fb699287bd03f75986dc11d208220/release/git-command-helper.tgz",
     "hexo-util": "https://github.com/dimaslanjaka/hexo/raw/65bbfe29d65b55320eb61bd263f16e1519c6c1b0/releases/hexo-util.tgz",
     "instant-indexing": "https://github.com/dimaslanjaka/static-blog-generator/raw/f221d11cdc32fa7dd001e5236f8c3f30387e62d2/packages/instant-indexing/release/instant-indexing.tgz",
     "markdown-it": "https://github.com/dimaslanjaka/markdown-it/raw/1ae935ad36c5f09a394c2a187037e5acd593ce68/release/markdown-it.tgz",
