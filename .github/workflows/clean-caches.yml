@@ -32,7 +32,7 @@ jobs:
       PUPPETEER_SKIP_DOWNLOAD: 'true'
 
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
         with:
           repository: 'dimaslanjaka/php-proxy-hunter'
           ref: master
@@ -40,7 +40,7 @@ jobs:
           lfs: true
  
       - name: 📥 Checkout Repository
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
         with:
           token: ${{ secrets.ACCESS_TOKEN || secrets.GITHUB_TOKEN }}
 
