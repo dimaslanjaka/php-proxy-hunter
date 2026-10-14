@@ -47,6 +47,7 @@ https://www.my-proxy.com/free-proxy-list-9.html
 https://www.my-proxy.com/free-proxy-list-10.html
 https://www.freeproxychecker.com/proxy-lists/#results
 https://www.89ip.cn/
+https://rcloak.com/api/proxies/raw?protocol=all
 
 MULTIPLE PAGES: ([page] for automatic Sitenumber, [0-999] for max crawled pages)
 [25]https://www.freeproxy.world/?type=&anonymity=&country=&speed=&port=&page=[page]
